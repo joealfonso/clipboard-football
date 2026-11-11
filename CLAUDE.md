@@ -51,5 +51,6 @@ The main session plans, delegates and reviews. Subagents can't spawn other subag
 ## Project notes
 
 - Milestones M1 to M9 are in the original brief. M1: pipeline plus a headless engine that sims one game as text. Gate: 10,000 games pass the calibration test.
-- Open issues to settle before M1 code (raised 2026-11-11): a fitted baseline play caller for M1 calibration, the 10-item offense menu vs the seven-choice rule, CI sample size for calibration, home field tolerance, challenges as a second interruption.
+- Open issues to settle before M1 code (raised 2026-11-11): CI sample size for calibration, home field tolerance, challenges as a second interruption.
 - Settled 2026-11-11: kickoffs are designed and tuned to 2025, the one exception to the holdout rule. See docs/DECISIONS.md.
+- Settled 2026-11-11: the offense menu is split into screens of at most five choices, and the baseline play caller is a fitted table with backoff. See docs/DECISIONS.md, docs/MENUS.md and docs/specs/m1-step2-call-menus-and-baseline-caller.md.

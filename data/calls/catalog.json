@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "designed": true,
+  "roots": ["offense.playType", "offense.formation", "offense.try", "kickoff", "defense.package"],
+  "screens": [
+    {
+      "id": "offense.playType",
+      "title": "Offense: Play type",
+      "side": "offense",
+      "when": "Every scrimmage down. On a two-point try, only Run and Pass.",
+      "choices": [
+        { "key": 1, "id": "run", "label": "Run", "description": "Keep the ball on the ground.", "opens": "offense.run" },
+        { "key": 2, "id": "pass", "label": "Pass", "description": "Throw the ball.", "opens": "offense.pass" },
+        {
+          "key": 3,
+          "id": "kick",
+          "label": "Kick",
+          "description": "Punt it away or try a field goal. Only on 4th down, or on any down in the last two minutes of a half.",
+          "opens": "offense.kick",
+          "availableWhen": {
+            "all": [
+              { "field": "phase", "op": "eq", "value": "scrimmage" },
+              {
+                "any": [
+                  { "field": "down", "op": "eq", "value": 4 },
+                  { "field": "secondsLeftInHalf", "op": "lte", "value": 120 }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "key": 4,
+          "id": "clock",
+          "label": "Clock",
+          "description": "Stop the clock or run it down.",
+          "opens": "offense.clock",
+          "availableWhen": { "field": "phase", "op": "eq", "value": "scrimmage" }
+        }
+      ]
+    },
+    {
+      "id": "offense.formation",
+      "title": "Offense: Formation",
+      "side": "offense",
+      "when": "Before a Run or Pass play.",
+      "choices": [
+        { "key": 1, "id": "shotgun", "label": "Shotgun", "description": "The quarterback stands a few yards behind the center." },
+        { "key": 2, "id": "underCenter", "label": "Under center", "description": "The quarterback takes the snap directly from the center." },
+        { "key": 3, "id": "pistol", "label": "Pistol", "description": "A short shotgun with the running back lined up directly behind the quarterback." },
+        { "key": 4, "id": "empty", "label": "Empty", "description": "No running back. Everyone except the quarterback spreads out to catch passes." },
+        { "key": 5, "id": "heavy", "label": "Heavy", "description": "Extra linemen or tight ends packed in tight, built to push for short yards." }
+      ]
+    },
+    {
+      "id": "offense.run",
+      "title": "Offense: Run",
+      "side": "offense",
+      "when": "After Run.",
+      "choices": [
+        { "key": 1, "id": "insideRun", "label": "Inside run", "description": "A handoff straight up the middle, between the guards." },
+        { "key": 2, "id": "outsideRun", "label": "Outside run", "description": "A handoff toward the edge, outside the tackles." },
+        { "key": 3, "id": "qbSneak", "label": "QB sneak", "description": "The quarterback takes the snap and pushes forward behind the center for a yard or two." }
+      ]
+    },
+    {
+      "id": "offense.pass",
+      "title": "Offense: Pass",
+      "side": "offense",
+      "when": "After Pass.",
+      "choices": [
+        { "key": 1, "id": "shortPass", "label": "Short", "description": "A quick throw less than 10 yards past the line." },
+        { "key": 2, "id": "intermediatePass", "label": "Intermediate", "description": "A throw 10 to 19 yards past the line." },
+        { "key": 3, "id": "deepPass", "label": "Deep", "description": "A long throw, 20 yards or more past the line." },
+        { "key": 4, "id": "screenPass", "label": "Screen", "description": "A short throw behind the line, with blockers out in front of the catcher." },
+        { "key": 5, "id": "playAction", "label": "Play action", "description": "Fake a handoff first, then throw." }
+      ]
+    },
+    {
+      "id": "offense.kick",
+      "title": "Offense: Kick",
+      "side": "offense",
+      "when": "After Kick.",
+      "choices": [
+        { "key": 1, "id": "punt", "label": "Punt", "description": "Kick the ball away to pin the other team deep." },
+        { "key": 2, "id": "fieldGoal", "label": "Field goal", "description": "Kick at the goal posts for three points." }
+      ]
+    },
+    {
+      "id": "offense.clock",
+      "title": "Offense: Clock",
+      "side": "offense",
+      "when": "After Clock.",
+      "choices": [
+        { "key": 1, "id": "spike", "label": "Spike", "description": "Throw the ball into the ground to stop the clock. Uses up a down." },
+        { "key": 2, "id": "kneel", "label": "Kneel", "description": "The quarterback kneels down to keep the clock running." }
+      ]
+    },
+    {
+      "id": "offense.try",
+      "title": "After a touchdown",
+      "side": "offense",
+      "when": "The try after your touchdown.",
+      "choices": [
+        {
+          "key": 1,
+          "id": "extraPoint",
+          "label": "Kick extra point",
+          "description": "Kick for one point.",
+          "availableWhen": { "field": "phase", "op": "eq", "value": "try" }
+        },
+        {
+          "key": 2,
+          "id": "goForTwo",
+          "label": "Go for two",
+          "description": "Run one play from close in for two points.",
+          "opens": "offense.playType",
+          "availableWhen": { "field": "phase", "op": "eq", "value": "try" }
+        }
+      ]
+    },
+    {
+      "id": "kickoff",
+      "title": "Kickoff",
+      "side": "offense",
+      "when": "Your kickoff. Only you choose here for now; the computer has no kickoff caller yet.",
+      "choices": [
+        { "key": 1, "id": "kickoff", "label": "Kickoff", "description": "A normal kick deep to the other team." },
+        { "key": 2, "id": "onsideKick", "label": "Onside kick", "description": "A short kick your team tries to recover." }
+      ]
+    },
+    {
+      "id": "defense.package",
+      "title": "Defense: Package",
+      "side": "defense",
+      "when": "Every scrimmage down and every two-point try.",
+      "choices": [
+        { "key": 1, "id": "base", "label": "Base", "description": "Four defensive backs, built to stop the run.", "opens": "defense.base" },
+        { "key": 2, "id": "nickel", "label": "Nickel", "description": "Five defensive backs, the everyday mix of run and pass defense.", "opens": "defense.nickel" },
+        { "key": 3, "id": "dime", "label": "Dime", "description": "Six defensive backs, for obvious passing downs.", "opens": "defense.dime" },
+        { "key": 4, "id": "specials", "label": "Specials", "description": "Goal line and prevent.", "opens": "defense.specials" }
+      ]
+    },
+    {
+      "id": "defense.base",
+      "title": "Defense: Base",
+      "side": "defense",
+      "when": "After Base.",
+      "choices": [
+        { "key": 1, "id": "baseCover3", "label": "Base Cover 3", "description": "Four defensive backs, three deep defenders split the field in thirds, four rushers." },
+        { "key": 2, "id": "baseCover2", "label": "Base Cover 2", "description": "Four defensive backs, two deep safeties split the field in halves, four rushers." },
+        { "key": 3, "id": "runStuff", "label": "Run Stuff", "description": "Eight or more defenders near the line, one deep safety, man coverage behind them." }
+      ]
+    },
+    {
+      "id": "defense.nickel",
+      "title": "Defense: Nickel",
+      "side": "defense",
+      "when": "After Nickel.",
+      "choices": [
+        { "key": 1, "id": "nickelCover3", "label": "Nickel Cover 3", "description": "Five defensive backs, three deep defenders in zones, four rushers." },
+        { "key": 2, "id": "nickelCover4", "label": "Nickel Cover 4", "description": "Five defensive backs, four deep defenders each guard a quarter of the field, four rushers." },
+        { "key": 3, "id": "nickelCover2", "label": "Nickel Cover 2", "description": "Five defensive backs, two deep safeties split the field in halves, zones underneath, four rushers." },
+        { "key": 4, "id": "nickel2Man", "label": "Nickel 2-Man", "description": "Five defensive backs, two deep safeties split the field, everyone else plays man." },
+        { "key": 5, "id": "nickelCover1", "label": "Nickel Cover 1", "description": "Five defensive backs, one deep safety, man coverage underneath, four rushers." },
+        { "key": 6, "id": "nickelCover1Blitz", "label": "Nickel Cover 1 Blitz", "description": "Five defensive backs, one deep safety, man coverage, five or more rushers." }
+      ]
+    },
+    {
+      "id": "defense.dime",
+      "title": "Defense: Dime",
+      "side": "defense",
+      "when": "After Dime.",
+      "choices": [
+        { "key": 1, "id": "dimeCover4", "label": "Dime Cover 4", "description": "Six defensive backs, four deep zones, four rushers. Gives up short gains to stop long ones." },
+        { "key": 2, "id": "dimeCover0Blitz", "label": "Dime Cover 0 Blitz", "description": "Six defensive backs, no deep safety, pure man coverage, six or more rushers." }
+      ]
+    },
+    {
+      "id": "defense.specials",
+      "title": "Defense: Specials",
+      "side": "defense",
+      "when": "After Specials.",
+      "choices": [
+        { "key": 1, "id": "goalLine", "label": "Goal Line", "description": "Three or fewer defensive backs, everyone crowded at the line to stop a short run." },
+        { "key": 2, "id": "prevent", "label": "Prevent", "description": "Six or more defensive backs playing deep zones with four or fewer rushers. Stops the long pass, allows short ones." }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pipeline.cache import DEFAULT_DIR, ENV_VAR
+from pipeline.licenses import CHECKED as LICENSES_CHECKED
+from pipeline.licenses import FINDINGS
+from pipeline.licenses import SUMMARY as LICENSE_SUMMARY
 from pipeline.stats import (
     CANDIDATE_PATTERNS,
     START_PLAY_TYPES,
@@ -139,9 +142,24 @@ def render_header(report: Report) -> list[str]:
         "means zero rows.",
         "- Per-season null rates are shown for play-by-play, participation and FTN charting "
         "only. Other tables show overall rates.",
-        "- License: nflreadpy does not expose license or source terms per table. Check each "
-        "table's terms by hand (FTN charting in particular) before any derived data ships.",
+        "- License: nflreadpy does not expose license or source terms per table. Findings "
+        "checked by hand are in the Licenses section below; other tables are unchecked.",
         "- Only counts and column metadata appear here. No player names or IDs.",
+        "",
+        *render_licenses(),
+    ]
+
+
+def render_licenses() -> list[str]:
+    rows = [[f.table, f.license, cell(f.attribution), cell(f.source)] for f in FINDINGS]
+    return [
+        "## Licenses",
+        "",
+        f"Checked by hand on {LICENSES_CHECKED} against nflverse's own repositories. Not legal advice.",
+        "",
+        *table_md(["table", "license", "attribution", "source"], rows),
+        "",
+        LICENSE_SUMMARY,
         "",
     ]
 

@@ -1,0 +1,718 @@
+{
+  "description": "Shared binning fixture. Expected bin labels per dimension; null means the dimension does not apply in that phase. Checked by both the TypeScript and Python test suites. Hand-built from an independent oracle, not from the config-driven code.",
+  "cases": [
+    {
+      "name": "1st and 10 at own 25, tied, early",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 10,
+        "yardLine100": 75,
+        "scoreDiff": 0,
+        "quarter": 1,
+        "secondsLeftInHalf": 1700,
+        "secondsLeftInGame": 3500,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "OWN",
+        "zone3": "OWN",
+        "time5": "H1",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "0",
+        "score3": "0"
+      }
+    },
+    {
+      "name": "distance 1, goal line edge 5",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 3,
+        "yardsToGo": 1,
+        "yardLine100": 5,
+        "scoreDiff": -1,
+        "quarter": 2,
+        "secondsLeftInHalf": 600,
+        "secondsLeftInGame": 2400,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "3",
+        "dist5": "1",
+        "dist3": "1-3",
+        "zone6": "GL",
+        "zone3": "RZ",
+        "time5": "H1",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "GL",
+        "score7": "-8..-1",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "distance 3, red zone edge 6",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 2,
+        "yardsToGo": 3,
+        "yardLine100": 6,
+        "scoreDiff": 1,
+        "quarter": 2,
+        "secondsLeftInHalf": 121,
+        "secondsLeftInGame": 1921,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "2",
+        "dist5": "2-3",
+        "dist3": "1-3",
+        "zone6": "RZ",
+        "zone3": "RZ",
+        "time5": "H1",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "RZ",
+        "score7": "1..8",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "distance 4, red zone edge 20, half final 2:00 at 120",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 4,
+        "yardsToGo": 4,
+        "yardLine100": 20,
+        "scoreDiff": -8,
+        "quarter": 2,
+        "secondsLeftInHalf": 120,
+        "secondsLeftInGame": 1920,
+        "offenseTimeouts": 1,
+        "defenseTimeouts": 2
+      },
+      "bins": {
+        "down": "4",
+        "dist5": "4-6",
+        "dist3": "4-6",
+        "zone6": "RZ",
+        "zone3": "RZ",
+        "time5": "H1F",
+        "time2": "F",
+        "end": "c120.o1+.d2+",
+        "clock": "c120",
+        "diff": null,
+        "time3": null,
+        "zoneF": "RZ",
+        "score7": "-8..-1",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "distance 6, fringe edge 21, clock 41",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 3,
+        "yardsToGo": 6,
+        "yardLine100": 21,
+        "scoreDiff": 8,
+        "quarter": 2,
+        "secondsLeftInHalf": 41,
+        "secondsLeftInGame": 1841,
+        "offenseTimeouts": 0,
+        "defenseTimeouts": 1
+      },
+      "bins": {
+        "down": "3",
+        "dist5": "4-6",
+        "dist3": "4-6",
+        "zone6": "FR",
+        "zone3": "OPP",
+        "time5": "H1F",
+        "time2": "F",
+        "end": "c120.o0.d1",
+        "clock": "c120",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "1..8",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "distance 7, fringe edge 35, clock 40",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 7,
+        "yardLine100": 35,
+        "scoreDiff": -9,
+        "quarter": 2,
+        "secondsLeftInHalf": 40,
+        "secondsLeftInGame": 1840,
+        "offenseTimeouts": 1,
+        "defenseTimeouts": 0
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "FR",
+        "zone3": "OPP",
+        "time5": "H1F",
+        "time2": "F",
+        "end": "c40.o1+.d0",
+        "clock": "c40",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "-16..-9",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "distance 10, midfield edge 36",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 2,
+        "yardsToGo": 10,
+        "yardLine100": 36,
+        "scoreDiff": 9,
+        "quarter": 3,
+        "secondsLeftInHalf": 800,
+        "secondsLeftInGame": 1700,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "2",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "MID",
+        "zone3": "OPP",
+        "time5": "H2",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "9..16",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "distance 11, midfield edge 50",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 3,
+        "yardsToGo": 11,
+        "yardLine100": 50,
+        "scoreDiff": -16,
+        "quarter": 4,
+        "secondsLeftInHalf": 301,
+        "secondsLeftInGame": 301,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "3",
+        "dist5": "11+",
+        "dist3": "7+",
+        "zone6": "MID",
+        "zone3": "OPP",
+        "time5": "H2",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "-16..-9",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "own side edge 51, game 5:00 at 300",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 4,
+        "yardsToGo": 2,
+        "yardLine100": 51,
+        "scoreDiff": 16,
+        "quarter": 4,
+        "secondsLeftInHalf": 300,
+        "secondsLeftInGame": 300,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "4",
+        "dist5": "2-3",
+        "dist3": "1-3",
+        "zone6": "OWN",
+        "zone3": "OWN",
+        "time5": "G5",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "9..16",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "own side edge 89, game 121",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 10,
+        "yardLine100": 89,
+        "scoreDiff": -17,
+        "quarter": 4,
+        "secondsLeftInHalf": 121,
+        "secondsLeftInGame": 121,
+        "offenseTimeouts": 2,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "OWN",
+        "zone3": "OWN",
+        "time5": "G5",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "<=-17",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "backed up edge 90, game final 120",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 2,
+        "yardsToGo": 8,
+        "yardLine100": 90,
+        "scoreDiff": 17,
+        "quarter": 4,
+        "secondsLeftInHalf": 120,
+        "secondsLeftInGame": 120,
+        "offenseTimeouts": 0,
+        "defenseTimeouts": 0
+      },
+      "bins": {
+        "down": "2",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "BACK",
+        "zone3": "OWN",
+        "time5": "GF",
+        "time2": "F",
+        "end": "c120.o0.d0",
+        "clock": "c120",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": ">=17",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "backed up 99, game final, clock 40",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 10,
+        "yardLine100": 99,
+        "scoreDiff": 3,
+        "quarter": 4,
+        "secondsLeftInHalf": 40,
+        "secondsLeftInGame": 40,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 2
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "BACK",
+        "zone3": "OWN",
+        "time5": "GF",
+        "time2": "F",
+        "end": "c40.o1+.d2+",
+        "clock": "c40",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "1..8",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "4th and goal at 1, 0:03 left in half, trailing by 3",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 4,
+        "yardsToGo": 1,
+        "yardLine100": 1,
+        "scoreDiff": -3,
+        "quarter": 2,
+        "secondsLeftInHalf": 3,
+        "secondsLeftInGame": 1803,
+        "offenseTimeouts": 1,
+        "defenseTimeouts": 1
+      },
+      "bins": {
+        "down": "4",
+        "dist5": "1",
+        "dist3": "1-3",
+        "zone6": "GL",
+        "zone3": "RZ",
+        "time5": "H1F",
+        "time2": "F",
+        "end": "c40.o1+.d1",
+        "clock": "c40",
+        "diff": null,
+        "time3": null,
+        "zoneF": "GL",
+        "score7": "-8..-1",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "1st and 25 after penalties",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 25,
+        "yardLine100": 60,
+        "scoreDiff": -30,
+        "quarter": 3,
+        "secondsLeftInHalf": 900,
+        "secondsLeftInGame": 1800,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "11+",
+        "dist3": "7+",
+        "zone6": "OWN",
+        "zone3": "OWN",
+        "time5": "H2",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "<=-17",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "goal to go, distance equals yard line",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 8,
+        "yardLine100": 8,
+        "scoreDiff": 24,
+        "quarter": 4,
+        "secondsLeftInHalf": 500,
+        "secondsLeftInGame": 500,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "RZ",
+        "zone3": "RZ",
+        "time5": "H2",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "RZ",
+        "score7": ">=17",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "first half 121 seconds",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 2,
+        "yardsToGo": 5,
+        "yardLine100": 40,
+        "scoreDiff": -5,
+        "quarter": 2,
+        "secondsLeftInHalf": 121,
+        "secondsLeftInGame": 1921,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": "2",
+        "dist5": "4-6",
+        "dist3": "4-6",
+        "zone6": "MID",
+        "zone3": "OPP",
+        "time5": "H1",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "-8..-1",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "overtime binned as second half",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 1,
+        "yardsToGo": 10,
+        "yardLine100": 75,
+        "scoreDiff": 0,
+        "quarter": 5,
+        "secondsLeftInHalf": 550,
+        "secondsLeftInGame": 550,
+        "offenseTimeouts": 2,
+        "defenseTimeouts": 2
+      },
+      "bins": {
+        "down": "1",
+        "dist5": "7-10",
+        "dist3": "7+",
+        "zone6": "OWN",
+        "zone3": "OWN",
+        "time5": "H2",
+        "time2": "N",
+        "end": "-",
+        "clock": "-",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "0",
+        "score3": "0"
+      }
+    },
+    {
+      "name": "overtime final 2:00",
+      "situation": {
+        "phase": "scrimmage",
+        "down": 3,
+        "yardsToGo": 4,
+        "yardLine100": 30,
+        "scoreDiff": 0,
+        "quarter": 5,
+        "secondsLeftInHalf": 100,
+        "secondsLeftInGame": 100,
+        "offenseTimeouts": 1,
+        "defenseTimeouts": 1
+      },
+      "bins": {
+        "down": "3",
+        "dist5": "4-6",
+        "dist3": "4-6",
+        "zone6": "FR",
+        "zone3": "OPP",
+        "time5": "GF",
+        "time2": "F",
+        "end": "c120.o1+.d1",
+        "clock": "c120",
+        "diff": null,
+        "time3": null,
+        "zoneF": "FLD",
+        "score7": "0",
+        "score3": "0"
+      }
+    },
+    {
+      "name": "try tied early",
+      "situation": {
+        "phase": "try",
+        "down": 1,
+        "yardsToGo": 2,
+        "yardLine100": 2,
+        "scoreDiff": 0,
+        "quarter": 1,
+        "secondsLeftInHalf": 600,
+        "secondsLeftInGame": 3300,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": null,
+        "dist5": null,
+        "dist3": null,
+        "zone6": null,
+        "zone3": null,
+        "time5": null,
+        "time2": null,
+        "end": null,
+        "clock": null,
+        "diff": "0",
+        "time3": "Q1-3",
+        "zoneF": "GL",
+        "score7": "0",
+        "score3": "0"
+      }
+    },
+    {
+      "name": "try trailing by 2, final 5:00",
+      "situation": {
+        "phase": "try",
+        "down": 1,
+        "yardsToGo": 2,
+        "yardLine100": 2,
+        "scoreDiff": -2,
+        "quarter": 4,
+        "secondsLeftInHalf": 250,
+        "secondsLeftInGame": 250,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": null,
+        "dist5": null,
+        "dist3": null,
+        "zone6": null,
+        "zone3": null,
+        "time5": null,
+        "time2": null,
+        "end": null,
+        "clock": null,
+        "diff": "-2",
+        "time3": "Q4F",
+        "zoneF": "GL",
+        "score7": "-8..-1",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "try leading by 30 clipped, Q4 over 5:00",
+      "situation": {
+        "phase": "try",
+        "down": 1,
+        "yardsToGo": 2,
+        "yardLine100": 15,
+        "scoreDiff": 30,
+        "quarter": 4,
+        "secondsLeftInHalf": 600,
+        "secondsLeftInGame": 600,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": null,
+        "dist5": null,
+        "dist3": null,
+        "zone6": null,
+        "zone3": null,
+        "time5": null,
+        "time2": null,
+        "end": null,
+        "clock": null,
+        "diff": "21",
+        "time3": "Q4",
+        "zoneF": "RZ",
+        "score7": ">=17",
+        "score3": "L"
+      }
+    },
+    {
+      "name": "try trailing by 25 clipped, Q3",
+      "situation": {
+        "phase": "try",
+        "down": 1,
+        "yardsToGo": 2,
+        "yardLine100": 2,
+        "scoreDiff": -25,
+        "quarter": 3,
+        "secondsLeftInHalf": 600,
+        "secondsLeftInGame": 1500,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": null,
+        "dist5": null,
+        "dist3": null,
+        "zone6": null,
+        "zone3": null,
+        "time5": null,
+        "time2": null,
+        "end": null,
+        "clock": null,
+        "diff": "-21",
+        "time3": "Q1-3",
+        "zoneF": "GL",
+        "score7": "<=-17",
+        "score3": "T"
+      }
+    },
+    {
+      "name": "try Q4 at exactly 301",
+      "situation": {
+        "phase": "try",
+        "down": 1,
+        "yardsToGo": 2,
+        "yardLine100": 2,
+        "scoreDiff": -8,
+        "quarter": 4,
+        "secondsLeftInHalf": 301,
+        "secondsLeftInGame": 301,
+        "offenseTimeouts": 3,
+        "defenseTimeouts": 3
+      },
+      "bins": {
+        "down": null,
+        "dist5": null,
+        "dist3": null,
+        "zone6": null,
+        "zone3": null,
+        "time5": null,
+        "time2": null,
+        "end": null,
+        "clock": null,
+        "diff": "-8",
+        "time3": "Q4",
+        "zoneF": "GL",
+        "score7": "-8..-1",
+        "score3": "T"
+      }
+    }
+  ]
+}

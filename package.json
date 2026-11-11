@@ -9,7 +9,7 @@
   "scripts": {
     "test": "vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc -p packages/shared && tsc -p packages/sim && tsc -p packages/sim/tsconfig.test.json && tsc -p tsconfig.tooling.json"
+    "typecheck": "tsc -p packages/shared && tsc -p packages/shared/tsconfig.test.json && tsc -p packages/sim && tsc -p packages/sim/tsconfig.test.json && tsc -p tsconfig.tooling.json"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

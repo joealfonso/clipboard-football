@@ -1,0 +1,482 @@
+{
+  "version": 1,
+  "designed": true,
+  "seasons": {
+    "weightAnchor": 2023,
+    "halfLifeSeasons": 2,
+    "holdout": [2024, 2025],
+    "neverTrainFrom": 2024,
+    "seasonType": "REG"
+  },
+  "dimensions": {
+    "down": { "type": "exact", "field": "down", "phases": ["scrimmage"] },
+    "dist5": {
+      "type": "range",
+      "field": "yardsToGo",
+      "phases": ["scrimmage"],
+      "buckets": [
+        { "label": "1", "min": 1, "max": 1 },
+        { "label": "2-3", "min": 2, "max": 3 },
+        { "label": "4-6", "min": 4, "max": 6 },
+        { "label": "7-10", "min": 7, "max": 10 },
+        { "label": "11+", "min": 11, "max": null }
+      ]
+    },
+    "dist3": {
+      "type": "range",
+      "field": "yardsToGo",
+      "phases": ["scrimmage"],
+      "coarseOf": "dist5",
+      "buckets": [
+        { "label": "1-3", "min": 1, "max": 3 },
+        { "label": "4-6", "min": 4, "max": 6 },
+        { "label": "7+", "min": 7, "max": null }
+      ]
+    },
+    "zone6": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": ["scrimmage"],
+      "buckets": [
+        { "label": "GL", "min": 1, "max": 5 },
+        { "label": "RZ", "min": 6, "max": 20 },
+        { "label": "FR", "min": 21, "max": 35 },
+        { "label": "MID", "min": 36, "max": 50 },
+        { "label": "OWN", "min": 51, "max": 89 },
+        { "label": "BACK", "min": 90, "max": 99 }
+      ]
+    },
+    "zone3": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": ["scrimmage"],
+      "coarseOf": "zone6",
+      "buckets": [
+        { "label": "RZ", "min": 1, "max": 20 },
+        { "label": "OPP", "min": 21, "max": 50 },
+        { "label": "OWN", "min": 51, "max": 99 }
+      ]
+    },
+    "zoneF": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": ["scrimmage", "try"],
+      "coarseOf": "zone6",
+      "buckets": [
+        { "label": "GL", "min": 1, "max": 5 },
+        { "label": "RZ", "min": 6, "max": 20 },
+        { "label": "FLD", "min": 21, "max": 99 }
+      ]
+    },
+    "score7": {
+      "type": "range",
+      "field": "scoreDiff",
+      "phases": ["scrimmage", "try"],
+      "buckets": [
+        { "label": "<=-17", "min": null, "max": -17 },
+        { "label": "-16..-9", "min": -16, "max": -9 },
+        { "label": "-8..-1", "min": -8, "max": -1 },
+        { "label": "0", "min": 0, "max": 0 },
+        { "label": "1..8", "min": 1, "max": 8 },
+        { "label": "9..16", "min": 9, "max": 16 },
+        { "label": ">=17", "min": 17, "max": null }
+      ]
+    },
+    "score3": {
+      "type": "range",
+      "field": "scoreDiff",
+      "phases": ["scrimmage", "try"],
+      "coarseOf": "score7",
+      "buckets": [
+        { "label": "T", "min": null, "max": -1 },
+        { "label": "0", "min": 0, "max": 0 },
+        { "label": "L", "min": 1, "max": null }
+      ]
+    },
+    "diff": {
+      "type": "clip",
+      "field": "scoreDiff",
+      "phases": ["try"],
+      "min": -21,
+      "max": 21,
+      "coarse": "score7"
+    },
+    "time5": {
+      "type": "rules",
+      "phases": ["scrimmage"],
+      "buckets": [
+        { "label": "H1", "quarterMin": 1, "quarterMax": 2, "field": "secondsLeftInHalf", "min": 121, "max": null },
+        { "label": "H1F", "quarterMin": 1, "quarterMax": 2, "field": "secondsLeftInHalf", "min": null, "max": 120 },
+        { "label": "H2", "quarterMin": 3, "quarterMax": 5, "field": "secondsLeftInGame", "min": 301, "max": null },
+        { "label": "G5", "quarterMin": 3, "quarterMax": 5, "field": "secondsLeftInGame", "min": 121, "max": 300 },
+        { "label": "GF", "quarterMin": 3, "quarterMax": 5, "field": "secondsLeftInGame", "min": null, "max": 120 }
+      ]
+    },
+    "time2": {
+      "type": "group",
+      "of": "time5",
+      "phases": ["scrimmage"],
+      "groups": [
+        { "label": "F", "members": ["H1F", "GF"] },
+        { "label": "N", "members": ["H1", "H2", "G5"] }
+      ]
+    },
+    "time3": {
+      "type": "rules",
+      "phases": ["try"],
+      "buckets": [
+        { "label": "Q1-3", "quarterMin": 1, "quarterMax": 3, "field": "secondsLeftInGame", "min": null, "max": null },
+        { "label": "Q4", "quarterMin": 4, "quarterMax": 5, "field": "secondsLeftInGame", "min": 301, "max": null },
+        { "label": "Q4F", "quarterMin": 4, "quarterMax": 5, "field": "secondsLeftInGame", "min": null, "max": 300 }
+      ]
+    },
+    "clock": {
+      "type": "endState",
+      "of": "time5",
+      "phases": ["scrimmage"],
+      "appliesTo": ["H1F", "GF"],
+      "otherwise": "-",
+      "parts": [
+        {
+          "field": "secondsLeftInHalf",
+          "buckets": [
+            { "label": "c40", "min": null, "max": 40 },
+            { "label": "c120", "min": 41, "max": null }
+          ]
+        }
+      ]
+    },
+    "end": {
+      "type": "endState",
+      "of": "time5",
+      "phases": ["scrimmage"],
+      "appliesTo": ["H1F", "GF"],
+      "otherwise": "-",
+      "parts": [
+        {
+          "field": "secondsLeftInHalf",
+          "buckets": [
+            { "label": "c40", "min": null, "max": 40 },
+            { "label": "c120", "min": 41, "max": null }
+          ]
+        },
+        {
+          "field": "offenseTimeouts",
+          "buckets": [
+            { "label": "o0", "min": null, "max": 0 },
+            { "label": "o1+", "min": 1, "max": null }
+          ]
+        },
+        {
+          "field": "defenseTimeouts",
+          "buckets": [
+            { "label": "d0", "min": null, "max": 0 },
+            { "label": "d1", "min": 1, "max": 1 },
+            { "label": "d2+", "min": 2, "max": null }
+          ]
+        }
+      ]
+    }
+  },
+  "tags": {
+    "try": "Two-point tries (offense factors) or two-point tries with a mapped preset (dTry).",
+    "gl": { "dimension": "zone6", "label": "GL", "note": "Scrimmage plays at the goal line, the backoff for two-point tries." }
+  },
+  "factors": {
+    "oTop": {
+      "side": "offense",
+      "predicts": "Top-level offense call on downs 1 to 3",
+      "downs": [1, 2, 3],
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["run", "pass", "punt", "fieldGoal", "spike", "kneel"],
+      "levels": [
+        { "dims": ["down", "dist5", "zone6", "score7", "time5", "end"] },
+        { "dims": ["down", "dist3", "zone3", "score7", "time5", "end"] },
+        { "dims": ["down", "dist3", "zone3", "score3", "time5", "end"] },
+        { "dims": ["down", "score3", "time5", "end"] },
+        { "dims": ["down", "score3", "time5", "clock"] },
+        { "dims": ["down"] },
+        { "dims": [] }
+      ]
+    },
+    "o4Top": {
+      "side": "offense",
+      "predicts": "4th down: go (run or pass), kick, or a clock call",
+      "downs": [4],
+      "seasons": { "from": 2021, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["run", "pass", "kick", "spike", "kneel"],
+      "levels": [
+        { "dims": ["dist5", "zone6", "score7", "time5", "end"] },
+        { "dims": ["dist5", "zone6", "score7", "time5"] },
+        { "dims": ["dist5", "zone6", "score3", "time5"] },
+        { "dims": ["dist5", "zone6", "score3", "time2"] },
+        { "dims": ["dist5", "zone6"] },
+        { "dims": ["dist3", "zone6"] },
+        { "dims": ["zone6"] },
+        { "dims": [] }
+      ]
+    },
+    "o4Kick": {
+      "side": "offense",
+      "predicts": "4th down: punt or field goal, given a kick",
+      "downs": [4],
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["punt", "fieldGoal"],
+      "levels": [
+        { "dims": ["zone6", "time2"] },
+        { "dims": ["zone6"] },
+        { "dims": [] }
+      ]
+    },
+    "oRun": {
+      "side": "offense",
+      "predicts": "Run type, given Run",
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["insideRun", "outsideRun", "qbSneak"],
+      "levels": [
+        { "dims": ["down", "dist5", "zone6"] },
+        { "dims": ["down", "dist3", "zone3"] },
+        { "dims": ["down"] },
+        { "dims": [] }
+      ]
+    },
+    "oPassType": {
+      "side": "offense",
+      "predicts": "Screen, play action or plain dropback, given Pass",
+      "seasons": { "from": 2022, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["screenPass", "playAction", "plain"],
+      "levels": [
+        { "dims": ["down", "dist3", "zone3", "score3", "time2"] },
+        { "dims": ["down", "dist3", "zone3"] },
+        { "dims": ["down"] },
+        { "dims": [] }
+      ]
+    },
+    "oDepth": {
+      "side": "offense",
+      "predicts": "Pass depth, given a plain dropback",
+      "seasons": { "from": 2022, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["shortPass", "intermediatePass", "deepPass"],
+      "levels": [
+        { "dims": ["down", "dist5", "zone6", "score3", "time2"] },
+        { "dims": ["down", "dist3", "zone3", "score3", "time2"] },
+        { "dims": ["down", "dist3", "zone3"] },
+        { "dims": ["down"] },
+        { "dims": [] }
+      ]
+    },
+    "oFormation": {
+      "side": "offense",
+      "predicts": "Formation, given the play",
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["shotgun", "underCenter", "pistol", "empty", "heavy"],
+      "levels": [
+        { "dims": ["leaf", "down", "dist3", "zoneF"] },
+        { "dims": ["leaf", "zoneF"] },
+        { "dims": ["leaf"] },
+        { "dims": [] }
+      ]
+    },
+    "oTry": {
+      "side": "offense",
+      "predicts": "Extra point or go for two",
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["extraPoint", "goForTwo"],
+      "levels": [
+        { "dims": ["diff", "time3"] },
+        { "dims": ["score7", "time3"] },
+        { "dims": ["time3"] },
+        { "dims": [] }
+      ]
+    },
+    "tpTop": {
+      "side": "offense",
+      "predicts": "Run or pass on a two-point try",
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["run", "pass"],
+      "levels": [{ "tag": "try", "dims": [] }, { "dims": [] }]
+    },
+    "tpRun": {
+      "side": "offense",
+      "predicts": "Run type on a two-point try, backing off to goal-line runs",
+      "seasons": { "from": 2016, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["insideRun", "outsideRun", "qbSneak"],
+      "levels": [{ "tag": "try", "dims": [] }, { "tag": "gl", "dims": [] }, { "dims": [] }]
+    },
+    "tpPassType": {
+      "side": "offense",
+      "predicts": "Pass type on a two-point try, backing off to goal-line passes",
+      "seasons": { "from": 2022, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["screenPass", "playAction", "plain"],
+      "levels": [{ "tag": "try", "dims": [] }, { "tag": "gl", "dims": [] }, { "dims": [] }]
+    },
+    "tpDepth": {
+      "side": "offense",
+      "predicts": "Pass depth on a two-point try, backing off to goal-line passes",
+      "seasons": { "from": 2022, "to": 2023 },
+      "minPlays": 150,
+      "targets": ["shortPass", "intermediatePass", "deepPass"],
+      "levels": [{ "tag": "try", "dims": [] }, { "tag": "gl", "dims": [] }, { "dims": [] }]
+    },
+    "dFront": {
+      "side": "defense",
+      "predicts": "Personnel group and box count",
+      "seasons": { "from": 2018, "to": 2023 },
+      "minPlays": 150,
+      "targets": [
+        "front.goalLine",
+        "front.baseLight",
+        "front.baseHeavy",
+        "front.nickelLight",
+        "front.nickelHeavy",
+        "front.dimeLight",
+        "front.dimeHeavy",
+        "front.prevent"
+      ],
+      "levels": [
+        { "dims": ["down", "dist5", "zone6", "score7", "time5", "end"] },
+        { "dims": ["down", "dist5", "zone6", "score7", "time5"] },
+        { "dims": ["down", "dist3", "zone3", "score7", "time5"] },
+        { "dims": ["down", "dist3", "zone3", "score3", "time5"] },
+        { "dims": ["down", "dist3", "zone3", "score3", "time2"] },
+        { "dims": ["down"] },
+        { "dims": [] }
+      ]
+    },
+    "dCoverage": {
+      "side": "defense",
+      "predicts": "Shell, man or zone, and rush count, given the front",
+      "seasons": { "from": 2018, "to": 2023 },
+      "minPlays": 150,
+      "targets": [
+        "cover0.man.le4", "cover0.man.ge5", "cover0.zone.le4", "cover0.zone.ge5",
+        "cover1.man.le4", "cover1.man.ge5", "cover1.zone.le4", "cover1.zone.ge5",
+        "cover2.man.le4", "cover2.man.ge5", "cover2.zone.le4", "cover2.zone.ge5",
+        "twoMan.man.le4", "twoMan.man.ge5", "twoMan.zone.le4", "twoMan.zone.ge5",
+        "cover3.man.le4", "cover3.man.ge5", "cover3.zone.le4", "cover3.zone.ge5",
+        "cover4.man.le4", "cover4.man.ge5", "cover4.zone.le4", "cover4.zone.ge5",
+        "prevent.man.le4", "prevent.man.ge5", "prevent.zone.le4", "prevent.zone.ge5"
+      ],
+      "levels": [
+        { "dims": ["front", "down", "dist3", "zone3", "score3", "time2"] },
+        { "dims": ["front", "down"] },
+        { "dims": ["front"] },
+        { "dims": [] }
+      ]
+    },
+    "dTry": {
+      "side": "defense",
+      "predicts": "Defensive preset on a two-point try, backing off to goal-line plays",
+      "seasons": { "from": 2018, "to": 2023 },
+      "minPlays": 150,
+      "targets": [
+        "baseCover3", "baseCover2", "runStuff",
+        "nickelCover3", "nickelCover4", "nickelCover2", "nickel2Man", "nickelCover1", "nickelCover1Blitz",
+        "dimeCover4", "dimeCover0Blitz",
+        "goalLine", "prevent"
+      ],
+      "levels": [{ "tag": "try", "dims": [] }, { "tag": "gl", "dims": [] }, { "dims": [] }]
+    }
+  },
+  "offenseMapping": {
+    "depth": { "shortBelow": 10, "deepFrom": 20 },
+    "insideRun": { "runLocation": ["middle"], "runGap": ["guard"] },
+    "outsideRun": { "runGap": ["tackle", "end"] },
+    "qbSneak": {
+      "maxYardsToGo": 2,
+      "ftnFlagFromSeason": 2022,
+      "inferredRule": "Run, not a scramble, ydstogo at most maxYardsToGo, run_location middle or run_gap guard, and the rusher threw a pass for the same team in the same game."
+    },
+    "formation": {
+      "SHOTGUN": "shotgun",
+      "PISTOL": "pistol",
+      "EMPTY": "empty",
+      "SINGLEBACK": "underCenter",
+      "I_FORM": "underCenter",
+      "UNDER CENTER": "underCenter",
+      "JUMBO": "heavy",
+      "WILDCAT": "shotgun"
+    },
+    "heavyPersonnel": { "minOL": 6, "minTE": 3 },
+    "personnelTokens": {
+      "C": "OL", "G": "OL", "T": "OL", "OL": "OL",
+      "TE": "TE",
+      "QB": "other", "RB": "other", "FB": "other", "WR": "other",
+      "K": "other", "P": "other", "LS": "other",
+      "CB": "DB", "DB": "DB", "FS": "DB", "S": "DB", "SS": "DB",
+      "DE": "DL", "DL": "DL", "DT": "DL", "NT": "DL",
+      "ILB": "LB", "LB": "LB", "MLB": "LB", "OLB": "LB"
+    }
+  },
+  "defenseMapping": {
+    "coverage": {
+      "COVER_0": "cover0",
+      "COVER_1": "cover1",
+      "COVER_2": "cover2",
+      "2_MAN": "twoMan",
+      "COVER_3": "cover3",
+      "COVER_4": "cover4",
+      "COVER_6": "cover4",
+      "COVER_9": "cover4",
+      "PREVENT": "prevent",
+      "COMBO": null,
+      "BLOWN": null
+    },
+    "manZone": { "MAN_COVERAGE": "man", "ZONE_COVERAGE": "zone", "": null },
+    "groups": { "goalLineMaxDB": 3, "base": 4, "nickel": 5, "dime": 6, "preventMinDB": 7 },
+    "boxHeavyMin": 8,
+    "blitzMinRushers": 5,
+    "presetTable": {
+      "base": {
+        "cover0": "runStuff",
+        "cover1": "runStuff",
+        "cover2": "baseCover2",
+        "twoMan": "baseCover2",
+        "cover3": { "if": "boxHeavy", "then": "runStuff", "else": "baseCover3" },
+        "cover4": "baseCover2"
+      },
+      "nickel": {
+        "cover0": "dimeCover0Blitz",
+        "cover1": { "if": "blitz", "then": "nickelCover1Blitz", "else": "nickelCover1" },
+        "cover2": "nickelCover2",
+        "twoMan": "nickel2Man",
+        "cover3": "nickelCover3",
+        "cover4": "nickelCover4"
+      },
+      "dime": {
+        "cover0": "dimeCover0Blitz",
+        "cover1": { "if": "blitz", "then": "nickelCover1Blitz", "else": "nickelCover1" },
+        "cover2": "dimeCover4",
+        "twoMan": "nickel2Man",
+        "cover3": "nickelCover3",
+        "cover4": "dimeCover4"
+      }
+    },
+    "presets": {
+      "baseCover3": { "group": "base", "box": "light", "shell": "cover3", "manZone": "zone", "rush": "le4" },
+      "baseCover2": { "group": "base", "box": "light", "shell": "cover2", "manZone": "zone", "rush": "le4" },
+      "runStuff": { "group": "base", "box": "heavy", "shell": "cover1", "manZone": "man", "rush": "any" },
+      "nickelCover3": { "group": "nickel", "box": "any", "shell": "cover3", "manZone": "zone", "rush": "le4" },
+      "nickelCover4": { "group": "nickel", "box": "any", "shell": "cover4", "manZone": "zone", "rush": "le4" },
+      "nickelCover2": { "group": "nickel", "box": "any", "shell": "cover2", "manZone": "zone", "rush": "le4" },
+      "nickel2Man": { "group": "nickel", "box": "any", "shell": "twoMan", "manZone": "man", "rush": "le4" },
+      "nickelCover1": { "group": "nickel", "box": "any", "shell": "cover1", "manZone": "man", "rush": "le4" },
+      "nickelCover1Blitz": { "group": "nickel", "box": "any", "shell": "cover1", "manZone": "man", "rush": "ge5" },
+      "dimeCover4": { "group": "dime", "box": "any", "shell": "cover4", "manZone": "zone", "rush": "le4" },
+      "dimeCover0Blitz": { "group": "dime", "box": "any", "shell": "cover0", "manZone": "man", "rush": "ge6" },
+      "goalLine": { "group": "goalLine", "box": "any", "shell": "any", "manZone": "any", "rush": "any" },
+      "prevent": { "group": "dime+", "box": "any", "shell": "prevent", "manZone": "zone", "rush": "le4" }
+    }
+  }
+}

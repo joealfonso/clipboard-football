@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Absolute percentage points. Accepted by the lead on 2026-11-11 before the first validation run. Never change after seeing results without Joseph's decision in docs/DECISIONS.md.",
+  "validationSeasons": [
+    2024,
+    2025
+  ],
+  "metrics": [
+    {
+      "id": "passRate",
+      "label": "Pass rate overall",
+      "scope": "Scrimmage plays, downs 1-4",
+      "tolerance": 2.0,
+      "minN": 0
+    },
+    {
+      "id": "passRateByDown",
+      "label": "Pass rate by down",
+      "scope": "Scrimmage plays on each down",
+      "tolerance": 3.0,
+      "minN": 500
+    },
+    {
+      "id": "fourthDown",
+      "label": "4th down go / punt / field goal",
+      "scope": "4th down plays in each field zone",
+      "tolerance": 5.0,
+      "minN": 200
+    },
+    {
+      "id": "goForTwo",
+      "label": "Go for two rate",
+      "scope": "All tries",
+      "tolerance": 3.0,
+      "minN": 0
+    },
+    {
+      "id": "kneel",
+      "label": "Kneel rate",
+      "scope": "Scrimmage plays in each final-2:00 state (half, game) by score (trailing, tied, leading)",
+      "tolerance": 5.0,
+      "minN": 100
+    },
+    {
+      "id": "spike",
+      "label": "Spike rate",
+      "scope": "Scrimmage plays in the final 2:00 of each half",
+      "tolerance": 3.0,
+      "minN": 100
+    },
+    {
+      "id": "depth",
+      "label": "Depth mix",
+      "scope": "Plain dropbacks with air yards",
+      "tolerance": 3.0,
+      "minN": 0
+    },
+    {
+      "id": "passType",
+      "label": "Screen share, play action share",
+      "scope": "Dropbacks with FTN charting",
+      "tolerance": 3.0,
+      "minN": 0
+    },
+    {
+      "id": "runType",
+      "label": "Run type mix",
+      "scope": "Runs with known type",
+      "tolerance": 4.0,
+      "minN": 0
+    },
+    {
+      "id": "formation",
+      "label": "Formation mix",
+      "scope": "Run and pass plays with a mapped formation",
+      "tolerance": 4.0,
+      "minN": 0
+    },
+    {
+      "id": "blitz",
+      "label": "Blitz rate (5+ rushers)",
+      "scope": "Dropbacks with rushers charted",
+      "tolerance": 4.0,
+      "minN": 0
+    },
+    {
+      "id": "man",
+      "label": "Man share",
+      "scope": "Run and pass plays with man or zone charted",
+      "tolerance": 4.0,
+      "minN": 0
+    },
+    {
+      "id": "preset",
+      "label": "Preset mix",
+      "scope": "Run and pass plays with a mapped preset",
+      "tolerance": 4.0,
+      "minN": 0
+    }
+  ],
+  "known_deviations": [
+    {
+      "metric": "fourthDown.MID.fieldGoal",
+      "observed": 0.1699,
+      "target": 0.1012,
+      "reason": "Real trend after the training years: FG share of midfield 4th-down kicks rose from 8-10% (2016-19) to 20% (2023), 25% (2024), 28% (2025). The caller reflects coaching through 2023.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "fourthDown.MID.punt",
+      "observed": 0.4695,
+      "target": 0.5237,
+      "reason": "Same trend as fourthDown.MID.fieldGoal: more midfield field goals, fewer punts, after 2023.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "man",
+      "observed": 0.3963,
+      "target": 0.3544,
+      "reason": "Man share swings season to season (29% 2022, 41% 2023, 49% 2024, 32% 2025), partly confounded by the 2023 change in charting source (NGS to FTN). Not a model bug.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "preset.nickelCover2",
+      "observed": 0.1531,
+      "target": 0.0961,
+      "reason": "Real shift toward Nickel Cover 2 in 2024-2025 (charted Cover 2 rows about 2,500 a season through 2022, 4,527 in 2024, 5,004 in 2025).",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "preset.nickelCover4",
+      "observed": 0.099,
+      "target": 0.1459,
+      "reason": "Mirror of preset.nickelCover2: the 2024-2025 shift from Cover 4 to Cover 2.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    }
+  ]
+}
