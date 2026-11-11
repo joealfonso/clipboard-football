@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The sim must run unchanged in a Web Worker and in Node: no DOM types, no Node types.
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src"]
+}

@@ -4,11 +4,11 @@ A single-player American football coach and GM game in the browser. You call pla
 
 ## Stack and commands
 
-Nothing is built yet. This is the planned stack, to confirm when the scaffold lands.
+M1 step 1 is built: pnpm workspace (`packages/shared`, `packages/sim` with the seeded RNG) and the pipeline survey. The rest of the stack below is still planned.
 
 - Stack: TypeScript, Vite, Canvas 2D, no engine. Sim runs in a Web Worker. Saves in IndexedDB. Config in JSON validated with zod. Data pipeline in Python 3.12 with uv, reading nflverse through `nflreadpy` (not `nfl_data_py`, it is deprecated).
-- Run: <fill in once scaffolded>
-- Test: <fill in once scaffolded>
+- Run: `uv run --project pipeline python -m pipeline.inventory` from the repo root. Writes docs/DATA.md. Raw downloads cache in `~/.cache/clipboard-football`, or the directory in `CLIPBOARD_FOOTBALL_CACHE`. No app to run yet.
+- Test: `pnpm install && pnpm test && pnpm lint && pnpm typecheck`, then `uv run --project pipeline pytest pipeline`. Without a global pnpm, use `npx -y pnpm@10.34.9` in place of `pnpm`.
 
 ## Key directories
 
