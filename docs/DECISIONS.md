@@ -116,3 +116,11 @@ One entry per decision: date, decision, why, and what would change it. Newest en
 - Decision: `gitleaks/gitleaks-action@v3` in CI, PR comments off, `pull-requests: read`.
 - Why: free for personal-account repos. Comments would need write access; the failing job is enough signal.
 - What would change it: moving the repo to an organization, which needs a `GITLEAKS_LICENSE` secret, or switching to the gitleaks CLI.
+
+### Kickoffs are designed, tuned to 2025
+
+- Date: 2026-11-11
+- Decision: the kickoff model is designed, not fitted. Its outcome rates (touchback, fair catch, return, starting field position, return yards) are set by hand in a data file and tuned until simulated kickoffs match the 2025 season.
+- Why: docs/DATA.md shows the kickoff format changed three times in three seasons. 2023: touchback 73.2%, return 21.7%. 2024: mean start moved up about 4.5 yards. 2025: touchback 20.9%, return 74.2%. No training season matches the current rules, and 2025, the only full season under them, is a holdout season. Fitting on older seasons would guarantee a failed calibration check.
+- Cost: tuning to 2025 means the kickoff numbers are not checked against unseen data. The calibration test still compares kickoffs to 2025, but for kickoffs that check confirms the tuning, not a prediction. Every other part of the engine keeps the strict holdout.
+- What would change it: once the 2026 season completes, if the rules are unchanged, 2026 becomes a true out-of-sample check for the kickoff numbers. A rule change in 2026 or later means retuning to the newest season.
