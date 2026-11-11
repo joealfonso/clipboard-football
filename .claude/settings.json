@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": ["Read(./.env)", "Read(./.env.*)"]
+  },
+  "extraKnownMarketplaces": {
+    "joseph-alfonso": { "source": { "source": "github", "repo": "joealfonso/AgentsAndSkills" } }
+  },
+  "enabledPlugins": {
+    "dev-team@joseph-alfonso": true,
+    "review-personas@joseph-alfonso": true,
+    "guardrails@joseph-alfonso": true,
+    "writing@joseph-alfonso": true,
+    "game-team@joseph-alfonso": true
+  }
+}

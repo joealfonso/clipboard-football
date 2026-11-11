@@ -1,0 +1,5 @@
+.env
+.env.*
+.claude/settings.local.json
+_archive/
+node_modules/
