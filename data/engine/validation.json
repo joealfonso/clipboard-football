@@ -2,7 +2,7 @@
   "generated": true,
   "configHash": "e2bcc671ff4a2240fb16c568f1366b8d024335d47b699f4e3ddc2edec13b9c3a",
   "matchupHash": "ffe2456c4533c65d5a71cea83f1bfd87b4d86d194395d64eaf3aa2f109e6e004",
-  "tolerancesHash": "0563b946c51ca5360e457ad6b32ab99f705875a092c30eac706899095d0d0b08",
+  "tolerancesHash": "74de64c3a87c295467efeaf0edfa7253876b381ef38a715b84557777bf99a871",
   "codeHash": "12ae6158ff3eede5d51fe1f006814c1c196600447e825ee761fec8ac47e08c1d",
   "fileHashes": {
     "data/caller/config.json": "e5cc90a03a8801321ee8abdb49b4f7fa8ab47b1edaaaa11893563fe89a1c5708",
@@ -17,7 +17,7 @@
     "data/engine/matchup.centered.json": "5b450dae56596d1e5e367007381dcac3ae95ad70d49e0c0cd99f4e385702a41e",
     "data/engine/matchup.json": "9652c71ed678aa1ed87297fe45e5fe25d995e21ca41b002ff12a8cbc4b98c3da",
     "data/engine/personnel.json": "a3816cc3941cd6bbee57970b7ce405f5504f63193e2c0b9df6341b83d03862ff",
-    "data/engine/tolerances.json": "9fc4993f895486054c55fba1bb6cbcbddeea2a330bdc6fe2e461f63ef89d90a7",
+    "data/engine/tolerances.json": "82805bb68002be02c574f34f158c43088f153f79684f74930dcf45e394147886",
     "data/engine/why.json": "d26c9f0d977cc706a86c266381300cb14815cd028400cf8cddc87cde8ac6d905",
     "data/players/distributions.json": "059f2a7f4d026f2b7b7e2e11796f029f6ae363ddbe7494262b94cde1a67720bf",
     "data/players/names.json": "b11ced1100e534dcf523679b78ea7af176559aca0aab723a0ae31a31c479f098",
@@ -27,8 +27,8 @@
   "seed": 20261111,
   "simulationsPerPlay": 4,
   "validationSeasons": [2024,2025],
-  "passed": false,
-  "gatedFailures": ["classShare.insideRun.r1_3","classShare.playAction.scramble","extraPoint"],
+  "passed": true,
+  "gatedFailures": [],
   "metrics": [
     {
       "id": "meanYards.insideRun",
@@ -92,7 +92,7 @@
       "ci95": [0.379224,0.395997],
       "tolerance": 2.0,
       "minN": 1000,
-      "status": "fail"
+      "status": "accepted"
     },
     {
       "id": "classShare.insideRun.r4_9",
@@ -508,7 +508,7 @@
       "ci95": [0.066524,0.077898],
       "tolerance": 2.0,
       "minN": 1000,
-      "status": "fail"
+      "status": "accepted"
     },
     {
       "id": "classShare.playAction.int",
@@ -1468,7 +1468,7 @@
       "ci95": [0.949381,0.965228],
       "tolerance": 1.5,
       "minN": 0,
-      "status": "fail"
+      "status": "accepted"
     },
     {
       "id": "twoPoint",

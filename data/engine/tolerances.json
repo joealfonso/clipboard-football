@@ -185,5 +185,30 @@
       "kind": "tuning check (not a prediction)"
     }
   ],
-  "known_deviations": []
+  "known_deviations": [
+    {
+      "metric": "classShare.insideRun.r1_3",
+      "observed": 0.387577,
+      "target": 0.409073,
+      "reason": "Real trend after the training years: fewer inside runs gain 1-3 yards in 2024-2025. Predicted 40.3-41.1% across team draws. Joseph accepted this holdout miss in chat on 2026-11-11 after the team-draw sensitivity check (ENGINE_REPORT.md section 1b) showed it outside tolerance under every team draw.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "classShare.playAction.scramble",
+      "observed": 0.072004,
+      "target": 0.037229,
+      "reason": "Charting change, not football: FTN marked play action on 0.6% of scrambles in 2022, 8.9% in 2023, 10.4% in 2024 and 12.6% in 2025, while the scramble share of dropbacks held at 10.7-11.2%. Joseph accepted this holdout miss in chat on 2026-11-11 after the team-draw sensitivity check (ENGINE_REPORT.md section 1b) showed it outside tolerance under every team draw.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "extraPoint",
+      "observed": 0.958014,
+      "target": 0.941461,
+      "reason": "Real trend after the training years: extra-point success rose in 2024-2025. Predicted 94.1-94.4% across team draws. Joseph accepted this holdout miss in chat on 2026-11-11 after the team-draw sensitivity check (ENGINE_REPORT.md section 1b) showed it outside tolerance under every team draw.",
+      "date": "2026-11-11",
+      "approved_by": "Joseph"
+    }
+  ]
 }

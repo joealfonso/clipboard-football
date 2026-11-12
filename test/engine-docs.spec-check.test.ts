@@ -151,7 +151,23 @@ describe("F1: tolerances.json was pre-registered and its hash recorded before th
     const entry = section(DECISIONS, "### Tolerances pre-registered before the first validation run (spec open question 14, F1)");
     const m = /sha256 `([0-9a-f]{64})`/.exec(entry);
     expect(m).not.toBeNull();
-    expect(createHash("sha256").update(readFileSync(join(root, "data/engine/tolerances.json"))).digest("hex")).toBe(m?.[1]);
+    // Joseph's known_deviations are the only part that may be added after the run, so the hash is
+    // taken over the file with that array put back to its pre-registered empty form. Every other byte
+    // (tolerances, minN, seed) must still match what was registered.
+    const raw = readFileSync(join(root, "data/engine/tolerances.json"), "utf8");
+    const preRegistered = raw.replace(/"known_deviations": \[[\s\S]*\]\n\}\n$/, '"known_deviations": []\n}\n');
+    expect(preRegistered.endsWith('"known_deviations": []\n}\n')).toBe(true);
+    expect(createHash("sha256").update(preRegistered).digest("hex")).toBe(m?.[1]);
+  });
+
+  it("known deviations added after the run carry every field and only Joseph approves them", () => {
+    const tol = JSON.parse(readFileSync(join(root, "data/engine/tolerances.json"), "utf8")) as {
+      known_deviations: Record<string, unknown>[];
+    };
+    for (const d of tol.known_deviations) {
+      for (const k of ["metric", "observed", "target", "reason", "date", "approved_by"]) expect(d, k).toHaveProperty(k);
+      expect(d["approved_by"]).toBe("Joseph");
+    }
   });
 });
 
