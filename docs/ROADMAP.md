@@ -19,7 +19,7 @@ Rules that still apply to every new feature:
 | M4 | 32 teams, schedule, standings, playoffs, season sim, box scores | News feed (approved). Season player stats and leaders |
 | M5 | Roster, depth chart, injuries, progression and aging | Stamina and in-game fatigue. RPG growth and decline (approved). Weekly training focus (approved) |
 | M6 | Contracts, cap, free agency, trades | Trades of players and draft picks, including trades with three or more teams. Morale and re-signing (approved). Team money: ticket prices and revenue |
-| M7 | Draft and scouting | Combine and pro day results inside scouting (approved). Trading picks during the draft |
+| M7 | Draft and scouting | Each prospect shows college stats and one set of combine results inside scouting, with no extra rounds of workouts or reports (Joseph: depth, not extreme depth). Trading picks during the draft |
 | M8 | Coaching staff, job security, multi-season saves | Hire, fire, manage and trade coaches. Staff budgets. Stadium upgrades in the off-season. Records, retirements and Hall of Fame (approved) |
 | M10 (new, after the franchise game) | | Built-in fantasy football. Sportsbook with odds and spreads, play money only |
 | M9 (stretch) | Historical dream matchups | |
