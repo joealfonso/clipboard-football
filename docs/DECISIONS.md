@@ -449,3 +449,16 @@ The first eight entries record the lead's resolutions of the spec's open questio
 - Decision: record only. When a rule set with `canEndTied: false` and a period limit goes to a new coin toss, the overtime record keeps the first cycle's firstTeam and secondTeam, so the guaranteed-possession check can use a stale first team.
 - Why it is not fixed now: the shipped 2026 rule set cannot reach it. The regular season can end tied, and the postseason has no period limit. Only a test fixture can.
 - What would change it: any rule set that both forbids ties and caps the number of periods. Reset the overtime record on each new toss.
+
+### Franchise features beyond the brief
+
+- Date: 2026-11-11
+- Decision (Joseph): add these to the roadmap, each kept to one screen and at most five decisions:
+  - weekly training focus: pick one unit to drill, visible within a few games (M5)
+  - records, retirements and Hall of Fame (M8)
+  - a morale and re-signing screen: re-sign or let walk, mood affects the asking price (M6)
+  - a news feed built only from what happened in the sim (M4)
+  - combine and pro day results folded into scouting, with no extra screen (M7)
+- Cut: stadium upgrades, ticket prices and relocation. They add menus without a visible on-field consequence.
+- Also requested: player ratings with bars for speed and strength (defined in M1 step 4, shown from M2), and RPG growth and decline (M5).
+- Constraint: borrow general ideas only. Never copy another game's named systems, look or branding.
