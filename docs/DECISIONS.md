@@ -625,3 +625,62 @@ Spec: docs/specs/m1-step4-play-engine.md. The lead's resolved open questions (20
 - Causes: inside-run and extra-point shares look like real league trends after the training years. The play-action scramble share is a charting change (FTN tagged play action on 0.6% of scrambles in 2022, 12.6% in 2025, with the scramble share of dropbacks steady).
 - Joseph accepted all three in chat ("Accept all three"). They are in data/engine/tolerances.json `known_deviations` with approved_by "Joseph". No tolerance, minN or seed changed, and no model change was made for them.
 - The pre-registered sha256 above covers the file with `known_deviations` empty. The F1 test now hashes the file with that array reset to empty, so every pre-registered byte is still checked, and a new test requires every deviation to carry all fields and Joseph's approval. The pre-registered version is also commit 79e1347.
+
+### Post-validation revision 7: pre-snap foul cells (M1 step 5, resolved question 5)
+
+- Date: 2026-11-11, after the step 4 holdout runs. Tolerances unchanged; no known deviations added.
+- Question: why in-sample `flags.any` was 6.75% predicted against 6.96% actual on 2016-2023, where the one-category-per-snap fit should match by construction.
+- Finding (fitting bug, found on training data): the pre-snap part of each run and pass cell comes from the scrimmage-group cell (down x dist3), but `fit_penalties` only wrote a merged cell where the family's own live cell met minSnaps (2,000). Run has 5 such cells and pass 7, so pre-snap cells that had enough snaps (run 3rd-and-4-6, 3rd-and-7+, both families 4th-and-1-3) were dropped and those snaps took the family-level pre-snap rate, 2.19%, though their real rate is 3.5% to 7.2%. Over the scrimmage group the engine gave 2.02% pre-snap flags against 2.19% actual; live flags were already right (4.97% vs 4.97%).
+- Fix (pipeline/engine/penalties.py): a merged cell is stored where either part has enough snaps, the live part from the family's own cell or its family-level cell, the pre-snap part from the group cell or its group-level cell. Rebuilt with `uv run --project pipeline python -m pipeline.engine`.
+- Effect: in-sample `flags.any` 6.75% -> 6.82% (actual 6.96%); holdout 6.70% -> 6.80% (actual 7.32%). The same three accepted deviations fail and nothing else; every per-id penalty gate passes.
+- Remaining in-sample gap, about 0.14 points, is not a bug in the fit's arithmetic: (a) 4th-and-4+ cells and down-less snaps (fewer than 2,000 snaps) back off to the group average while their real pre-snap rates run 7-10%; (b) fitted kick-family rates for ids the designed pairing does not allow on that kick (dead-ball unnecessary roughness after punts, 0.74% of punts; 0.4% of extra points) are never emitted, about 0.06 points; (c) kneels and spikes take the group pre-snap rate (2.2%) though real kneels carry about 0.2%. Not tuned to any holdout number.
+
+## M1 step 5: full game and calibration
+
+Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved open questions.
+
+### Game-level and component tolerances pre-registered (G1, C7)
+
+- Date: 2026-11-12T05:12:54Z (2026-11-11 local), before any 2024-2025 run of step 5 (component or game level) and before the in-sample run.
+- File: data/game/tolerances.json, sha256 `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`, `known_deviations` empty. Values are the spec's proposals as accepted (resolved question 11), plus minN 100 for the C7 component metrics, which the spec left open.
+- Never edited after a run. Only Joseph adds known deviations.
+
+### What nflverse `play_clock` holds (C1, resolved question 8)
+
+- Date: 2026-11-11.
+- The nflverse data dictionary describes `play_clock` as the time on the play clock when the ball was snapped. Checked against the data instead of assumed: in every regular and postseason row of 2016-2025 (47,000-50,000 rows a season) the column is the string "0"; no row holds a reading. Hand check of 25 consecutive 2023 plays (Washington-Arizona, week 1): all "0".
+- So tempo uses the fallback: run-off = game clock at the previous snap minus that play's measured duration (`end_clock_time` minus `time_of_day`, the step 4 duration field) minus the game clock at this snap, on snaps where the designed clock-running rule says the clock ran. Fitted on 2022-2023 only, the seasons with timestamps (MODEL.md says so). Measurement: whole seconds; a value below -1.5 s or more than 5 s past the 40-second play clock is dropped as a measurement error (about 0.5% of running-clock snaps), the rest is clamped to 0-40. Duration is missing on about 10% of running-clock snaps; their clock gap matches the measured ones (37.9 s after an ordinary run either way).
+
+### Loop input order (spec, The loop)
+
+- Date: 2026-11-11. Decision (spec, implemented in packages/sim/src/loop/play.ts): per dead ball, overtimeToss -> startOvertime (designed toss default); kickoff -> kicking team's onside policy, resolvePlay, the designed penalty default, applyPlay; try -> offense caller, defense caller only on a two-point try, resolvePlay, penalty default, applyPlay; scrimmage -> offense timeout policy, then defense timeout policy (each masked when the team has none or already took one this dead ball), then the tempo run-off if the clock runs (a run-off that ends the period ends the dead ball), then the offense call, the defense call for a run or pass, resolvePlay, penalty default, the designed ten-second-run-off timeout rule, applyPlay.
+- The loop passes the penalty choice explicitly: `defaultPenaltyChoice` (new export of the step 3 machine, the same designed default as before, refactored out of `choose`) so the log can say accepted, declined or offsetting. Enforcement is unchanged.
+- Input cap: 2,500 machine inputs per game, and 260 scrimmage snaps (data/game/config.json loop); either throws a typed `GameLoopError`. Placeholders of milestone A (no timeouts, zero run-off, never onside) were replaced by the fitted policies before any calibration run, so no placeholder remains in code.
+- Decision policies are passed per team (`TeamSetup.coach`, resolved question 14); the average coach is `averageCoach(...)`, one closure per call, no module state.
+
+### Coach decisions (C, designed parts)
+
+- Date: 2026-11-11. Clock-running rule for real dead balls (designed, pipeline/game/decisions.py): stopped at the first snap of a quarter, after the two-minute warning (pbp has no warning row, so it is read from the clock crossing 2:00), after kicks, tries and changes of possession, incompletions, spikes, interceptions and lost fumbles; after a flag or out of bounds, stopped inside the snap-start windows (last 2:00 of the 2nd quarter, last 5:00 of the 4th and of overtime) and running outside them; running otherwise.
+- Tempo bins (designed): time5, the final-2:00 clock (c40, c120), score3, offense timeouts, previous snap a kneel, and previous snap went out of bounds or drew a flag (restart 1 or 2). The restart bin was added after the first in-sample loop runs, before any 2024-2025 run: run-off after an ordinary run averages about 33 s, after an out-of-bounds play about 29 s and after a flag about 11 s, and the pooled cells cut the run-off after ordinary plays by 2 to 3 s, which gave the sim about 8 extra snaps a game.
+- Timeout bins (designed): side, time5, final-2:00 clock, score3 from the team's view, clock running, own timeouts, 4th down; six levels down to side alone; a dead ball where the team has no timeout is not an observation (masked to 0). Challenge or replay timeouts (description names a challenge or replay) are excluded. Timeouts before tries and kickoffs are counted in docs/COACH_REPORT.md and not asked by the loop.
+- Onside: a kickoff whose description says "onside". 427 of the 454 flagged kickoffs of 2016-2023 travelled 20 yards or less and none lacks a distance; 4 unflagged kickoffs went 15 yards or less (squibs). One fitted level (quarter group, final 2:00 or 5:00 of the 4th, kicker's score bin), then the designed rule (trailing by 9 or more in the final 5:00 of the 4th quarter or overtime). Recovery stays the step 4 designed kickoff model.
+- Ten-second run-off: the offense spends a timeout instead when trailing or tied in the final 2:00 of a half with a timeout left (designed, spec).
+- N: 150 for all three tables, as step 2 (resolved question 11).
+
+### League, team strength and home field (B, D, resolved questions 2 and 6)
+
+- Date: 2026-11-11. League: 32 teams per league from the step 4 generator with designed fictional names (data/teams/names.json, 36 names, checked against a hand-kept list of real NFL nicknames and cities in pipeline/game/real_names.py, never shipped; 0 matches). Pairings: each game seed draws two distinct teams uniformly, the first at home (`setupGame`). Calibration: 10 leagues x 1,000 games, league and game seeds from run seed 20261112 through `Rng.fork`.
+- Team strength (designed, resolved question 6): every player of a team gets round(sd x a standard normal draw) rating points, clamped to 0-99. Home field (designed, centered): home players +e rating points and away players -e for the game; offensive pre-snap foul rates x (1 - c) for the home offense and x (1 + c) for the away offense (an optional factor the engine reads from `Players`, absent = 1). Special teams untouched beyond what ratings already do.
+- Tuned on 2016-2023 only (scripts/game/tune.ts; record in data/game/league.json): c = 0.031 is measured, not tuned (home offense 1.77% of snaps with a false start or delay of game, away 1.88%, non-neutral games, 2020 excluded); sd = 1.2 rating points (margin SD with league-average teams was already 13.99 against 14.14); e = 0.69 rating points (home margin 2.04 against the 2.09 target, home win rate 56.3% against 55.2%). With sd and e at 0 the sim's home margin over 4,000 games is -0.30 (sampling error about 0.22).
+- Set before any 2024-2025 run. sha256 at that point: data/game/league.json `436c5d0f28db3649914c0faf2b829b23994545b4be49ebd019f148dafc79efa8`, data/game/config.json `23b4fa5a8d70b95480a3ee0dbb9e5bc826b682294050b8bde8e20358a3993ef1`, tempo.json `303b6719f8d6c8a4c76b7c56dde54afb44dc7e0ae7366e3e0954db11f10e0854`, timeouts.json `330d7a9048122758c5b6245f94e5fc12777bfb5716628b5488cd494677c00d33`, onside.json `79e95d3d3a19229d95c79404b39f427757fc6a8289238116c4f9eb52fd3d1f7d`.
+
+### Box score and drives (designed counting rules)
+
+- Date: 2026-11-11. Computed from the event log only (packages/sim/src/loop/box.ts), never deciding anything. A play's stats count unless an accepted foul wiped it out (any accepted foul enforced from the previous spot or the spot of the foul; a dead-ball foul after the down leaves the play standing). Scrambles and kneels are rushes, spikes are incomplete pass attempts, sacks are subtracted from passing. Penalty yards are the rule's yards cut to half the distance where the rule halves, and line-to-spot yards for pass interference (an approximation of nflverse's enforced yards). Time of possession: scrimmage snaps and run-off to the offense, kickoffs to the receivers. A drive is a run of scrimmage snaps by one team; outcomes map to nflverse `fixed_drive_result` through data/game/config.json (Opp touchdown counts as a turnover). Real games are counted the same way (pipeline/game/actuals.py), with drives that have at least one snap.
+- On kickoffs the real-game penalty count takes only the fouls the designed kickoff model draws (receiving-team holding and blocks above the waist as the return-team illegal block, kicking-team illegal formation).
+
+### Ticket prices, revenue and stadium upgrades reinstated (Joseph, 2026-11-11)
+
+- Joseph reversed the earlier cut: ticket prices and revenue (M6), staff budgets and off-season stadium upgrades (M8) are in. Relocation stays cut.
+- He also asked for trades that include draft picks and trades with three or more teams (M6, with pick trading during the draft in M7).
+- Constraint kept from the earlier cut: each money decision must have a visible consequence on the field or in the budget, for example crowd size changing home-field advantage. See docs/ROADMAP.md.

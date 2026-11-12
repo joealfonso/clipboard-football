@@ -19,12 +19,12 @@ Rules that still apply to every new feature:
 | M4 | 32 teams, schedule, standings, playoffs, season sim, box scores | News feed (approved). Season player stats and leaders |
 | M4b (new) | | Built-in fantasy football (see below) |
 | M5 | Roster, depth chart, injuries, progression and aging | Stamina and in-game fatigue. RPG growth and decline (approved). Weekly training focus (approved) |
-| M6 | Contracts, cap, free agency, trades | Trade players. Morale and re-signing (approved). Team money (see open question 2) |
-| M7 | Draft and scouting | Combine and pro day results inside scouting (approved) |
-| M8 | Coaching staff, job security, multi-season saves | Hire, fire, manage and trade coaches. Coach salaries paid from the team budget. Records, retirements and Hall of Fame (approved) |
+| M6 | Contracts, cap, free agency, trades | Trades of players and draft picks, including trades with three or more teams. Morale and re-signing (approved). Team money: ticket prices and revenue |
+| M7 | Draft and scouting | Combine and pro day results inside scouting (approved). Trading picks during the draft |
+| M8 | Coaching staff, job security, multi-season saves | Hire, fire, manage and trade coaches. Staff budgets. Stadium upgrades in the off-season. Records, retirements and Hall of Fame (approved) |
 | M9 (stretch) | Historical dream matchups | |
 
-Cut earlier and still cut: stadium upgrades, ticket prices, relocation.
+Reinstated by Joseph on 2026-11-11: ticket prices, revenue and off-season stadium upgrades. Still cut: relocation.
 
 ## The new features in a line or two each
 
@@ -32,11 +32,15 @@ Cut earlier and still cut: stadium upgrades, ticket prices, relocation.
 - **Coaches change play calling (M3).** Each coordinator is a designed style layered on the fitted average coach. An aggressive coach goes for it more on fourth down, and a pass-first coach throws more. Step 5 already gives each team its own play caller, so a coach slots in without rewriting the game.
 - **Fantasy football (M4b).** It needs a season and per-player stats, which arrive in M4. Proposal: your own fantasy league against AI managers, drawn from the sim's players. One draft screen, then one weekly lineup screen with at most five decisions, plus waivers and trades between fantasy managers. Scoring is configurable in data.
 - **Stamina (M5).** A 0-99 rating for every player. Players tire over long drives and late in games, and recover some between drives and at halftime. Tired players play a little below their ratings. It lands with the depth chart, because fatigue only matters once you can rotate players.
+- **Trades with picks and several teams (M6, M7).** Any trade can include players and draft picks, current or future, and can involve three or more teams. AI teams value picks with a draft value chart from nflverse (license checked before use). One trade screen: pick partners, add assets, and see each side's value before you propose.
+- **Tickets and revenue (M6).** Each team earns money from tickets and other designed revenue. You set ticket prices. Higher prices bring in more money but lower attendance, and a thinner crowd shrinks home-field advantage. Winning, star players and the stadium raise demand.
+- **Staff budget (M8).** Revenue pays for coaches and staff. A bigger staff budget buys better coordinators, trainers (faster injury recovery) and scouts (sharper draft grades). The owner sets a limit, and overspending hurts job security.
+- **Stadium upgrades (M8, off-season).** Spend money between seasons on upgrades that matter on the field or in the budget, for example more seats, a louder crowd (home-field edge) or a better training facility (player growth). One off-season screen with at most five choices.
 - **Hire, fire, manage and trade coaches (M8).** Coaches have ratings, a style, a contract and job security. You can hire, fire, extend or trade them. Coach trades follow how NFL teams trade for coaches under contract, looked up and cited when built, not written from memory.
 
 ## Open questions for Joseph
 
 1. Fantasy football placement: M4b right after the league exists (my pick), or after M8 once the franchise game is done?
-2. Team money: should franchises have revenue and a budget beyond the salary cap, for example a staff budget the owner sets? If yes, where does the money come from, given ticket prices and stadiums are cut? My pick: a simple designed owner budget for staff, with no revenue screen.
+2. Settled 2026-11-11: tickets, revenue, staff budgets and off-season stadium upgrades are in (M6 and M8). Every money decision has to change something on the field or in the budget you can see.
 3. Stamina in M5 with the depth chart (my pick), or a simple version earlier in M2 so you feel it in the first playable game?
 4. Standout plays: player-specific moments only (my pick), or also team "momentum" swings? Momentum would need its own calibration.
