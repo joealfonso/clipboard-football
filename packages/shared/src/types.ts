@@ -21,3 +21,29 @@ export type {
   SeasonRange,
 } from "./caller";
 export { CELL_TOTAL, CONTEXT_DIMENSIONS, FACTOR_IDS } from "./caller";
+export type {
+  EnforcementSpot,
+  FoulSide,
+  FoulTiming,
+  OnsideAllowedWhen,
+  OvertimeFormat,
+  OvertimeScore,
+  PenaltyRule,
+  RuleSet,
+} from "./rules";
+export type {
+  BallEnd,
+  ExtraPointPlay,
+  FieldGoalPlay,
+  Foul,
+  KickoffOutcome,
+  KickoffPlay,
+  NoPlay,
+  OnsideKickPlay,
+  PlayResult,
+  PlaySide,
+  PuntPlay,
+  ScrimmageKind,
+  ScrimmagePlay,
+  TwoPointPlay,
+} from "./play";

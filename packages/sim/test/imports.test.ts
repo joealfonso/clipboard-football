@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 const simSrc = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
 const repoRoot = resolve(simSrc, "../../..");
 const sharedSrc = join(repoRoot, "packages/shared/src");
-const ALLOWED_SHARED = new Set(["types.ts", "situation.ts", "catalog.ts", "caller.ts"]);
+const ALLOWED_SHARED = new Set(["types.ts", "situation.ts", "catalog.ts", "caller.ts", "rules.ts", "play.ts"]);
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -34,6 +34,12 @@ describe("sim imports", () => {
 
   it("includes the caller files", () => {
     expect(files.map((f) => relative(simSrc, f))).toEqual(expect.arrayContaining(["caller/offense.ts", "caller/defense.ts", "caller/bins.ts"]));
+  });
+
+  it("includes the game state machine files (step 3, E5)", () => {
+    expect(files.map((f) => relative(simSrc, f))).toEqual(
+      expect.arrayContaining(["game/machine.ts", "game/resolve.ts", "game/enforce.ts", "game/progress.ts", "game/situation.ts"]),
+    );
   });
 
   it("every import is relative and stays in sim/src or the type-only shared files, transitively", () => {
@@ -65,7 +71,7 @@ describe("sim imports", () => {
 
   it("flags an import of zod or the shared schema", () => {
     const fake = join(simSrc, "caller", "fake.ts");
-    for (const spec of ["zod", "../../../shared/src/schema"]) {
+    for (const spec of ["zod", "../../../shared/src/schema", "../../../shared/src/rules-schema"]) {
       const target = spec.startsWith(".") ? resolveImport(fake, spec) : spec;
       const ok = spec.startsWith(".") && dirname(target) === sharedSrc && ALLOWED_SHARED.has(target.slice(sharedSrc.length + 1));
       expect(ok, spec).toBe(false);

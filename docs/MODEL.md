@@ -26,7 +26,18 @@ Which penalties the sim produces, how often, and on which plays.
 
 ## Clock and tempo
 
-Run-off per play, timeouts and two-minute behavior.
+The clock rules are **cited NFL rules**, neither fitted nor designed: when the clock stops, when it restarts, the play clock, the two-minute warning, the ten-second run-off and untimed downs all come from data/rules/nfl-2026.json, each value cited in docs/RULES.md from the 2026 rulebook (built in M1 step 3). A few simplifications of those rules are designed and listed in RULES.md.
+
+Not built yet: tempo and timeout decisions. How many seconds an offense lets run before the snap, and when a team calls a timeout, are inputs to the state machine; nothing decides them until step 5 or M3. Seconds used per play will come from the play engine in step 4.
+
+## Game rules defaults
+
+**Designed.** The state machine (packages/sim/src/game) applies rules and decides no outcomes, but a few choices belong to the coaches. Until the UI (M2) and the AI coaches (M3) pass them in, these designed default policies decide, deterministically:
+
+- Coin toss: the winner defers in regulation and receives in overtime. Whichever captain has the choice of kicking or receiving receives.
+- Penalties: the offended team accepts unless declining leaves it with a score, possession, or a better down and distance, compared by down first, then distance, then spot.
+- Ten-second run-off: the offense takes the run-off rather than spend a timeout.
+- Untimed down: always taken when earned.
 
 ## Baseline play caller
 

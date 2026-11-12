@@ -2,3 +2,4 @@
 // the app validates data files through ./schema before handing them to the sim.
 export * from "./types";
 export { callerConfigSchema, callerTablesSchema, catalogSchema, parseCallerConfig, parseCallerTables, parseCatalog, ruleSchema } from "./schema";
+export { parseRuleSet, ruleSetSchema } from "./rules-schema";

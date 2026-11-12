@@ -1,0 +1,116 @@
+{
+  "id": "nfl-2026",
+  "season": 2026,
+  "edition": "2026 Official Playing Rules of the National Football League",
+  "field": {
+    "endZoneYards": 10
+  },
+  "game": {
+    "periodSeconds": 900,
+    "regulationPeriods": 4,
+    "periodsPerHalf": 2
+  },
+  "downs": {
+    "perSeries": 4,
+    "yardsForFirstDown": 10
+  },
+  "scoring": {
+    "touchdown": 6,
+    "fieldGoal": 3,
+    "safety": 2,
+    "tryKick": 1,
+    "tryTouchdown": 2,
+    "trySafety": 1
+  },
+  "try": {
+    "kickSpot": 15,
+    "twoPointSpot": 2,
+    "skipWhenOutcomeDecided": true,
+    "untimed": true
+  },
+  "kickoff": {
+    "spot": 35,
+    "safetyKickSpot": 20,
+    "landingZone": { "from": 0, "to": 20 },
+    "touchbackAfterLandingZone": 20,
+    "touchbackFromEndZone": 35,
+    "midfieldKickSpot": 50,
+    "touchbackFromMidfield": 20,
+    "shortOrOutOfBoundsYards": 25,
+    "safetyKickShortOrOutOfBoundsYards": 30,
+    "fairCatchAllowed": true,
+    "onside": {
+      "allowedWhen": "always",
+      "declarationRequired": true
+    }
+  },
+  "punt": {
+    "touchbackSpot": 20,
+    "fairCatchAllowed": true
+  },
+  "fieldGoal": {
+    "missedMinimumSpot": 20
+  },
+  "touchback": {
+    "scrimmageSpot": 20
+  },
+  "clock": {
+    "twoMinuteWarningSeconds": 120,
+    "twoMinuteWarningPeriods": [2, 4],
+    "startsOnSnapWithin": { "2": 120, "4": 300 },
+    "offensePreSnapFoulStopsClockInPeriods": [4],
+    "playClockAfterPlay": 40,
+    "playClockAfterStoppage": 25,
+    "playClockAfterRunoff": 30,
+    "runoffSeconds": 10,
+    "timeoutAvoidsRunoff": true,
+    "untimedDownAfterDefensiveFoul": true,
+    "untimedDownAfterDoubleFoul": true
+  },
+  "timeouts": {
+    "perHalf": 3,
+    "perTeamPerDeadBall": 1
+  },
+  "overtime": {
+    "regularSeason": {
+      "periodSeconds": 600,
+      "maxPeriods": 1,
+      "timeoutsPerHalf": 2,
+      "periodsPerHalf": 1,
+      "periodsPerCoinToss": 1,
+      "timingAsPeriod": [4],
+      "guaranteedPossession": true,
+      "firstPossessionEndsOn": [],
+      "kickingTeamSafetyEnds": true,
+      "kickOpportunityCounts": true,
+      "canEndTied": true
+    },
+    "postseason": {
+      "periodSeconds": 900,
+      "maxPeriods": null,
+      "timeoutsPerHalf": 3,
+      "periodsPerHalf": 2,
+      "periodsPerCoinToss": 4,
+      "timingAsPeriod": [1, 2, 3, 4],
+      "guaranteedPossession": true,
+      "firstPossessionEndsOn": [],
+      "kickingTeamSafetyEnds": true,
+      "kickOpportunityCounts": true,
+      "canEndTied": false
+    }
+  },
+  "penalties": {
+    "falseStart": { "yards": 5, "timing": "preSnap", "enforcement": "succeedingSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": true, "committedBy": "offense", "endZoneSpot": null },
+    "delayOfGame": { "yards": 5, "timing": "preSnap", "enforcement": "succeedingSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": true, "committedBy": "offense", "endZoneSpot": null },
+    "encroachment": { "yards": 5, "timing": "preSnap", "enforcement": "succeedingSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "defense", "endZoneSpot": null },
+    "defensiveOffside": { "yards": 5, "timing": "live", "enforcement": "previousSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "defense", "endZoneSpot": null },
+    "offensiveHolding": { "yards": 10, "timing": "live", "enforcement": "previousSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "offense", "endZoneSpot": null },
+    "defensiveHolding": { "yards": 5, "timing": "live", "enforcement": "previousSpot", "alternate": null, "automaticFirstDown": true, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "defense", "endZoneSpot": null },
+    "defensivePassInterference": { "yards": 0, "timing": "live", "enforcement": "spotOfFoul", "alternate": null, "automaticFirstDown": true, "lossOfDown": false, "declinable": true, "halfDistance": false, "tenSecondRunoff": false, "committedBy": "defense", "endZoneSpot": 1 },
+    "intentionalGrounding": { "yards": 10, "timing": "live", "enforcement": "previousSpot", "alternate": { "spot": "spotOfFoul", "yards": 0 }, "automaticFirstDown": false, "lossOfDown": true, "declinable": true, "halfDistance": true, "tenSecondRunoff": true, "committedBy": "offense", "endZoneSpot": null },
+    "roughingThePasser": { "yards": 15, "timing": "live", "enforcement": "previousSpot", "alternate": { "spot": "deadBallSpot", "yards": 15 }, "automaticFirstDown": true, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "defense", "endZoneSpot": null },
+    "unnecessaryRoughnessDeadBall": { "yards": 15, "timing": "afterPlay", "enforcement": "succeedingSpot", "alternate": null, "automaticFirstDown": true, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "either", "endZoneSpot": null },
+    "kickoffIllegalFormation": { "yards": 5, "timing": "live", "enforcement": "previousSpot", "alternate": { "spot": "deadBallSpot", "yards": 5 }, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "offense", "endZoneSpot": null },
+    "returnTeamIllegalBlock": { "yards": 10, "timing": "live", "enforcement": "spotOfFoul", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": false, "committedBy": "defense", "endZoneSpot": null }
+  }
+}

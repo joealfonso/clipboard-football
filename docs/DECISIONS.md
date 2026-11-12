@@ -334,3 +334,118 @@ New table sizes: offense 82,159 bytes, defense 87,522, total 169,681.
 
 - Date: 2026-11-11
 - Decision: CALLER_REPORT.md section 9 says plainly that the model was restructured once after the first 2024-2025 run. It marks each metric "revised after holdout" or not, and lists the approved deviations with their reasons. The affected groups are pass rate overall and by down, 4th down, kneel and spike (top-level call chain), formation (it moves through the play mix) and every preset share (Nickel Cover 2 was chosen from the 2024-2025 mismatch table). Their passes are not out-of-sample evidence.
+
+## M1 step 3: rules and game state
+
+The first eight entries record the lead's resolutions of the spec's open questions (2026-11-11). The rest are the designed choices the spec asks to be logged (E6). Spec: docs/specs/m1-step3-rules-and-game-state.md.
+
+### Rulebook edition (spec open question 1)
+
+- Date: 2026-11-11
+- Decision: the 2026 Official Playing Rules, published on operations.nfl.com (https://operations.nfl.com/rules-officiating/2026-nfl-rulebook, PDF ops-2026-NFL-Rulebook-FINAL). The 2025-plus-announcements fallback was not needed. Every value in data/rules/nfl-2026.json was read there; none is unconfirmed.
+- What would change it: the 2027 rulebook. A new edition is a new file, data/rules/nfl-2027.json, plus RULES.md rows.
+
+### Whole-yard spots (spec open question 2)
+
+- Date: 2026-11-11
+- Decision: every spot is a whole yard. Half the distance rounds down, and the ball never gets closer than 1 yard to a goal line, so a half-the-distance foul from the 1 leaves the ball at the 1. Marked designed.
+- Why: the Situation bins and the caller tables use whole yards.
+- What would change it: playtests showing goal-line penalties feel wrong.
+
+### Designed default policies (spec open question 3)
+
+- Date: 2026-11-11
+- Decision: these are designed default policies, not placeholders. Every one can be passed in explicitly; the player's UI (M2) and the AI coaches (M3) will pass them.
+  - The toss winner defers in regulation and receives in overtime. Whichever captain has the choice of kicking or receiving receives.
+  - The offended team accepts a penalty unless declining leaves it with a score, possession, or a better down and distance, compared by down first, then distance, then spot. Among several fouls by one team it takes the best by the same rule.
+  - The offense does not spend a timeout to avoid a ten-second run-off.
+  - The offense always takes an untimed down it has earned.
+- Documented in MODEL.md, "Game rules defaults".
+
+### Fouls by both teams (spec open question 4)
+
+- Date: 2026-11-11
+- Decision: fouls by both teams on a play with a change of possession, or on a kick (punt, field goal, free kick, extra point), are rejected with `unsupportedFouls`. Step 4 must never produce them. On any other play, fouls by both teams offset and the down is replayed from the previous spot, which also covers dead-ball fouls combined with live-ball fouls (Rule 14-4-9, Item 3). The 5-versus-15 exception (Rule 14-5-1, Exc. 1) is not modeled. The constraint is written at the top of packages/shared/src/play.ts.
+- A turnover on downs is not a change of possession during the down, so offsetting fouls on a failed fourth down replay it.
+
+### 2026 kickoff change (spec open question 5)
+
+- Date: 2026-11-11
+- Decision: the game runs the 2026 rules. 2026 did change kickoff mechanics from 2025 (RULES.md, Kickoffs): every touchback after a kickoff from the 50 is now at the 20 (6-1-5), an onside kick may be declared at any time instead of only when trailing (6-1-6), and the receiving team's setup-zone alignment changed (6-1-3; no field in the machine). Step 4 decides how this affects the 2025 kickoff tuning.
+
+### No property-testing library (spec open question 6)
+
+- Date: 2026-11-11
+- Decision: no fast-check. packages/sim/test/support/random-game.ts is a hand-written generator on the project Rng. It is exported for step 5's soak test.
+
+### Preseason (spec open question 7)
+
+- Date: 2026-11-11
+- Decision: out of scope. GameType is `regularSeason` or `postseason`.
+
+### State history (spec open question 8)
+
+- Date: 2026-11-11
+- Decision: no history in GameState until challenges are decided. The challenges open issue stays open.
+
+### Coordinate frame
+
+- Date: 2026-11-11
+- Decision: GameState's spot is yards from the possessing team's own goal line (scrimmage), the kicking team's (kickoff) or the scoring team's (try). Situation's `yardLine100` is 100 minus that. A PlayResult reports every spot in the frame of the team that snapped or kicked, with values below 0 or above 100 meaning an end zone, bounded by the rule set's end zone depth. Field direction is not tracked.
+- The only numeric literals in packages/sim/src/game besides 0 and 1 are the field length (100) and the halving divisor (2), both in frame.ts; a test enforces it.
+
+### Coin toss draw
+
+- Date: 2026-11-11
+- Decision: one `rng.nextUint32()` per toss; its low bit names the winner (1 home, 0 away). `newGame` and `startOvertime` are the only functions that take an Rng. The seed is stored in GameState.
+
+### Rule set identity
+
+- Date: 2026-11-11
+- Decision: GameState stores the rule set's `id` and a sha256 of the file's bytes. The loader computes the hash (the sim has no Node APIs) and passes it to `newGame`.
+
+### Typed errors
+
+- Date: 2026-11-11
+- Decision: every rejected input throws `GameRuleError` with a `code` (wrongPhase, badPlay, contradictoryPlay, unsupportedFouls, invariantViolation and others). Inputs are never changed: each transition builds a shallow copy and replaces nested objects. The invariant checker runs after every transition and a violation throws `invariantViolation` naming it. `toSituation` throws `wrongPhase` outside scrimmage and try.
+
+### Designed simplifications
+
+- Date: 2026-11-11
+- Decision, each marked designed in RULES.md or listed there as not modeled:
+  1. Whole yards (above).
+  2. No momentum exception and no inadvertent whistle: a PlayResult's `impetus` decides touchback or safety for a ball dead in an end zone.
+  3. Fouls by both teams replay the down; unsupported combinations are rejected (above).
+  4. Penalty accept or decline is an input with a designed default (above).
+  5. Receive or defer, and the overtime choice, are inputs with designed defaults (above).
+  6. No fair catch kick and no free kick after a fair catch.
+  7. At most one foul is enforced per play (Rule 14-1-3 also allows only one, apart from fouls against officials and PI-plus-personal-foul, which are not modeled).
+  8. No penalty yardage carried to the next try or kickoff (Rule 14-2-3, 11-3-3, 14-4-9 Exc.). A dead-ball foul after a score or a kick, or on a try, is rejected; a foul on a scoring play is either declined (the score stands) or enforced customarily (the score is wiped).
+  9. Offensive and defensive holding are enforced from the previous spot on every play, not three-and-one on runs.
+  10. A return-team foul is enforced from the spot of the foul, not the less favorable of that and the end of the kick.
+  11. A dead-ball foul after the down never triggers the ten-second run-off.
+  12. Postseason overtime past the fourth period repeats the four-period cycle (new toss, same timing pattern); the rulebook only says play continues.
+  13. Not modeled: Rule 4-7-3 (defensive fouls in the last 40 seconds), injury timeouts, excess timeouts, Rule 16-1-5 (a) fouls after a second-possession turnover, the exceptions to the double-foul untimed down.
+- What would change any of them: step 4 needing a case, or playtests showing it matters.
+
+### Step 3 review fixes
+
+- Date: 2026-11-11
+- Decision: after code-reviewer and test-writer:
+  - The play clock is 25 only after the administrative stoppages of Rule 4-6-2 (penalty enforcement, change of possession, free kick, timeout, two-minute warning, period start); after any other play, including an incompletion, it is 40.
+  - A kick reported "short" with a landing spot inside the landing zone is rejected.
+  - Asking for a timeout instead of the run-off when the offense cannot take one is rejected (`noTimeouts` or `timeoutNotAllowed`), and a timeout spent that way counts as the team's timeout for the dead-ball period.
+  - Declined fouls are timed as fouls (Rule 4-3-2 (e)).
+  - A pre-snap foul on an untimed down keeps the untimed down owed, and does not end the dead-ball period for timeouts.
+  - A double foul on the last play extends only a period that ends a half (Rule 4-8-2 (h)).
+  - New PlayResult field `defensePossessedDuringPlay` (Rule 16-1-5 (b), 7-3-1 (c), 4-4 (i)). This is a change to the step 4 contract.
+  - `canEndTied` is read: a format that cannot end tied plays on past `maxPeriods`. The schema no longer forbids that combination. `kickoff.safetyKickMayBePunted` was removed because nothing read it; the kind of free kick does not change the state.
+  - Rule 4-7-1, Item 2 is implemented: after the warning, a defensive time-conserving foul restarts the clock on the ready signal unless the offense chooses the snap (`clockOnSnap`, designed default no).
+  - Still simplified: the defense cannot spend a timeout instead of the clock starting after its own time-conserving foul, and cannot decline only the run-off while accepting the yardage.
+
+### Known limitation: overtime record after a re-toss
+
+- Date: 2026-11-11
+- Decision: record only. When a rule set with `canEndTied: false` and a period limit goes to a new coin toss, the overtime record keeps the first cycle's firstTeam and secondTeam, so the guaranteed-possession check can use a stale first team.
+- Why it is not fixed now: the shipped 2026 rule set cannot reach it. The regular season can end tied, and the postseason has no period limit. Only a test fixture can.
+- What would change it: any rule set that both forbids ties and caps the number of periods. Reset the overtime record on each new toss.
