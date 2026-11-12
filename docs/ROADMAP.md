@@ -1,6 +1,6 @@
 # Roadmap
 
-Status: proposal, waiting for Joseph's sign-off. Drafted 2026-11-11.
+Status: open questions settled by Joseph on 2026-11-11. Each milestone still gets its own spec and sign-off before it is built.
 
 The milestones M1 to M9 come from the original brief. This file places everything Joseph asked for since then. Each feature goes in the earliest milestone that already builds what it depends on, so nothing gets built ahead.
 
@@ -39,7 +39,7 @@ Reinstated by Joseph on 2026-11-11: ticket prices, revenue and off-season stadiu
 - **Stadium upgrades (M8, off-season).** Spend money between seasons on upgrades that matter on the field or in the budget, for example more seats, a louder crowd (home-field edge) or a better training facility (player growth). One off-season screen with at most five choices.
 - **Hire, fire, manage and trade coaches (M8).** Coaches have ratings, a style, a contract and job security. You can hire, fire, extend or trade them. Coach trades follow how NFL teams trade for coaches under contract, looked up and cited when built, not written from memory.
 
-## Open questions for Joseph
+## Questions Joseph settled
 
 1. Settled 2026-11-11: fantasy football and a play-money sportsbook come after the franchise game, as M10.
 2. Settled 2026-11-11: tickets, revenue, staff budgets and off-season stadium upgrades are in (M6 and M8). Every money decision has to change something on the field or in the budget you can see.
