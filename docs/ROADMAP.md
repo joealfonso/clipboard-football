@@ -43,5 +43,9 @@ Reinstated by Joseph on 2026-11-11: ticket prices, revenue and off-season stadiu
 
 1. Settled 2026-11-11: fantasy football and a play-money sportsbook come after the franchise game, as M10.
 2. Settled 2026-11-11: tickets, revenue, staff budgets and off-season stadium upgrades are in (M6 and M8). Every money decision has to change something on the field or in the budget you can see.
-3. Stamina in M5 with the depth chart (my pick), or a simple version earlier in M2 so you feel it in the first playable game?
-4. Standout plays: player-specific moments only (my pick), or also team "momentum" swings? Momentum would need its own calibration.
+3. Settled 2026-11-11: stamina comes in M5 with the depth chart.
+4. Settled 2026-11-11: standout plays are player moments only. Team momentum is a possible future feature, not scheduled, and would need its own calibration.
+
+## Possible future features (not scheduled)
+
+- Team momentum swings within a game.
