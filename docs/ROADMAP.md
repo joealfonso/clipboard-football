@@ -5,6 +5,7 @@ Status: open questions settled by Joseph on 2026-11-11. Each milestone still get
 The milestones M1 to M9 come from the original brief. This file places everything Joseph asked for since then. Each feature goes in the earliest milestone that already builds what it depends on, so nothing gets built ahead.
 
 Rules that still apply to every new feature:
+- Approachable first (Joseph, 2026-11-11): depth, but not extreme depth. Each feature takes the simplest version that still has a visible consequence, with optional detail behind a "more" view.
 - At most seven choices on a screen. Each management screen gets at most five decisions.
 - Balance lives in data. Designed layers (coach styles, stamina, standout plays) are centered, so the league as a whole still matches real NFL totals and only individual teams and players differ.
 - Borrow general ideas only. Never copy another game's named systems, look or branding.
