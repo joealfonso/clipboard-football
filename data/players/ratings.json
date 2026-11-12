@@ -1,0 +1,1257 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "Designed. Ratings are 0-99 and position-relative: a percentile within the position mapped through `curve`. Speed, Strength and Agility take the percentile from combine drills (mixed: measured input, designed mapping); Awareness and every position skill are designed draws from the same curve. Each effect multiplies a named class or penalty rate by 1 + the sum of coef x the on-field average's distance from the position's league average, clamped to [min, max], so it is exactly 1 for a league-average unit and averages to 1 over generated teams. docs/MODEL.md, Ratings.",
+  "curve": [
+    {
+      "p": 0.0,
+      "rating": 30
+    },
+    {
+      "p": 0.1,
+      "rating": 48
+    },
+    {
+      "p": 0.5,
+      "rating": 65
+    },
+    {
+      "p": 0.9,
+      "rating": 82
+    },
+    {
+      "p": 1.0,
+      "rating": 99
+    }
+  ],
+  "measured": {
+    "speed": {
+      "drills": [
+        "forty"
+      ],
+      "lowerIsBetter": [
+        true
+      ],
+      "drillWeights": [
+        1.0
+      ]
+    },
+    "strength": {
+      "drills": [
+        "bench",
+        "wt"
+      ],
+      "lowerIsBetter": [
+        false,
+        false
+      ],
+      "drillWeights": [
+        0.75,
+        0.25
+      ]
+    },
+    "agility": {
+      "drills": [
+        "cone",
+        "shuttle"
+      ],
+      "lowerIsBetter": [
+        true,
+        true
+      ],
+      "drillWeights": [
+        0.5,
+        0.5
+      ]
+    }
+  },
+  "minRelativeEffect": 0.02,
+  "effects": [
+    {
+      "id": "runStuffs",
+      "label": "the run blocking against the run defense",
+      "target": {
+        "kind": "class",
+        "families": [
+          "run"
+        ],
+        "classes": [
+          "loss"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "runBlock",
+          "coef": -0.012
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "strength",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "runBlock",
+          "coef": -0.005
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "strength",
+          "coef": -0.003
+        },
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "agility",
+          "coef": -0.006
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "runStop",
+          "coef": 0.012
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "strength",
+          "coef": 0.006
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "strength",
+          "coef": 0.005
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "agility",
+          "coef": 0.003
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "runBreakaway",
+      "label": "the runner's speed against the tacklers",
+      "target": {
+        "kind": "class",
+        "families": [
+          "run"
+        ],
+        "leaves": [
+          "insideRun",
+          "outsideRun"
+        ],
+        "classes": [
+          "r20"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "speed",
+          "coef": 0.012
+        },
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "elusiveness",
+          "coef": 0.008
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "agility",
+          "coef": 0.004
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "strength",
+          "coef": -0.006
+        },
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "strength",
+          "coef": -0.005
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "speed",
+          "coef": -0.006
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "tackling",
+          "coef": -0.006
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "runSecondLevel",
+      "label": "the runner making the second level",
+      "target": {
+        "kind": "class",
+        "families": [
+          "run"
+        ],
+        "leaves": [
+          "insideRun",
+          "outsideRun"
+        ],
+        "classes": [
+          "r10_19"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "elusiveness",
+          "coef": 0.007
+        },
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "agility",
+          "coef": 0.004
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "speed",
+          "coef": 0.004
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "speed",
+          "coef": -0.005
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "speed",
+          "coef": -0.003
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "shortYardage",
+      "label": "strength at the point of attack",
+      "target": {
+        "kind": "class",
+        "families": [
+          "run"
+        ],
+        "leaves": [
+          "insideRun",
+          "qbSneak"
+        ],
+        "classes": [
+          "r1_3"
+        ],
+        "maxYardsToGo": 2
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "strength",
+          "coef": 0.006
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "strength",
+          "coef": 0.008
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "strength",
+          "coef": 0.006
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "strength",
+          "coef": -0.006
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "strength",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "runFumbles",
+      "label": "ball security",
+      "target": {
+        "kind": "class",
+        "families": [
+          "run"
+        ],
+        "classes": [
+          "fumble"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "ballSecurity",
+          "coef": -0.02
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "tackling",
+          "coef": 0.006
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "strength",
+          "coef": 0.003
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "sacks",
+      "label": "the pass rush against the protection",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "classes": [
+          "sack"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "passBlock",
+          "coef": -0.012
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "strength",
+          "coef": -0.004
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "agility",
+          "coef": -0.004
+        },
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "awareness",
+          "coef": -0.008
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "awareness",
+          "coef": -0.008
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "agility",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "strength",
+          "coef": -0.004
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "passRush",
+          "coef": 0.012
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "speed",
+          "coef": 0.005
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "strength",
+          "coef": 0.003
+        },
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "agility",
+          "coef": 0.004
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "speed",
+          "coef": 0.003
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "scrambles",
+      "label": "the quarterback's legs",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "classes": [
+          "scramble"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "speed",
+          "coef": 0.012
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "agility",
+          "coef": 0.006
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "speed",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "interceptions",
+      "label": "the quarterback's decisions against the defense's hands",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "classes": [
+          "int"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "accuracy",
+          "coef": -0.01
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "awareness",
+          "coef": -0.01
+        },
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "strength",
+          "coef": -0.004
+        },
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "routeRunning",
+          "coef": -0.003
+        },
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "ballSkills",
+          "coef": 0.01
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "ballSkills",
+          "coef": 0.008
+        },
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "coverage",
+          "coef": 0.004
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "incompletions",
+      "label": "the catch against the coverage",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "classes": [
+          "inc"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "accuracy",
+          "coef": -0.01
+        },
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "hands",
+          "coef": -0.008
+        },
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "routeRunning",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "hands",
+          "coef": -0.004
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "routeRunning",
+          "coef": -0.003
+        },
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "coverage",
+          "coef": 0.008
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "coverage",
+          "coef": 0.005
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "coverage",
+          "coef": 0.004
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "deepArm",
+      "label": "the quarterback's arm",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "leaves": [
+          "deepPass",
+          "intermediatePass"
+        ],
+        "classes": [
+          "inc"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "throwPower",
+          "coef": -0.01
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "afterCatch",
+      "label": "yards after the catch",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "leaves": [
+          "shortPass",
+          "screenPass"
+        ],
+        "classes": [
+          "c10_19"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "agility",
+          "coef": 0.007
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "agility",
+          "coef": 0.004
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "speed",
+          "coef": 0.003
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "agility",
+          "coef": -0.004
+        },
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "agility",
+          "coef": -0.005
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "agility",
+          "coef": -0.004
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "speed",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "bigPlayPass",
+      "label": "speed on the outside",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "leaves": [
+          "deepPass",
+          "intermediatePass",
+          "playAction"
+        ],
+        "classes": [
+          "c20"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "speed",
+          "coef": 0.01
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "speed",
+          "coef": 0.005
+        },
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "throwPower",
+          "coef": 0.004
+        },
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "speed",
+          "coef": -0.008
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "speed",
+          "coef": -0.006
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "playActionBite",
+      "label": "the linebackers biting on the fake",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "leaves": [
+          "playAction"
+        ],
+        "classes": [
+          "c20"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "awareness",
+          "coef": -0.01
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "awareness",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "screenStuffs",
+      "label": "the defense sniffing out the screen",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "leaves": [
+          "screenPass"
+        ],
+        "classes": [
+          "c0"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "agility",
+          "coef": 0.006
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "speed",
+          "coef": 0.004
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "speed",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.6,
+      "max": 1.6
+    },
+    {
+      "id": "catchFumbles",
+      "label": "ball security after the catch",
+      "target": {
+        "kind": "class",
+        "families": [
+          "pass"
+        ],
+        "classes": [
+          "fumbleCatch"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "RB",
+          "rating": "ballSecurity",
+          "coef": -0.01
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "tackling",
+          "coef": 0.006
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "strength",
+          "coef": 0.005
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "falseStarts",
+      "label": "a lapse of focus up front",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "falseStart"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "awareness",
+          "coef": -0.015
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "awareness",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "awareness",
+          "coef": -0.005
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "holdingOffense",
+      "label": "linemen getting beat and grabbing",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "offensiveHolding"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "awareness",
+          "coef": -0.012
+        },
+        {
+          "side": "offense",
+          "position": "OL",
+          "rating": "agility",
+          "coef": -0.005
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "awareness",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "jumpingOffside",
+      "label": "the defensive line jumping the snap",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "encroachment",
+          "defensiveOffside"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "awareness",
+          "coef": -0.015
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "awareness",
+          "coef": -0.005
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "offensiveInterference",
+      "label": "a receiver pushing off",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "offensivePassInterference"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "WR",
+          "rating": "awareness",
+          "coef": -0.012
+        },
+        {
+          "side": "offense",
+          "position": "TE",
+          "rating": "awareness",
+          "coef": -0.006
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "coverageFouls",
+      "label": "defensive backs grabbing in coverage",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "defensivePassInterference",
+          "illegalContact",
+          "defensiveHolding"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "defense",
+          "position": "CB",
+          "rating": "awareness",
+          "coef": -0.012
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "awareness",
+          "coef": -0.008
+        },
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "awareness",
+          "coef": -0.004
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "roughingFouls",
+      "label": "a late hit on the quarterback",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "roughingThePasser"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "defense",
+          "position": "DL",
+          "rating": "awareness",
+          "coef": -0.01
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "grounding",
+      "label": "the quarterback throwing it away under pressure",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "intentionalGrounding"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "QB",
+          "rating": "awareness",
+          "coef": -0.015
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "personalFouls",
+      "label": "tempers",
+      "target": {
+        "kind": "penalty",
+        "penalties": [
+          "unnecessaryRoughness",
+          "unnecessaryRoughnessDeadBall"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "defense",
+          "position": "LB",
+          "rating": "awareness",
+          "coef": -0.006
+        },
+        {
+          "side": "defense",
+          "position": "S",
+          "rating": "awareness",
+          "coef": -0.006
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "fieldGoalAccuracy",
+      "label": "the kicker's accuracy",
+      "target": {
+        "kind": "fieldGoal",
+        "classes": [
+          "miss"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "kickAccuracy",
+          "coef": -0.015
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "fieldGoalRange",
+      "label": "the kicker's leg",
+      "target": {
+        "kind": "fieldGoal",
+        "classes": [
+          "miss"
+        ],
+        "minDistance": 50
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "kickPower",
+          "coef": -0.015
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "extraPointAccuracy",
+      "label": "the kicker's accuracy",
+      "target": {
+        "kind": "extraPoint",
+        "classes": [
+          "miss"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "kickAccuracy",
+          "coef": -0.015
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "kickoffDepth",
+      "label": "the kicker's leg",
+      "target": {
+        "kind": "kickoff",
+        "classes": [
+          "touchbackEndZone"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "kickPower",
+          "coef": 0.012
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "kickerTackling",
+      "label": "the kicker as the last line of defense",
+      "target": {
+        "kind": "kickoff",
+        "classes": [
+          "returnTD"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "speed",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "strength",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "agility",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "K",
+          "rating": "awareness",
+          "coef": -0.006
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "puntDistance",
+      "label": "the punter's leg",
+      "target": {
+        "kind": "punt",
+        "classes": [
+          "fairCatchLong",
+          "downedLong",
+          "outOfBoundsLong",
+          "returnedLong"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "P",
+          "rating": "kickPower",
+          "coef": 0.01
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "puntHangTime",
+      "label": "the punter's hang time and placement",
+      "target": {
+        "kind": "punt",
+        "classes": [
+          "returnedShort",
+          "returnedLong"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "P",
+          "rating": "kickAccuracy",
+          "coef": -0.008
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    },
+    {
+      "id": "punterTackling",
+      "label": "the punter as the last line of defense",
+      "target": {
+        "kind": "punt",
+        "classes": [
+          "returnTD"
+        ]
+      },
+      "inputs": [
+        {
+          "side": "offense",
+          "position": "P",
+          "rating": "speed",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "P",
+          "rating": "strength",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "P",
+          "rating": "agility",
+          "coef": -0.006
+        },
+        {
+          "side": "offense",
+          "position": "P",
+          "rating": "awareness",
+          "coef": -0.006
+        }
+      ],
+      "min": 0.5,
+      "max": 2.0
+    }
+  ]
+}

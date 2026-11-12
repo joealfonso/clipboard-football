@@ -1,0 +1,801 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Designed, never data-derived (docs/MODEL.md, Matchup table). Raw multipliers on the baseline class probabilities, offense leaf x defensive preset x class, plus a small formation x defensive package layer. The engine reads matchup.centered.json, which the pipeline's normalization writes from this file. Every cell not listed is 1. A cell outside 0.9-1.1 needs a label and a reason.",
+  "bounds": {
+    "min": 0.5,
+    "max": 2.0
+  },
+  "notable": {
+    "below": 0.9,
+    "above": 1.1
+  },
+  "matchup": [
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun",
+        "qbSneak"
+      ],
+      "presets": [
+        "runStuff"
+      ],
+      "class": "loss",
+      "m": 1.25,
+      "label": "designed",
+      "reason": "Eight or more in the box: more runs stopped at or behind the line.",
+      "check": {
+        "minRelativeChange": 0.08
+      }
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "runStuff"
+      ],
+      "class": "r10_19",
+      "m": 0.85,
+      "label": "designed",
+      "reason": "Eight in the box: fewer runs reach the second level."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "runStuff"
+      ],
+      "class": "r20",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "One deep safety behind a loaded box: a run that gets through has room."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun",
+        "qbSneak"
+      ],
+      "presets": [
+        "goalLine"
+      ],
+      "class": "loss",
+      "m": 1.3,
+      "label": "designed",
+      "reason": "Goal line defense crowds the line: more runs stuffed.",
+      "check": {
+        "minRelativeChange": 0.08
+      }
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "goalLine"
+      ],
+      "class": "r10_19",
+      "m": 0.8,
+      "label": "designed",
+      "reason": "Goal line defense: runs rarely get to the second level."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "goalLine"
+      ],
+      "class": "r20",
+      "m": 1.25,
+      "label": "designed",
+      "reason": "Three or fewer defensive backs: a run that breaks the line has nobody behind it."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "dimeCover4",
+        "dimeCover0Blitz",
+        "prevent"
+      ],
+      "class": "loss",
+      "m": 0.8,
+      "label": "designed",
+      "reason": "Light box against six or more defensive backs: fewer runs stopped at the line."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "dimeCover4",
+        "dimeCover0Blitz",
+        "prevent"
+      ],
+      "class": "r4_9",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Light box: runs pick up steady yards."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "dimeCover4",
+        "dimeCover0Blitz",
+        "prevent"
+      ],
+      "class": "r10_19",
+      "m": 1.2,
+      "label": "designed",
+      "reason": "Light box: more runs reach the second level."
+    },
+    {
+      "leaves": [
+        "qbSneak"
+      ],
+      "presets": [
+        "dimeCover4",
+        "dimeCover0Blitz",
+        "prevent"
+      ],
+      "class": "loss",
+      "m": 0.8,
+      "label": "designed",
+      "reason": "Light box: fewer bodies to stop a sneak."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "nickelCover1Blitz"
+      ],
+      "class": "loss",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Blitzers shoot gaps: more runs stopped in the backfield."
+    },
+    {
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "presets": [
+        "nickelCover1Blitz",
+        "dimeCover0Blitz"
+      ],
+      "class": "r20",
+      "m": 1.25,
+      "label": "designed",
+      "reason": "Blitzers out of position: a run that gets past them goes a long way."
+    },
+    {
+      "leaves": [
+        "outsideRun"
+      ],
+      "presets": [
+        "baseCover2",
+        "nickelCover2"
+      ],
+      "class": "r10_19",
+      "m": 0.88,
+      "label": "designed",
+      "reason": "Cover 2 corners sit at the edge and force the run back inside."
+    },
+    {
+      "leaves": [
+        "shortPass",
+        "intermediatePass",
+        "playAction"
+      ],
+      "presets": [
+        "nickelCover1Blitz"
+      ],
+      "class": "sack",
+      "m": 1.35,
+      "label": "designed",
+      "reason": "Five or more rushers: more sacks.",
+      "check": {
+        "minRelativeChange": 0.1
+      }
+    },
+    {
+      "leaves": [
+        "shortPass",
+        "intermediatePass",
+        "playAction"
+      ],
+      "presets": [
+        "dimeCover0Blitz"
+      ],
+      "class": "sack",
+      "m": 1.5,
+      "label": "designed",
+      "reason": "Six or more rushers, nobody deep: the most sacks of any call."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "nickelCover1Blitz"
+      ],
+      "class": "sack",
+      "m": 1.45,
+      "label": "designed",
+      "reason": "A deep drop against five or more rushers: more sacks."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "dimeCover0Blitz"
+      ],
+      "class": "sack",
+      "m": 1.6,
+      "label": "designed",
+      "reason": "A deep drop against six or more rushers: the most sacks."
+    },
+    {
+      "leaves": [
+        "shortPass",
+        "intermediatePass",
+        "deepPass",
+        "screenPass",
+        "playAction"
+      ],
+      "presets": [
+        "nickelCover1Blitz",
+        "dimeCover0Blitz"
+      ],
+      "class": "int",
+      "m": 1.12,
+      "label": "designed",
+      "reason": "Pressure forces hurried throws: more interceptions."
+    },
+    {
+      "leaves": [
+        "screenPass"
+      ],
+      "presets": [
+        "dimeCover0Blitz"
+      ],
+      "class": "c10_19",
+      "m": 1.4,
+      "label": "designed",
+      "reason": "Screen vs Dime Cover 0 Blitz: rushers run past the screen, more 10+ gains.",
+      "check": {
+        "minRelativeChange": 0.1
+      }
+    },
+    {
+      "leaves": [
+        "screenPass"
+      ],
+      "presets": [
+        "dimeCover0Blitz"
+      ],
+      "class": "c20",
+      "m": 1.5,
+      "label": "designed",
+      "reason": "Screen vs Cover 0: nobody deep, so a screen that breaks one tackle can go the distance."
+    },
+    {
+      "leaves": [
+        "screenPass"
+      ],
+      "presets": [
+        "dimeCover0Blitz"
+      ],
+      "class": "sack",
+      "m": 0.6,
+      "label": "designed",
+      "reason": "The screen is thrown before the blitz arrives."
+    },
+    {
+      "leaves": [
+        "screenPass"
+      ],
+      "presets": [
+        "nickelCover1Blitz"
+      ],
+      "class": "c10_19",
+      "m": 1.25,
+      "label": "designed",
+      "reason": "Screen against a blitz: rushers run past the screen."
+    },
+    {
+      "leaves": [
+        "screenPass"
+      ],
+      "presets": [
+        "nickelCover1Blitz"
+      ],
+      "class": "sack",
+      "m": 0.7,
+      "label": "designed",
+      "reason": "The screen is thrown before the blitz arrives."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "dimeCover0Blitz"
+      ],
+      "class": "c20",
+      "m": 1.35,
+      "label": "designed",
+      "reason": "Cover 0: no deep safety, so a completed deep ball is a big play.",
+      "check": {
+        "minRelativeChange": 0.1
+      }
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "prevent"
+      ],
+      "class": "c20",
+      "m": 0.6,
+      "label": "designed",
+      "reason": "Prevent drops everyone deep and takes away the long ball."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "prevent"
+      ],
+      "class": "inc",
+      "m": 1.2,
+      "label": "designed",
+      "reason": "Prevent: deep throws into crowded zones fall incomplete."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "prevent"
+      ],
+      "class": "int",
+      "m": 1.3,
+      "label": "designed",
+      "reason": "Prevent: more defenders under deep throws, more interceptions."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "nickelCover1",
+        "runStuff"
+      ],
+      "class": "c20",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Single-high man coverage: one safety to beat deep."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "baseCover2",
+        "nickelCover2",
+        "nickel2Man"
+      ],
+      "class": "c20",
+      "m": 0.85,
+      "label": "designed",
+      "reason": "Two deep safeties cap the deep ball."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "baseCover2",
+        "nickelCover2",
+        "nickel2Man"
+      ],
+      "class": "int",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Two deep safeties: more defenders under the deep throw."
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "nickelCover4",
+        "dimeCover4"
+      ],
+      "class": "c20",
+      "m": 0.8,
+      "label": "designed",
+      "reason": "Four deep defenders take away the long ball.",
+      "check": {
+        "minRelativeChange": 0.1
+      }
+    },
+    {
+      "leaves": [
+        "deepPass"
+      ],
+      "presets": [
+        "nickelCover4",
+        "dimeCover4"
+      ],
+      "class": "inc",
+      "m": 1.08,
+      "label": "designed",
+      "reason": "Quarters coverage: deep throws are contested."
+    },
+    {
+      "leaves": [
+        "intermediatePass"
+      ],
+      "presets": [
+        "baseCover2",
+        "nickelCover2",
+        "nickel2Man"
+      ],
+      "class": "c10_19",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "The hole in Cover 2 between the corner and the safety.",
+      "check": {
+        "minRelativeChange": 0.05
+      }
+    },
+    {
+      "leaves": [
+        "intermediatePass"
+      ],
+      "presets": [
+        "nickelCover4",
+        "dimeCover4"
+      ],
+      "class": "c10_19",
+      "m": 0.88,
+      "label": "designed",
+      "reason": "Quarters coverage sits on intermediate routes."
+    },
+    {
+      "leaves": [
+        "shortPass"
+      ],
+      "presets": [
+        "dimeCover4",
+        "prevent"
+      ],
+      "class": "c1_9",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Soft zones give up the short throw.",
+      "check": {
+        "minRelativeChange": 0.05
+      }
+    },
+    {
+      "leaves": [
+        "shortPass"
+      ],
+      "presets": [
+        "dimeCover4",
+        "prevent"
+      ],
+      "class": "inc",
+      "m": 0.88,
+      "label": "designed",
+      "reason": "Soft zones: short throws are rarely contested."
+    },
+    {
+      "leaves": [
+        "shortPass"
+      ],
+      "presets": [
+        "nickel2Man",
+        "nickelCover1",
+        "runStuff"
+      ],
+      "class": "inc",
+      "m": 1.12,
+      "label": "designed",
+      "reason": "Tight man coverage contests short throws."
+    },
+    {
+      "leaves": [
+        "screenPass"
+      ],
+      "presets": [
+        "dimeCover4",
+        "prevent"
+      ],
+      "class": "c1_9",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Soft zones leave room underneath for the screen.",
+      "check": {
+        "minRelativeChange": 0.05
+      }
+    },
+    {
+      "leaves": [
+        "playAction"
+      ],
+      "presets": [
+        "runStuff",
+        "goalLine",
+        "baseCover3"
+      ],
+      "class": "c20",
+      "m": 1.3,
+      "label": "designed",
+      "reason": "Run defenders bite on the fake: big plays behind them.",
+      "check": {
+        "minRelativeChange": 0.1
+      }
+    },
+    {
+      "leaves": [
+        "playAction"
+      ],
+      "presets": [
+        "runStuff",
+        "goalLine",
+        "baseCover3"
+      ],
+      "class": "c10_19",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Run defenders bite on the fake."
+    },
+    {
+      "leaves": [
+        "playAction"
+      ],
+      "presets": [
+        "dimeCover4",
+        "prevent"
+      ],
+      "class": "c20",
+      "m": 0.8,
+      "label": "designed",
+      "reason": "Six or more defensive backs do not bite on a run fake."
+    },
+    {
+      "leaves": [
+        "shortPass",
+        "screenPass"
+      ],
+      "presets": [
+        "goalLine"
+      ],
+      "class": "c1_9",
+      "m": 1.2,
+      "label": "designed",
+      "reason": "Goal line defense is built for the run: quick throws find space."
+    }
+  ],
+  "formation": [
+    {
+      "formations": [
+        "heavy"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "prevent"
+      ],
+      "leaves": [
+        "insideRun",
+        "qbSneak"
+      ],
+      "class": "r1_3",
+      "m": 1.12,
+      "label": "designed",
+      "reason": "Heavy: extra blockers win short-yardage runs."
+    },
+    {
+      "formations": [
+        "heavy"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "prevent"
+      ],
+      "leaves": [
+        "insideRun",
+        "qbSneak"
+      ],
+      "class": "loss",
+      "m": 0.85,
+      "label": "designed",
+      "reason": "Heavy: extra blockers mean fewer stuffs."
+    },
+    {
+      "formations": [
+        "heavy"
+      ],
+      "packages": [
+        "dime",
+        "prevent"
+      ],
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "class": "r4_9",
+      "m": 1.12,
+      "label": "designed",
+      "reason": "Heavy against a light package: blockers outnumber defenders."
+    },
+    {
+      "formations": [
+        "shotgun",
+        "empty"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "goalLine",
+        "prevent"
+      ],
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "class": "loss",
+      "m": 1.06,
+      "label": "designed",
+      "reason": "Shotgun handoffs start further back: a few more stuffs."
+    },
+    {
+      "formations": [
+        "shotgun",
+        "empty"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "goalLine",
+        "prevent"
+      ],
+      "leaves": [
+        "insideRun",
+        "outsideRun"
+      ],
+      "class": "r4_9",
+      "m": 0.96,
+      "label": "designed",
+      "reason": "Shotgun handoffs: slightly less run efficiency."
+    },
+    {
+      "formations": [
+        "shotgun",
+        "empty"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "goalLine",
+        "prevent"
+      ],
+      "leaves": [
+        "shortPass",
+        "screenPass"
+      ],
+      "class": "c1_9",
+      "m": 1.06,
+      "label": "designed",
+      "reason": "Shotgun and Empty get quick throws out fast."
+    },
+    {
+      "formations": [
+        "shotgun",
+        "empty"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "goalLine",
+        "prevent"
+      ],
+      "leaves": [
+        "shortPass",
+        "screenPass"
+      ],
+      "class": "inc",
+      "m": 0.95,
+      "label": "designed",
+      "reason": "Shotgun and Empty get quick throws out fast."
+    },
+    {
+      "formations": [
+        "empty"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "goalLine",
+        "prevent"
+      ],
+      "leaves": [
+        "shortPass",
+        "intermediatePass",
+        "deepPass",
+        "playAction"
+      ],
+      "class": "sack",
+      "m": 1.15,
+      "label": "designed",
+      "reason": "Empty: no back to pick up a blitzer."
+    },
+    {
+      "formations": [
+        "empty"
+      ],
+      "packages": [
+        "dime"
+      ],
+      "leaves": [
+        "shortPass",
+        "intermediatePass",
+        "deepPass",
+        "playAction"
+      ],
+      "class": "sack",
+      "m": 1.25,
+      "label": "designed",
+      "reason": "Empty against Dime, the blitz package: no back to pick up the extra rusher."
+    },
+    {
+      "formations": [
+        "underCenter"
+      ],
+      "packages": [
+        "base",
+        "nickel",
+        "dime",
+        "goalLine",
+        "prevent"
+      ],
+      "leaves": [
+        "playAction"
+      ],
+      "class": "c20",
+      "m": 1.08,
+      "label": "designed",
+      "reason": "Under center sells the run fake best."
+    }
+  ]
+}

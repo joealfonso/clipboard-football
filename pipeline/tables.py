@@ -74,4 +74,5 @@ TABLES: tuple[TableSpec, ...] = (
         "season",
         detail=True,
     ),
+    TableSpec("combine", "Combine", "whole", "load_combine"),
 )

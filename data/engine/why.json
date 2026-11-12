@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used.",
+  "minLogEffect": 0.05,
+  "order": [
+    "matchup",
+    "rating",
+    "formation"
+  ],
+  "labels": {
+    "fumble": "a fumble",
+    "loss": "no gain or a loss",
+    "r1_3": "a short gain",
+    "r4_9": "a solid gain",
+    "r10_19": "a 10-yard-plus run",
+    "r20": "a 20-yard-plus run",
+    "sack": "a sack",
+    "scramble": "a scramble",
+    "int": "an interception",
+    "inc": "an incompletion",
+    "fumbleCatch": "a catch and fumble",
+    "c0": "a catch for no gain",
+    "c1_9": "a short completion",
+    "c10_19": "a 10-yard-plus completion",
+    "c20": "a 20-yard-plus completion",
+    "blocked": "a blocked kick",
+    "touchback": "a touchback",
+    "muffed": "a muffed catch",
+    "returnTD": "a return touchdown",
+    "fairCatchShort": "a fair catch",
+    "fairCatchLong": "a fair catch on a long punt",
+    "downedShort": "a punt downed",
+    "downedLong": "a long punt downed",
+    "outOfBoundsShort": "a punt out of bounds",
+    "outOfBoundsLong": "a long punt out of bounds",
+    "returnedShort": "a returned punt",
+    "returnedLong": "a long punt returned",
+    "good": "good",
+    "miss": "no good",
+    "touchbackEndZone": "a touchback in the end zone",
+    "touchbackLandingZone": "a touchback after the landing zone",
+    "short": "a kick short of the landing zone",
+    "outOfBounds": "a kick out of bounds",
+    "fairCatch": "a fair catch",
+    "returned": "a return",
+    "kickersRecover": "a kick the kicking team recovered",
+    "onsideRecovered": "an onside kick the kicking team recovered",
+    "onsideLost": "an onside kick the receivers recovered",
+    "onsideOutOfBounds": "an onside kick out of bounds",
+    "kneel": "A kneel-down",
+    "spike": "A spike",
+    "offense": "offense",
+    "defense": "defense",
+    "classRare": "a result that rare",
+    "yardsLong": "a gain that long",
+    "base": "Base",
+    "nickel": "Nickel",
+    "dime": "Dime",
+    "goalLine": "Goal Line",
+    "prevent": "Prevent",
+    "shotgun": "Shotgun",
+    "underCenter": "Under center",
+    "pistol": "Pistol",
+    "empty": "Empty",
+    "heavy": "Heavy",
+    "insideRun": "An inside run",
+    "outsideRun": "An outside run",
+    "qbSneak": "A quarterback sneak",
+    "shortPass": "A short pass",
+    "intermediatePass": "An intermediate pass",
+    "deepPass": "A deep pass",
+    "screenPass": "A screen pass",
+    "playAction": "A play-action pass",
+    "falseStart": "a false start",
+    "delayOfGame": "delay of game",
+    "encroachment": "encroachment",
+    "defensiveOffside": "offside",
+    "offensiveHolding": "holding",
+    "defensiveHolding": "defensive holding",
+    "defensivePassInterference": "pass interference",
+    "offensivePassInterference": "offensive pass interference",
+    "illegalContact": "illegal contact",
+    "intentionalGrounding": "intentional grounding",
+    "roughingThePasser": "roughing the passer",
+    "unnecessaryRoughness": "unnecessary roughness",
+    "unnecessaryRoughnessDeadBall": "unnecessary roughness after the play",
+    "kickoffIllegalFormation": "an illegal kickoff formation",
+    "returnTeamIllegalBlock": "an illegal block on the return",
+    "punt": "A punt",
+    "fieldGoal": "A field goal try",
+    "extraPoint": "An extra point",
+    "kickoff": "A kickoff",
+    "onsideKick": "An onside kick"
+  },
+  "templates": [
+    {
+      "id": "noPlay",
+      "when": "penalty",
+      "kinds": [
+        "noPlay"
+      ],
+      "text": "Flag before the snap: {penalty.label} on the {penalty.side}.",
+      "factors": [
+        "penalty"
+      ]
+    },
+    {
+      "id": "fluke",
+      "when": "fluke",
+      "text": "{call.label} for {class.label}: a fluke, only {class.basePct}% of plays like this end in {fluke.what}.",
+      "factors": [
+        "fluke",
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "penalty",
+      "when": "penalty",
+      "text": "{call.label} for {class.label}, with a flag: {penalty.label} on the {penalty.side}.",
+      "factors": [
+        "penalty",
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "matchup",
+      "when": "matchup",
+      "text": "{call.label} against {matchup.presetLabel}: the matchup made {class.label} more or less likely (x{matchup.multiplier}).",
+      "factors": [
+        "matchup",
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "rating",
+      "when": "rating",
+      "text": "{call.label} for {class.label}: {rating.label} decided it (x{rating.multiplier}).",
+      "factors": [
+        "rating",
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "formation",
+      "when": "formation",
+      "text": "{call.label} from {formation.formationLabel} against {formation.packageLabel}: {class.label} (x{formation.multiplier}).",
+      "factors": [
+        "formation",
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "baseline",
+      "when": "baseline",
+      "text": "{call.label} for {class.label}, a common result in this situation ({class.pct}%).",
+      "factors": [
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "punt",
+      "when": "punt",
+      "text": "Punt: {class.label}, {special.gross} yards gross.",
+      "factors": [
+        "class",
+        "special"
+      ]
+    },
+    {
+      "id": "fieldGoal",
+      "when": "fieldGoal",
+      "text": "{fieldGoal.distance}-yard field goal: {class.label} ({fieldGoal.pct}% chance).",
+      "factors": [
+        "fieldGoal",
+        "class"
+      ]
+    },
+    {
+      "id": "extraPoint",
+      "when": "extraPoint",
+      "text": "Extra point: {class.label} ({class.pct}% chance).",
+      "factors": [
+        "class"
+      ]
+    },
+    {
+      "id": "kickoff",
+      "when": "kickoff",
+      "text": "Kickoff: {class.label}.",
+      "factors": [
+        "class"
+      ]
+    },
+    {
+      "id": "onside",
+      "when": "onsideKick",
+      "text": "Onside kick: {class.label} ({class.pct}% chance).",
+      "factors": [
+        "class"
+      ]
+    },
+    {
+      "id": "kneel",
+      "when": "kneel",
+      "text": "The quarterback takes a knee.",
+      "factors": []
+    },
+    {
+      "id": "spike",
+      "when": "spike",
+      "text": "The quarterback spikes the ball to stop the clock.",
+      "factors": []
+    }
+  ]
+}

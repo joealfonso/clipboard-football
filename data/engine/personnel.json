@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "Which position slots are on the field. Offense by formation (and the kick units), defense by preset through its package. The engine fills slots from a team's pool in pool order (M1 has no depth chart). Designed.",
+  "positions": ["QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K", "P"],
+  "offense": {
+    "shotgun": { "QB": 1, "RB": 1, "WR": 3, "TE": 1, "OL": 5 },
+    "underCenter": { "QB": 1, "RB": 1, "WR": 2, "TE": 2, "OL": 5 },
+    "pistol": { "QB": 1, "RB": 1, "WR": 3, "TE": 1, "OL": 5 },
+    "empty": { "QB": 1, "RB": 0, "WR": 4, "TE": 1, "OL": 5 },
+    "heavy": { "QB": 1, "RB": 1, "WR": 0, "TE": 3, "OL": 6 }
+  },
+  "kick": {
+    "punt": { "P": 1, "OL": 5, "TE": 2, "LB": 2, "S": 1 },
+    "fieldGoal": { "K": 1, "P": 1, "OL": 6, "TE": 3 },
+    "extraPoint": { "K": 1, "P": 1, "OL": 6, "TE": 3 },
+    "kickoff": { "K": 1, "LB": 4, "S": 3, "CB": 3 }
+  },
+  "packages": {
+    "base": { "DL": 4, "LB": 3, "CB": 2, "S": 2 },
+    "nickel": { "DL": 4, "LB": 2, "CB": 3, "S": 2 },
+    "dime": { "DL": 4, "LB": 1, "CB": 4, "S": 2 },
+    "goalLine": { "DL": 5, "LB": 3, "CB": 2, "S": 1 },
+    "prevent": { "DL": 3, "LB": 1, "CB": 4, "S": 3 }
+  },
+  "presetPackage": {
+    "baseCover3": "base",
+    "baseCover2": "base",
+    "runStuff": "base",
+    "nickelCover3": "nickel",
+    "nickelCover4": "nickel",
+    "nickelCover2": "nickel",
+    "nickel2Man": "nickel",
+    "nickelCover1": "nickel",
+    "nickelCover1Blitz": "nickel",
+    "dimeCover4": "dime",
+    "dimeCover0Blitz": "dime",
+    "goalLine": "goalLine",
+    "prevent": "prevent"
+  }
+}

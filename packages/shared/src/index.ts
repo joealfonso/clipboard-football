@@ -3,3 +3,22 @@
 export * from "./types";
 export { callerConfigSchema, callerTablesSchema, catalogSchema, parseCallerConfig, parseCallerTables, parseCatalog, ruleSchema } from "./schema";
 export { parseRuleSet, ruleSetSchema } from "./rules-schema";
+export {
+  baselinePenaltiesSchema,
+  baselineScrimmageSchema,
+  baselineSpecialSchema,
+  distributionsSchema,
+  engineConfigSchema,
+  kickoffSchema,
+  matchupCenteredSchema,
+  namesSchema,
+  parseEngineData,
+  parsePlayer,
+  parseTeamPool,
+  personnelSchema,
+  playerSchema,
+  ratingsSchema,
+  teamPoolSchema,
+  whySchema,
+} from "./engine-schema";
+export type { EngineFiles } from "./engine-schema";

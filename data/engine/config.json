@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Designed inputs to the play engine's fitted tables. Hand-edited; the pipeline (python -m pipeline.engine) only reads this file. See docs/MODEL.md and docs/DECISIONS.md, M1 step 4.",
+  "seasons": {
+    "from": 2016,
+    "to": 2023,
+    "weightAnchor": 2023,
+    "halfLifeSeasons": 2,
+    "fieldGoalHalfLifeSeasons": 1,
+    "neverTrainFrom": 2024,
+    "holdout": [2024, 2025],
+    "passLeavesFrom": 2022,
+    "durationFrom": 2022
+  },
+  "minPlays": 300,
+  "minPoolPlays": 100,
+  "dimensions": {
+    "ydl10": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": ["scrimmage", "try"],
+      "buckets": [
+        { "label": "1-10", "min": 1, "max": 10 },
+        { "label": "11-20", "min": 11, "max": 20 },
+        { "label": "21-30", "min": 21, "max": 30 },
+        { "label": "31-40", "min": 31, "max": 40 },
+        { "label": "41-50", "min": 41, "max": 50 },
+        { "label": "51-60", "min": 51, "max": 60 },
+        { "label": "61-70", "min": 61, "max": 70 },
+        { "label": "71-80", "min": 71, "max": 80 },
+        { "label": "81-90", "min": 81, "max": 90 },
+        { "label": "91-99", "min": 91, "max": 99 }
+      ]
+    },
+    "puntZone": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": ["scrimmage"],
+      "buckets": [
+        { "label": "P1-49", "min": 1, "max": 49 },
+        { "label": "P50-59", "min": 50, "max": 59 },
+        { "label": "P60-69", "min": 60, "max": 69 },
+        { "label": "P70-79", "min": 70, "max": 79 },
+        { "label": "P80-89", "min": 80, "max": 89 },
+        { "label": "P90-99", "min": 90, "max": 99 }
+      ]
+    }
+  },
+  "families": {
+    "run": {
+      "leaves": ["insideRun", "outsideRun", "qbSneak"],
+      "classes": ["fumble", "loss", "r1_3", "r4_9", "r10_19", "r20"]
+    },
+    "pass": {
+      "leaves": ["shortPass", "intermediatePass", "deepPass", "screenPass", "playAction"],
+      "classes": ["sack", "scramble", "int", "inc", "fumbleCatch", "c0", "c1_9", "c10_19", "c20"]
+    }
+  },
+  "classRules": {
+    "run": "fumble: any fumble on the play. Otherwise by yards gained: loss (<= 0), r1_3, r4_9, r10_19, r20 (20+).",
+    "pass": "First match: sack, scramble, int (interception), inc (incomplete), fumbleCatch (completion with a fumble), then completions by yards: c0 (<= 0), c1_9, c10_19, c20 (20+). A dropback that is none of these (two-point rows only) is classed from its description: see pipeline/engine/classes.py."
+  },
+  "levels": [
+    { "dims": ["leaf", "formation", "down", "dist5", "zone6", "score3", "time2"] },
+    { "dims": ["leaf", "down", "dist5", "zone6", "score3", "time2"] },
+    { "dims": ["leaf", "down", "dist3", "zone6"] },
+    { "dims": ["leaf", "dist3", "zone3"] },
+    { "dims": ["leaf", "zone3"] },
+    { "dims": ["leaf"] },
+    { "dims": ["family"] }
+  ],
+  "poolLevels": [
+    { "dims": ["leaf", "class", "ydl10"] },
+    { "dims": ["leaf", "class", "zone3"] },
+    { "dims": ["leaf", "class"] },
+    { "dims": ["family", "class"] }
+  ],
+  "twoPoint": {
+    "note": "Two-point tries use the scrimmage classes. A leaf with fewer than minPlays tries backs off to scrimmage plays snapped at the 2, then to scrimmage plays at the goal line (zone6 GL), then to every try of the family.",
+    "levels": ["try", "at2", "goalLine", "tryFamily"]
+  },
+  "punts": {
+    "levels": [{ "dims": ["puntZone"] }, { "dims": [] }],
+    "poolLevels": [{ "dims": ["class", "puntZone"] }, { "dims": ["class"] }],
+    "longGrossFrom": 45,
+    "classes": [
+      "blocked",
+      "touchback",
+      "muffed",
+      "returnTD",
+      "fairCatchShort",
+      "fairCatchLong",
+      "downedShort",
+      "downedLong",
+      "outOfBoundsShort",
+      "outOfBoundsLong",
+      "returnedShort",
+      "returnedLong"
+    ],
+    "blockedEndBehindLine": 8
+  },
+  "fieldGoals": {
+    "minDistance": 18,
+    "maxDistance": 70,
+    "curve": "Weighted logistic regression of make on kick distance and distance squared, 2016-2023 attempts, field goal half-life.",
+    "extrapolation": "Beyond the longest 1-yard distance with at least capMinAttempts attempts, the make probability is capped at the curve's value there and falls linearly to 0 at maxDistance. Designed (spec resolved question 6).",
+    "capMinAttempts": 20,
+    "bands": [
+      { "label": "<30", "min": 0, "max": 29 },
+      { "label": "30-39", "min": 30, "max": 39 },
+      { "label": "40-49", "min": 40, "max": 49 },
+      { "label": "50+", "min": 50, "max": 99 }
+    ],
+    "blockedEndBehindLine": 8
+  },
+  "durations": {
+    "note": "Seconds of game clock a play uses, from end_clock_time minus time_of_day (snap to end of play) on 2022-2023 plays. A draw is a whole number of seconds from the histogram for the play's group and class.",
+    "minSeconds": 1,
+    "maxSeconds": 30
+  },
+  "fluke": {
+    "classProbabilityBelow": 0.05,
+    "yardsPercentile": 0.975
+  },
+  "penalties": {
+    "levels": [{ "dims": ["pfamily", "down", "dist3"] }, { "dims": ["pfamily"] }],
+    "minSnaps": 2000,
+    "families": ["run", "pass", "punt", "fieldGoal", "extraPoint"],
+    "note": "Rates per snap, accepted and declined fouls both counted, from every foul named in the play description. A snap is a run, pass, punt, field goal or extra point, or a no_play row with a foul. no_play rows take their family from pbp's pass and rush flags, or from '(Punt formation)' and '(Field Goal formation)' in the description; a pre-snap foul with neither counts for run and pass in proportion.",
+    "mapping": {
+      "False Start": "falseStart",
+      "Delay of Game": "delayOfGame",
+      "Encroachment": "encroachment",
+      "Neutral Zone Infraction": "encroachment",
+      "Defensive Offside": "defensiveOffside",
+      "Offensive Holding": "offensiveHolding",
+      "Defensive Holding": "defensiveHolding",
+      "Defensive Pass Interference": "defensivePassInterference",
+      "Offensive Pass Interference": "offensivePassInterference",
+      "Illegal Contact": "illegalContact",
+      "Intentional Grounding": "intentionalGrounding",
+      "Roughing the Passer": "roughingThePasser",
+      "Unnecessary Roughness": "unnecessaryRoughness",
+      "Illegal Block Above the Waist": "unsupported",
+      "Face Mask": "unsupported",
+      "Face Mask (15 Yards)": "unsupported",
+      "Illegal Use of Hands": "unsupported",
+      "Illegal Formation": "unsupported",
+      "Ineligible Downfield Pass": "unsupported",
+      "Unsportsmanlike Conduct": "unsupported",
+      "Illegal Shift": "unsupported",
+      "Defensive Too Many Men on Field": "unsupported",
+      "Taunting": "unsupported",
+      "Horse Collar Tackle": "unsupported",
+      "Illegal Blindside Block": "unsupported",
+      "Offside on Free Kick": "unsupported",
+      "Illegal Motion": "unsupported",
+      "Lowering the Head to Initiate Contact": "unsupported",
+      "Defensive 12 On-field": "unsupported",
+      "Disqualification": "unsupported",
+      "Offensive Too Many Men on Field": "unsupported",
+      "Chop Block": "unsupported",
+      "Tripping": "unsupported",
+      "Low Block": "unsupported",
+      "Player Out of Bounds on Kick": "unsupported",
+      "Roughing the Kicker": "unsupported",
+      "Illegal Forward Pass": "unsupported",
+      "Kickoff Short of Landing Zone": "unsupported",
+      "Running Into the Kicker": "unsupported",
+      "Offensive Offside": "unsupported",
+      "Fair Catch Interference": "unsupported",
+      "Kickoff Out of Bounds": "unsupported",
+      "Leverage": "unsupported",
+      "Illegal Touch Kick": "unsupported",
+      "Ineligible Downfield Kick": "unsupported",
+      "Illegal Touch Pass": "unsupported",
+      "Illegal Double-Team Block": "unsupported",
+      "Defensive Delay of Game": "unsupported",
+      "Illegal Substitution": "unsupported",
+      "Kick Catch Interference": "unsupported",
+      "Illegal Crackback": "unsupported",
+      "Clipping": "unsupported",
+      "Offensive 12 On-field": "unsupported",
+      "Player Out of Bounds on Punt": "unsupported",
+      "Interference with Opportunity to Catch": "unsupported",
+      "Lowering the Head to Make Forcible Contact": "unsupported",
+      "Illegal Bat": "unsupported",
+      "Invalid Fair Catch Signal": "unsupported",
+      "Leaping": "unsupported",
+      "Illegal Peelback": "unsupported",
+      "Delay of Kickoff": "unsupported",
+      "Illegal Kick/Kicking Loose Ball": "unsupported",
+      "Hip Drop Tackle": "unsupported",
+      "Illegal Wedge": "unsupported",
+      "Short Free Kick": "unsupported"
+    },
+    "byFamily": {
+      "Illegal Block Above the Waist": {
+        "note": "Designed: a block above the waist by the receiving team on a punt is the rule set's return-team illegal block. Anywhere else it is unsupported.",
+        "families": ["punt"],
+        "side": "defense",
+        "id": "returnTeamIllegalBlock"
+      }
+    },
+    "splitByPlay": {
+      "unnecessaryRoughness": {
+        "note": "pbp has one Unnecessary Roughness type. Designed split: a foul on a no_play row (the down was replayed or enforced from the previous spot) is the live-ball foul; a foul on a play that stands is the dead-ball foul after the down.",
+        "noPlay": "unnecessaryRoughness",
+        "playStands": "unnecessaryRoughnessDeadBall"
+      }
+    },
+    "pairing": {
+      "note": "Designed. What physical play goes with each foul. noPlay: the snap never happens. sampled: a play sampled normally. incompletePass: an incomplete pass on a pass leaf. Fouls by both teams only on run and pass plays without a change of possession.",
+      "falseStart": { "pairs": "noPlay", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint", "kneel", "spike"] },
+      "delayOfGame": { "pairs": "noPlay", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint", "kneel", "spike"] },
+      "encroachment": { "pairs": "noPlay", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint", "kneel", "spike"] },
+      "defensiveOffside": { "pairs": "sampled", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint"] },
+      "offensiveHolding": { "pairs": "sampled", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint"] },
+      "defensiveHolding": { "pairs": "sampled", "families": ["run", "pass"] },
+      "defensivePassInterference": { "pairs": "incompletePass", "families": ["pass"], "spot": "fitted" },
+      "offensivePassInterference": { "pairs": "incompletePass", "families": ["pass"] },
+      "illegalContact": { "pairs": "sampled", "families": ["pass"] },
+      "intentionalGrounding": { "pairs": "incompletePass", "families": ["pass"], "spot": "passer", "passerDepth": 7 },
+      "roughingThePasser": { "pairs": "sampled", "families": ["pass"] },
+      "unnecessaryRoughness": { "pairs": "sampled", "families": ["run", "pass"] },
+      "unnecessaryRoughnessDeadBall": { "pairs": "sampled", "families": ["run", "pass"], "onlyWhenBallDeadInField": true },
+      "returnTeamIllegalBlock": { "pairs": "sampled", "families": ["punt"], "note": "Only on a punt the receivers return and keep; spot of the foul 5 yards behind where the return ends." }
+    }
+  }
+}

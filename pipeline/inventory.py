@@ -58,6 +58,8 @@ class Report:
     volatile: dict[str, list[int]] = field(default_factory=dict)
     # Per-season errors from the extra pbp and charting calculations, keyed by label.
     extra_errors: dict[str, dict[int, str]] = field(default_factory=dict)
+    # Combine: rows and null % of each drill, by the table's own position code.
+    drill_nulls: dict[str, dict[str, float | int]] = field(default_factory=dict)
 
 
 def _progress(message: str) -> None:
@@ -113,6 +115,14 @@ def build_report(source: Source) -> Report:
             report.surveys.append(survey)
             continue
         if spec.mode == "whole":
+            if spec.key == "combine":
+                def load_combine(spec: TableSpec = spec) -> pl.DataFrame:
+                    df = source.load_whole(spec)
+                    report.drill_nulls = drill_nulls(df)
+                    return df
+
+                report.surveys.append(survey_whole(spec, load_combine))
+                continue
             report.surveys.append(survey_whole(spec, lambda spec=spec: source.load_whole(spec)))
             continue
 
@@ -136,6 +146,23 @@ def build_report(source: Source) -> Report:
             continue
         report.surveys.append(survey_per_season(spec, seasons, load, on_frame))
     return report
+
+
+COMBINE_DRILLS = ("forty", "bench", "vertical", "broad_jump", "cone", "shuttle", "wt", "ht")
+
+
+def drill_nulls(df: pl.DataFrame) -> dict[str, dict[str, float | int]]:
+    """Per position code: rows, and null % of each drill column the table has."""
+    if "pos" not in df.columns:
+        return {}
+    out: dict[str, dict[str, float | int]] = {}
+    for (pos,), part in sorted(df.partition_by("pos", as_dict=True).items(), key=lambda kv: str(kv[0][0])):
+        row: dict[str, float | int] = {"rows": part.height}
+        for d in COMBINE_DRILLS:
+            if d in part.columns:
+                row[d] = 100.0 * part[d].null_count() / part.height
+        out[str(pos)] = row
+    return out
 
 
 def write_atomic(path: Path, text: str) -> None:

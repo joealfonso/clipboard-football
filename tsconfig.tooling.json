@@ -4,5 +4,5 @@
     "lib": ["ES2022"],
     "types": ["node"]
   },
-  "include": ["vitest.config.ts", "test"]
+  "include": ["vitest.config.ts", "test", "scripts"]
 }

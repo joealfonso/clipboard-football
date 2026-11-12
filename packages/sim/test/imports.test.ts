@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 const simSrc = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
 const repoRoot = resolve(simSrc, "../../..");
 const sharedSrc = join(repoRoot, "packages/shared/src");
-const ALLOWED_SHARED = new Set(["types.ts", "situation.ts", "catalog.ts", "caller.ts", "rules.ts", "play.ts"]);
+const ALLOWED_SHARED = new Set(["types.ts", "situation.ts", "catalog.ts", "caller.ts", "rules.ts", "play.ts", "engine.ts"]);
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {

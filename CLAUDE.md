@@ -33,7 +33,7 @@ The main session plans, delegates and reviews. Subagents can't spawn other subag
 ## Conventions that cause bugs if missed
 
 - The sim is pure: no DOM imports, one seeded RNG passed in, same seed and calls give the same game. Log the seed with every game.
-- `resolvePlay(state, offenseCall, defenseCall, rng)` decides every outcome. Animation reads the PlayResult and never decides anything.
+- `createEngine(data)` returns `resolvePlay(state, offenseCall, defenseCall, players, rng)`, which decides every outcome. Animation reads the PlayResult and never decides anything.
 - The one-line "why" after each play comes only from factors the engine used.
 - Balance lives in data files, never in code. Never flatten variance to make results look fair.
 - The offense vs defense matchup table is designed, not fitted. Never call it data-derived. docs/MODEL.md marks each part fitted, designed, or mixed.

@@ -481,6 +481,11 @@ def render_table(index: int, survey: TableSurvey, report: Report) -> list[str]:
     lines += ["Rows per season:", ""] + table_md(header, rows) + [""]
     lines += ["Columns:", ""] + render_columns(survey) + [""]
     lines += render_gaps(survey)
+    if spec.key == "combine" and report.drill_nulls:
+        drills = [d for d in ("forty", "bench", "vertical", "broad_jump", "cone", "shuttle", "wt", "ht") if any(d in v for v in report.drill_nulls.values())]
+        rows = [[pos, str(v["rows"]), *[pct(v.get(d)) for d in drills]] for pos, v in report.drill_nulls.items()]
+        lines += ["Null % per drill and position (all seasons; the table's own position codes):", ""]
+        lines += table_md(["position", "rows", *[f"`{d}` null %" for d in drills]], rows) + [""]
     return lines
 
 

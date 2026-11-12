@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Pre-registered before the first 2024-2025 validation run (spec criterion F1 and resolved question 14: Joseph accepted the proposed tolerances, N = 300, the half-lives and K = 4). Absolute differences: percentage points for rates (unit pp), yards for yard metrics (unit yd). Never change after seeing results without Joseph's decision in docs/DECISIONS.md. known_deviations holds only Joseph-approved entries; the engineer never adds one.",
+  "validationSeasons": [
+    2024,
+    2025
+  ],
+  "inSampleSeasons": [
+    2016,
+    2023
+  ],
+  "simulationsPerPlay": 4,
+  "seed": 20261111,
+  "metrics": [
+    {
+      "id": "meanYards",
+      "label": "Mean yards per play",
+      "scope": "Each scrimmage leaf: run and pass plays without an accepted foul",
+      "tolerance": 0.4,
+      "unit": "yd",
+      "minN": 1000,
+      "kind": "prediction"
+    },
+    {
+      "id": "classShare",
+      "label": "Yards class shares",
+      "scope": "Each scrimmage leaf, each class",
+      "tolerance": 2.0,
+      "unit": "pp",
+      "minN": 1000,
+      "kind": "prediction"
+    },
+    {
+      "id": "bigPlay",
+      "label": "20+ yard play rate",
+      "scope": "Runs; dropbacks",
+      "tolerance": 0.75,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "completion",
+      "label": "Completion rate",
+      "scope": "Pass attempts (not sacks or scrambles), overall and per pass leaf",
+      "tolerance": 2.0,
+      "unit": "pp",
+      "minN": 1000,
+      "kind": "prediction"
+    },
+    {
+      "id": "sackRate",
+      "label": "Sack rate",
+      "scope": "Dropbacks",
+      "tolerance": 0.75,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "intRate",
+      "label": "Interception rate",
+      "scope": "Pass attempts",
+      "tolerance": 0.5,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "fumble",
+      "label": "Fumble rate and fumble lost rate",
+      "scope": "Runs; completions",
+      "tolerance": 0.4,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "fieldGoal.<30",
+      "label": "Field goal make rate, under 30 yards",
+      "scope": "Field goal attempts by kick distance",
+      "tolerance": 3.0,
+      "unit": "pp",
+      "minN": 100,
+      "kind": "prediction"
+    },
+    {
+      "id": "fieldGoal.30-39",
+      "label": "Field goal make rate, 30-39 yards",
+      "scope": "Field goal attempts by kick distance",
+      "tolerance": 3.0,
+      "unit": "pp",
+      "minN": 100,
+      "kind": "prediction"
+    },
+    {
+      "id": "fieldGoal.40-49",
+      "label": "Field goal make rate, 40-49 yards",
+      "scope": "Field goal attempts by kick distance",
+      "tolerance": 4.0,
+      "unit": "pp",
+      "minN": 100,
+      "kind": "prediction"
+    },
+    {
+      "id": "fieldGoal.50+",
+      "label": "Field goal make rate, 50+ yards",
+      "scope": "Field goal attempts by kick distance",
+      "tolerance": 6.0,
+      "unit": "pp",
+      "minN": 100,
+      "kind": "prediction"
+    },
+    {
+      "id": "extraPoint",
+      "label": "Extra point success rate",
+      "scope": "Extra point tries",
+      "tolerance": 1.5,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "twoPoint",
+      "label": "Two-point success rate",
+      "scope": "Two-point tries with a known leaf",
+      "tolerance": 8.0,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "puntGross",
+      "label": "Punt gross yards",
+      "scope": "Punts without an accepted foul",
+      "tolerance": 1.5,
+      "unit": "yd",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "puntNet",
+      "label": "Punt net yards (gross minus return, minus 20 on a touchback)",
+      "scope": "Punts without an accepted foul",
+      "tolerance": 1.5,
+      "unit": "yd",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "puntRate",
+      "label": "Punt touchback, fair catch and return rates",
+      "scope": "Punts without an accepted foul",
+      "tolerance": 3.0,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "penalty",
+      "label": "Penalty rate per snap",
+      "scope": "Each supported id; every snap, accepted and declined fouls",
+      "tolerance": 0.3,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "prediction"
+    },
+    {
+      "id": "kickoffRate",
+      "label": "Kickoff touchback, return and out-of-bounds rates",
+      "scope": "2025 regular-season kickoffs, onside kicks excluded",
+      "tolerance": 3.0,
+      "unit": "pp",
+      "minN": 0,
+      "kind": "tuning check (not a prediction)"
+    },
+    {
+      "id": "kickoffStart",
+      "label": "Kickoff mean start yard line",
+      "scope": "2025 regular-season kickoffs with a start, onside kicks excluded",
+      "tolerance": 1.5,
+      "unit": "yd",
+      "minN": 0,
+      "kind": "tuning check (not a prediction)"
+    }
+  ],
+  "known_deviations": []
+}

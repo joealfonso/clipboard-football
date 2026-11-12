@@ -1,0 +1,351 @@
+{
+  "version": 1,
+  "designed": true,
+  "tunedTo": 2025,
+  "note": "Designed, tuned by hand until simulated kickoffs match the 2025 regular season (docs/DECISIONS.md, 'Kickoffs are designed, tuned to 2025'). The tuning check in docs/ENGINE_REPORT.md runs against 2025 and confirms the tuning; it is not a prediction. Spots are the receiving team's own yard line. Weights are relative.",
+  "kickoff": {
+    "classes": [
+      "touchbackEndZone",
+      "touchbackLandingZone",
+      "short",
+      "outOfBounds",
+      "fairCatch",
+      "returned",
+      "returnTD",
+      "kickersRecover"
+    ],
+    "weights": [
+      1780,
+      300,
+      60,
+      145,
+      7,
+      7680,
+      22,
+      6
+    ],
+    "returnEnd": [
+      {
+        "value": 2,
+        "w": 3
+      },
+      {
+        "value": 7,
+        "w": 10
+      },
+      {
+        "value": 12,
+        "w": 47
+      },
+      {
+        "value": 17,
+        "w": 112
+      },
+      {
+        "value": 22,
+        "w": 271
+      },
+      {
+        "value": 27,
+        "w": 653
+      },
+      {
+        "value": 32,
+        "w": 608
+      },
+      {
+        "value": 37,
+        "w": 190
+      },
+      {
+        "value": 42,
+        "w": 135
+      },
+      {
+        "value": 47,
+        "w": 41
+      },
+      {
+        "value": 52,
+        "w": 16
+      },
+      {
+        "value": 57,
+        "w": 13
+      },
+      {
+        "value": 62,
+        "w": 5
+      },
+      {
+        "value": 67,
+        "w": 3
+      },
+      {
+        "value": 72,
+        "w": 2
+      },
+      {
+        "value": 77,
+        "w": 2
+      },
+      {
+        "value": 82,
+        "w": 1
+      },
+      {
+        "value": 87,
+        "w": 3
+      }
+    ],
+    "fairCatchAt": [
+      {
+        "value": 10,
+        "w": 1
+      },
+      {
+        "value": 15,
+        "w": 2
+      },
+      {
+        "value": 20,
+        "w": 2
+      }
+    ],
+    "kickersRecoverAt": [
+      {
+        "value": 5,
+        "w": 1
+      },
+      {
+        "value": 10,
+        "w": 2
+      },
+      {
+        "value": 15,
+        "w": 2
+      },
+      {
+        "value": 19,
+        "w": 1
+      }
+    ],
+    "returnSeconds": [
+      {
+        "value": 4,
+        "w": 10
+      },
+      {
+        "value": 5,
+        "w": 30
+      },
+      {
+        "value": 6,
+        "w": 30
+      },
+      {
+        "value": 7,
+        "w": 15
+      },
+      {
+        "value": 8,
+        "w": 8
+      },
+      {
+        "value": 9,
+        "w": 4
+      },
+      {
+        "value": 10,
+        "w": 2
+      },
+      {
+        "value": 12,
+        "w": 1
+      }
+    ]
+  },
+  "safetyKick": {
+    "note": "Safety kicks are rare: designed, not tuned to data.",
+    "classes": [
+      "touchbackEndZone",
+      "touchbackLandingZone",
+      "short",
+      "outOfBounds",
+      "fairCatch",
+      "returned",
+      "returnTD",
+      "kickersRecover"
+    ],
+    "weights": [
+      300,
+      200,
+      100,
+      150,
+      400,
+      8800,
+      30,
+      20
+    ],
+    "returnEnd": [
+      {
+        "value": 25,
+        "w": 5
+      },
+      {
+        "value": 30,
+        "w": 15
+      },
+      {
+        "value": 35,
+        "w": 25
+      },
+      {
+        "value": 40,
+        "w": 25
+      },
+      {
+        "value": 45,
+        "w": 15
+      },
+      {
+        "value": 50,
+        "w": 10
+      },
+      {
+        "value": 60,
+        "w": 5
+      }
+    ],
+    "fairCatchAt": [
+      {
+        "value": 20,
+        "w": 1
+      },
+      {
+        "value": 25,
+        "w": 2
+      },
+      {
+        "value": 30,
+        "w": 2
+      },
+      {
+        "value": 35,
+        "w": 1
+      }
+    ],
+    "kickersRecoverAt": [
+      {
+        "value": 15,
+        "w": 1
+      },
+      {
+        "value": 19,
+        "w": 1
+      }
+    ],
+    "returnSeconds": [
+      {
+        "value": 4,
+        "w": 10
+      },
+      {
+        "value": 5,
+        "w": 30
+      },
+      {
+        "value": 6,
+        "w": 30
+      },
+      {
+        "value": 7,
+        "w": 15
+      },
+      {
+        "value": 8,
+        "w": 8
+      },
+      {
+        "value": 9,
+        "w": 4
+      },
+      {
+        "value": 10,
+        "w": 2
+      },
+      {
+        "value": 12,
+        "w": 1
+      }
+    ]
+  },
+  "onside": {
+    "note": "Recovery rate of a declared onside kick: 2025 declared onside kicks, 5 recovered of 52 (9.6%). Few kicks, so designed; the report shows the count and its interval.",
+    "recover": 0.096,
+    "outOfBounds": 0.04,
+    "kickersAt": [
+      {
+        "value": 10,
+        "w": 3
+      },
+      {
+        "value": 11,
+        "w": 3
+      },
+      {
+        "value": 12,
+        "w": 2
+      },
+      {
+        "value": 13,
+        "w": 1
+      }
+    ],
+    "receiversAt": [
+      {
+        "value": 10,
+        "w": 2
+      },
+      {
+        "value": 11,
+        "w": 3
+      },
+      {
+        "value": 12,
+        "w": 3
+      },
+      {
+        "value": 13,
+        "w": 2
+      },
+      {
+        "value": 15,
+        "w": 1
+      },
+      {
+        "value": 20,
+        "w": 1
+      }
+    ],
+    "seconds": [
+      {
+        "value": 2,
+        "w": 2
+      },
+      {
+        "value": 3,
+        "w": 3
+      },
+      {
+        "value": 4,
+        "w": 2
+      }
+    ]
+  },
+  "fouls": {
+    "note": "Per 1,000,000 kickoffs, designed from 2025: kicking-team illegal formation 22 of 2,794; receiving-team holding and illegal blocks (132 + 21 of 2,794) are emitted as the rule set's return-team illegal block, the only return-team foul it has.",
+    "kickoffIllegalFormation": 7900,
+    "returnTeamIllegalBlock": 54800
+  }
+}

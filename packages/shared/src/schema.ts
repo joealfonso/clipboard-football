@@ -107,7 +107,7 @@ const rangeBucket = z.strictObject({
 });
 const phases = z.array(z.enum(["scrimmage", "try"])).min(1);
 
-const dimensionSchema = z.discriminatedUnion("type", [
+export const dimensionSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("exact"), field: z.enum(numericFields), phases }),
   z.strictObject({
     type: z.literal("range"),
@@ -153,7 +153,7 @@ const dimensionSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-const levelSchema = z.strictObject({ tag: z.string().optional(), dims: z.array(z.string()) });
+export const levelSchema = z.strictObject({ tag: z.string().optional(), dims: z.array(z.string()) });
 const seasonRange = z.strictObject({ from: z.number().int(), to: z.number().int() });
 
 const factorSchema = z.strictObject({
