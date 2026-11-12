@@ -5,7 +5,7 @@ Status: open questions settled by Joseph on 2026-11-11. Each milestone still get
 The milestones M1 to M9 come from the original brief. This file places everything Joseph asked for since then. Each feature goes in the earliest milestone that already builds what it depends on, so nothing gets built ahead.
 
 Rules that still apply to every new feature:
-- Depth target (Joseph, 2026-11-11): detailed to the point of a sim without being one, and approachable. When in doubt, more detail. Leave out layers that only repeat the same decision, and put full detail one click behind the headline numbers.
+- Depth target (Joseph, 2026-11-11): detailed to the point of a sim without being one, and approachable. When in doubt, more detail. Leave out layers that only repeat the same decision, and put full detail one click behind the headline numbers. The depth goes mainly into year-to-year change: players growing and aging, rosters turning over, contracts, drafts, coaching changes and the team's history across seasons, rather than micro-management inside one week.
 - At most seven choices on a screen. Each management screen gets at most five decisions.
 - Balance lives in data. Designed layers (coach styles, stamina, standout plays) are centered, so the league as a whole still matches real NFL totals and only individual teams and players differ.
 - Borrow general ideas only. Never copy another game's named systems, look or branding.
