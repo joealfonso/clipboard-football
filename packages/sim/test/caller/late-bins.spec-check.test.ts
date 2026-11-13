@@ -211,7 +211,7 @@ describe("B5, B6: late in-sample checks (CALLER_REPORT.md 8d)", () => {
 });
 
 describe("B7: step 2 8b rows that passed before still pass (5 pp)", () => {
-  // Frozen from docs/CALLER_REPORT.md section 8b at commit 29e2650 (before step 5a):
+  // Frozen from docs/CALLER_REPORT.md section 8b at commit b9d4730 (before step 5a):
   // [label, predicted 2016-2023, actual 2016-2023, predicted 2021-2023, actual 2021-2023].
   const before: [string, number, number, number, number][] = [
     ["Pass rate, down 1", 49.9, 50.2, 49.8, 49.9], ["Pass rate, down 2", 61.2, 60.9, 61.0, 60.8], ["Pass rate, down 3", 81.9, 81.2, 81.5, 79.6], ["Pass rate, down 4", 12.0, 11.1, 12.2, 13.1],

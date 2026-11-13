@@ -45,8 +45,9 @@ FINDINGS: tuple[LicenseFinding, ...] = (
         "courtesy of PFR\". Pro Football Reference's terms: sports-reference.com/termsofuse.html. What ships: only "
         "per-position percentile cut points per drill (data/players/distributions.json), never a player row, name or id. "
         "Cut points are at 5% to 95% only (no minimum or maximum), each the mean of the five results nearest its rank, and a "
-        "drill is tabled for a position only with at least 20 players, so no cut point is one player's measurement. Whether "
-        "PFR's 5.11 covers this use is open for Joseph before any public build (docs/DECISIONS.md).",
+        "drill is tabled for a position only with at least 20 players, so no cut point is one player's measurement. Joseph's "
+        "call on 5.10 and 5.11 (12 November 2026): the file is published under his judgment as a hobby project, to be revisited "
+        "if the project goes beyond that (docs/DECISIONS.md, the \"Public repo\" entry).",
     ),
     LicenseFinding(
         "FTN charting",
@@ -63,7 +64,8 @@ SUMMARY = (
     "carry these attributions and be offered under CC-BY-SA 4.0. Pro Football Reference's terms for the combine rows "
     "(Combine row) add two limits: no competing database (5.10) and no use to train, prompt or instruct AI (5.11); "
     "the engine's player tables (data/players/distributions.json) hold only per-position percentile cut points derived "
-    "from the combine, and 5.11 is an open question for Joseph. Not checked: the NFL's own terms for the NGS-sourced "
+    "from the combine, published under Joseph's call on 5.11 as a hobby project, to be revisited if the project goes beyond "
+    "that (docs/DECISIONS.md, the \"Public repo\" entry). Not checked: the NFL's own terms for the NGS-sourced "
     "participation rows (nflverse publishes them under CC-BY-SA 4.0), and every other table in this file. The nflreadpy "
     "package itself is MIT, which covers its code, not the data."
 )

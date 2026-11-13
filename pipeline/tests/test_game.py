@@ -109,10 +109,14 @@ def test_team_names_have_no_real_nfl_name():
 
 
 def test_a_real_nickname_or_city_fails_the_check():
-    collisions = pytest.importorskip("pipeline.game.real_names").collisions
-    assert collisions([{"place": "Harborview", "nickname": "Packers"}])
-    assert collisions([{"place": "Green Bay", "nickname": "Lanterns"}])
-    assert collisions([{"place": "Harborview", "nickname": "Steeler"}])
+    # Real names are read from the local-only list itself, so none is written in this repo.
+    real_names = pytest.importorskip("pipeline.game.real_names")
+    collisions = real_names.collisions
+    plural = sorted(n for n in real_names.NICKNAMES if n.isalpha() and n.endswith("s"))[0]
+    city = sorted(real_names.CITIES)[0]
+    assert collisions([{"place": "Harborview", "nickname": plural.title()}])
+    assert collisions([{"place": city.title(), "nickname": "Lanterns"}])
+    assert collisions([{"place": "Harborview", "nickname": plural.title()[:-1]}])
 
 
 def test_kickoff_fouls_count_only_as_the_designed_kickoff_fouls():

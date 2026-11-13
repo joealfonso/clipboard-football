@@ -50,7 +50,7 @@ describe("tables built from another config are refused (A4)", () => {
   it("names both versions and hashes, with a real version-1 table and config", () => {
     const hash = callerConfigHash();
     expect(() => checkCallerTables(data.config, hash, [data.offense, data.defense])).not.toThrow();
-    // The offense table and config of commit 29e2650, the last version-1 build (test/fixtures/caller-v1).
+    // The offense table and config of commit b9d4730, the last version-1 build (test/fixtures/caller-v1).
     const v1 = parseCallerTables(readJson("test/fixtures/caller-v1/offense.table.json"));
     const v1Config = parseCallerConfig(readJson("test/fixtures/caller-v1/config.json"));
     expect(v1.configVersion).toBe(1);

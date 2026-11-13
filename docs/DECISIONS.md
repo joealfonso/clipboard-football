@@ -624,7 +624,7 @@ Spec: docs/specs/m1-step4-play-engine.md. The lead's resolved open questions (20
 - The team-draw sensitivity check (ENGINE_REPORT.md section 1b) showed all three outside tolerance under every team draw, so none is sampling luck.
 - Causes: inside-run and extra-point shares look like real league trends after the training years. The play-action scramble share is a charting change (FTN tagged play action on 0.6% of scrambles in 2022, 12.6% in 2025, with the scramble share of dropbacks steady).
 - Joseph accepted all three in chat ("Accept all three"). They are in data/engine/tolerances.json `known_deviations` with approved_by "Joseph". No tolerance, minN or seed changed, and no model change was made for them.
-- The pre-registered sha256 above covers the file with `known_deviations` empty. The F1 test now hashes the file with that array reset to empty, so every pre-registered byte is still checked, and a new test requires every deviation to carry all fields and Joseph's approval. The pre-registered version is also commit 79e1347.
+- The pre-registered sha256 above covers the file with `known_deviations` empty. The F1 test now hashes the file with that array reset to empty, so every pre-registered byte is still checked, and a new test requires every deviation to carry all fields and Joseph's approval. The pre-registered version is also commit ef3229e.
 
 ### Post-validation revision 7: pre-snap foul cells (M1 step 5, resolved question 5)
 

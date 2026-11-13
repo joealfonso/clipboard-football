@@ -63,6 +63,18 @@ Hand-written settings, menus and rules. `data/players/names.json` and `data/team
 
 `data/calls/catalog.json`, `data/caller/config.json`, `data/caller/latechecks.json`, `data/engine/config.json`, `data/engine/matchup.json`, `data/engine/personnel.json`, `data/engine/why.json`, `data/game/config.json`, `data/game/league.json`, `data/players/ratings.json`, `data/players/names.json`, `data/teams/names.json`, `data/rules/nfl-2026.json`.
 
+## Test fixtures
+
+`test/fixtures/` holds frozen copies of earlier builds of the files above, for regression tests. Each keeps the license and credit of the file it is a copy of.
+
+| File | Copy of | License | Credit |
+| --- | --- | --- | --- |
+| `test/fixtures/caller-golden-v1.json`, `test/fixtures/caller-golden-pre5b.json` | `data/caller/golden.json` | CC-BY-SA 4.0 | nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse" |
+| `test/fixtures/caller-v1/offense.table.json`, `test/fixtures/caller-v2/offense.table.json` | `data/caller/offense.table.json` | CC-BY-SA 4.0 | nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse" |
+| `test/fixtures/game-golden-pre5b.json` | `data/game/golden.json` | CC-BY 4.0 | nflverse |
+| `test/fixtures/caller-v1/config.json`, `test/fixtures/caller-v2/config.json` | `data/caller/config.json` (designed) | MIT, with the code | |
+| `test/fixtures/caller-bins.json`, `test/fixtures/caller-late-bins.json`, `test/fixtures/caller-5b-bins.json` | Hand-built binning cases, no nflverse data | MIT, with the code | |
+
 ## Reports
 
 The reports in `docs/` (DATA.md, CALLER_REPORT.md, ENGINE_REPORT.md, COACH_REPORT.md, GAME_REPORT.md) quote figures from the files above. Those figures keep the license and credit of the file they come from.

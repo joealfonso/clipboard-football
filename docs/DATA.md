@@ -23,10 +23,10 @@ Checked by hand on 11 November 2026 against nflverse's own repositories. Not leg
 |---|---|---|---|
 | Play-by-play | CC-BY 4.0 | Credit nflverse. | LICENSE.md in github.com/nflverse/nflverse-data (the release repo the file is downloaded from) and in github.com/nflverse/nflverse-pbp: Creative Commons Attribution 4.0 International. |
 | Participation | CC-BY-SA 4.0 | "NFL NextGenStats via nflverse" for 2022 and earlier; "FTN Data via nflverse" from 2023. | Roxygen docs of load_participation() in github.com/nflverse/nflreadr, R/load_participation.R: data before 2023 is from NFL NGS, from 2023 courtesy of FTN, released under CC-BY-SA 4.0. |
-| Combine | CC-BY 4.0 (the nflverse-data release repo's license); upstream source Pro Football Reference, whose terms of use (sports-reference.com/termsofuse.html, updated 19 May 2023) allow reuse with credit, forbid building a competing database (5.10) and forbid using their data to train, prompt or instruct AI (5.11) | Combine data courtesy of Pro Football Reference, via nflverse. | LICENSE.md in github.com/nflverse/nflverse-data (Creative Commons Attribution 4.0 International), the repo whose `combine` release the file is downloaded from; that release's notes say "NFL Combine Data courtesy of PFR"; roxygen docs of load_combine() in github.com/nflverse/nflreadr, R/load_combine.R: "Loads combine data since 2000 courtesy of PFR". Pro Football Reference's terms: sports-reference.com/termsofuse.html. What ships: only per-position percentile cut points per drill (data/players/distributions.json), never a player row, name or id. Cut points are at 5% to 95% only (no minimum or maximum), each the mean of the five results nearest its rank, and a drill is tabled for a position only with at least 20 players, so no cut point is one player's measurement. Whether PFR's 5.11 covers this use is open for Joseph before any public build (docs/DECISIONS.md). |
+| Combine | CC-BY 4.0 (the nflverse-data release repo's license); upstream source Pro Football Reference, whose terms of use (sports-reference.com/termsofuse.html, updated 19 May 2023) allow reuse with credit, forbid building a competing database (5.10) and forbid using their data to train, prompt or instruct AI (5.11) | Combine data courtesy of Pro Football Reference, via nflverse. | LICENSE.md in github.com/nflverse/nflverse-data (Creative Commons Attribution 4.0 International), the repo whose `combine` release the file is downloaded from; that release's notes say "NFL Combine Data courtesy of PFR"; roxygen docs of load_combine() in github.com/nflverse/nflreadr, R/load_combine.R: "Loads combine data since 2000 courtesy of PFR". Pro Football Reference's terms: sports-reference.com/termsofuse.html. What ships: only per-position percentile cut points per drill (data/players/distributions.json), never a player row, name or id. Cut points are at 5% to 95% only (no minimum or maximum), each the mean of the five results nearest its rank, and a drill is tabled for a position only with at least 20 players, so no cut point is one player's measurement. Joseph's call on 5.10 and 5.11 (12 November 2026): the file is published under his judgment as a hobby project, to be revisited if the project goes beyond that (docs/DECISIONS.md, the "Public repo" entry). |
 | FTN charting | CC-BY-SA 4.0 | "FTN Data via nflverse" (the loader's own message asks for "ftndata.com via nflverse"). | Roxygen docs of load_ftn_charting() in github.com/nflverse/nflreadr, R/load_ftn_charting.R. |
 
-None of the nflverse terms forbids redistributing derived aggregates. CC-BY-SA 4.0 (participation and FTN) requires attribution and, for adapted material, sharing under the same license. The baked caller tables in data/caller/ aggregate participation and FTN fields, so if they count as adapted material they must carry these attributions and be offered under CC-BY-SA 4.0. Pro Football Reference's terms for the combine rows (Combine row) add two limits: no competing database (5.10) and no use to train, prompt or instruct AI (5.11); the engine's player tables (data/players/distributions.json) hold only per-position percentile cut points derived from the combine, and 5.11 is an open question for Joseph. Not checked: the NFL's own terms for the NGS-sourced participation rows (nflverse publishes them under CC-BY-SA 4.0), and every other table in this file. The nflreadpy package itself is MIT, which covers its code, not the data.
+None of the nflverse terms forbids redistributing derived aggregates. CC-BY-SA 4.0 (participation and FTN) requires attribution and, for adapted material, sharing under the same license. The baked caller tables in data/caller/ aggregate participation and FTN fields, so if they count as adapted material they must carry these attributions and be offered under CC-BY-SA 4.0. Pro Football Reference's terms for the combine rows (Combine row) add two limits: no competing database (5.10) and no use to train, prompt or instruct AI (5.11); the engine's player tables (data/players/distributions.json) hold only per-position percentile cut points derived from the combine, published under Joseph's call on 5.11 as a hobby project, to be revisited if the project goes beyond that (docs/DECISIONS.md, the "Public repo" entry). Not checked: the NFL's own terms for the NGS-sourced participation rows (nflverse publishes them under CC-BY-SA 4.0), and every other table in this file. The nflreadpy package itself is MIT, which covers its code, not the data.
 
 Local-only file: pipeline/game/real_names.py, a hand-kept list of real NFL nicknames and cities used only to reject collisions with the designed fictional team names (data/teams/names.json, M1 step 5). It is gitignored, never shipped and never committed; the collision check runs locally, and CI skips it when the file is absent.
 
@@ -773,7 +773,7 @@ Gap notes:
 - Status: ok.
 - Seasons requested: 1920-2026.
 - Seasons available: first 1920, last 2026, missing between: none.
-- Rows: 142755 in total.
+- Rows: 142756 in total.
 
 Rows per season:
 
@@ -885,7 +885,7 @@ Rows per season:
 | 2023 | 3090 |
 | 2024 | 3216 |
 | 2025 | 3137 |
-| 2026 | 3070 |
+| 2026 | 3071 |
 
 Columns:
 
@@ -1165,7 +1165,7 @@ Gap notes:
 - Status: ok.
 - Seasons requested: 2001-2026.
 - Seasons available: first 2001, last 2026, missing between: none.
-- Rows: 2198890 in total.
+- Rows: 2203540 in total.
 
 Rows per season:
 
@@ -1196,7 +1196,7 @@ Rows per season:
 | 2023 | 37327 |
 | 2024 | 37312 |
 | 2025 | 554215 |
-| 2026 | 775490 |
+| 2026 | 780140 |
 
 Columns:
 
@@ -1263,7 +1263,7 @@ Gap notes:
 - Status: ok.
 - Seasons requested: 2009-2026.
 - Seasons available: first 2009, last 2026, missing between: none.
-- Rows: 93593 in total.
+- Rows: 93849 in total.
 
 Rows per season:
 
@@ -1286,7 +1286,7 @@ Rows per season:
 | 2023 | 5599 |
 | 2024 | 6215 |
 | 2025 | 6068 |
-| 2026 | 2841 |
+| 2026 | 3097 |
 
 Columns:
 
@@ -1300,11 +1300,11 @@ Columns:
 | `last_name` | String | 0.00 |
 | `position` | String | 0.00 |
 | `practice_primary_injury` | String | 0.29 |
-| `practice_secondary_injury` | String | 94.02 |
+| `practice_secondary_injury` | String | 94.00 |
 | `practice_status` | String | 0.05 |
-| `report_primary_injury` | String | 34.04 |
-| `report_secondary_injury` | String | 96.20 |
-| `report_status` | String | 34.04 |
+| `report_primary_injury` | String | 34.22 |
+| `report_secondary_injury` | String | 96.21 |
+| `report_status` | String | 34.22 |
 | `season` | Float64 / Int32 | 0.00 |
 | `season_type` | String | 0.00 |
 | `team` | String | 0.00 |
@@ -1432,7 +1432,7 @@ Gap notes:
 
 - Loader: `nflreadpy.load_contracts()`, one call for the whole table (nflreadpy 0.1.5).
 - Seasons: no season column, so totals only.
-- Rows: 53701.
+- Rows: 53739.
 
 | column | dtype | null % |
 |---|---|---|
@@ -1440,14 +1440,14 @@ Gap notes:
 | `apy_cap_pct` | Float64 | 0.00 |
 | `college` | String | 1.12 |
 | `contract_history` | List(Struct({'team': String, 'contract_type': String, 'status': String, 'year_signed': Int32, 'yrs': Int32, 'total': Float64, 'apy': Float64, 'guarantees': Float64, 'amount_earned': Float64, 'percent_earned': Float64, 'effective_apy': Float64})) | 0.08 |
-| `date_of_birth` | String | 25.12 |
-| `draft_overall` | Int32 | 56.63 |
-| `draft_round` | Int32 | 56.52 |
-| `draft_team` | String | 0.61 |
+| `date_of_birth` | String | 25.19 |
+| `draft_overall` | Int32 | 56.60 |
+| `draft_round` | Int32 | 56.49 |
+| `draft_team` | String | 0.60 |
 | `draft_year` | Int32 | 0.52 |
-| `gsis_id` | String | 6.65 |
+| `gsis_id` | String | 6.64 |
 | `guaranteed` | Float64 | 0.00 |
-| `height` | String | 2.31 |
+| `height` | String | 2.32 |
 | `inflated_apy` | Float64 | 0.00 |
 | `inflated_guaranteed` | Float64 | 0.00 |
 | `inflated_value` | Float64 | 0.00 |
@@ -1459,7 +1459,7 @@ Gap notes:
 | `season_history` | List(Struct({'year': String, 'team': String, 'base_salary': Float64, 'prorated_bonus': Float64, 'option_bonus': Float64, 'roster_bonus': Float64, 'guaranteed_salary': Float64, 'cap_number': Float64, 'cap_percent': Float64, 'cash_paid': Float64, 'workout_bonus': Float64, 'per_game_roster_bonus': Float64, 'other_bonus': Float64})) | 0.08 |
 | `team` | String | 0.00 |
 | `value` | Float64 | 0.00 |
-| `weight` | String | 2.35 |
+| `weight` | String | 2.36 |
 | `year_signed` | Int32 | 0.00 |
 | `years` | Int32 | 0.05 |
 
