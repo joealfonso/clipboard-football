@@ -647,7 +647,7 @@ Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved
 
 - 2026-11-12, after Joseph accepted the remaining step 5 misses: his scoped `known_deviations` entries were appended to the file (DECISIONS.md, Step 5 misses accepted). The current file's sha256 is `78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa`. The pre-registered bytes are unchanged: with `known_deviations` emptied back to `[]`, the file still hashes to `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`. No tolerance, minN or gate changed.
 - 2026-11-12, step 5c: Joseph accepted `absMargin.share.8-14` (insample) at the run H value, so that one entry's observed value and reason were updated (DECISIONS.md, 5c checks accepted). The current file's sha256 is `b4a000c17f4a50d84cf11b974ec648d0112810934f34e4963b573a314e110907`; with `known_deviations` emptied it still hashes to `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`. Then three more Joseph entries were appended (C7 holdout c40, two C3 in-sample rows; "5c holdout and C3 misses accepted"): current sha256 `8fb92bdeed6093cfc5e04bb8cbcdcdbd2e944131b9646eb694a548c5d34a288e`, still `b4fe3046…` with `known_deviations` emptied. Then the five game holdout entries ("5c game holdout misses accepted"): current sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`, still `b4fe3046…` with `known_deviations` emptied.
-- 2026-11-13, step 5d: Joseph accepted `absMargin.share.8-14` (insample) at the step 5d run H value, so that entry's observed value, reason and date were updated (DECISIONS.md, 5d misses accepted). The current file's sha256 is `cc228f6023042cf9f7be661f821c3dc13ff713fe5bd166ed79feab5e62670c01`, still `b4fe3046…` with `known_deviations` emptied.
+- 2026-11-13, step 5d: Joseph accepted `absMargin.share.8-14` (insample) at the step 5d run H value, so that entry's observed value, reason and date were updated (DECISIONS.md, 5d misses accepted). The current file's sha256 is `cc228f6023042cf9f7be661f821c3dc13ff713fe5bd166ed79feab5e62670c01`, still `b4fe3046…` with `known_deviations` emptied. Then Joseph accepted the three wider game holdout misses of step 5d run 11 ("5d holdout misses accepted"), updating three holdout entries: current sha256 `4b53dccd61a36efe2c77ecd3ca28b16d1f2bcff7b3e1bad9c04c3787dfe0f61b`, still `b4fe3046…` with `known_deviations` emptied.
 
 ### What nflverse `play_clock` holds (C1, resolved question 8)
 
@@ -1121,6 +1121,8 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Engine | 8 | 2026-11-13, step 5d | Step 5d caller tables and code (engine tables differ only in the caller config hash they record) | Every metric identical to run 7 |
 | C7 | 7 | 2026-11-13, step 5d | Step 5d tempo level (B) and Joseph's step 5d known deviation (the summary pins the tolerances file) | Every metric passes or stays at its accepted value; `defense.c40` identical |
 | Step 5 game | 11 | 2026-11-13, step 5d | Every step 5d change and Joseph's step 5d approvals | 0 gated failures; 3 accepted misses wider (see "Holdout runs for step 5d"); stopped, nothing recorded |
+| C7 | 8 | 2026-11-13, step 5d | Approvals and pins only, metrics must match run 7: Joseph's step 5d holdout known deviations (the summary pins the tolerances file) | Every metric identical to run 7 |
+| Step 5 game | 12 | 2026-11-13, step 5d | Approvals and pins only, metrics must match run 11: Joseph's step 5d holdout known deviations and C7 run 8 | Every metric, diagnostic and slice digest identical to run 11; 0 gated failures, the three misses now read "accepted". Run on a loaded machine (load average 22-48), so its 49.7 ms per game is not a speed reading |
 
 
 ## M1 step 5c: playtest fixes
@@ -1368,6 +1370,14 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
   - `fieldGoalAttempts.perGame` 0.3110 -> 0.3187 (3.731 vs 4.050; seeds 3.621 to 3.792; 0.3110 at run 10).
   The other twelve accepted holdout rows are at or better; no new gated miss.
 - Stop rule (lead's H2 instruction): nothing is recorded for the three wider misses; they go to Joseph.
+
+### 5d holdout misses accepted (Joseph, 2026-11-13)
+- Decision (Joseph, question dialog, 2026-11-13, "Accept (Recommended)"; relayed by the lead): the three game holdout misses that step 5d run 11 widened are accepted at their run 11 values, scope holdout, approved_by Joseph, date 2026-11-13. Their existing holdout known deviations in data/game/tolerances.json were updated (observed, reason, date); no threshold or other entry moved:
+  - `total.mean` 44.1685 vs 45.9246 (accepted before step 5d at 44.2341, |diff| 1.6905 -> 1.7561).
+  - `absMargin.share.8-14` 28.12 vs 18.0147 (before: 27.92, |diff| 9.9053 -> 10.1053).
+  - `fieldGoalAttempts.perGame` 3.7309 vs 4.0496 (before: 3.7386, |diff| 0.3110 -> 0.3187).
+- The calibration status and the holdout at-or-better comparisons read these entries as before. New tolerances sha256 `4b53dccd61a36efe2c77ecd3ca28b16d1f2bcff7b3e1bad9c04c3787dfe0f61b` (see "Game-level and component tolerances pre-registered"). The step 5c test that pins the 5c values of these entries is left for the test-writer.
+- Pins-only reruns, in this order so no pin went stale: C7 run 8 (every metric identical to run 7), the in-sample summary (every metric, diagnostic and slice digest identical to run H), game holdout run 12 ("approvals and pins only, metrics must match run 11": every metric, diagnostic and slice digest identical to run 11; 0 gated failures). The machine was not quiet: load average 32 at the start and 22-48 during the runs (other work on the host), so the recorded speeds (23.9 ms per game in-sample, 49.7 ms per game holdout) are not usable readings; run 11's 8.3 ms per game (85.6 s) is the last clean one. The metrics do not depend on load.
 
 ## Publishing
 

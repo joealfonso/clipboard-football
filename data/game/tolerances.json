@@ -585,11 +585,11 @@
     },
     {
       "metric": "total.mean",
-      "observed": 44.2341,
+      "observed": 44.1685,
       "target": 45.9246,
-      "reason": "Step 5c game holdout run 8 (post hoc): 44.2341 vs 45.9246. Accepted before step 5c at 44.2937 vs 45.9246 (step 5b run 4); wider after step 5c. Not tuned. Joseph accepted it at this value: 'Accept all five'.",
+      "reason": "Step 5d game holdout run 11 (post hoc): 44.1685 vs 45.9246, |diff| 1.7561. Accepted before step 5d at 44.2341 (|diff| 1.6905, step 5c run 8); wider after step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "holdout",
-      "date": "2026-11-12",
+      "date": "2026-11-13",
       "approved_by": "Joseph"
     },
     {
@@ -603,11 +603,11 @@
     },
     {
       "metric": "absMargin.share.8-14",
-      "observed": 27.92,
+      "observed": 28.12,
       "target": 18.0147,
-      "reason": "Step 5c game holdout run 8 (post hoc): 27.92 vs 18.0147. Accepted before step 5c at 27.64 vs 18.0147 (step 5b run 4); wider after step 5c. Not tuned. Joseph accepted it at this value: 'Accept all five'.",
+      "reason": "Step 5d game holdout run 11 (post hoc): 28.12 vs 18.0147, |diff| 10.1053. Accepted before step 5d at 27.92 (|diff| 9.9053, step 5c run 8); wider after step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "holdout",
-      "date": "2026-11-12",
+      "date": "2026-11-13",
       "approved_by": "Joseph"
     },
     {
@@ -729,11 +729,11 @@
     },
     {
       "metric": "fieldGoalAttempts.perGame",
-      "observed": 3.7386,
+      "observed": 3.7309,
       "target": 4.0496,
-      "reason": "Step 5c game holdout run 8 (post hoc): field goal tries per game (3.86 at step 5b run 7; milestone B removed tries the engine makes at 0%); 3.7386 vs 4.0496. New in step 5c. Not tuned. Joseph accepted it: 'Accept all five'.",
+      "reason": "Step 5d game holdout run 11 (post hoc): 3.7309 vs 4.0496, |diff| 0.3187. Accepted before step 5d at 3.7386 (|diff| 0.3110, step 5c run 8); wider after step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "holdout",
-      "date": "2026-11-12",
+      "date": "2026-11-13",
       "approved_by": "Joseph"
     }
   ]

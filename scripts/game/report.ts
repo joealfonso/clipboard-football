@@ -432,7 +432,8 @@ export function renderReport(summaries: Readonly<Record<string, Summary>>, coach
     lines.push("- 2026-11-12, step 5c, counted as step 5b run 8 in docs/DECISIONS.md, after every step 5c change (docs/specs/m1-step5c-playtest-fixes.md, revision 1 and milestones A-G) and Joseph's step 5c approvals: 2 gated failures (homeWin.rate, fieldGoalAttempts.perGame), and 3 accepted misses wider (post hoc).");
     lines.push("- 2026-11-12, step 5c, counted as step 5b run 9 in docs/DECISIONS.md, approvals and timing only, metrics must match run 8: after Joseph accepted run 8's five misses (scoped known deviations), on an idle machine: 0 gated failures, every metric identical to run 8 (post hoc).");
     lines.push("- 2026-11-12, step 5c, counted as step 5b run 10 in docs/DECISIONS.md, pins only, metrics must match run 9: after the code review fixes (text, a config move, C7 run 6), on an idle machine: 0 gated failures (post hoc).");
-    lines.push(`- 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md (the run in section 2), after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: ${n} gated failures (post hoc).`);
+    lines.push("- 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md, after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: 0 gated failures, 3 accepted misses wider (post hoc).");
+    lines.push(`- 2026-11-13, step 5d, counted as step 5b run 12 in docs/DECISIONS.md (the run in section 2), approvals and pins only, metrics must match run 11: Joseph's step 5d holdout known deviations and C7 run 8: ${n} gated failures (post hoc).`);
   }
   lines.push("");
   if (summaries["holdout"] !== undefined) lines.push(...section("2. Validation, 2024-2025 (holdout)", summaries["holdout"]));
