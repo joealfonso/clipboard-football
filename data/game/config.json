@@ -1150,6 +1150,16 @@
       {
         "dims": [
           "time5",
+          "score3",
+          "ownTO",
+          "prevKneel",
+          "restart",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "time5",
           "final",
           "score3",
           "prevKneel",
@@ -1197,7 +1207,7 @@
     "minN": 150,
     "maxSeconds": 40,
     "cellTotal": 10000,
-    "note": "Seconds the offense lets run before the snap when the game clock is running. Measured 2022-2023: game clock at the previous snap minus that play's measured duration minus the game clock at this snap; nflverse play_clock is 0 on every row 2016-2025, so it cannot be used (DECISIONS.md). restart: the previous snap went out of bounds (1) or drew a flag (2), so the clock was stopped and restarted on the ready signal (designed bin, added after the first in-sample game run showed run-off after such plays is about 4 s shorter and the pooled cells cut run-off after ordinary plays by 2-3 s). toCalled: a timeout is called in this dead ball; the run-off is then the time that runs before the timeout (post-validation revision 2 of step 5). Levels keep score3 down to the third level (revision 3). Step 5c milestone F: a late-only level (time5, lateS3, toCalled) before the score-free level, so a late leader without its own cell no longer pools with trailing teams."
+    "note": "Seconds the offense lets run before the snap when the game clock is running. Measured 2022-2023: game clock at the previous snap minus that play's measured duration minus the game clock at this snap; nflverse play_clock is 0 on every row 2016-2025, so it cannot be used (DECISIONS.md). restart: the previous snap went out of bounds (1) or drew a flag (2), so the clock was stopped and restarted on the ready signal (designed bin, added after the first in-sample game run showed run-off after such plays is about 4 s shorter and the pooled cells cut run-off after ordinary plays by 2-3 s). toCalled: a timeout is called in this dead ball; the run-off is then the time that runs before the timeout (post-validation revision 2 of step 5). Levels keep score3 down to the third level (revision 3). Step 5c milestone F: a late-only level (time5, lateS3, toCalled) before the score-free level, so a late leader without its own cell no longer pools with trailing teams. Step 5d milestone B: a level between the first two keeps the offense's own timeouts and drops `final` (time5, score3, ownTO, prevKneel, restart, toCalled), so a trailer with no timeouts inside 0:40, which has no first-level cell, no longer pools with teams holding timeouts."
   },
   "timeouts": {
     "levels": [

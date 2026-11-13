@@ -99,6 +99,8 @@ The clock rules are **cited NFL rules**, neither fitted nor designed: when the c
 - Ten-second run-off (designed): the offense spends a timeout instead when trailing or tied in the final 2:00 of a half with one left.
 - Component validation against 2024-2025 (C7, pre-registered tolerances): all 11 metrics pass (docs/COACH_REPORT.md).
 
+**Tempo keeps the offense's own timeouts (fitted, step 5d milestone B).** A tempo level between the first two (time5, score3, ownTO, prevKneel, restart, toCalled; data/game/config.json), fitted on 2022-2023 like every tempo level, so a trailer with no timeouts inside 0:40 (no first-level cell) reads a no-timeout cell (`GF|T|0|0|0|0`: mean 15.7 s, 19% at 20 s or more) instead of the cell that pools every timeout count (`GF|c40|T|0|0|0`: 18.2 s, 34%). The first level's cells and every coarser level's cells are unchanged.
+
 **Seconds a play uses (fitted, step 4).** nflverse pbp has no duration column, but from 2022 on `time_of_day` (the snap) and `end_clock_time` (the end of the play) are both timestamps, so their difference is the play's length (spec resolved question 4: a direct field exists, so the clean-subsample model was not needed). On incompletions, where the clock stops at the end of the play and starts on the snap, it matches the game clock change to the next snap within 1.5 seconds 89-91% of the time (median error 0.1-0.2 s). The engine draws whole seconds from a 2022-2023 histogram per family and class (and per punt and field goal class). Bias: the measured subsample is 94% of 2022-2023 runs and 93% of passes, with a class mix within 0.5 points of all plays; runs from 2016-2021 have no timestamps and take their class's histogram. Pre-snap run-off stays step 5's.
 
 ## Game rules defaults

@@ -38,6 +38,7 @@ export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
 export const STEP5D_RUNS: readonly (readonly [string, string])[] = [
   ["baseline", "before step 5d (the behavior of 4f25b28; milestone A changes no behavior)"],
   ["res3", "after resolution 3 (the caller reads timeouts at the snap in clock order; caller refit)"],
+  ["B", "after B (a tempo level that keeps the offense's own timeouts)"],
 ];
 
 export interface ToleranceMetric {
