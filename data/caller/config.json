@@ -795,6 +795,21 @@
       "kneelSeconds": 2,
       "playClockRule": "clock.playClockAfterPlay"
     },
+    "kneelGap": {
+      "type": "kneelOut",
+      "of": "lateTime",
+      "members": [
+        "GF",
+        "OT"
+      ],
+      "phases": [
+        "scrimmage"
+      ],
+      "kneelSeconds": 2,
+      "playClockRule": "clock.playClockAfterPlay",
+      "shortOnly": true,
+      "concede": true
+    },
     "fieldHalf": {
       "type": "range",
       "field": "yardLine100",
@@ -1094,6 +1109,13 @@
         "kneel"
       ],
       "levels": [
+        {
+          "dims": [
+            "kneelGap",
+            "scoreLate5Only",
+            "lateTime"
+          ]
+        },
         {
           "dims": [
             "down",

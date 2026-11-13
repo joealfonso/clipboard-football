@@ -3,6 +3,12 @@
   "seasons": [2016,2017,2018,2019,2020,2021,2022,2023],
   "levels": [
     {
+      "dims": ["side","time5","final","lateS5","afterKneel","running"]
+    },
+    {
+      "dims": ["side","lateS5","afterKneel"]
+    },
+    {
       "dims": ["side","time5","final","lateS5","running","ownTO","down4"]
     },
     {
@@ -42,6 +48,18 @@
   "minN": 150,
   "deadBalls": 309962,
   "cells": [
+    {
+      "defense|GF|c40|T9|K|1": [5270,229],
+      "offense|GF|c120|L9|K|1": [0,211],
+      "offense|GF|c120|L|K|1": [21615,159],
+      "offense|GF|c40|L9|K|1": [26657,400],
+      "offense|GF|c40|L|K|1": [24944,281]
+    },
+    {
+      "defense|T9|K": [37681,351],
+      "offense|L9|K": [17263,619],
+      "offense|L|K": [23268,449]
+    },
     {
       "defense|G5|-|0|0|2|1-3": [15668,201],
       "defense|G5|-|0|0|3|1-3": [0,155],
@@ -851,5 +869,5 @@
       }
     ]
   },
-  "configHash": "ee7082e8449a762856dbb0fa3fc391af631c6e61ffa81c1de01989a68bd64c1c"
+  "configHash": "88217f4734e3e011687685b92b2eb66112834864096cbcbc3fdbc17b105ff008"
 }

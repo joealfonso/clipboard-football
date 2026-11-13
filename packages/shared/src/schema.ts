@@ -160,7 +160,8 @@ export const dimensionSchema = z.discriminatedUnion("type", [
     kneelSeconds: z.number().int().nonnegative(),
     playClockRule: z.string().regex(/^[A-Za-z]+(\.[A-Za-z]+)+$/),
     playClock: z.number().int().positive().optional(),
-    farAbove: z.number().int().positive().optional(),
+    concede: z.boolean().optional(),
+    shortOnly: z.boolean().optional(),
   }),
   z.strictObject({
     type: z.literal("endState"),

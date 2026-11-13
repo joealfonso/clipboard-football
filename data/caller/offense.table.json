@@ -2,13 +2,16 @@
   "generated": true,
   "side": "offense",
   "configVersion": 3,
-  "configHash": "5dc9bd956f9c7521cf65558ab386c4d781697a4cdd5e534105b94e3a95cfd1a6",
+  "configHash": "7d02532afdb007f0c592bf299c8562492dc1ffc47706e149a81bc3e055cca8df",
   "halfLifeSeasons": 2,
   "weightAnchor": 2023,
   "factors": {
     "oTop": {
       "targets": ["run","pass","punt","fieldGoal","spike","kneel"],
       "levels": [
+        {
+          "dims": ["kneelGap","scoreLate5Only","lateTime"]
+        },
         {
           "dims": ["down","kneelOut","scoreLate5Only","lateTime"]
         },
@@ -75,6 +78,12 @@
       },
       "plays": 258843,
       "cells": [
+        {
+          "K0c.d23|1..8|GF": [9203,440,0,0,0,357],
+          "K0c.d23|>=9|GF": [1985,4,0,0,0,8011],
+          "K0x|1..8|GF": [7739,1969,0,0,0,292],
+          "K0x|>=9|GF": [8210,1020,0,0,0,770]
+        },
         {
           "1|K0|1..8|GF": [9172,318,0,0,0,510],
           "1|K0|>=9|GF": [3666,7,0,0,0,6327],

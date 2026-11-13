@@ -71,9 +71,13 @@ export function binSituation(situation: Situation, dimensions: Readonly<Record<s
           }
           if (dim.playClock === undefined) throw new RangeError(`${name}: no play clock (load the config with the rule set)`);
           const left = 4 - d;
-          const short = situation.secondsLeftInGame - (left * dim.playClock + dim.kneelSeconds - dim.playClock * Math.min(situation.defenseTimeouts, left));
-          // Step 5c milestone F: an optional designed split of K0 by seconds short of a kneel-out.
-          label = short <= 0 ? "K1" : dim.farAbove !== undefined && short > dim.farAbove ? "K0F" : "K0";
+          const can = left * dim.playClock + dim.kneelSeconds - dim.playClock * Math.min(situation.defenseTimeouts, left) >= situation.secondsLeftInGame;
+          label = can ? "K1" : "K0";
+          // Step 5c milestone F (designed, optional): K0 split by whether the kneels would run the
+          // clock out if the defense used no timeout (K0c, with the defense holding 0-1 or 2-3
+          // timeouts) or not even then (K0x); shortOnly makes K1 null.
+          if (!can && dim.concede === true) label = left * dim.playClock + dim.kneelSeconds >= situation.secondsLeftInGame ? (situation.defenseTimeouts >= 2 ? "K0c.d23" : "K0c.d01") : "K0x";
+          if (can && dim.shortOnly === true) label = null;
           break;
         }
         case "endState": {

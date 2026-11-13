@@ -65,9 +65,15 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
                     raise ValueError(f"{name}: no play clock (load the config with the rule set)")
                 left = 4 - dn
                 p = d["playClock"]
-                short = sit["secondsLeftInGame"] - (left * p + d["kneelSeconds"] - p * min(sit["defenseTimeouts"], left))
-                # Step 5c milestone F: an optional designed split of K0 by seconds short of a kneel-out.
-                label = "K1" if short <= 0 else "K0F" if "farAbove" in d and short > d["farAbove"] else "K0"
+                can = left * p + d["kneelSeconds"] - p * min(sit["defenseTimeouts"], left) >= sit["secondsLeftInGame"]
+                label = "K1" if can else "K0"
+                # Step 5c milestone F (designed, optional): K0 split by whether the kneels would run
+                # the clock out if the defense used no timeout (K0c, with the defense holding 0-1 or
+                # 2-3 timeouts) or not even then (K0x); shortOnly makes K1 null.
+                if not can and d.get("concede"):
+                    label = ("K0c.d23" if sit["defenseTimeouts"] >= 2 else "K0c.d01") if left * p + d["kneelSeconds"] >= sit["secondsLeftInGame"] else "K0x"
+                if can and d.get("shortOnly"):
+                    label = None
         elif d["type"] == "endState":
             inner = visit(d["of"])
             if inner is not None and inner in d["appliesTo"]:

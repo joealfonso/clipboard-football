@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import type { CoachView, KickView, PlayResult, Situation, SpecialTimeoutRole } from "../../packages/shared/src/types";
 import { offenseShares, type CallerMasks } from "../../packages/sim/src/caller/offense";
 import { fieldGoalMakeChance } from "../../packages/sim/src/caller/range";
-import { specialTimeoutShare } from "../../packages/sim/src/loop/coach";
+import { drainsClock, specialTimeoutShare } from "../../packages/sim/src/loop/coach";
 import { averageCoachFor, leagueFromSeed, setupGame } from "../../packages/sim/src/loop/league";
 import { GameLoopError, playGame, prepareGame, snapCapAt, type GameKit, type GameRecord } from "../../packages/sim/src/loop/play";
 import { Rng } from "../../packages/sim/src/rng";
@@ -187,5 +187,46 @@ describe("E: the trailing team uses its clock", () => {
     const s: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 71, secondsLeftInGame: 71, offenseTimeouts: 2, defenseTimeouts: 2 };
     const spike = (m: CallerMasks): number => offenseShares(s, data.engine.caller, m).leaves.find((l) => l.call === "spike")?.p ?? 0;
     expect(spike({ clockStopped: true })).toBe(0);
+  });
+});
+
+describe("F: the leader kneels only when it can", () => {
+  const cv = (o: Partial<CoachView>): CoachView => ({
+    phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 79, scoreDiff: 5, quarter: 4, secondsLeftInHalf: 76, secondsLeftInGame: 76, offenseTimeouts: 3, defenseTimeouts: 0,
+    clockRunning: true, playClock: 40, previousSnapKneel: true, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, ...o,
+  });
+
+  it("F: a leader running the clock out lets the whole play clock run; otherwise it draws from the fitted cells", () => {
+    // Can kneel out from the next snap (K1 with the play clock run), or kneeled on the last one.
+    expect(drainsClock(cv({ previousSnapKneel: false }), data.engine.caller)).toBe(true);
+    expect(coach.tempo(cv({ previousSnapKneel: false }), Rng.fromSeed(1))).toBe(40);
+    expect(drainsClock(cv({ defenseTimeouts: 2 }), data.engine.caller)).toBe(true);
+    // Neither: the defense can stop the clock and the leader ran a play.
+    expect(drainsClock(cv({ defenseTimeouts: 3, previousSnapKneel: false }), data.engine.caller)).toBe(false);
+    expect(drainsClock(cv({ scoreDiff: -5 }), data.engine.caller)).toBe(false);
+    expect(drainsClock(cv({ quarter: 2, secondsLeftInHalf: 76, secondsLeftInGame: 1876 }), data.engine.caller)).toBe(false);
+  });
+
+  it("F2: league 2026 seed 9 and seed 892 do not kneel in Q1, and no kneel is left in Q1, Q3 or Q2 before 1:00", () => {
+    for (const seed of [9, 892]) {
+      const r = playGame(setupGame(league(2026), 2026, seed, () => coach), kit, Rng.fromSeed(seed));
+      expect(r.events.filter((e) => e.t === "play" && e.play.kind === "kneel" && (e.before.period === 1 || e.before.period === 3 || (e.before.period === 2 && e.before.clock > 60))), `seed ${seed}`).toEqual([]);
+    }
+    const s: Situation = { phase: "scrimmage", down: 4, yardsToGo: 7, yardLine100: 7, scoreDiff: 0, quarter: 1, secondsLeftInHalf: 135 + 900, secondsLeftInGame: 135 + 2700, offenseTimeouts: 3, defenseTimeouts: 3 };
+    const k = data.config.clockRules?.callerMasks?.earlyKneel;
+    expect(k).toBeDefined();
+    expect(offenseShares(s, data.engine.caller, k === undefined ? {} : { earlyKneel: k }).leaves.find((l) => l.call === "kneel")?.p).toBe(0);
+  });
+
+  it("F2: league 7 seed 11, the leader does not kneel in the final 2:00 while the defense can stop the clock and it can't kneel out", () => {
+    const r = playGame(setupGame(league(7), 7, 11, () => coach), kit, Rng.fromSeed(11));
+    const bad = r.events.filter((e) => {
+      if (e.t !== "play" || e.play.kind !== "kneel" || e.before.period !== 4 || e.before.clock > 120) return false;
+      const o = e.before.possession;
+      const d = o === "home" ? "away" : "home";
+      const left = 4 - e.before.down;
+      return e.before.score[o] > e.before.score[d] && e.before.timeouts[d] > 0 && e.before.down <= 3 && e.before.clock > left * 40 + 2 - 40 * Math.min(e.before.timeouts[d], left);
+    });
+    expect(bad.map((e) => (e.t === "play" ? `${e.before.clock}` : ""))).toEqual([]);
   });
 });

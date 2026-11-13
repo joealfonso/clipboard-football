@@ -71,8 +71,10 @@ export type Dimension =
       readonly kneelSeconds: number;
       readonly playClockRule: string;
       readonly playClock?: number;
-      /** Step 5c F: label K0F instead of K0 when more than this many seconds short of a kneel-out. */
-      readonly farAbove?: number;
+      /** Step 5c F: split K0 into K0c.d01 / K0c.d23 (kneels run the clock out if the defense, holding 0-1 or 2-3 timeouts, uses none) and K0x (not even then). */
+      readonly concede?: boolean;
+      /** Step 5c F: K1 is null here, so a level using this dimension serves K0 states only. */
+      readonly shortOnly?: boolean;
     })
   | (DimensionBase & {
       readonly type: "endState";

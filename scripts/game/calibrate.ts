@@ -30,6 +30,7 @@ export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
   ["B", "after B (field goal make-chance mask, o4Kick split at the opp 41)"],
   ["CD", "after C and D (late try chart; kickoff and try timeouts by time bin)"],
   ["E", "after E (late five-way score in timeouts, clock-out timeout, no spike on a stopped clock)"],
+  ["F", "after F (kneel cells by whether a conceding defense lets the kneels finish, clock drain, after-kneel timeouts, no early kneel)"],
 ];
 
 export interface ToleranceMetric {

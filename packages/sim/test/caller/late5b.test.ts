@@ -184,18 +184,22 @@ describe("backoff on each new level lands on the specified parent (B7)", () => {
   // Routing: a situation whose cell is stored at a level is served there; with that cell
   // removed (the N-1 case, where the pipeline does not store it), it is served by the next
   // level of the chain that has its key. pytest covers the N-1 / N storage rule itself.
+  // Amended 2026-11-12 (M1 step 5c milestone F): oTop gained a first level [down,kneelGap,scoreLate5,lateTime],
+  // so every oTop index below moved up by one; the new level's own case is first.
   const cases: { factor: "oTop" | "o4Top"; situation: Situation; level: number; parent: number }[] = [
+    // Leading by 4 with 1:30 left, 1st down, the defense holding 3 timeouts (can't kneel out, K0F): [down,kneelGap,scoreLate5,lateTime] -> [down,kneelOut,scoreLate5,lateTime].
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 3 }, level: 0, parent: 1 },
     // Leading by 4 in the final 2:00, 1st down, can kneel out: [down,kneelOut,scoreLate5,lateTime] -> [down,kneelOut,lateTime].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0 }, level: 0, parent: 1 },
-    // [down,kneelOut,lateTime] -> the regulation chain's first level.
     { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0 }, level: 1, parent: 2 },
+    // [down,kneelOut,lateTime] -> the regulation chain's first level.
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0 }, level: 2, parent: 3 },
     // Overtime, tied, 3rd down at the 30: [down,zoneK,scoreLate5,lateTime] -> [zoneK,scoreLate5,lateTime] -> [fieldHalf,scoreLate5,lateTime].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 5, parent: 6 },
     { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 6, parent: 7 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 7, parent: 8 },
     // Overtime with no overtime cell backs off to the G5/GF cells (resolved question 2):
     // [fieldHalf,scoreLate5,lateTime] -> [down,zoneK,scoreLate5,lateClock].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 7, parent: 8 },
     { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 8, parent: 9 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 9, parent: 10 },
     { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 13, parent: 14 },
     // o4Top, overtime, trailing 3 at the 40: late zoneK level -> its 2016-2023 twin -> fieldHalf.
     { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 10, parent: 11 },

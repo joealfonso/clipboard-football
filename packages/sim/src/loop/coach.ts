@@ -239,13 +239,18 @@ export interface CoachData {
 
 /** The average coach: step 2 calls, fitted tempo, timeouts and onside, designed run-off rule. */
 /**
- * Step 5c milestone F (designed): a leading offense that can kneel out (the caller's kneelOut
- * dimension says K1) lets the whole play clock run, the assumption the kneel-out test makes.
+ * Step 5c milestone F (designed): a leading offense that is running the clock out lets the whole
+ * play clock run, the assumption the kneel-out test makes: when it kneeled on the previous snap,
+ * or when it can kneel out from the snap this run-off leads to (the caller's kneelOut dimension,
+ * K1, read with the play clock already run).
  */
 export function drainsClock(view: CoachView, caller: CallerData): boolean {
-  if (view.scoreDiff <= 0 || view.down < 1 || view.down > 3 || view.quarter < 4 || !view.clockRunning || view.beforeTimeout) return false;
-  if (caller.config.dimensions["kneelOut"] === undefined) return false;
-  return binSituation(view, caller.config.dimensions)["kneelOut"] === "K1";
+  if (view.scoreDiff <= 0 || view.down < 1 || view.quarter < 4 || !view.clockRunning || view.beforeTimeout) return false;
+  if (view.previousSnapKneel) return true;
+  if (view.down > 3 || caller.config.dimensions["kneelOut"] === undefined) return false;
+  const run = Math.min(view.playClock, view.secondsLeftInGame);
+  const atSnap = { ...view, secondsLeftInGame: view.secondsLeftInGame - run, secondsLeftInHalf: view.secondsLeftInHalf - run };
+  return binSituation(atSnap, caller.config.dimensions)["kneelOut"] === "K1";
 }
 
 export function averageCoach(d: CoachData): CoachPolicies {

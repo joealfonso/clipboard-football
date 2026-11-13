@@ -1093,6 +1093,45 @@
           "if": []
         }
       ]
+    },
+    "afterKneel": {
+      "buckets": [
+        {
+          "label": "K",
+          "if": [
+            {
+              "field": "previousSnapKneel",
+              "min": 1
+            },
+            {
+              "field": "quarter",
+              "min": 5
+            }
+          ]
+        },
+        {
+          "label": "K",
+          "if": [
+            {
+              "field": "previousSnapKneel",
+              "min": 1
+            },
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            }
+          ]
+        },
+        {
+          "label": null,
+          "if": []
+        }
+      ]
     }
   },
   "tempo": {
@@ -1130,6 +1169,13 @@
       {
         "dims": [
           "time5",
+          "lateS3",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "time5",
           "prevKneel",
           "restart",
           "toCalled"
@@ -1155,6 +1201,23 @@
   },
   "timeouts": {
     "levels": [
+      {
+        "dims": [
+          "side",
+          "time5",
+          "final",
+          "lateS5",
+          "afterKneel",
+          "running"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "lateS5",
+          "afterKneel"
+        ]
+      },
       {
         "dims": [
           "side",
@@ -1255,7 +1318,7 @@
       }
     ],
     "minN": 150,
-    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged. Step 5c milestones E and F: two levels first keep a five-way late score (`lateS5`: trailing by 9 or more, by 1-8, tied, leading by 1-8, by 9 or more; null outside the late windows), so every rate outside them is unchanged."
+    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged. Step 5c milestones E and F: two levels first keep a five-way late score (`lateS5`: trailing by 9 or more, by 1-8, tied, leading by 1-8, by 9 or more; null outside the late windows), so every rate outside them is unchanged. Step 5c milestone F: a first level for the dead ball after a kneel (`afterKneel`, null otherwise and outside the late windows), where a team down two scores concedes."
   },
   "specialTimeouts": {
     "levels": [
@@ -1316,10 +1379,18 @@
       "trailingMin": 1,
       "trailingMax": 8
     },
-    "kneelOutDrain": false,
+    "kneelOutDrain": true,
     "timeoutBeforeExpiry": true,
     "callerMasks": {
-      "spikeNeedsRunningClock": true
+      "spikeNeedsRunningClock": true,
+      "earlyKneel": {
+        "quarters": [
+          1,
+          3
+        ],
+        "halfEndQuarter": 2,
+        "secondsAbove": 60
+      }
     }
   },
   "loop": {
