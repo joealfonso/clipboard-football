@@ -71,7 +71,8 @@ def test_v2_tables_and_v3_config_are_refused_both_ways() -> None:
 
 TOP = CFG["factors"]["oTop"]
 FOUR = CFG["factors"]["o4Top"]
-LATE_DIMS = ["down", "kneelOut", "scoreLate5Only", "lateTime", "lateClock", "zoneK", "fieldHalf", "time5R", "time2R", "scoreLateOnlyR", "dist5", "dist3", "zone6",
+# Amended 2026-11-12 (M1 step 5c milestone F): kneelGap, oTop's new first level.
+LATE_DIMS = ["down", "kneelOut", "kneelGap", "scoreLate5Only", "lateTime", "lateClock", "zoneK", "fieldHalf", "time5R", "time2R", "scoreLateOnlyR", "dist5", "dist3", "zone6",
              "zone3", "scoreLate", "scoreLateOnly", "score3", "time5", "time2", "end", "clock"]
 
 
@@ -131,16 +132,20 @@ def _key(level: dict, sit: dict) -> str | None:
 @pytest.mark.parametrize(
     ("factor", "sit", "level", "parent", "spill"),
     [
-        # Leading by 4, final 2:00, 1st down, can kneel out: level 0 -> [down,kneelOut,lateTime].
-        ("oTop", _sit(1, 4, 4, 90), 0, 1, _sit(1, 12, 4, 90)),
+        # Amended 2026-11-12 (M1 step 5c milestone F): oTop gained a first level [kneelGap,scoreLate5,lateTime]
+        # (K0 states only), so every index below moved up by one; the new level's case is first.
+        # Leading by 4, final 2:00, 1st down, defense with 3 timeouts (K0c.d23): level 0 -> [down,kneelOut,scoreLate5,lateTime].
+        ("oTop", _sit(1, 4, 4, 90, 60, 3), 0, 1, _sit(1, 4, 4, 90, 60, 1)),
+        # Leading by 4, final 2:00, 1st down, can kneel out: level 1 -> [down,kneelOut,lateTime].
+        ("oTop", _sit(1, 4, 4, 90), 1, 2, _sit(1, 12, 4, 90)),
         # [down,kneelOut,lateTime] -> the first regulation level.
-        ("oTop", _sit(1, 4, 4, 90), 1, 2, None),
+        ("oTop", _sit(1, 4, 4, 90), 2, 3, None),
         # Overtime, tied, 3rd down at the 30: [down,zoneK,scoreLate5,lateTime] -> [zoneK,scoreLate5,lateTime].
-        ("oTop", _sit(3, 0, 5, 400, 30, 2), 5, 6, _sit(1, 0, 5, 400, 30, 2)),
+        ("oTop", _sit(3, 0, 5, 400, 30, 2), 6, 7, _sit(1, 0, 5, 400, 30, 2)),
         # [zoneK,scoreLate5,lateTime] -> [fieldHalf,scoreLate5,lateTime].
-        ("oTop", _sit(3, 0, 5, 400, 30, 2), 6, 7, _sit(3, 0, 5, 400, 45, 2)),
+        ("oTop", _sit(3, 0, 5, 400, 30, 2), 7, 8, _sit(3, 0, 5, 400, 45, 2)),
         # Overtime with no overtime cell -> the G5 cell (resolved question 2), fitted on regulation only.
-        ("oTop", _sit(1, -3, 5, 400, 60, 2), 7, 8, None),
+        ("oTop", _sit(1, -3, 5, 400, 60, 2), 8, 9, None),
     ],
 )
 def test_otop_backoff_at_n_minus_1_and_n(factor: str, sit: dict, level: int, parent: int, spill: dict | None) -> None:

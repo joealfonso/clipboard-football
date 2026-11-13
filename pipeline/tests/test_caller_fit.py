@@ -106,6 +106,8 @@ def test_holdout_and_2026_rows_never_reach_a_fitted_cell() -> None:
         # Step 5b: the late time state, five-bucket late score, kneel-out, half and regulation gate.
         "b_lateTime": "GF", "b_scoreLate5Only": "1..8", "b_kneelOut": "K1", "b_fieldHalf": "OWN", "b_lateClock": "GF",
         "b_time5R": "H1", "b_time2R": "N", "b_scoreLateOnlyR": "0",
+        # Step 5c (amended 2026-11-12): the new label columns, so their cells are covered too.
+        "b_kneelGap": "K0c.d23", "b_zoneFG": "OWN",
         "depth": None, "leaf": "insideRun", "formation": "shotgun", "front": "front.nickelLight",
         "coverage": "cover3.zone.le4", "preset": "nickelCover3",
     }
