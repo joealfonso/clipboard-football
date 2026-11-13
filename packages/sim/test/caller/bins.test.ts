@@ -3,9 +3,9 @@
 import { describe, expect, it } from "vitest";
 import type { Situation } from "../../../shared/src/types";
 import { binSituation, levelKey } from "../../src/caller/bins";
-import { loadCallerData, readJson } from "./load-data";
+import { loadCallerData, readFixture } from "./load-data";
 
-const fixture = readJson("test/fixtures/caller-bins.json") as {
+const fixture = readFixture("test/fixtures/caller-bins.json") as {
   cases: { name: string; situation: Situation; bins: Record<string, string | null> }[];
 };
 const { config } = loadCallerData();

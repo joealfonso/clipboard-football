@@ -29,7 +29,7 @@ TOP = CFG["factors"]["oTop"]
 
 def sit(**o: int) -> dict:
     base = {"phase": "scrimmage", "down": 1, "yardsToGo": 10, "yardLine100": 50, "scoreDiff": 0, "quarter": 4,
-            "secondsLeftInHalf": 100, "secondsLeftInGame": 100, "offenseTimeouts": 2, "defenseTimeouts": 2}
+            "secondsLeftInHalf": 100, "secondsLeftInGame": 100, "offenseTimeouts": 2, "defenseTimeouts": 2, "clockRunning": 0, "otBothPossessed": 0}
     base.update(o)
     if "secondsLeftInGame" in o and "secondsLeftInHalf" not in o:
         base["secondsLeftInHalf"] = o["secondsLeftInGame"]

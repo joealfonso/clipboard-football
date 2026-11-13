@@ -1,0 +1,71 @@
+{
+ "note": "Step 5d code review (2026-11-13): offense shares at add4d19 (resolution 3's caller refit, before milestone C) for the frozen pre-5a golden situations (test/fixtures/caller-golden-v1.json) outside the late windows whose oTop cell resolution 3 moved. packages/sim/test/caller/late-bins.test.ts compares today's shares with these instead of skipping them. Generated from the add4d19 caller config and tables. The add4d19 config was read with kneelGap.concedeSplit 2 added, the value that commit hard-coded (today's schema requires it; milestone D3 showed it changes no cell).",
+ "commit": "add4d19",
+ "situations": [
+  {
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 3,
+    "yardLine100": 5,
+    "scoreDiff": 4,
+    "quarter": 2,
+    "secondsLeftInHalf": 30,
+    "secondsLeftInGame": 1830,
+    "offenseTimeouts": 3,
+    "defenseTimeouts": 3
+   },
+   "cell": "down,score3,time5R,end#1|L|H1F|c40.o1+.d2+",
+   "leaves": [
+    {
+     "call": "insideRun",
+     "p": 0.08278200000000001
+    },
+    {
+     "call": "outsideRun",
+     "p": 0.0403578
+    },
+    {
+     "call": "qbSneak",
+     "p": 0.0028602000000000002
+    },
+    {
+     "call": "shortPass",
+     "p": 0.26521486305600006
+    },
+    {
+     "call": "intermediatePass",
+     "p": 0.076156540659
+    },
+    {
+     "call": "deepPass",
+     "p": 0.045013886285000006
+    },
+    {
+     "call": "screenPass",
+     "p": 0.03941175
+    },
+    {
+     "call": "playAction",
+     "p": 0.32490296
+    },
+    {
+     "call": "punt",
+     "p": 0
+    },
+    {
+     "call": "fieldGoal",
+     "p": 0.0115
+    },
+    {
+     "call": "spike",
+     "p": 0.0157
+    },
+    {
+     "call": "kneel",
+     "p": 0.0961
+    }
+   ]
+  }
+ ]
+}

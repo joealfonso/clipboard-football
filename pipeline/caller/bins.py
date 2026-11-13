@@ -42,9 +42,8 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
         if sit["phase"] not in d["phases"]:
             label = None
         elif "field" in d and d["field"] not in sit:
-            # Step 5d: a field the situation lacks (a frozen fixture made before the field existed)
-            # makes the dimension not apply, as in packages/sim/src/caller/bins.ts.
-            label = None
+            # A situation always carries every field; a missing one fails loudly (as bins.ts does).
+            raise KeyError(f"{name}: the situation has no {d['field']}")
         elif d["type"] == "exact":
             label = _int_str(sit[d["field"]])
         elif d["type"] == "range":
@@ -54,8 +53,10 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
         elif d["type"] == "rules":
             label = None
             for b in d["buckets"]:
-                # Step 5d: a bucket on a field the situation lacks (a frozen fixture) never matches, as in bins.ts.
-                if b["quarterMin"] <= sit["quarter"] <= b["quarterMax"] and b["field"] in sit and _in_range(sit[b["field"]], b):
+                if b["field"] not in sit:
+                    raise KeyError(f"{name}: the situation has no {b['field']}")
+            for b in d["buckets"]:
+                if b["quarterMin"] <= sit["quarter"] <= b["quarterMax"] and _in_range(sit[b["field"]], b):
                     label = b["label"]
                     break
             if label is None:

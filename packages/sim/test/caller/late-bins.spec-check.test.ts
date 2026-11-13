@@ -11,7 +11,7 @@ import type { FactorTable, Situation } from "../../../shared/src/types";
 import { binSituation } from "../../src/caller/bins";
 import { lookup } from "../../src/caller/lookup";
 import { formationShares, offenseShares } from "../../src/caller/offense";
-import { loadCallerData, readJson, repoRoot } from "./load-data";
+import { loadCallerData, readFixture, readJson, repoRoot } from "./load-data";
 
 const data = loadCallerData();
 const dims = data.config.dimensions;
@@ -67,7 +67,7 @@ const sectionOf = (doc: string, start: string, end: string): string => {
 };
 
 describe("B1: late windows, factors other than oTop, o4Top and o4Kick unchanged", () => {
-  const frozen = readJson("test/fixtures/caller-golden-v1.json") as {
+  const frozen = readFixture("test/fixtures/caller-golden-v1.json") as {
     situations: { situation: Situation; offense: { leaves: { call: string; p: number }[]; trace: Record<string, { level: number; key: string; weights?: number[] }>; formations: Record<string, { level: number; key: string }> } }[];
   };
   const late = frozen.situations.filter((g) => isLate(g.situation));

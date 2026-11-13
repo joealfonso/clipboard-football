@@ -184,3 +184,21 @@ def make_root(tmp: Path, *, min_plays: int = 1, tolerance: float | None = None) 
             m["minN"] = 0
     (tmp / "data/caller/tolerances.json").write_text(json.dumps(tol, indent=2))
     return tmp
+
+
+STEP5D_DEFAULTS = {"clockRunning": 0, "otBothPossessed": 0}
+
+
+def with_5d_fields(obj: Any) -> Any:
+    """Step 5d (code review): production binning fails on a missing Situation field. Situations in
+    fixtures made before step 5d get the two new fields here, explicitly (clock stopped, overtime
+    flag 0), never by a silent null in bins.py."""
+    if isinstance(obj, list):
+        return [with_5d_fields(x) for x in obj]
+    if isinstance(obj, dict):
+        out = {k: with_5d_fields(v) for k, v in obj.items()}
+        if "phase" in out and "defenseTimeouts" in out:
+            for k, v in STEP5D_DEFAULTS.items():
+                out.setdefault(k, v)
+        return out
+    return obj

@@ -10,13 +10,15 @@ import json
 import polars as pl
 import pytest
 
+from pipeline.tests.caller_fixtures import with_5d_fields
+
 from pipeline.caller.bins import bin_situation, level_key
 from pipeline.caller.config import REPO, TablesConfigMismatch, check_tables, rules_json, with_rule_play_clock
 from pipeline.caller.fit import HoldoutLeak, fit_factor, label_col
 
 CFG = with_rule_play_clock(json.loads((REPO / "data/caller/config.json").read_text()), rules_json())
 DIMS = CFG["dimensions"]
-FIXTURE = json.loads((REPO / "test/fixtures/caller-5b-bins.json").read_text())
+FIXTURE = with_5d_fields(json.loads((REPO / "test/fixtures/caller-5b-bins.json").read_text()))
 
 
 @pytest.mark.parametrize("case", FIXTURE["cases"], ids=lambda c: c["name"])
@@ -35,7 +37,7 @@ def test_kneel_out_needs_the_rule_set_play_clock() -> None:
 
 def _late(diff: int) -> dict[str, str | None]:
     sit = {"phase": "scrimmage", "down": 1, "yardsToGo": 10, "yardLine100": 50, "scoreDiff": diff, "quarter": 4,
-           "secondsLeftInHalf": 100, "secondsLeftInGame": 100, "offenseTimeouts": 1, "defenseTimeouts": 1}
+           "secondsLeftInHalf": 100, "secondsLeftInGame": 100, "offenseTimeouts": 1, "defenseTimeouts": 1, "clockRunning": 0, "otBothPossessed": 0}
     return bin_situation(sit, DIMS)
 
 
@@ -95,7 +97,7 @@ def _rows(situations: list[tuple[dict, int, str, bool]]) -> pl.DataFrame:
 
 def _sit(down: int, diff: int, q: int, secs: int, yl: int = 60, t: int = 0) -> dict:
     return {"phase": "scrimmage", "down": down, "yardsToGo": 10, "yardLine100": yl, "scoreDiff": diff, "quarter": q,
-            "secondsLeftInHalf": secs, "secondsLeftInGame": secs, "offenseTimeouts": 1, "defenseTimeouts": t}
+            "secondsLeftInHalf": secs, "secondsLeftInGame": secs, "offenseTimeouts": 1, "defenseTimeouts": t, "clockRunning": 0, "otBothPossessed": 0}
 
 
 def _top(rows: pl.DataFrame, n: int = 150) -> dict:

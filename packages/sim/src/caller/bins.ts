@@ -39,13 +39,10 @@ export function binSituation(situation: Situation, dimensions: Readonly<Record<s
     if (!dim.phases.includes(situation.phase)) {
       label = null;
     } else {
-      // Step 5d: a field the situation lacks (a frozen fixture made before the field existed)
-      // makes the dimension not apply, as in pipeline/caller/bins.py.
+      // A Situation always carries every field; a missing one is a bug in the caller of this
+      // function and fails loudly (as pipeline/caller/bins.py does), never a silent null.
       const value = "field" in dim ? (situation[dim.field] as number | undefined) : 0;
-      if (value === undefined) {
-        out[name] = null;
-        return null;
-      }
+      if (value === undefined) throw new RangeError(`${name}: the situation has no ${"field" in dim ? dim.field : "field"}`);
       switch (dim.type) {
         case "exact":
           label = String(value);
@@ -57,6 +54,7 @@ export function binSituation(situation: Situation, dimensions: Readonly<Record<s
           label = String(Math.min(dim.max, Math.max(dim.min, value)));
           break;
         case "rules": {
+          for (const x of dim.buckets) if (situation[x.field] === undefined) throw new RangeError(`${name}: the situation has no ${x.field}`);
           const b = dim.buckets.find(
             (x) =>
               situation.quarter >= x.quarterMin &&

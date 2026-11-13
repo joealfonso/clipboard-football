@@ -11,13 +11,13 @@ import { binSituation, levelKey } from "../../src/caller/bins";
 import { lookup } from "../../src/caller/lookup";
 import { defenseShares } from "../../src/caller/defense";
 import { formationShares, offenseShares } from "../../src/caller/offense";
-import { callerConfigHash, loadCallerData, readJson } from "./load-data";
+import { callerConfigHash, loadCallerData, readFixture, readJson } from "./load-data";
 
 const data = loadCallerData();
 const dims = data.config.dimensions;
 
 describe("5b binning fixture (B2)", () => {
-  const fixture = readJson("test/fixtures/caller-5b-bins.json") as { cases: { name: string; situation: Situation; bins: Record<string, string | null> }[] };
+  const fixture = readFixture("test/fixtures/caller-5b-bins.json") as { cases: { name: string; situation: Situation; bins: Record<string, string | null> }[] };
 
   it("covers the score edges, the window seconds, quarter 4 vs 5 and both kneel-out values at every down and timeout count", () => {
     const diffs = new Set(fixture.cases.map((c) => c.situation.scoreDiff));
@@ -86,7 +86,7 @@ interface Frozen {
 }
 
 describe("outside the late windows nothing moves (B4)", () => {
-  const frozen = readJson("test/fixtures/caller-golden-pre5b.json") as { situations: Frozen[] };
+  const frozen = readFixture("test/fixtures/caller-golden-pre5b.json") as { situations: Frozen[] };
   const late = (s: Situation): boolean => s.phase === "scrimmage" && binSituation(s, dims)["lateTime"] !== "-";
   const LATE_FACTORS = new Set(["oTop", "o4Top"]);
   const v2o4Kick = (readJson("test/fixtures/caller-v2/offense.table.json") as { factors: { o4Kick: { levels: { dims: string[] }[] } } }).factors.o4Kick;

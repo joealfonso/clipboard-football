@@ -11,10 +11,10 @@ from pipeline.caller.config import REPO, load_inputs, season_weight
 from pipeline.caller.fit import HoldoutLeak, fit_factor, in_seasons, round_to_total, weighted_shares
 from pipeline.caller.frames import factor_frames
 from pipeline.caller.shares import lookup
-from pipeline.tests.caller_fixtures import config
+from pipeline.tests.caller_fixtures import with_5d_fields, config
 
 CFG = config()
-FIXTURE = json.loads((REPO / "test/fixtures/caller-bins.json").read_text())
+FIXTURE = with_5d_fields(json.loads((REPO / "test/fixtures/caller-bins.json").read_text()))
 
 
 @pytest.mark.parametrize("case", FIXTURE["cases"], ids=lambda c: c["name"])

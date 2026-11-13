@@ -103,7 +103,7 @@ def caller() -> Caller:
 
 def test_unknown_depth_dropbacks_split_by_the_callers_depth_shares() -> None:
     sit = {"down": 1.0, "ydstogo": 10.0, "score_differential": 0.0, "qtr": 1.0, "half_seconds_remaining": 1500.0,
-           "game_seconds_remaining": 3300.0, "offense_timeouts": 3.0, "defense_timeouts": 3.0}
+           "game_seconds_remaining": 3300.0, "offense_timeouts": 3.0, "defense_timeouts": 3.0, "clock_running": 0.0, "ot_both_possessed": 0.0}
     f = add_outcomes(frame({"call": "pass", "leaf": None, "pass_type": "plain", "depth": None, "sack": 1.0, "yards_gained": -6.0, **sit},
                            {"call": "pass", "leaf": "screenPass", "pass_type": "screenPass", "depth": None, "sack": 1.0, **sit}), cfg())
     out = split_unknown_depth(f, caller())

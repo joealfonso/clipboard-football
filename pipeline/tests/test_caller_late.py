@@ -7,13 +7,15 @@ import json
 import polars as pl
 import pytest
 
+from pipeline.tests.caller_fixtures import with_5d_fields
+
 from pipeline.caller.bins import bin_situation, level_key
 from pipeline.caller.config import REPO, TablesConfigMismatch, check_tables, rules_json, with_rule_play_clock
 from pipeline.caller.fit import HoldoutLeak, fit_factor, label_col
 
 # Amended by step 5b: loaded with the rule set's play clock, as every loader does (kneelOut needs it).
 CFG = with_rule_play_clock(json.loads((REPO / "data/caller/config.json").read_text()), rules_json())
-FIXTURE = json.loads((REPO / "test/fixtures/caller-late-bins.json").read_text())
+FIXTURE = with_5d_fields(json.loads((REPO / "test/fixtures/caller-late-bins.json").read_text()))
 
 
 @pytest.mark.parametrize("case", FIXTURE["cases"], ids=lambda c: c["name"])
