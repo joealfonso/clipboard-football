@@ -24,6 +24,7 @@ Runtime and peak memory of each pipeline command, cold and warm cache.
 
 Dated results, newest first.
 
+- 2026-11-12, M1 step 5c after the code review (game holdout run 10, pins only; every metric identical to run 9), same machine and command, run alone on an idle machine (load average 1.8 to 2.7): 6.3 ms per game (holdout, 65 s wall clock) and 6.3 ms (in-sample, 65.3 s). Passes the 25 ms gate.
 - 2026-11-12, M1 step 5c, the committed runs: game holdout run 9 (approvals and timing only; every metric, slice digest and diagnostic identical to run 8), Apple M4 (darwin arm64), Node v25.6.0, command `node --import ./scripts/engine/register.mjs scripts/game/calibrate.ts --target holdout`, run alone on an otherwise idle machine (load average 2.8 before, 3.7 after): 6.4 ms per game (holdout, 66.2 s wall clock). The committed in-sample run (`--target insample`): 6.2 ms per game (64 s). Passes the 25 ms gate. Run 8's 28.2 ms was taken while other work loaded the machine and is not a speed measurement.
 - 2026-11-12, M1 step 5b, the committed runs (game holdout run 7, layout only; every metric identical to runs 5 and 6), same machine and command, Apple M4, load average about 15-24 from other work: 14.1 ms per game (holdout, 144.6 s wall clock) and 16.9 ms (in-sample, 175.6 s). Passes the 25 ms gate. Run 6 measured 8.4 ms (holdout) at lower load.
 
