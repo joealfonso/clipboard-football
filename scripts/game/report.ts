@@ -2,6 +2,7 @@
 // the component validation. Deterministic for the same summaries.
 
 import { evaluate, type CheckRow, type OtSoakCounts } from "./checks5c-rules";
+import { evaluate5d, type Check5dRow, type Sim5dCounts } from "./checks5d-rules";
 
 interface Row {
   id: string;
@@ -291,7 +292,111 @@ export function step5cSection(inp: Step5cInputs | undefined): string[] {
   return out;
 }
 
-export function renderReport(summaries: Readonly<Record<string, Summary>>, coach: { holdout?: { metrics: Row[] }; inSample?: { metrics: Row[] } }, pre?: { metrics: { id: string; predicted: number; actual: number }[] }, step5b: Step5bInputs = {}, step5c?: Step5cInputs): string {
+export interface Step5dInputs {
+  readonly real: { readonly counts: Readonly<Record<string, number>> };
+  readonly sim: { readonly runs: Readonly<Record<string, Sim5dCounts & { readonly games: number; readonly byLeague: readonly Readonly<Record<string, number>>[] }>> };
+  /** The 5c checks re-measured on each 5d run (data/game/checks5c.sim.json, labels "5d.<run>"). */
+  readonly sim5c?: { readonly runs: Readonly<Record<string, { readonly counts: Readonly<Record<string, number>>; readonly ot: OtSoakCounts | null }>> };
+  readonly real5c?: { readonly counts: Readonly<Record<string, number>> };
+  /** In-sample game metrics per run (data/game/calibration.insample.stages5d.json). */
+  readonly stages?: Readonly<Record<string, { readonly what: string; readonly msPerGame: number; readonly metrics: readonly { readonly id: string; readonly predicted: number; readonly actual: number; readonly tolerance: number | null; readonly status: string; readonly spread: readonly [number, number] }[] }>>;
+  /** Labels in order with what each stands for. */
+  readonly order: readonly (readonly [string, string])[];
+}
+
+/** 5c checks that fail at run H and stay accepted only at or better than their run H value (spec, No regression). */
+export const STEP5C_AT_OR_BETTER: Readonly<Record<string, number>> = { "c.kneel.ballBack": 8.97, "c.fg.63": 0.0254, "c.fg.50to59": 0.764 };
+
+export function step5dSection(inp: Step5dInputs | undefined): string[] {
+  if (inp === undefined) return [];
+  const runs = inp.order.filter(([k]) => inp.sim.runs[k] !== undefined);
+  if (runs.length === 0) return [];
+  const fmt = (unit: string, v: number | null): string => (v === null || Number.isNaN(v) ? "-" : unit === "pp" ? `${f2(v)}%` : unit === "count" ? String(v) : v.toFixed(4));
+  const evals = runs.map(([k]) => evaluate5d(inp.sim.runs[k] as NonNullable<(typeof inp.sim.runs)[string]>, inp.real.counts));
+  const head = runs.map(([k]) => k);
+  const out = ["### Step 5d pre-registered checks (data/game/step5d-checks.json)", "",
+    `Sim: the in-sample run's games (\`scripts/game/checks5d.ts\`); d.try.otDown2 adds the league 4242 postseason soak (seeds 1-10,000). Real: ${(inp.real.counts["games"] ?? 0).toLocaleString("en-US")} regular-season games 2016-2023, unweighted, rows in clock order (\`pipeline/game/checks5d.py\`; definitions in its docstring). Runs: ${runs.map(([k, w]) => `${k} = ${w}`).join("; ")}.`, "",
+    `| Check | ${head.join(" | ")} | Real | Rule | ${head.join(" / ")} |`, `|---|${runs.map(() => "---|").join("")}---|---|---|`];
+  (evals[0] as Check5dRow[]).forEach((r, i) => {
+    const cells = evals.map((e) => e[i] as Check5dRow);
+    const st = (c: Check5dRow): string => (!c.gated ? "reported" : c.pass ? "pass" : "fail");
+    out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c.unit, c.sim)).join(" | ")} | ${fmt(r.unit, r.real)} | ${r.rule} | ${cells.map(st).join(" / ")} |`);
+  });
+  const lastRows = evals[evals.length - 1] as Check5dRow[];
+  out.push("", `n (sim / real) at run ${head[head.length - 1]}: ${lastRows.map((r) => `\`${r.id}\` ${r.n}`).join("; ")}.`, "");
+  // Reported, not gated.
+  const pc = (c: Readonly<Record<string, number>>, k: string, d: string): number => (100 * (c[k] ?? 0)) / Math.max(1, c[d] ?? 0);
+  const per = (c: Readonly<Record<string, number>>, k: string): number => (c[k] ?? 0) / Math.max(1, c["games"] ?? 0);
+  const run = (k: string): NonNullable<(typeof inp.sim.runs)[string]> => inp.sim.runs[k] as NonNullable<(typeof inp.sim.runs)[string]>;
+  const rc = inp.real.counts;
+  out.push("Reported, not gated (per game unless a share; margins with the spread across the 10 league seeds).", "", `| Measure | ${head.join(" | ")} | Real |`, `|---|${runs.map(() => "---|").join("")}---|`);
+  const perRow = (lab: string, k: string): void => {
+    out.push(`| ${lab} | ${runs.map(([r]) => per(run(r).counts, k).toFixed(4)).join(" | ")} | ${per(rc, k).toFixed(4)} |`);
+  };
+  perRow("Spikes, all periods", "spike.all");
+  perRow("Late spikes by 1-8 trailers holding 1+ timeouts", "spike.trail1TO");
+  out.push(`| Gaps of 15 s+ in the final 2:00, 1-8 trailer with 0 timeouts | ${runs.map(([r]) => `${f2(pc(run(r).counts, "gap.trail0TO.final2.hits", "gap.trail0TO.final2.gaps"))}%`).join(" | ")} | ${f2(pc(rc, "gap.trail0TO.final2.hits", "gap.trail0TO.final2.gaps"))}% |`);
+  perRow("Late kneels, not leading, > 0:47: trailing 1-8", "kneel.notLeading.trail1to8");
+  perRow("Late kneels, not leading, > 0:47: trailing 9+", "kneel.notLeading.trail9");
+  perRow("Late kneels, not leading, > 0:47: tied", "kneel.notLeading.tied");
+  for (const [k, lab] of [["margin.0", "absMargin 0"], ["margin.1-3", "absMargin 1-3"], ["margin.4-7", "absMargin 4-7"], ["margin.8-14", "absMargin 8-14"], ["margin.15-21", "absMargin 15-21"], ["margin.22+", "absMargin 22+"], ["margin.exact3", "exact 3"]] as const) {
+    const cells = runs.map(([r]) => {
+      const sp = run(r).byLeague.map((b) => pc(b, k, "games"));
+      return `${f2(pc(run(r).counts, k, "games"))}% (${f2(Math.min(...sp))} to ${f2(Math.max(...sp))})`;
+    });
+    out.push(`| ${lab} | ${cells.join(" | ")} | ${f2(pc(rc, k, "games"))}% |`);
+  }
+  out.push("");
+  // No regression of the 5c checks.
+  if (inp.sim5c !== undefined && inp.real5c !== undefined) {
+    const r5 = runs.filter(([k]) => inp.sim5c?.runs[`5d.${k}`] !== undefined);
+    if (r5.length > 0) {
+      const real5c = (inp.real5c as { counts: Readonly<Record<string, number>> }).counts;
+      const ev = r5.map(([k]) => evaluate(inp.sim5c?.runs[`5d.${k}`] as NonNullable<NonNullable<Step5dInputs["sim5c"]>["runs"][string]>, real5c));
+      // Exact run H values from the 5c run file when present (the spec's rounded values otherwise).
+      const runHRows = inp.sim5c.runs["H"] === undefined ? [] : evaluate(inp.sim5c.runs["H"], real5c);
+      const runHOf = (id: string): number | undefined => (STEP5C_AT_OR_BETTER[id] === undefined ? undefined : (runHRows.find((x) => x.id === id)?.sim ?? STEP5C_AT_OR_BETTER[id]));
+      out.push("No regression of the step 5c checks (data/game/step5c-checks.json, sha256 `2c9f4591…`): the 14 that pass at 5c run H must pass; `c.kneel.ballBack`, `c.fg.63` and `c.fg.50to59` must stay at or better than their run H values (|sim - real| no larger).", "",
+        `| Check | ${r5.map(([k]) => k).join(" | ")} | Real | Rule | ${r5.map(([k]) => k).join(" / ")} |`, `|---|${r5.map(() => "---|").join("")}---|---|---|`);
+      (ev[0] as CheckRow[]).forEach((r, i) => {
+        const cells = ev.map((e) => e[i] as CheckRow);
+        const runH = runHOf(r.id);
+        const st = (c: CheckRow): string => {
+          if (c.pass) return "pass";
+          if (runH === undefined || c.real === null) return "fail";
+          return Math.abs(c.sim - c.real) <= Math.abs(runH - c.real) + 1e-9 ? "accepted, at or better" : "worse than run H";
+        };
+        const rule = runH === undefined ? r.rule : `${r.rule}; accepted, run H ${fmt(r.unit, runH)}`;
+        out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c.unit, c.sim)).join(" | ")} | ${fmt(r.unit, r.real)} | ${rule} | ${cells.map(st).join(" / ")} |`);
+      });
+      out.push("");
+    }
+  }
+  // Before/after: in-sample game metrics by run.
+  const st = inp.stages;
+  if (st !== undefined) {
+    const sr = runs.filter(([k]) => st[k] !== undefined);
+    if (sr.length > 0) {
+      const ids = (st[(sr[0] as readonly [string, string])[0]] as NonNullable<typeof st[string]>).metrics.filter((m) => m.tolerance !== null).map((m) => m.id);
+      const close = ids.filter((id) => sr.some(([k]) => {
+        const m = (st[k] as NonNullable<typeof st[string]>).metrics.find((x) => x.id === id);
+        return m !== undefined && m.tolerance !== null && (m.status !== "pass" || Math.abs(m.predicted - m.actual) >= 0.7 * m.tolerance);
+      }));
+      out.push(`In-sample gated game metrics by run: every row that is not a pass in some run, or within 30% of its tolerance (|predicted - actual| at least 0.7 x tolerance). Values are predicted (status). ${sr.map(([k]) => `${k}: ${(st[k] as NonNullable<typeof st[string]>).metrics.filter((m) => m.status === "fail").length} gated failures, ${(st[k] as NonNullable<typeof st[string]>).msPerGame} ms per game`).join("; ")}.`, "",
+        `| Metric | Actual | Tolerance | ${sr.map(([k]) => k).join(" | ")} |`, `|---|---|---|${sr.map(() => "---|").join("")}`);
+      for (const id of close) {
+        const ms = sr.map(([k]) => (st[k] as NonNullable<typeof st[string]>).metrics.find((x) => x.id === id));
+        const a = ms.find((m) => m !== undefined);
+        if (a === undefined) continue;
+        out.push(`| \`${id}\` | ${f2(a.actual)} | ${a.tolerance} | ${ms.map((m) => (m === undefined ? "-" : `${f2(m.predicted)} (${m.status})`)).join(" | ")} |`);
+      }
+      out.push("");
+    }
+  }
+  return out;
+}
+
+export function renderReport(summaries: Readonly<Record<string, Summary>>, coach: { holdout?: { metrics: Row[] }; inSample?: { metrics: Row[] } }, pre?: { metrics: { id: string; predicted: number; actual: number }[] }, step5b: Step5bInputs = {}, step5c?: Step5cInputs, step5d?: Step5dInputs): string {
   const lines = [
     "# Game calibration report (M1 step 5)",
     "",
@@ -305,6 +410,7 @@ export function renderReport(summaries: Readonly<Record<string, Summary>>, coach
     lines.push(...step5aSection(summaries["insample"], pre, new Set(step5b.acceptedInSample ?? [])));
     lines.push(...step5bSection(step5b));
     lines.push(...step5cSection(step5c));
+    lines.push(...step5dSection(step5d));
   }
   lines.push("Every 2024-2025 game-level run so far, with its gated failures:", "");
   for (const h of HOLDOUT_HISTORY) lines.push(`- ${h.when}, ${h.what}: ${h.fails} gated failures (post hoc after the first).`);

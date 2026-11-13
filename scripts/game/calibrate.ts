@@ -17,7 +17,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { prepareGame } from "../../packages/sim/src/loop/play";
 import { REPO, loadGameData, sha256 } from "./data";
 import { digest, runLeagues, type Metrics } from "./metrics";
-import { renderReport, type Step5bInputs, type Step5cInputs } from "./report";
+import { renderReport, type Step5bInputs, type Step5cInputs, type Step5dInputs } from "./report";
 
 export const TARGETS = { insample: "inSample", holdout: "holdout" } as const;
 export type Target = keyof typeof TARGETS;
@@ -32,6 +32,11 @@ export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
   ["E", "after E (late five-way score in timeouts, clock-out timeout, no spike on a stopped clock)"],
   ["F", "after F (kneel cells by whether a conceding defense lets the kneels finish, clock drain, after-kneel timeouts, no early kneel)"],
   ["H", "after G, the final in-sample run (text fixes; no roughing the passer on scrambles)"],
+];
+
+/** Step 5d runs shown in GAME_REPORT.md, in order (labels in data/game/checks5d.sim.json). */
+export const STEP5D_RUNS: readonly (readonly [string, string])[] = [
+  ["baseline", "before step 5d (the behavior of 4f25b28; milestone A changes no behavior)"],
 ];
 
 export interface ToleranceMetric {
@@ -248,7 +253,20 @@ function writeReport(tol: Tolerances): void {
   const acc5c = (opt("data/game/step5c-accepted.json") as { accepted: { check: string; approved_by: string }[] } | undefined)?.accepted.filter((a) => a.approved_by === "Joseph").map((a) => a.check);
   const step5c: Step5cInputs | undefined =
     c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS, ...(chart === undefined ? {} : { chart }), ...(acc5c === undefined ? {} : { accepted: acc5c }) } : undefined;
-  writeFileSync(join(REPO, "docs/GAME_REPORT.md"), renderReport(summaries, coach, pre, step5b, step5c));
+  const d5real = opt("data/game/checks5d.real.json") as Step5dInputs["real"] | undefined;
+  const d5sim = opt("data/game/checks5d.sim.json") as Step5dInputs["sim"] | undefined;
+  const step5d: Step5dInputs | undefined =
+    d5real !== undefined && d5sim !== undefined
+      ? {
+          real: d5real,
+          sim: d5sim,
+          order: STEP5D_RUNS,
+          ...(c5sim === undefined ? {} : { sim5c: c5sim }),
+          ...(c5real === undefined ? {} : { real5c: c5real }),
+          ...(existsSync(join(REPO, "data/game/calibration.insample.stages5d.json")) ? { stages: (opt("data/game/calibration.insample.stages5d.json") as { stages: NonNullable<Step5dInputs["stages"]> }).stages } : {}),
+        }
+      : undefined;
+  writeFileSync(join(REPO, "docs/GAME_REPORT.md"), renderReport(summaries, coach, pre, step5b, step5c, step5d));
 }
 
 if (import.meta.main) process.exit(main());

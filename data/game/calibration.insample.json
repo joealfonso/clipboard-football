@@ -12,7 +12,7 @@
   2023
  ],
  "tolerancesSha256": "b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac",
- "codeHash": "86ce9ed88293c164476399cdaca6cf8f1eec15d613c731d3d983967bae4de12c",
+ "codeHash": "2b86595068f018bdfb29a77b42e3880cb55eb4cf9176d843306e9521664a6fad",
  "codeFiles": [
   "packages/shared/src/caller.ts",
   "packages/shared/src/catalog.ts",
@@ -226,8 +226,8 @@
   "postseasonTies": 0
  },
  "perf": {
-  "msPerGame": 6.308,
-  "wallSeconds": 65.3,
+  "msPerGame": 6.191,
+  "wallSeconds": 64,
   "machine": "darwin arm64, Apple M4, Node v25.6.0"
  },
  "metrics": [

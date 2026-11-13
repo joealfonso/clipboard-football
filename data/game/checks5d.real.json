@@ -1,0 +1,42 @@
+{
+ "counts": {
+  "games": 2095,
+  "gap.trail0TO.final2.gaps": 1319,
+  "gap.trail0TO.final2.hits": 425,
+  "gap.trail0TO.gaps": 830,
+  "gap.trail0TO.hits": 187,
+  "kneel.4thLate": 16,
+  "kneel.notLeading": 32,
+  "kneel.notLeading.tied": 17,
+  "kneel.notLeading.trail1to8": 15,
+  "kneel.thenPlay.lead1to8": 6,
+  "kneel.thenPlay.lead9": 4,
+  "margin.0": 9,
+  "margin.1-3": 494,
+  "margin.15-21": 321,
+  "margin.22+": 285,
+  "margin.4-7": 505,
+  "margin.8-14": 481,
+  "margin.exact3": 303,
+  "ot.endsOn3": 69,
+  "ot.games": 115,
+  "spike.all": 549,
+  "spike.running0TO.snaps": 465,
+  "spike.running0TO.spikes": 156,
+  "spike.stopped0TO.snaps": 1466,
+  "spike.stopped0TO.spikes": 1,
+  "spike.trail0TO": 157,
+  "spike.trail1TO": 14
+ },
+ "generated": true,
+ "seasons": [
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023
+ ]
+}

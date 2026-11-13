@@ -6,9 +6,9 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 ## 1. In-sample check, 2016-2023 (run first)
 
-Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`; code hash `86ce9ed88293c164476399cdaca6cf8f1eec15d613c731d3d983967bae4de12c`.
+Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`; code hash `2b86595068f018bdfb29a77b42e3880cb55eb4cf9176d843306e9521664a6fad`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.308 ms per game, 65.3 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.191 ms per game, 64 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 
@@ -414,6 +414,80 @@ C4: two-point share of 4th-quarter tries in the final 5:00 by the scoring team's
 | GF | +6 | 0/79 | 0/10 | extraPoint |
 | GF | +7 | 6/28 | 2/3 | fitted |
 | GF | +8 | 6/24 | 1/4 | fitted |
+
+### Step 5d pre-registered checks (data/game/step5d-checks.json)
+
+Sim: the in-sample run's games (`scripts/game/checks5d.ts`); d.try.otDown2 adds the league 4242 postseason soak (seeds 1-10,000). Real: 2,095 regular-season games 2016-2023, unweighted, rows in clock order (`pipeline/game/checks5d.py`; definitions in its docstring). Runs: baseline = before step 5d (the behavior of 4f25b28; milestone A changes no behavior).
+
+| Check | baseline | Real | Rule | baseline |
+|---|---|---|---|---|
+| `d.spike.trail0TO` | 0.0078 | 0.0749 | abs(sim - real) <= 0.015 | fail |
+| `d.spike.running0TO` | 4.13% | 33.55% | abs(sim - real) <= 6 pp | fail |
+| `d.spike.stopped0TO` | 0.00% | 0.07% | sim <= real + 1 pp | pass |
+| `d.gap.trail0TO` | 35.41% | 22.53% | abs(sim - real) <= 4 pp | fail |
+| `d.kneel.notLeading` | 0.0465 | 0.0153 | abs(sim - real) <= 0.005 | fail |
+| `d.kneel.thenPlay.lead1to8` | 0.0199 | 0.0029 | abs(sim - real) <= 0.004 | fail |
+| `d.kneel.thenPlay.lead9` | 0.0725 | 0.0019 | reported only (Resolved 1; table rule abs(sim - real) <= 0.004) | reported |
+| `d.kneel.thenPlay.notLeading` | 0.0478 | 0.0000 | sim <= real + 0.002 | fail |
+| `d.kneel.4thLate` | 0.0123 | 0.0076 | abs(sim - real) <= 0.004 | fail |
+| `d.try.otDown2` | 1 | 0 | every such sim try is a two-point try (kicks shown) | fail |
+
+n (sim / real) at run baseline: `d.spike.trail0TO` 78 / 157; `d.spike.running0TO` 78/1890 vs 156/465; `d.spike.stopped0TO` 0/4745 vs 1/1466; `d.gap.trail0TO` 830/2344 vs 187/830; `d.kneel.notLeading` 465 / 32; `d.kneel.thenPlay.lead1to8` 199 / 6; `d.kneel.thenPlay.lead9` 725 / 4; `d.kneel.thenPlay.notLeading` 478 / 0; `d.kneel.4thLate` 123 / 16; `d.try.otDown2` sim 0/1 two-point (in-sample 0/0, postseason soak 0/1); real 0/0.
+
+Reported, not gated (per game unless a share; margins with the spread across the 10 league seeds).
+
+| Measure | baseline | Real |
+|---|---|---|
+| Spikes, all periods | 0.0560 | 0.2621 |
+| Late spikes by 1-8 trailers holding 1+ timeouts | 0.0102 | 0.0067 |
+| Gaps of 15 s+ in the final 2:00, 1-8 trailer with 0 timeouts | 40.89% | 32.22% |
+| Late kneels, not leading, > 0:47: trailing 1-8 | 0.0097 | 0.0072 |
+| Late kneels, not leading, > 0:47: trailing 9+ | 0.0169 | 0.0000 |
+| Late kneels, not leading, > 0:47: tied | 0.0199 | 0.0081 |
+| absMargin 0 | 0.79% (0.50 to 1.30) | 0.43% |
+| absMargin 1-3 | 20.05% (17.70 to 23.50) | 23.58% |
+| absMargin 4-7 | 25.00% (21.90 to 26.70) | 24.11% |
+| absMargin 8-14 | 27.92% (25.20 to 30.30) | 22.96% |
+| absMargin 15-21 | 15.43% (14.60 to 17.40) | 15.32% |
+| absMargin 22+ | 10.81% (9.50 to 12.10) | 13.60% |
+| exact 3 | 10.54% (9.10 to 13.00) | 14.46% |
+
+No regression of the step 5c checks (data/game/step5c-checks.json, sha256 `2c9f4591…`): the 14 that pass at 5c run H must pass; `c.kneel.ballBack`, `c.fg.63` and `c.fg.50to59` must stay at or better than their run H values (|sim - real| no larger).
+
+| Check | baseline | Real | Rule | baseline |
+|---|---|---|---|---|
+| `c.ot.complete` | 0 | - | both 0 | pass |
+| `c.trail.lastSnap` | 0.00% | 0.05% | abs(sim - real) <= 0.6 pp | pass |
+| `c.trail.longGap` | 6.24% | 7.38% | abs(sim - real) <= 3 pp | pass |
+| `c.spike.stopped` | 0.0000 | 0.0029 | abs(sim - real) <= 0.02 | pass |
+| `c.kneel.ballBack` | 8.97% | 2.92% | abs(sim - real) <= 2 pp; accepted, run H 8.97% | accepted, at or better |
+| `c.kneel.shortGap0TO` | 6.83% | 5.69% | abs(sim - real) <= 3 pp | pass |
+| `c.kneel.early` | 0.0000 | 0.0000 | sim <= real + 0.001 | pass |
+| `c.fg.60` | 0.0360 | 0.0291 | abs(sim - real) <= 0.015 | pass |
+| `c.fg.63` | 0.0254 | 0.0086 | abs(sim - real) <= 0.008; accepted, run H 0.0254 | accepted, at or better |
+| `c.fg.70` | 0.0000 | 0.0005 | sim <= 0.002 | pass |
+| `c.fg.50to59` | 0.7641 | 0.6415 | abs(sim - real) <= 0.05; accepted, run H 0.7641 | accepted, at or better |
+| `c.try.down2GF` | 100.00% | 100.00% | sim >= real - 15 pp | pass |
+| `c.try.tiedG5` | 100.00% | 100.00% | sim >= real - 10 pp | pass |
+| `c.to.kickoffQ13` | 0.0079 | 0.0076 | abs(sim - real) <= 0.02 | pass |
+| `c.to.tryQ13` | 0.0152 | 0.0129 | abs(sim - real) <= 0.02 | pass |
+| `c.to.kickoffAll` | 0.0625 | 0.0573 | abs(sim - real) <= 0.03 | pass |
+| `c.rough.scramble` | 0.0000 | 0.0005 | abs(sim - real) <= 0.005 | pass |
+
+In-sample gated game metrics by run: every row that is not a pass in some run, or within 30% of its tolerance (|predicted - actual| at least 0.7 x tolerance). Values are predicted (status). baseline: 0 gated failures, 6.191 ms per game.
+
+| Metric | Actual | Tolerance | baseline |
+|---|---|---|---|
+| `points.sd` | 9.96 | 1 | 9.24 (pass) |
+| `total.sd` | 13.91 | 1.5 | 12.78 (pass) |
+| `absMargin.share.1-3` | 24.22 | 3 | 20.05 (accepted) |
+| `absMargin.share.8-14` | 22.71 | 3 | 27.92 (accepted) |
+| `absMargin.share.22+` | 13.78 | 3 | 10.81 (pass) |
+| `driveStart.mean` | 28.68 | 1.5 | 30.41 (accepted) |
+| `driveResult.share.endOfHalf` | 6.78 | 2 | 8.25 (pass) |
+| `timeouts.perTeamGame` | 3.66 | 0.3 | 3.44 (pass) |
+| `fourthDownGo.perGame` | 2.68 | 0.4 | 2.99 (pass) |
+| `twoPointTries.perGame` | 0.46 | 0.1 | 0.38 (pass) |
 
 Every 2024-2025 game-level run so far, with its gated failures:
 
