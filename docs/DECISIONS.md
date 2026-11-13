@@ -1105,6 +1105,13 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 7 | After it | The report layout (accepted misses listed apart from the gated-failure line) and the recomputed F1 stages | Every metric identical to run 6 |
 
 
+## M1 step 5c: playtest fixes
+
+### Checks pre-registered before any diagnosis or run (spec Milestone 0)
+- Date: 2026-11-12.
+- Decision: the 17 pre-registered checks in docs/specs/m1-step5c-playtest-fixes.md are frozen in data/game/step5c-checks.json, committed alone in 4f286a6, sha256 `2c9f459154298ac65a0ab4c52bf5a39bd27515a934ee4aaeb040b739c55115de`. Recorded by the lead before any diagnosis, sim run or code change for step 5c. Any later change to that file is a post-registration revision and is logged here.
+- Accepted misses from "Step 5 misses accepted (Joseph, 2026-11-12)" stay accepted only at or better than their accepted values; anything worse goes back to Joseph.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
