@@ -3169,6 +3169,695 @@
      "actual": null
     }
    }
+  },
+  "E": {
+   "what": "after E (an overtime try reads the score once both teams have possessed)",
+   "metrics": [
+    {
+     "id": "points.mean",
+     "predicted": 22.08425,
+     "actual": 22.493743744084544,
+     "tolerance": 1,
+     "status": "pass",
+     "spread": [
+      21.7975,
+      22.678
+     ]
+    },
+    {
+     "id": "points.sd",
+     "predicted": 9.28297645895431,
+     "actual": 9.95736010041889,
+     "tolerance": 1,
+     "status": "pass",
+     "spread": [
+      9.005939359667034,
+      9.619330525041752
+     ]
+    },
+    {
+     "id": "points.share.0-9",
+     "predicted": 7.6850000000000005,
+     "actual": 8.553745505999396,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      6.8500000000000005,
+      8.799999999999999
+     ]
+    },
+    {
+     "id": "points.share.10-16",
+     "predicted": 20.29,
+     "actual": 18.363446276768457,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      18.55,
+      21.9
+     ]
+    },
+    {
+     "id": "points.share.17-23",
+     "predicted": 29.299999999999997,
+     "actual": 28.025802985183272,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      27.500000000000004,
+      30.75
+     ]
+    },
+    {
+     "id": "points.share.24-30",
+     "predicted": 24.47,
+     "actual": 24.08771774154535,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      22.650000000000002,
+      25.8
+     ]
+    },
+    {
+     "id": "points.share.31-37",
+     "predicted": 12.784999999999998,
+     "actual": 13.864485682964641,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      11.85,
+      13.8
+     ]
+    },
+    {
+     "id": "points.share.38+",
+     "predicted": 5.47,
+     "actual": 7.104801807538884,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      4.5,
+      6.65
+     ]
+    },
+    {
+     "id": "total.mean",
+     "predicted": 44.1685,
+     "actual": 44.98748748816909,
+     "tolerance": 1.5,
+     "status": "pass",
+     "spread": [
+      43.595,
+      45.356
+     ]
+    },
+    {
+     "id": "total.sd",
+     "predicted": 12.83268123776164,
+     "actual": 13.905027799469405,
+     "tolerance": 1.5,
+     "status": "pass",
+     "spread": [
+      12.475855682076485,
+      13.332040203959787
+     ]
+    },
+    {
+     "id": "homeMargin.mean",
+     "predicted": 2.2163,
+     "actual": 2.0942956266413377,
+     "tolerance": 1.5,
+     "status": "pass",
+     "spread": [
+      1.394,
+      2.634
+     ]
+    },
+    {
+     "id": "margin.sd",
+     "predicted": 13.232721349367257,
+     "actual": 14.13662330752994,
+     "tolerance": 1.5,
+     "status": "pass",
+     "spread": [
+      12.669601059228345,
+      13.91224608034231
+     ]
+    },
+    {
+     "id": "absMargin.share.0",
+     "predicted": 0.6,
+     "actual": 0.3569125651165628,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      0.2,
+      1
+     ]
+    },
+    {
+     "id": "absMargin.share.1-3",
+     "predicted": 20.41,
+     "actual": 24.21672131608963,
+     "tolerance": 3,
+     "status": "accepted",
+     "spread": [
+      18.5,
+      23.799999999999997
+     ]
+    },
+    {
+     "id": "absMargin.share.4-7",
+     "predicted": 24.39,
+     "actual": 23.960489896024324,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      21.8,
+      26.5
+     ]
+    },
+    {
+     "id": "absMargin.share.8-14",
+     "predicted": 28.12,
+     "actual": 22.70528547258396,
+     "tolerance": 3,
+     "status": "accepted",
+     "spread": [
+      26.1,
+      31
+     ]
+    },
+    {
+     "id": "absMargin.share.15-21",
+     "predicted": 15.590000000000002,
+     "actual": 14.981009257111861,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      14.2,
+      18.6
+     ]
+    },
+    {
+     "id": "absMargin.share.22+",
+     "predicted": 10.89,
+     "actual": 13.779581493073664,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      9.5,
+      12.1
+     ]
+    },
+    {
+     "id": "homeWin.rate",
+     "predicted": 56.989999999999995,
+     "actual": 55.22929004900884,
+     "tolerance": 4,
+     "status": "pass",
+     "spread": [
+      54.449999999999996,
+      59.099999999999994
+     ]
+    },
+    {
+     "id": "drives.perTeamGame",
+     "predicted": 11.23625,
+     "actual": 11.011930539076266,
+     "tolerance": 0.4,
+     "status": "pass",
+     "spread": [
+      11.155,
+      11.2915
+     ]
+    },
+    {
+     "id": "driveStart.mean",
+     "predicted": 30.393716764934922,
+     "actual": 28.678141738787307,
+     "tolerance": 1.5,
+     "status": "accepted",
+     "spread": [
+      30.191180400890868,
+      30.56093972895863
+     ]
+    },
+    {
+     "id": "driveResult.share.touchdown",
+     "predicted": 20.82100344865947,
+     "actual": 21.60088025525542,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      20.22437034409365,
+      21.910663338088447
+     ]
+    },
+    {
+     "id": "driveResult.share.fieldGoal",
+     "predicted": 14.13683390810991,
+     "actual": 14.882725916442594,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      13.64300580082363,
+      14.504706409681756
+     ]
+    },
+    {
+     "id": "driveResult.share.missedFieldGoal",
+     "predicted": 2.4532206029591723,
+     "actual": 2.611995891044811,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      2.2949350067234424,
+      2.6416949758626855
+     ]
+    },
+    {
+     "id": "driveResult.share.punt",
+     "predicted": 36.407609300255864,
+     "actual": 36.87183896933621,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      35.56972182596291,
+      37.05567928730512
+     ]
+    },
+    {
+     "id": "driveResult.share.turnover",
+     "predicted": 10.798531538547113,
+     "actual": 11.675215505871323,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      10.22271714922049,
+      11.349245007306381
+     ]
+    },
+    {
+     "id": "driveResult.share.downs",
+     "predicted": 6.614306374457671,
+     "actual": 5.320438010862595,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      6.393040374749052,
+      7.01311359206096
+     ]
+    },
+    {
+     "id": "driveResult.share.endOfHalf",
+     "predicted": 8.263878073200578,
+     "actual": 6.780377174953671,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      8.171671538665958,
+      8.346033168982519
+     ]
+    },
+    {
+     "id": "driveResult.share.safety",
+     "predicted": 0.5046167538102125,
+     "actual": 0.25652827623339314,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      0.43357768639370636,
+      0.5757817344317477
+     ]
+    },
+    {
+     "id": "scrimmagePlays.perGame",
+     "predicted": 127.4252,
+     "actual": 126.59408723925847,
+     "tolerance": 3,
+     "status": "pass",
+     "spread": [
+      127.048,
+      127.762
+     ]
+    },
+    {
+     "id": "penalties.supported.perGame",
+     "predicted": 9.4423,
+     "actual": 9.63895930563843,
+     "tolerance": 0.8,
+     "status": "pass",
+     "spread": [
+      9.232,
+      9.714
+     ]
+    },
+    {
+     "id": "penaltyYards.supported.perGame",
+     "predicted": 79.76,
+     "actual": 80.44384841700303,
+     "tolerance": 7,
+     "status": "pass",
+     "spread": [
+      78.322,
+      81.999
+     ]
+    },
+    {
+     "id": "penalties.all.perGame",
+     "predicted": 9.4423,
+     "actual": 11.820535121293627,
+     "tolerance": null,
+     "status": "not gated",
+     "spread": [
+      9.232,
+      9.714
+     ]
+    },
+    {
+     "id": "penaltyYards.all.perGame",
+     "predicted": 79.76,
+     "actual": 99.5009405457323,
+     "tolerance": null,
+     "status": "not gated",
+     "spread": [
+      78.322,
+      81.999
+     ]
+    },
+    {
+     "id": "turnovers.perTeamGame",
+     "predicted": 1.20635,
+     "actual": 1.2661003659259948,
+     "tolerance": 0.15,
+     "status": "pass",
+     "spread": [
+      1.1385,
+      1.2745
+     ]
+    },
+    {
+     "id": "interceptions.perTeamGame",
+     "predicted": 0.7931,
+     "actual": 0.7916841625939898,
+     "tolerance": 0.1,
+     "status": "pass",
+     "spread": [
+      0.7495,
+      0.8565
+     ]
+    },
+    {
+     "id": "fumblesLost.perTeamGame",
+     "predicted": 0.41325,
+     "actual": 0.4744162033320051,
+     "tolerance": 0.1,
+     "status": "pass",
+     "spread": [
+      0.384,
+      0.433
+     ]
+    },
+    {
+     "id": "sacks.perTeamGame",
+     "predicted": 2.52925,
+     "actual": 2.4262781395127933,
+     "tolerance": 0.25,
+     "status": "pass",
+     "spread": [
+      2.456,
+      2.6605
+     ]
+    },
+    {
+     "id": "top.sd",
+     "predicted": 267.5138395507608,
+     "actual": 268.3033069144722,
+     "tolerance": 45,
+     "status": "pass",
+     "spread": [
+      252.99420560755894,
+      274.966745216581
+     ]
+    },
+    {
+     "id": "top.winnerMean",
+     "predicted": 1928.3497987927565,
+     "actual": 1913.7511090491607,
+     "tolerance": 45,
+     "status": "pass",
+     "spread": [
+      1908.7865731462925,
+      1940.477341389728
+     ]
+    },
+    {
+     "id": "driveDuration.mean",
+     "predicted": 158.92371565246413,
+     "actual": 164.4679144740742,
+     "tolerance": 10,
+     "status": "pass",
+     "spread": [
+      158.12568669147618,
+      160.12133572389064
+     ]
+    },
+    {
+     "id": "overtime.rate",
+     "predicted": 4.3999999999999995,
+     "actual": 5.735052036092559,
+     "tolerance": 2,
+     "status": "pass",
+     "spread": [
+      3.5000000000000004,
+      5
+     ]
+    },
+    {
+     "id": "tie.rate",
+     "predicted": 0.6,
+     "actual": 0.3569125651165628,
+     "tolerance": 0.75,
+     "status": "pass",
+     "spread": [
+      0.2,
+      1
+     ]
+    },
+    {
+     "id": "timeouts.perTeamGame",
+     "predicted": 3.43195,
+     "actual": 3.6647958861762304,
+     "tolerance": 0.3,
+     "status": "pass",
+     "spread": [
+      3.3445,
+      3.486
+     ]
+    },
+    {
+     "id": "fourthDownGo.perGame",
+     "predicted": 2.9864,
+     "actual": 2.6766568297406645,
+     "tolerance": 0.4,
+     "status": "pass",
+     "spread": [
+      2.923,
+      3.119
+     ]
+    },
+    {
+     "id": "punts.perGame",
+     "predicted": 8.2213,
+     "actual": 8.164653999531708,
+     "tolerance": 0.4,
+     "status": "pass",
+     "spread": [
+      8.016,
+      8.37
+     ]
+    },
+    {
+     "id": "fieldGoalAttempts.perGame",
+     "predicted": 3.7309,
+     "actual": 3.8575285368108165,
+     "tolerance": 0.3,
+     "status": "pass",
+     "spread": [
+      3.621,
+      3.792
+     ]
+    },
+    {
+     "id": "twoPointTries.perGame",
+     "predicted": 0.3778,
+     "actual": 0.4643019109037174,
+     "tolerance": 0.1,
+     "status": "pass",
+     "spread": [
+      0.352,
+      0.404
+     ]
+    },
+    {
+     "id": "onside.perGame",
+     "predicted": 0.2056,
+     "actual": 0.1989425198005662,
+     "tolerance": 0.05,
+     "status": "pass",
+     "spread": [
+      0.189,
+      0.216
+     ]
+    }
+   ],
+   "invariants": {
+    "violations": 0,
+    "examples": [],
+    "postseasonGames": 1000,
+    "postseasonTies": 0
+   },
+   "msPerGame": 6.693,
+   "diagnostics": {
+    "diag.final2FieldGoalAttempts.leading1-3": {
+     "predicted": 0.0202,
+     "actual": 0.013642071523213978
+    },
+    "diag.final2FieldGoalAttempts.leading4-8": {
+     "predicted": 0.0352,
+     "actual": 0.03554562879463523
+    },
+    "diag.final2FieldGoalAttempts.tied": {
+     "predicted": 0.0295,
+     "actual": 0.06235820304104928
+    },
+    "diag.final2FieldGoalAttempts.trailing1-3": {
+     "predicted": 0.0455,
+     "actual": 0.09337633523778152
+    },
+    "diag.final2FieldGoalAttempts.trailing4-8": {
+     "predicted": 0.0101,
+     "actual": 0
+    },
+    "diag.late4thFieldGoal.leading1-3": {
+     "predicted": 0.8062015503875969,
+     "actual": 0.792537386697894
+    },
+    "diag.late4thFieldGoal.leading4-8": {
+     "predicted": 0.8158890290037831,
+     "actual": 0.8219586442563703
+    },
+    "diag.late4thFieldGoal.tied": {
+     "predicted": 0.7366548042704626,
+     "actual": 0.8913039553434564
+    },
+    "diag.late4thFieldGoal.trailing1-3": {
+     "predicted": 0.9550072568940493,
+     "actual": 0.9497323638434633
+    },
+    "diag.late4thFieldGoal.trailing4-8": {
+     "predicted": 0.04238921001926782,
+     "actual": 0.0736806024261109
+    },
+    "diag.timeoutRate.defense.0.G5": {
+     "predicted": 0.04195593118019922,
+     "actual": 0.053253286760423776
+    },
+    "diag.timeoutRate.defense.0.GF": {
+     "predicted": 0.15892696122633002,
+     "actual": 0.16740349127819668
+    },
+    "diag.timeoutRate.defense.L.G5": {
+     "predicted": 0.012821616039927717,
+     "actual": 0.014090007553015593
+    },
+    "diag.timeoutRate.defense.L.GF": {
+     "predicted": 0.05694317408944863,
+     "actual": 0.07263897083048647
+    },
+    "diag.timeoutRate.defense.T.G5": {
+     "predicted": 0.2048293089092423,
+     "actual": 0.2528298827823152
+    },
+    "diag.timeoutRate.defense.T.GF": {
+     "predicted": 0.19566821636779574,
+     "actual": 0.17407361890865308
+    },
+    "diag.timeoutRate.offense.0.G5": {
+     "predicted": 0.04346513733776034,
+     "actual": 0.02918563395386018
+    },
+    "diag.timeoutRate.offense.0.GF": {
+     "predicted": 0.11203787195671776,
+     "actual": 0.1481200722972482
+    },
+    "diag.timeoutRate.offense.L.G5": {
+     "predicted": 0.03731265611990008,
+     "actual": 0.0367375650599565
+    },
+    "diag.timeoutRate.offense.L.GF": {
+     "predicted": 0.03973876466681426,
+     "actual": 0.07220981555395427
+    },
+    "diag.timeoutRate.offense.T.G5": {
+     "predicted": 0.008712675329145513,
+     "actual": 0.011598645561274793
+    },
+    "diag.timeoutRate.offense.T.GF": {
+     "predicted": 0.07781608386688244,
+     "actual": 0.06977395182761602
+    },
+    "diag.timeoutsPerTeamGame.defense.0.G5": {
+     "predicted": 0.00695,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.defense.0.GF": {
+     "predicted": 0.03525,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.defense.L.G5": {
+     "predicted": 0.0298,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.defense.L.GF": {
+     "predicted": 0.1214,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.defense.T.G5": {
+     "predicted": 0.3936,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.defense.T.GF": {
+     "predicted": 0.26515,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.offense.0.G5": {
+     "predicted": 0.0072,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.offense.0.GF": {
+     "predicted": 0.02485,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.offense.L.G5": {
+     "predicted": 0.0717,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.offense.L.GF": {
+     "predicted": 0.05385,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.offense.T.G5": {
+     "predicted": 0.02025,
+     "actual": null
+    },
+    "diag.timeoutsPerTeamGame.offense.T.GF": {
+     "predicted": 0.1659,
+     "actual": null
+    }
+   }
   }
  }
 }

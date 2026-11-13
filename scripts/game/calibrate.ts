@@ -41,6 +41,7 @@ export const STEP5D_RUNS: readonly (readonly [string, string])[] = [
   ["B", "after B (a tempo level that keeps the offense's own timeouts)"],
   ["C", "after C (a clock-aware spike level for trailers in the final 2:00)"],
   ["D", "after D (not-leading late levels, K0x split by defense timeouts, c40 band on late 4th downs, designed late-kneel masks)"],
+  ["E", "after E (an overtime try reads the score once both teams have possessed)"],
 ];
 
 export interface ToleranceMetric {

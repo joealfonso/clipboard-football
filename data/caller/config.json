@@ -372,6 +372,14 @@
       ],
       "buckets": [
         {
+          "label": "Q4F",
+          "quarterMin": 5,
+          "quarterMax": 5,
+          "field": "otBothPossessed",
+          "min": 1,
+          "max": null
+        },
+        {
           "label": "Q1-3",
           "quarterMin": 1,
           "quarterMax": 3,
@@ -403,6 +411,14 @@
         "try"
       ],
       "buckets": [
+        {
+          "label": "GF",
+          "quarterMin": 5,
+          "quarterMax": 5,
+          "field": "otBothPossessed",
+          "min": 1,
+          "max": null
+        },
         {
           "label": "GF",
           "quarterMin": 4,
@@ -2517,7 +2533,7 @@
     }
   },
   "tryChart": {
-    "note": "Step 5c milestone C (designed, Resolved 2). In the final 5:00 of Q4 (G5: 5:00-2:01, GF: 2:00 or less; overtime reads the 4th-quarter cell with the same clock, the late regulation cell) no try cell has 150 real tries (2016-2023), so the choice in a charted cell is designed: extra point or two-point try outright. A cell is charted only where 2016-2023 shows one choice on at least 90% of 10 or more tries (score after the touchdown, the scoring team's view); every other late cell keeps the fitted oTry backoff. docs/GAME_REPORT.md shows the real counts next to each cell.",
+    "note": "Step 5c milestone C (designed, Resolved 2). In the final 5:00 of Q4 (G5: 5:00-2:01, GF: 2:00 or less; overtime reads the 4th-quarter cell with the same clock, the late regulation cell) no try cell has 150 real tries (2016-2023), so the choice in a charted cell is designed: extra point or two-point try outright. A cell is charted only where 2016-2023 shows one choice on at least 90% of 10 or more tries (score after the touchdown, the scoring team's view); every other late cell keeps the fitted oTry backoff. docs/GAME_REPORT.md shows the real counts next to each cell. Step 5d milestone E (designed): an overtime try once both teams have had the ball (otBothPossessed 1) reads the GF cell whatever the clock (tryLate GF, and oTry's time3 Q4F for its fitted backoff), because the try can then end the game (RULES.md Overtime, Rule 16-1-3, 16-1-4, 16-1-5); 2016-2023 has no regular-season overtime try, so every such cell is designed.",
     "window": "tryLate",
     "score": "diff",
     "cells": {

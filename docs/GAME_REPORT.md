@@ -6,9 +6,9 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 ## 1. In-sample check, 2016-2023 (run first)
 
-Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`; code hash `790056c5b218364d4b435ab0a609e2e35a82a6c717365e866e0c05c5a9d0c292`.
+Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`; code hash `0b5bc4f015572fc04659a0c2b9ab9568ac56be608f6459ead3d016cde321b6d1`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.691 ms per game, 69 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.693 ms per game, 69 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 
@@ -22,7 +22,7 @@ Accepted by Joseph (known deviations in data/game/tolerances.json for this sampl
 | `points.share.10-16` | 20.29 | 18.36 | 2,714 | 16.95 to 19.86 | 3 pp | 18.55 to 21.90 | pass |
 | `points.share.17-23` | 29.30 | 28.03 | 2,714 | 26.37 to 29.75 | 3 pp | 27.50 to 30.75 | pass |
 | `points.share.24-30` | 24.47 | 24.09 | 2,714 | 22.52 to 25.73 | 3 pp | 22.65 to 25.80 | pass |
-| `points.share.31-37` | 12.79 | 13.86 | 2,714 | 12.62 to 15.22 | 3 pp | 11.85 to 13.80 | pass |
+| `points.share.31-37` | 12.78 | 13.86 | 2,714 | 12.62 to 15.22 | 3 pp | 11.85 to 13.80 | pass |
 | `points.share.38+` | 5.47 | 7.10 | 2,714 | 6.20 to 8.13 | 3 pp | 4.50 to 6.65 | pass |
 | `total.mean` | 44.17 | 44.99 | 1,357 | 44.25 to 45.73 | 1.5 pt | 43.60 to 45.36 | pass |
 | `total.sd` | 12.83 | 13.91 | 1,357 | 13.38 to 14.43 | 1.5 pt | 12.48 to 13.33 | pass |
@@ -417,77 +417,77 @@ C4: two-point share of 4th-quarter tries in the final 5:00 by the scoring team's
 
 ### Step 5d pre-registered checks (data/game/step5d-checks.json)
 
-Sim: the in-sample run's games (`scripts/game/checks5d.ts`); d.try.otDown2 adds the league 4242 postseason soak (seeds 1-10,000). Real: 2,095 regular-season games 2016-2023, unweighted, rows in clock order (`pipeline/game/checks5d.py`; definitions in its docstring). Runs: baseline = before step 5d (the behavior of 4f25b28; milestone A changes no behavior); res3 = after resolution 3 (the caller reads timeouts at the snap in clock order; caller refit); B = after B (a tempo level that keeps the offense's own timeouts); C = after C (a clock-aware spike level for trailers in the final 2:00); D = after D (not-leading late levels, K0x split by defense timeouts, c40 band on late 4th downs, designed late-kneel masks).
+Sim: the in-sample run's games (`scripts/game/checks5d.ts`); d.try.otDown2 adds the league 4242 postseason soak (seeds 1-10,000). Real: 2,095 regular-season games 2016-2023, unweighted, rows in clock order (`pipeline/game/checks5d.py`; definitions in its docstring). Runs: baseline = before step 5d (the behavior of 4f25b28; milestone A changes no behavior); res3 = after resolution 3 (the caller reads timeouts at the snap in clock order; caller refit); B = after B (a tempo level that keeps the offense's own timeouts); C = after C (a clock-aware spike level for trailers in the final 2:00); D = after D (not-leading late levels, K0x split by defense timeouts, c40 band on late 4th downs, designed late-kneel masks); E = after E (an overtime try reads the score once both teams have possessed).
 
-| Check | baseline | res3 | B | C | D | Real | Rule | baseline / res3 / B / C / D |
-|---|---|---|---|---|---|---|---|---|
-| `d.spike.trail0TO` | 0.0078 | 0.0078 | 0.0081 | 0.0499 | 0.0502 | 0.0749 | abs(sim - real) <= 0.015 | fail / fail / fail / fail / fail |
-| `d.spike.running0TO` | 4.13% | 4.13% | 4.16% | 29.03% | 30.02% | 33.55% | abs(sim - real) <= 6 pp | fail / fail / fail / pass / pass |
-| `d.spike.stopped0TO` | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.07% | sim <= real + 1 pp | pass / pass / pass / pass / pass |
-| `d.gap.trail0TO` | 35.41% | 35.42% | 38.19% | 31.30% | 31.72% | 22.53% | abs(sim - real) <= 4 pp | fail / fail / fail / fail / fail |
-| `d.kneel.notLeading` | 0.0465 | 0.0465 | 0.0462 | 0.0470 | 0.0149 | 0.0153 | abs(sim - real) <= 0.005 | fail / fail / fail / fail / pass |
-| `d.kneel.thenPlay.lead1to8` | 0.0199 | 0.0199 | 0.0212 | 0.0204 | 0.0171 | 0.0029 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / fail |
-| `d.kneel.thenPlay.lead9` | 0.0725 | 0.0724 | 0.0740 | 0.0727 | 0.0730 | 0.0019 | reported only (Resolved 1; table rule abs(sim - real) <= 0.004) | reported / reported / reported / reported / reported |
-| `d.kneel.thenPlay.notLeading` | 0.0478 | 0.0478 | 0.0481 | 0.0499 | 0.0207 | 0.0000 | sim <= real + 0.002 | fail / fail / fail / fail / fail |
-| `d.kneel.4thLate` | 0.0123 | 0.0123 | 0.0127 | 0.0125 | 0.0067 | 0.0076 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / pass |
-| `d.try.otDown2` | 1 | 1 | 2 | 3 | 2 | 0 | every such sim try is a two-point try (kicks shown) | fail / fail / fail / fail / fail |
+| Check | baseline | res3 | B | C | D | E | Real | Rule | baseline / res3 / B / C / D / E |
+|---|---|---|---|---|---|---|---|---|---|
+| `d.spike.trail0TO` | 0.0078 | 0.0078 | 0.0081 | 0.0499 | 0.0502 | 0.0502 | 0.0749 | abs(sim - real) <= 0.015 | fail / fail / fail / fail / fail / fail |
+| `d.spike.running0TO` | 4.13% | 4.13% | 4.16% | 29.03% | 30.02% | 30.02% | 33.55% | abs(sim - real) <= 6 pp | fail / fail / fail / pass / pass / pass |
+| `d.spike.stopped0TO` | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.07% | sim <= real + 1 pp | pass / pass / pass / pass / pass / pass |
+| `d.gap.trail0TO` | 35.41% | 35.42% | 38.19% | 31.30% | 31.72% | 31.72% | 22.53% | abs(sim - real) <= 4 pp | fail / fail / fail / fail / fail / fail |
+| `d.kneel.notLeading` | 0.0465 | 0.0465 | 0.0462 | 0.0470 | 0.0149 | 0.0149 | 0.0153 | abs(sim - real) <= 0.005 | fail / fail / fail / fail / pass / pass |
+| `d.kneel.thenPlay.lead1to8` | 0.0199 | 0.0199 | 0.0212 | 0.0204 | 0.0171 | 0.0171 | 0.0029 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / fail / fail |
+| `d.kneel.thenPlay.lead9` | 0.0725 | 0.0724 | 0.0740 | 0.0727 | 0.0730 | 0.0730 | 0.0019 | reported only (Resolved 1; table rule abs(sim - real) <= 0.004) | reported / reported / reported / reported / reported / reported |
+| `d.kneel.thenPlay.notLeading` | 0.0478 | 0.0478 | 0.0481 | 0.0499 | 0.0207 | 0.0207 | 0.0000 | sim <= real + 0.002 | fail / fail / fail / fail / fail / fail |
+| `d.kneel.4thLate` | 0.0123 | 0.0123 | 0.0127 | 0.0125 | 0.0067 | 0.0067 | 0.0076 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / pass / pass |
+| `d.try.otDown2` | 1 | 1 | 2 | 3 | 2 | 0 | 0 | every such sim try is a two-point try (kicks shown) | fail / fail / fail / fail / fail / pass |
 
-n (sim / real) at run D: `d.spike.trail0TO` 502 / 157; `d.spike.running0TO` 502/1672 vs 156/465; `d.spike.stopped0TO` 0/4968 vs 1/1466; `d.gap.trail0TO` 781/2462 vs 187/830; `d.kneel.notLeading` 149 / 32; `d.kneel.thenPlay.lead1to8` 171 / 6; `d.kneel.thenPlay.lead9` 730 / 4; `d.kneel.thenPlay.notLeading` 207 / 0; `d.kneel.4thLate` 67 / 16; `d.try.otDown2` sim 2/4 two-point (in-sample 0/1, postseason soak 2/3); real 0/0.
+n (sim / real) at run E: `d.spike.trail0TO` 502 / 157; `d.spike.running0TO` 502/1672 vs 156/465; `d.spike.stopped0TO` 0/4968 vs 1/1466; `d.gap.trail0TO` 781/2462 vs 187/830; `d.kneel.notLeading` 149 / 32; `d.kneel.thenPlay.lead1to8` 171 / 6; `d.kneel.thenPlay.lead9` 730 / 4; `d.kneel.thenPlay.notLeading` 207 / 0; `d.kneel.4thLate` 67 / 16; `d.try.otDown2` sim 4/4 two-point (in-sample 1/1, postseason soak 3/3); real 0/0.
 
 Reported, not gated (per game unless a share; margins with the spread across the 10 league seeds).
 
-| Measure | baseline | res3 | B | C | D | Real |
-|---|---|---|---|---|---|---|
-| Spikes, all periods | 0.0560 | 0.0560 | 0.0565 | 0.0966 | 0.0958 | 0.2621 |
-| Late spikes by 1-8 trailers holding 1+ timeouts | 0.0102 | 0.0102 | 0.0103 | 0.0049 | 0.0055 | 0.0067 |
-| Gaps of 15 s+ in the final 2:00, 1-8 trailer with 0 timeouts | 40.89% | 40.86% | 42.41% | 36.32% | 36.58% | 32.22% |
-| Late kneels, not leading, > 0:47: trailing 1-8 | 0.0097 | 0.0097 | 0.0091 | 0.0086 | 0.0020 | 0.0072 |
-| Late kneels, not leading, > 0:47: trailing 9+ | 0.0169 | 0.0169 | 0.0178 | 0.0198 | 0.0000 | 0.0000 |
-| Late kneels, not leading, > 0:47: tied | 0.0199 | 0.0199 | 0.0193 | 0.0186 | 0.0129 | 0.0081 |
-| absMargin 0 | 0.79% (0.50 to 1.30) | 0.79% (0.50 to 1.30) | 0.77% (0.60 to 1.30) | 0.67% (0.40 to 1.30) | 0.60% (0.20 to 1.00) | 0.43% |
-| absMargin 1-3 | 20.05% (17.70 to 23.50) | 20.07% (17.80 to 23.50) | 20.18% (16.60 to 23.20) | 20.37% (17.90 to 23.20) | 20.41% (18.50 to 23.80) | 23.58% |
-| absMargin 4-7 | 25.00% (21.90 to 26.70) | 25.02% (22.00 to 26.70) | 24.57% (21.70 to 27.00) | 24.42% (22.40 to 26.50) | 24.39% (21.80 to 26.50) | 24.11% |
-| absMargin 8-14 | 27.92% (25.20 to 30.30) | 27.91% (25.20 to 30.30) | 27.86% (25.30 to 31.10) | 27.88% (25.90 to 30.40) | 28.12% (26.10 to 31.00) | 22.96% |
-| absMargin 15-21 | 15.43% (14.60 to 17.40) | 15.41% (14.60 to 17.40) | 15.64% (13.90 to 18.10) | 15.70% (13.60 to 18.80) | 15.59% (14.20 to 18.60) | 15.32% |
-| absMargin 22+ | 10.81% (9.50 to 12.10) | 10.80% (9.50 to 12.10) | 10.98% (9.30 to 12.40) | 10.96% (9.40 to 12.10) | 10.89% (9.50 to 12.10) | 13.60% |
-| exact 3 | 10.54% (9.10 to 13.00) | 10.55% (9.20 to 13.00) | 10.63% (9.10 to 12.30) | 10.72% (9.70 to 12.40) | 11.02% (9.50 to 13.40) | 14.46% |
+| Measure | baseline | res3 | B | C | D | E | Real |
+|---|---|---|---|---|---|---|---|
+| Spikes, all periods | 0.0560 | 0.0560 | 0.0565 | 0.0966 | 0.0958 | 0.0958 | 0.2621 |
+| Late spikes by 1-8 trailers holding 1+ timeouts | 0.0102 | 0.0102 | 0.0103 | 0.0049 | 0.0055 | 0.0055 | 0.0067 |
+| Gaps of 15 s+ in the final 2:00, 1-8 trailer with 0 timeouts | 40.89% | 40.86% | 42.41% | 36.32% | 36.58% | 36.58% | 32.22% |
+| Late kneels, not leading, > 0:47: trailing 1-8 | 0.0097 | 0.0097 | 0.0091 | 0.0086 | 0.0020 | 0.0020 | 0.0072 |
+| Late kneels, not leading, > 0:47: trailing 9+ | 0.0169 | 0.0169 | 0.0178 | 0.0198 | 0.0000 | 0.0000 | 0.0000 |
+| Late kneels, not leading, > 0:47: tied | 0.0199 | 0.0199 | 0.0193 | 0.0186 | 0.0129 | 0.0129 | 0.0081 |
+| absMargin 0 | 0.79% (0.50 to 1.30) | 0.79% (0.50 to 1.30) | 0.77% (0.60 to 1.30) | 0.67% (0.40 to 1.30) | 0.60% (0.20 to 1.00) | 0.60% (0.20 to 1.00) | 0.43% |
+| absMargin 1-3 | 20.05% (17.70 to 23.50) | 20.07% (17.80 to 23.50) | 20.18% (16.60 to 23.20) | 20.37% (17.90 to 23.20) | 20.41% (18.50 to 23.80) | 20.41% (18.50 to 23.80) | 23.58% |
+| absMargin 4-7 | 25.00% (21.90 to 26.70) | 25.02% (22.00 to 26.70) | 24.57% (21.70 to 27.00) | 24.42% (22.40 to 26.50) | 24.39% (21.80 to 26.50) | 24.39% (21.80 to 26.50) | 24.11% |
+| absMargin 8-14 | 27.92% (25.20 to 30.30) | 27.91% (25.20 to 30.30) | 27.86% (25.30 to 31.10) | 27.88% (25.90 to 30.40) | 28.12% (26.10 to 31.00) | 28.12% (26.10 to 31.00) | 22.96% |
+| absMargin 15-21 | 15.43% (14.60 to 17.40) | 15.41% (14.60 to 17.40) | 15.64% (13.90 to 18.10) | 15.70% (13.60 to 18.80) | 15.59% (14.20 to 18.60) | 15.59% (14.20 to 18.60) | 15.32% |
+| absMargin 22+ | 10.81% (9.50 to 12.10) | 10.80% (9.50 to 12.10) | 10.98% (9.30 to 12.40) | 10.96% (9.40 to 12.10) | 10.89% (9.50 to 12.10) | 10.89% (9.50 to 12.10) | 13.60% |
+| exact 3 | 10.54% (9.10 to 13.00) | 10.55% (9.20 to 13.00) | 10.63% (9.10 to 12.30) | 10.72% (9.70 to 12.40) | 11.02% (9.50 to 13.40) | 11.02% (9.50 to 13.40) | 14.46% |
 
 No regression of the step 5c checks (data/game/step5c-checks.json, sha256 `2c9f4591…`): the 14 that pass at 5c run H must pass; `c.kneel.ballBack`, `c.fg.63` and `c.fg.50to59` must stay at or better than their run H values (|sim - real| no larger).
 
-| Check | baseline | res3 | B | C | D | Real | Rule | baseline / res3 / B / C / D |
+| Check | baseline | res3 | B | C | D | E | Real | Rule | baseline / res3 / B / C / D / E |
+|---|---|---|---|---|---|---|---|---|---|
+| `c.ot.complete` | 0 | 0 | 0 | 0 | 0 | 0 | - | both 0 | pass / pass / pass / pass / pass / pass |
+| `c.trail.lastSnap` | 0.00% | 0.00% | 0.00% | 0.02% | 0.02% | 0.02% | 0.05% | abs(sim - real) <= 0.6 pp | pass / pass / pass / pass / pass / pass |
+| `c.trail.longGap` | 6.24% | 6.23% | 6.16% | 6.18% | 6.51% | 6.51% | 7.38% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass / pass |
+| `c.spike.stopped` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0029 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass / pass |
+| `c.kneel.ballBack` | 8.97% | 8.98% | 9.34% | 9.38% | 7.94% | 7.94% | 2.92% | abs(sim - real) <= 2 pp; accepted, run H 8.97% | accepted, at or better / worse than run H / worse than run H / worse than run H / accepted, at or better / accepted, at or better |
+| `c.kneel.shortGap0TO` | 6.83% | 6.83% | 6.82% | 6.65% | 5.93% | 5.93% | 5.69% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass / pass |
+| `c.kneel.early` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | sim <= real + 0.001 | pass / pass / pass / pass / pass / pass |
+| `c.fg.60` | 0.0360 | 0.0360 | 0.0365 | 0.0336 | 0.0366 | 0.0366 | 0.0291 | abs(sim - real) <= 0.015 | pass / pass / pass / pass / pass / pass |
+| `c.fg.63` | 0.0254 | 0.0254 | 0.0251 | 0.0228 | 0.0243 | 0.0243 | 0.0086 | abs(sim - real) <= 0.008; accepted, run H 0.0254 | accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better |
+| `c.fg.70` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0005 | sim <= 0.002 | pass / pass / pass / pass / pass / pass |
+| `c.fg.50to59` | 0.7641 | 0.7646 | 0.7634 | 0.7640 | 0.7650 | 0.7650 | 0.6415 | abs(sim - real) <= 0.05; accepted, run H 0.7641 | accepted, at or better / worse than run H / accepted, at or better / accepted, at or better / worse than run H / worse than run H |
+| `c.try.down2GF` | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 15 pp | pass / pass / pass / pass / pass / pass |
+| `c.try.tiedG5` | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 10 pp | pass / pass / pass / pass / pass / pass |
+| `c.to.kickoffQ13` | 0.0079 | 0.0079 | 0.0077 | 0.0077 | 0.0077 | 0.0077 | 0.0076 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass / pass |
+| `c.to.tryQ13` | 0.0152 | 0.0152 | 0.0153 | 0.0153 | 0.0153 | 0.0153 | 0.0129 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass / pass |
+| `c.to.kickoffAll` | 0.0625 | 0.0625 | 0.0635 | 0.0632 | 0.0609 | 0.0609 | 0.0573 | abs(sim - real) <= 0.03 | pass / pass / pass / pass / pass / pass |
+| `c.rough.scramble` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0005 | abs(sim - real) <= 0.005 | pass / pass / pass / pass / pass / pass |
+
+In-sample gated game metrics by run: every row that is not a pass in some run, or within 30% of its tolerance (|predicted - actual| at least 0.7 x tolerance). Values are predicted (status). baseline: 0 gated failures, 6.191 ms per game; res3: 0 gated failures, 6.154 ms per game; B: 0 gated failures, 6.718 ms per game; C: 0 gated failures, 6.386 ms per game; D: 0 gated failures, 6.691 ms per game; E: 0 gated failures, 6.693 ms per game.
+
+| Metric | Actual | Tolerance | baseline | res3 | B | C | D | E |
 |---|---|---|---|---|---|---|---|---|
-| `c.ot.complete` | 0 | 0 | 0 | 0 | 0 | - | both 0 | pass / pass / pass / pass / pass |
-| `c.trail.lastSnap` | 0.00% | 0.00% | 0.00% | 0.02% | 0.02% | 0.05% | abs(sim - real) <= 0.6 pp | pass / pass / pass / pass / pass |
-| `c.trail.longGap` | 6.24% | 6.23% | 6.16% | 6.18% | 6.51% | 7.38% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass |
-| `c.spike.stopped` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0029 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass |
-| `c.kneel.ballBack` | 8.97% | 8.98% | 9.34% | 9.38% | 7.94% | 2.92% | abs(sim - real) <= 2 pp; accepted, run H 8.97% | accepted, at or better / worse than run H / worse than run H / worse than run H / accepted, at or better |
-| `c.kneel.shortGap0TO` | 6.83% | 6.83% | 6.82% | 6.65% | 5.93% | 5.69% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass |
-| `c.kneel.early` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | sim <= real + 0.001 | pass / pass / pass / pass / pass |
-| `c.fg.60` | 0.0360 | 0.0360 | 0.0365 | 0.0336 | 0.0366 | 0.0291 | abs(sim - real) <= 0.015 | pass / pass / pass / pass / pass |
-| `c.fg.63` | 0.0254 | 0.0254 | 0.0251 | 0.0228 | 0.0243 | 0.0086 | abs(sim - real) <= 0.008; accepted, run H 0.0254 | accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better |
-| `c.fg.70` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0005 | sim <= 0.002 | pass / pass / pass / pass / pass |
-| `c.fg.50to59` | 0.7641 | 0.7646 | 0.7634 | 0.7640 | 0.7650 | 0.6415 | abs(sim - real) <= 0.05; accepted, run H 0.7641 | accepted, at or better / worse than run H / accepted, at or better / accepted, at or better / worse than run H |
-| `c.try.down2GF` | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 15 pp | pass / pass / pass / pass / pass |
-| `c.try.tiedG5` | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 10 pp | pass / pass / pass / pass / pass |
-| `c.to.kickoffQ13` | 0.0079 | 0.0079 | 0.0077 | 0.0077 | 0.0077 | 0.0076 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass |
-| `c.to.tryQ13` | 0.0152 | 0.0152 | 0.0153 | 0.0153 | 0.0153 | 0.0129 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass |
-| `c.to.kickoffAll` | 0.0625 | 0.0625 | 0.0635 | 0.0632 | 0.0609 | 0.0573 | abs(sim - real) <= 0.03 | pass / pass / pass / pass / pass |
-| `c.rough.scramble` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0005 | abs(sim - real) <= 0.005 | pass / pass / pass / pass / pass |
-
-In-sample gated game metrics by run: every row that is not a pass in some run, or within 30% of its tolerance (|predicted - actual| at least 0.7 x tolerance). Values are predicted (status). baseline: 0 gated failures, 6.191 ms per game; res3: 0 gated failures, 6.154 ms per game; B: 0 gated failures, 6.718 ms per game; C: 0 gated failures, 6.386 ms per game; D: 0 gated failures, 6.691 ms per game.
-
-| Metric | Actual | Tolerance | baseline | res3 | B | C | D |
-|---|---|---|---|---|---|---|---|
-| `points.sd` | 9.96 | 1 | 9.24 (pass) | 9.23 (pass) | 9.27 (pass) | 9.26 (pass) | 9.28 (pass) |
-| `total.sd` | 13.91 | 1.5 | 12.78 (pass) | 12.77 (pass) | 12.79 (pass) | 12.78 (pass) | 12.83 (pass) |
-| `absMargin.share.1-3` | 24.22 | 3 | 20.05 (accepted) | 20.07 (accepted) | 20.18 (accepted) | 20.37 (accepted) | 20.41 (accepted) |
-| `absMargin.share.8-14` | 22.71 | 3 | 27.92 (accepted) | 27.91 (accepted) | 27.86 (accepted) | 27.88 (accepted) | 28.12 (accepted) |
-| `absMargin.share.22+` | 13.78 | 3 | 10.81 (pass) | 10.80 (pass) | 10.98 (pass) | 10.96 (pass) | 10.89 (pass) |
-| `driveStart.mean` | 28.68 | 1.5 | 30.41 (accepted) | 30.41 (accepted) | 30.41 (accepted) | 30.40 (accepted) | 30.39 (accepted) |
-| `driveResult.share.endOfHalf` | 6.78 | 2 | 8.25 (pass) | 8.25 (pass) | 8.28 (pass) | 8.27 (pass) | 8.26 (pass) |
-| `timeouts.perTeamGame` | 3.66 | 0.3 | 3.44 (pass) | 3.44 (pass) | 3.43 (pass) | 3.44 (pass) | 3.43 (pass) |
-| `fourthDownGo.perGame` | 2.68 | 0.4 | 2.99 (pass) | 2.99 (pass) | 2.99 (pass) | 3.00 (pass) | 2.99 (pass) |
-| `twoPointTries.perGame` | 0.46 | 0.1 | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) |
+| `points.sd` | 9.96 | 1 | 9.24 (pass) | 9.23 (pass) | 9.27 (pass) | 9.26 (pass) | 9.28 (pass) | 9.28 (pass) |
+| `total.sd` | 13.91 | 1.5 | 12.78 (pass) | 12.77 (pass) | 12.79 (pass) | 12.78 (pass) | 12.83 (pass) | 12.83 (pass) |
+| `absMargin.share.1-3` | 24.22 | 3 | 20.05 (accepted) | 20.07 (accepted) | 20.18 (accepted) | 20.37 (accepted) | 20.41 (accepted) | 20.41 (accepted) |
+| `absMargin.share.8-14` | 22.71 | 3 | 27.92 (accepted) | 27.91 (accepted) | 27.86 (accepted) | 27.88 (accepted) | 28.12 (accepted) | 28.12 (accepted) |
+| `absMargin.share.22+` | 13.78 | 3 | 10.81 (pass) | 10.80 (pass) | 10.98 (pass) | 10.96 (pass) | 10.89 (pass) | 10.89 (pass) |
+| `driveStart.mean` | 28.68 | 1.5 | 30.41 (accepted) | 30.41 (accepted) | 30.41 (accepted) | 30.40 (accepted) | 30.39 (accepted) | 30.39 (accepted) |
+| `driveResult.share.endOfHalf` | 6.78 | 2 | 8.25 (pass) | 8.25 (pass) | 8.28 (pass) | 8.27 (pass) | 8.26 (pass) | 8.26 (pass) |
+| `timeouts.perTeamGame` | 3.66 | 0.3 | 3.44 (pass) | 3.44 (pass) | 3.43 (pass) | 3.44 (pass) | 3.43 (pass) | 3.43 (pass) |
+| `fourthDownGo.perGame` | 2.68 | 0.4 | 2.99 (pass) | 2.99 (pass) | 2.99 (pass) | 3.00 (pass) | 2.99 (pass) | 2.99 (pass) |
+| `twoPointTries.perGame` | 0.46 | 0.1 | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) | 0.38 (pass) |
 
 Every 2024-2025 game-level run so far, with its gated failures:
 

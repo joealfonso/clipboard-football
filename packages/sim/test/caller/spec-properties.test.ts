@@ -175,16 +175,21 @@ describe("overtime is binned as the second half", () => {
       const secs = Math.min(s.secondsLeftInHalf, 600);
       const ot: Situation = { ...s, quarter: 5, secondsLeftInHalf: secs, secondsLeftInGame: secs };
       const q4: Situation = { ...ot, quarter: 4 };
-      const strip = (l: Record<string, string | null>): Record<string, string | null> => Object.fromEntries(Object.entries(l).filter(([k]) => !OT_AWARE.has(k)));
+      // Amended 2026-11-13 (M1 step 5d milestone E): an overtime try once both teams have possessed
+      // reads the final-2:00 try cells by design (tryLate GF, time3 Q4F), so those two labels and that
+      // try's shares are exempt when the flag is 1; with the flag 0 everything still matches.
+      const eTry = ot.phase === "try" && ot.otBothPossessed === 1;
+      const strip = (l: Record<string, string | null>): Record<string, string | null> =>
+        Object.fromEntries(Object.entries(l).filter(([k]) => !OT_AWARE.has(k) && !(eTry && (k === "tryLate" || k === "time3"))));
       expect(strip(binSituation(ot, data.config.dimensions))).toEqual(strip(binSituation(q4, data.config.dimensions)));
       if (ot.phase === "scrimmage") expect(binSituation(ot, data.config.dimensions)["lateTime"]).toBe("OT");
       const a = offenseShares(ot, data);
       const b = offenseShares(q4, data);
       for (const name of Object.keys(b.trace)) {
-        if (name === "oTop" || name === "o4Top") continue;
+        if (name === "oTop" || name === "o4Top" || (eTry && name === "oTry")) continue;
         expect([a.trace[name]?.level, a.trace[name]?.key, a.trace[name]?.weights], name).toEqual([b.trace[name]?.level, b.trace[name]?.key, b.trace[name]?.weights]);
       }
-      if (ot.phase !== "scrimmage") expect(a.leaves).toEqual(b.leaves);
+      if (ot.phase !== "scrimmage" && !eTry) expect(a.leaves).toEqual(b.leaves);
       expect(defenseShares(ot, data).presets).toEqual(defenseShares(q4, data).presets);
     }
   });
