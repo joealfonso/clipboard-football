@@ -690,6 +690,33 @@
       "scope": "holdout",
       "date": "2026-11-12",
       "approved_by": "Joseph"
+    },
+    {
+      "metric": "coach.timeouts.rate.defense.c40",
+      "observed": 8.3444,
+      "target": 10.3528,
+      "reason": "Step 5c C7 holdout (run 3, post hoc): defense timeout rate per dead ball in the final 40 s, 2024-2025. The 2024-2025 actual moved from 8.44 to 10.35 because revision 1's clock-order reading of timeout rows applies to every season; the sim's rate moved from 7.70 to 8.34. Not tuned. Joseph accepted it as it stands: 'Accept'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.timeoutRate.offense.L.GF",
+      "observed": 0.0391,
+      "target": 0.0722,
+      "reason": "Step 5c C3 (2 pp per dead ball), in-sample run H: leading offense timeout rate in the final 2:00. Moved by the step 5c designed rules (milestone F's leader clock drain, milestone E's trailer clock-out) and by revision 1's new real rates. Not tuned. Joseph accepted it as it stands: 'Accept'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.timeoutRate.defense.T.GF",
+      "observed": 0.2007,
+      "target": 0.1741,
+      "reason": "Step 5c C3 (2 pp per dead ball), in-sample run H: trailing defense timeout rate in the final 2:00. Moved by the step 5c designed rules (milestone F's leader clock drain, milestone E's trailer clock-out) and by revision 1's new real rates. Not tuned. Joseph accepted it as it stands: 'Accept'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
     }
   ]
 }

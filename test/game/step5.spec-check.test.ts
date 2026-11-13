@@ -11,7 +11,7 @@ import type { CoachPolicies } from "../../packages/sim/src/loop/coach";
 import { averageCoachFor, leagueFromSeed, setupGame } from "../../packages/sim/src/loop/league";
 import { playGame, prepareGame, type GameRecord } from "../../packages/sim/src/loop/play";
 import { Rng } from "../../packages/sim/src/rng";
-import { statusOf, SUMMARY, type Tolerances } from "../../scripts/game/calibrate";
+import { approvedFor, statusOf, SUMMARY, type Tolerances } from "../../scripts/game/calibrate";
 import { REPO, RULES_FILE, loadGameData, sha256 } from "../../scripts/game/data";
 import { simGame } from "../../scripts/game/sim-game";
 
@@ -251,11 +251,13 @@ describe("C1, C3, C7, C8: coach decision tables", () => {
     expect(v.tolerancesSha256).toBe(sha256(tolBytes));
     const ids = tol.metrics.filter((m) => m.id.startsWith("coach.")).map((m) => m.id).sort();
     for (const id of ["coach.tempo.meanRunoff.H1", "coach.timeouts.perTeamGame", "coach.timeouts.rate.defense.c40", "coach.onside.rate.trailingQ4"]) expect(ids).toContain(id);
-    for (const block of [v.inSample, v.holdout]) {
+    // Amended 2026-11-12 (M1 step 5c): Joseph accepted a C7 holdout row (DECISIONS.md, "5c holdout and C3
+    // misses accepted"), so each block's statuses are recomputed with that block's scoped approvals.
+    for (const [block, scope] of [[v.inSample, "insample"], [v.holdout, "holdout"]] as const) {
       expect(block.metrics.map((m) => m.id).sort()).toEqual(ids);
       for (const m of block.metrics) {
         const t = tol.metrics.find((x) => x.id === m.id);
-        expect(m.status, m.id).toBe(statusOf({ id: m.id, predicted: m.predicted, actual: m.actual, tolerance: t?.tolerance ?? null, gateN: m.n, minN: t?.minN ?? 0, gated: t?.gated ?? true }, new Set()));
+        expect(m.status, m.id).toBe(statusOf({ id: m.id, predicted: m.predicted, actual: m.actual, tolerance: t?.tolerance ?? null, gateN: m.n, minN: t?.minN ?? 0, gated: t?.gated ?? true }, approvedFor(tol, scope)));
       }
     }
   });

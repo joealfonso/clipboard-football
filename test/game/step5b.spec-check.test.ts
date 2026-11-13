@@ -232,8 +232,8 @@ describe("B12/F4/C4: every holdout run is disclosed post hoc, and the run counts
   // Amended 2026-11-12 (coordinator): the spec's intent is disclosure. Every holdout run is labelled post
   // hoc in its report, and DECISIONS.md "Holdout runs for step 5b" counts them: caller 5, game 7, engine 4, C7 2.
   // Amended 2026-11-12 (M1 step 5c): the step 5c holdout runs are counted in the same table (caller run 6,
-  // engine run 6, C7 run 3); the step 5 game-level holdout was not rerun (stop rule, DECISIONS.md).
-  const EXPECTED: Record<string, number> = { Caller: 6, "Step 5 game": 7, Engine: 6, C7: 3 };
+  // engine run 6, C7 runs 3 and 4, step 5 game run 8).
+  const EXPECTED: Record<string, number> = { Caller: 6, "Step 5 game": 8, Engine: 6, C7: 4 };
   const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
   const maxRun = (label: string): number => {
     const ns = [...label.matchAll(/\brun (\d+)\b/gi)].map((m) => Number(m[1]));
