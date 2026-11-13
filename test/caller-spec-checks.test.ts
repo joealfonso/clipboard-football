@@ -93,6 +93,12 @@ describe("every stored cell (C6)", () => {
     const off = json<Tables>("data/caller/offense.table.json");
     for (const g of golden.situations) {
       for (const [fid, t] of Object.entries(g.offense.trace)) {
+        // Amended 2026-11-12 (M1 step 5c milestone C): a late try decided by the designed chart is traced at
+        // level -2 (key "chart|window|score"); it is not a fitted cell, so it has no table entry to sum.
+        if (fid === "oTry" && t.level === -2) {
+          expect(t.key).toMatch(/^chart\|/);
+          continue;
+        }
         const cell = off.factors[fid]?.cells[t.level]?.[t.key];
         expect(cell, `${fid} ${t.key}`).toBeDefined();
         expect(cell?.reduce((a, b) => a + b, 0)).toBe(10000);

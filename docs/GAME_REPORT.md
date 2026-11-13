@@ -8,7 +8,7 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b4a000c17f4a50d84cf11b974ec648d0112810934f34e4963b573a314e110907`; code hash `f759dd55eeb284ac78b7d9685de07f02f1e3c37f4d7d0c9f68a48fc748219535`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.594 ms per game, 68.2 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.727 ms per game, 69.7 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 
@@ -499,3 +499,5 @@ Expected misses, stated before the run:
 - Team quality spread: generated teams differ only by sampling and the designed strength spread, so margin SD may run low. Outcome: `margin.sd` pass (13.33 vs 14.29); `absMargin.share.22+` accepted (10.95 vs 15.99).
 
 Component validation (C7), in-sample: 11 metrics, gated failures: none.
+
+Component validation (C7), 2024-2025: 11 metrics, gated failures: `coach.timeouts.rate.defense.c40`.

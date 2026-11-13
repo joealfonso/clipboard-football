@@ -113,10 +113,14 @@ describe("B1: candidate late-cell counts before the fit, and the level order in 
     for (const p of ["OT", "G5", "GF", "<=-9", "-8..-1", "0", "1..8", ">=9", "K37", "K50", "K75", "K99", "K0", "K1"]) expect(parts.has(p), p).toBe(true);
   });
 
+  // Amended 2026-11-12 (M1 step 5c milestone F): oTop's kneelGap level was added by step 5c, not 5b; it has
+  // no 5b candidate count table and is recorded, with its real counts, in DECISIONS.md (M1 step 5c, Milestone F).
+  const STEP5C_LEVELS = new Set(["kneelGap, scoreLate5Only, lateTime"]);
+
   it("every late-only level in the v3 config has an 8e count table", () => {
     for (const f of ["oTop", "o4Top"]) {
       for (const l of cfg.factors[f]?.levels ?? []) {
-        if (!l.dims.includes("lateTime")) continue;
+        if (!l.dims.includes("lateTime") || STEP5C_LEVELS.has(l.dims.join(", "))) continue;
         expect(sec, `${f}: ${l.dims.join(", ")}`).toContain(`### ${f}: ${l.dims.join(", ")}`);
       }
     }
@@ -127,7 +131,7 @@ describe("B1: candidate late-cell counts before the fit, and the level order in 
     expect(b).toMatch(/before any 5b share was fitted|before the fit/);
     for (const f of ["oTop", "o4Top"]) {
       for (const l of cfg.factors[f]?.levels ?? []) {
-        if (!l.dims.includes("lateTime")) continue;
+        if (!l.dims.includes("lateTime") || STEP5C_LEVELS.has(l.dims.join(", "))) continue;
         expect(b, `${f} [${l.dims.join(", ")}]`).toContain(`[${l.dims.join(", ")}]`);
       }
     }
@@ -227,7 +231,9 @@ describe("B11: no regression, size budget", () => {
 describe("B12/F4/C4: every holdout run is disclosed post hoc, and the run counts match DECISIONS.md", () => {
   // Amended 2026-11-12 (coordinator): the spec's intent is disclosure. Every holdout run is labelled post
   // hoc in its report, and DECISIONS.md "Holdout runs for step 5b" counts them: caller 5, game 7, engine 4, C7 2.
-  const EXPECTED: Record<string, number> = { Caller: 5, "Step 5 game": 7, Engine: 5, C7: 2 };
+  // Amended 2026-11-12 (M1 step 5c): the step 5c holdout runs are counted in the same table (caller run 6,
+  // engine run 6, C7 run 3); the step 5 game-level holdout was not rerun (stop rule, DECISIONS.md).
+  const EXPECTED: Record<string, number> = { Caller: 6, "Step 5 game": 7, Engine: 6, C7: 3 };
   const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
   const maxRun = (label: string): number => {
     const ns = [...label.matchAll(/\brun (\d+)\b/gi)].map((m) => Number(m[1]));

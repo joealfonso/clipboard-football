@@ -6,9 +6,183 @@ Config hash `17903bea6bbe38c3ef840486fb8c2875647a1d2153837f6bad5616351676059e`, 
 
 ## 1. Validation, 2024-2025 (never trained on; post hoc since revision 7)
 
-No 2024-2025 row reaches a fit. But this is not a clean holdout result: every run of this validation after the first was made after 2024-2025 results had been seen. That covers post-validation revisions 1-6 of step 4 and revisions 7-13 (step 5 in-sample findings: pre-snap foul cells, red-zone and goal-line bins and the touchdown flag, punt holding, kneels at the own goal, punt touchbacks), plus the reruns after the step 5a caller amendment, the code review fixes and the step 5b caller levels (the engine tables are unchanged; the validation plays use the callers). Step 5b: 5 runs on 2026-11-12, all after the caller's key-only gate change (none before it): run 2 followed an edit to this report's wording only, with every metric identical to run 1; run 3 followed the caller's o4Top level reorder (approved by Joseph), every metric identical to run 2; run 4 followed the caller pipeline's scoped known-deviation code, which the engine's code hash covers; run 5 (this report) followed the same scope rule applied to the engine's own validation (an unscoped step 4 entry no longer covers an in-sample miss). Every rerun is post hoc. The revisions are listed in docs/DECISIONS.md.
+No 2024-2025 row reaches a fit. But this is not a clean holdout result: every run of this validation after the first was made after 2024-2025 results had been seen. That covers post-validation revisions 1-6 of step 4 and revisions 7-13 (step 5 in-sample findings: pre-snap foul cells, red-zone and goal-line bins and the touchdown flag, punt holding, kneels at the own goal, punt touchbacks), plus the reruns after the step 5a caller amendment, the code review fixes and the step 5b caller levels (the engine tables are unchanged; the validation plays use the callers). Step 5b: 5 runs on 2026-11-12, all after the caller's key-only gate change (none before it): run 2 followed an edit to this report's wording only, with every metric identical to run 1; run 3 followed the caller's o4Top level reorder (approved by Joseph), every metric identical to run 2; run 4 followed the caller pipeline's scoped known-deviation code, which the engine's code hash covers; run 5 followed the same scope rule applied to the engine's own validation (an unscoped step 4 entry no longer covers an in-sample miss). Step 5c: run 6 (this report) on 2026-11-12, after the caller's step 5c tables, the engine's G2 change (no roughing the passer on a scramble) and the why-line variants: every metric's status unchanged, 0 unaccepted failures. Every rerun is post hoc. The revisions are listed in docs/DECISIONS.md.
 
-Not run (`--skip-validation`).
+All gated metrics pass. Seed 20261111, 4 simulations per real play, generated league-average teams. Predicted and actual are percent for rates (unit pp), yards otherwise. Columns: plays is the count of real plays or snaps; n (weighted) is the sum of their weights (a split dropback counts by its depth share; in-sample also by season weight), and it is what the minN gate compares; effective n, (sum w)^2 / sum w^2, drives the interval. The interval is the 95% interval of the actual value (Wilson for rates, normal for yards). Kickoff rows check the hand tuning against 2025 and are not predictions. The `flags.*` rows count snaps with flags (the engine draws at most one one-team foul or one both-teams pair per snap); they were added after the tolerances were pre-registered and are not gated.
+
+| metric | what | predicted | actual | plays | n (weighted) | effective n | 95% interval of actual | tolerance | status |
+|---|---|---|---|---|---|---|---|---|---|
+| `meanYards.insideRun` | Mean yards, insideRun | 3.99 | 4.07 | 12,960 | 12,960 | 12,960 | 3.98 to 4.16 | 0.4 yd | pass |
+| `classShare.insideRun.fumble` | insideRun: fumble share | 0.72 | 0.70 | 12,960 | 12,960 | 12,960 | 0.57 to 0.86 | 2.0 pp | pass |
+| `classShare.insideRun.loss` | insideRun: loss share | 15.89 | 15.96 | 12,960 | 12,960 | 12,960 | 15.34 to 16.60 | 2.0 pp | pass |
+| `classShare.insideRun.r1_3` | insideRun: r1_3 share | 40.95 | 38.76 | 12,960 | 12,960 | 12,960 | 37.92 to 39.60 | 2.0 pp | accepted |
+| `classShare.insideRun.r4_9` | insideRun: r4_9 share | 34.52 | 36.22 | 12,960 | 12,960 | 12,960 | 35.40 to 37.05 | 2.0 pp | pass |
+| `classShare.insideRun.r10_19` | insideRun: r10_19 share | 6.23 | 6.87 | 12,960 | 12,960 | 12,960 | 6.44 to 7.32 | 2.0 pp | pass |
+| `classShare.insideRun.r20` | insideRun: r20 share | 1.69 | 1.50 | 12,960 | 12,960 | 12,960 | 1.30 to 1.72 | 2.0 pp | pass |
+| `bigPlay.run` | 20+ yard rate, runs | 2.40 | 2.23 | 25,526 | 25,526 | 25,526 | 2.06 to 2.42 | 0.75 pp | pass |
+| `fumble.run` | Fumble rate, runs | 0.75 | 0.80 | 25,526 | 25,526 | 25,526 | 0.70 to 0.92 | 0.4 pp | pass |
+| `fumbleLost.run` | Fumble lost rate, runs | 0.46 | 0.48 | 25,526 | 25,526 | 25,526 | 0.40 to 0.57 | 0.4 pp | pass |
+| `meanYards.screenPass` | Mean yards, screenPass | 5.20 | 5.54 | 3,272 | 3,272 | 3,272 | 5.28 to 5.80 | 0.4 yd | pass |
+| `classShare.screenPass.sack` | screenPass: sack share | 0.06 | 0.03 | 3,272 | 3,272 | 3,272 | 0.01 to 0.17 | 2.0 pp | pass |
+| `classShare.screenPass.scramble` | screenPass: scramble share | 0.05 | 0.06 | 3,272 | 3,272 | 3,272 | 0.02 to 0.22 | 2.0 pp | pass |
+| `classShare.screenPass.int` | screenPass: int share | 0.62 | 0.61 | 3,272 | 3,272 | 3,272 | 0.40 to 0.94 | 2.0 pp | pass |
+| `classShare.screenPass.inc` | screenPass: inc share | 14.95 | 13.66 | 3,272 | 3,272 | 3,272 | 12.53 to 14.88 | 2.0 pp | pass |
+| `classShare.screenPass.fumbleCatch` | screenPass: fumbleCatch share | 1.45 | 0.95 | 3,272 | 3,272 | 3,272 | 0.67 to 1.34 | 2.0 pp | pass |
+| `classShare.screenPass.c0` | screenPass: c0 share | 16.11 | 15.31 | 3,272 | 3,272 | 3,272 | 14.12 to 16.59 | 2.0 pp | pass |
+| `classShare.screenPass.c1_9` | screenPass: c1_9 share | 48.21 | 48.35 | 3,272 | 3,272 | 3,272 | 46.64 to 50.06 | 2.0 pp | pass |
+| `classShare.screenPass.c10_19` | screenPass: c10_19 share | 14.53 | 16.20 | 3,272 | 3,272 | 3,272 | 14.98 to 17.50 | 2.0 pp | pass |
+| `classShare.screenPass.c20` | screenPass: c20 share | 4.03 | 4.83 | 3,272 | 3,272 | 3,272 | 4.15 to 5.62 | 2.0 pp | pass |
+| `bigPlay.pass` | 20+ yard rate, dropbacks | 8.32 | 8.06 | 45,982 | 39,032 | 40,881 | 7.80 to 8.33 | 0.75 pp | pass |
+| `sackRate` | Sack rate, dropbacks | 6.53 | 6.58 | 45,982 | 39,032 | 40,881 | 6.34 to 6.82 | 0.75 pp | pass |
+| `completion.all` | Completion rate, all attempts | 63.66 | 64.99 | 34,416 | 34,416 | 34,416 | 64.48 to 65.49 | 2.0 pp | pass |
+| `completion.screenPass` | Completion rate, screenPass | 84.43 | 85.71 | 3,269 | 3,269 | 3,269 | 84.47 to 86.87 | 2.0 pp | pass |
+| `intRate` | Interception rate, attempts | 2.48 | 2.12 | 34,416 | 34,416 | 34,416 | 1.97 to 2.28 | 0.5 pp | pass |
+| `fumble.completion` | Fumble rate, completions | 1.28 | 1.02 | 21,274 | 21,274 | 21,274 | 0.89 to 1.16 | 0.4 pp | pass |
+| `fumbleLost.completion` | Fumble lost rate, completions | 0.58 | 0.48 | 21,274 | 21,274 | 21,274 | 0.40 to 0.58 | 0.4 pp | pass |
+| `meanYards.playAction` | Mean yards, playAction | 7.50 | 7.27 | 7,944 | 7,944 | 7,944 | 7.03 to 7.51 | 0.4 yd | pass |
+| `classShare.playAction.sack` | playAction: sack share | 6.66 | 6.67 | 7,944 | 7,944 | 7,944 | 6.14 to 7.24 | 2.0 pp | pass |
+| `classShare.playAction.scramble` | playAction: scramble share | 3.73 | 7.20 | 7,944 | 7,944 | 7,944 | 6.65 to 7.79 | 2.0 pp | accepted |
+| `classShare.playAction.int` | playAction: int share | 2.12 | 1.66 | 7,944 | 7,944 | 7,944 | 1.40 to 1.97 | 2.0 pp | pass |
+| `classShare.playAction.inc` | playAction: inc share | 30.91 | 29.07 | 7,944 | 7,944 | 7,944 | 28.08 to 30.07 | 2.0 pp | pass |
+| `classShare.playAction.fumbleCatch` | playAction: fumbleCatch share | 0.54 | 0.50 | 7,944 | 7,944 | 7,944 | 0.37 to 0.68 | 2.0 pp | pass |
+| `classShare.playAction.c0` | playAction: c0 share | 1.98 | 2.04 | 7,944 | 7,944 | 7,944 | 1.75 to 2.37 | 2.0 pp | pass |
+| `classShare.playAction.c1_9` | playAction: c1_9 share | 23.26 | 23.77 | 7,944 | 7,944 | 7,944 | 22.84 to 24.71 | 2.0 pp | pass |
+| `classShare.playAction.c10_19` | playAction: c10_19 share | 18.37 | 17.85 | 7,944 | 7,944 | 7,944 | 17.02 to 18.71 | 2.0 pp | pass |
+| `classShare.playAction.c20` | playAction: c20 share | 12.44 | 11.24 | 7,944 | 7,944 | 7,944 | 10.57 to 11.95 | 2.0 pp | pass |
+| `completion.playAction` | Completion rate, playAction | 63.09 | 64.32 | 6,842 | 6,842 | 6,842 | 63.18 to 65.45 | 2.0 pp | pass |
+| `meanYards.outsideRun` | Mean yards, outsideRun | 4.75 | 4.72 | 11,994 | 11,994 | 11,994 | 4.59 to 4.84 | 0.4 yd | pass |
+| `classShare.outsideRun.fumble` | outsideRun: fumble share | 0.78 | 0.90 | 11,994 | 11,994 | 11,994 | 0.75 to 1.09 | 2.0 pp | pass |
+| `classShare.outsideRun.loss` | outsideRun: loss share | 19.26 | 19.27 | 11,994 | 11,994 | 11,994 | 18.57 to 19.98 | 2.0 pp | pass |
+| `classShare.outsideRun.r1_3` | outsideRun: r1_3 share | 32.66 | 32.58 | 11,994 | 11,994 | 11,994 | 31.75 to 33.43 | 2.0 pp | pass |
+| `classShare.outsideRun.r4_9` | outsideRun: r4_9 share | 33.79 | 34.34 | 11,994 | 11,994 | 11,994 | 33.50 to 35.20 | 2.0 pp | pass |
+| `classShare.outsideRun.r10_19` | outsideRun: r10_19 share | 10.30 | 9.79 | 11,994 | 11,994 | 11,994 | 9.27 to 10.33 | 2.0 pp | pass |
+| `classShare.outsideRun.r20` | outsideRun: r20 share | 3.21 | 3.12 | 11,994 | 11,994 | 11,994 | 2.82 to 3.44 | 2.0 pp | pass |
+| `meanYards.shortPass` | Mean yards, shortPass | 4.62 | 4.80 | 19,328 | 18,069 | 18,879 | 4.70 to 4.89 | 0.4 yd | pass |
+| `classShare.shortPass.sack` | shortPass: sack share | 7.07 | 7.16 | 19,328 | 18,069 | 18,879 | 6.80 to 7.54 | 2.0 pp | pass |
+| `classShare.shortPass.scramble` | shortPass: scramble share | 5.48 | 5.20 | 19,328 | 18,069 | 18,879 | 4.89 to 5.52 | 2.0 pp | pass |
+| `classShare.shortPass.int` | shortPass: int share | 1.22 | 1.25 | 19,328 | 18,069 | 18,879 | 1.10 to 1.41 | 2.0 pp | pass |
+| `classShare.shortPass.inc` | shortPass: inc share | 25.41 | 23.75 | 19,328 | 18,069 | 18,879 | 23.15 to 24.36 | 2.0 pp | pass |
+| `classShare.shortPass.fumbleCatch` | shortPass: fumbleCatch share | 0.78 | 0.75 | 19,328 | 18,069 | 18,879 | 0.64 to 0.89 | 2.0 pp | pass |
+| `classShare.shortPass.c0` | shortPass: c0 share | 2.09 | 1.78 | 19,328 | 18,069 | 18,879 | 1.60 to 1.98 | 2.0 pp | pass |
+| `classShare.shortPass.c1_9` | shortPass: c1_9 share | 43.02 | 44.64 | 19,328 | 18,069 | 18,879 | 43.93 to 45.35 | 2.0 pp | pass |
+| `classShare.shortPass.c10_19` | shortPass: c10_19 share | 12.93 | 13.46 | 19,328 | 18,069 | 18,879 | 12.98 to 13.95 | 2.0 pp | pass |
+| `classShare.shortPass.c20` | shortPass: c20 share | 1.99 | 2.01 | 19,328 | 18,069 | 18,879 | 1.82 to 2.22 | 2.0 pp | pass |
+| `completion.shortPass` | Completion rate, shortPass | 69.54 | 71.47 | 15,823 | 15,823 | 15,823 | 70.76 to 72.16 | 2.0 pp | pass |
+| `meanYards.intermediatePass` | Mean yards, intermediatePass | 7.63 | 7.60 | 8,968 | 6,290 | 6,968 | 7.36 to 7.84 | 0.4 yd | pass |
+| `classShare.intermediatePass.sack` | intermediatePass: sack share | 7.52 | 7.60 | 8,968 | 6,290 | 6,968 | 7.01 to 8.25 | 2.0 pp | pass |
+| `classShare.intermediatePass.scramble` | intermediatePass: scramble share | 5.42 | 5.33 | 8,968 | 6,290 | 6,968 | 4.83 to 5.89 | 2.0 pp | pass |
+| `classShare.intermediatePass.int` | intermediatePass: int share | 3.78 | 2.97 | 8,968 | 6,290 | 6,968 | 2.60 to 3.40 | 2.0 pp | pass |
+| `classShare.intermediatePass.inc` | intermediatePass: inc share | 38.46 | 38.86 | 8,968 | 6,290 | 6,968 | 37.71 to 40.00 | 2.0 pp | pass |
+| `classShare.intermediatePass.fumbleCatch` | intermediatePass: fumbleCatch share | 0.43 | 0.25 | 8,968 | 6,290 | 6,968 | 0.16 to 0.41 | 2.0 pp | pass |
+| `classShare.intermediatePass.c0` | intermediatePass: c0 share | 0.00 | 0.00 | 8,968 | 6,290 | 6,968 | 0.00 to 0.06 | 2.0 pp | pass |
+| `classShare.intermediatePass.c1_9` | intermediatePass: c1_9 share | 0.23 | 0.19 | 8,968 | 6,290 | 6,968 | 0.11 to 0.32 | 2.0 pp | pass |
+| `classShare.intermediatePass.c10_19` | intermediatePass: c10_19 share | 33.30 | 35.14 | 8,968 | 6,290 | 6,968 | 34.02 to 36.26 | 2.0 pp | pass |
+| `classShare.intermediatePass.c20` | intermediatePass: c20 share | 10.85 | 9.65 | 8,968 | 6,290 | 6,968 | 8.97 to 10.36 | 2.0 pp | pass |
+| `completion.intermediatePass` | Completion rate, intermediatePass | 51.75 | 51.95 | 5,473 | 5,473 | 5,473 | 50.62 to 53.27 | 2.0 pp | pass |
+| `meanYards.deepPass` | Mean yards, deepPass | 9.47 | 9.36 | 6,470 | 3,458 | 3,881 | 8.85 to 9.87 | 0.4 yd | pass |
+| `classShare.deepPass.sack` | deepPass: sack share | 7.67 | 7.63 | 6,470 | 3,458 | 3,881 | 6.83 to 8.50 | 2.0 pp | pass |
+| `classShare.deepPass.scramble` | deepPass: scramble share | 5.26 | 5.25 | 6,470 | 3,458 | 3,881 | 4.60 to 6.00 | 2.0 pp | pass |
+| `classShare.deepPass.int` | deepPass: int share | 5.89 | 4.80 | 6,470 | 3,458 | 3,881 | 4.16 to 5.51 | 2.0 pp | pass |
+| `classShare.deepPass.inc` | deepPass: inc share | 52.04 | 53.01 | 6,470 | 3,458 | 3,881 | 51.43 to 54.57 | 2.0 pp | pass |
+| `classShare.deepPass.fumbleCatch` | deepPass: fumbleCatch share | 0.35 | 0.12 | 6,470 | 3,458 | 3,881 | 0.04 to 0.26 | 2.0 pp | pass |
+| `classShare.deepPass.c0` | deepPass: c0 share | 0.00 | 0.00 | 6,470 | 3,458 | 3,881 | 0.00 to 0.10 | 2.0 pp | pass |
+| `classShare.deepPass.c1_9` | deepPass: c1_9 share | 0.00 | 0.00 | 6,470 | 3,458 | 3,881 | 0.00 to 0.10 | 2.0 pp | pass |
+| `classShare.deepPass.c10_19` | deepPass: c10_19 share | 0.07 | 0.03 | 6,470 | 3,458 | 3,881 | 0.00 to 0.15 | 2.0 pp | pass |
+| `classShare.deepPass.c20` | deepPass: c20 share | 28.72 | 29.15 | 6,470 | 3,458 | 3,881 | 27.73 to 30.59 | 2.0 pp | pass |
+| `completion.deepPass` | Completion rate, deepPass | 33.18 | 33.63 | 3,009 | 3,009 | 3,009 | 31.97 to 35.34 | 2.0 pp | pass |
+| `meanYards.qbSneak` | Mean yards, qbSneak | 1.71 | 1.55 | 572 | 572 | 572 | 1.45 to 1.64 | 0.4 yd | not gated |
+| `classShare.qbSneak.fumble` | qbSneak: fumble share | 0.95 | 0.87 | 572 | 572 | 572 | 0.37 to 2.03 | 2.0 pp | not gated |
+| `classShare.qbSneak.loss` | qbSneak: loss share | 14.69 | 17.83 | 572 | 572 | 572 | 14.91 to 21.18 | 2.0 pp | not gated |
+| `classShare.qbSneak.r1_3` | qbSneak: r1_3 share | 79.49 | 78.67 | 572 | 572 | 572 | 75.13 to 81.83 | 2.0 pp | not gated |
+| `classShare.qbSneak.r4_9` | qbSneak: r4_9 share | 4.40 | 2.45 | 572 | 572 | 572 | 1.46 to 4.07 | 2.0 pp | not gated |
+| `classShare.qbSneak.r10_19` | qbSneak: r10_19 share | 0.42 | 0.17 | 572 | 572 | 572 | 0.03 to 0.98 | 2.0 pp | not gated |
+| `classShare.qbSneak.r20` | qbSneak: r20 share | 0.06 | 0.00 | 572 | 572 | 572 | 0.00 to 0.67 | 2.0 pp | not gated |
+| `fieldGoal.<30` | Field goal make rate, <30 | 98.17 | 97.49 | 438 | 438 | 438 | 95.56 to 98.59 | 3.0 pp | pass |
+| `fieldGoal.30-39` | Field goal make rate, 30-39 | 93.06 | 93.88 | 588 | 588 | 588 | 91.64 to 95.55 | 3.0 pp | pass |
+| `fieldGoal.50+` | Field goal make rate, 50+ | 63.80 | 69.50 | 541 | 541 | 541 | 65.50 to 73.23 | 6.0 pp | pass |
+| `fieldGoal.40-49` | Field goal make rate, 40-49 | 80.06 | 80.46 | 609 | 609 | 609 | 77.12 to 83.41 | 4.0 pp | pass |
+| `extraPoint` | Extra point success | 94.15 | 95.80 | 2,477 | 2,477 | 2,477 | 94.94 to 96.52 | 1.5 pp | accepted |
+| `twoPoint` | Two-point success | 44.27 | 39.58 | 192 | 192 | 192 | 32.94 to 46.64 | 8.0 pp | pass |
+| `puntGross` | Punt gross yards | 46.14 | 47.05 | 3,614 | 3,614 | 3,614 | 46.73 to 47.38 | 1.5 yd | pass |
+| `puntNet` | Punt net yards | 40.73 | 41.18 | 3,614 | 3,614 | 3,614 | 40.81 to 41.54 | 1.5 yd | pass |
+| `punt.touchback` | Punt touchback rate | 8.99 | 7.89 | 3,614 | 3,614 | 3,614 | 7.05 to 8.81 | 3.0 pp | pass |
+| `punt.fairCatch` | Punt fair catch rate | 28.51 | 28.25 | 3,614 | 3,614 | 3,614 | 26.81 to 29.74 | 3.0 pp | pass |
+| `punt.return` | Punt return rate | 37.21 | 38.79 | 3,614 | 3,614 | 3,614 | 37.22 to 40.39 | 3.0 pp | pass |
+| `kickoff.touchback` | Kickoff touchback rate (2025, tuning) | 21.04 | 21.04 | 2,742 | 2,742 | 2,742 | 19.56 to 22.61 | 3.0 pp | pass (tuning check (not a prediction)) |
+| `kickoff.return` | Kickoff return rate (2025, tuning) | 76.92 | 75.71 | 2,742 | 2,742 | 2,742 | 74.07 to 77.28 | 3.0 pp | pass (tuning check (not a prediction)) |
+| `kickoff.outOfBounds` | Kickoff out-of-bounds rate (2025, tuning) | 1.37 | 1.35 | 2,742 | 2,742 | 2,742 | 0.98 to 1.85 | 3.0 pp | pass (tuning check (not a prediction)) |
+| `kickoff.meanStart` | Kickoff mean start (2025, tuning) | 30.68 | 30.34 | 2,696 | 2,696 | 2,696 | 30.04 to 30.64 | 1.5 yd | pass (tuning check (not a prediction)) |
+| `penalty.falseStart` | Penalty rate per snap, falseStart | 1.41 | 1.66 | 80,694 | 80,694 | 80,694 | 1.57 to 1.75 | 0.3 pp | pass |
+| `penalty.delayOfGame` | Penalty rate per snap, delayOfGame | 0.31 | 0.44 | 80,694 | 80,694 | 80,694 | 0.40 to 0.49 | 0.3 pp | pass |
+| `penalty.encroachment` | Penalty rate per snap, encroachment | 0.35 | 0.29 | 80,694 | 80,694 | 80,694 | 0.26 to 0.33 | 0.3 pp | pass |
+| `penalty.defensiveOffside` | Penalty rate per snap, defensiveOffside | 0.47 | 0.57 | 80,694 | 80,694 | 80,694 | 0.52 to 0.62 | 0.3 pp | pass |
+| `penalty.offensiveHolding` | Penalty rate per snap, offensiveHolding | 1.58 | 1.54 | 80,694 | 80,694 | 80,694 | 1.46 to 1.63 | 0.3 pp | pass |
+| `penalty.defensiveHolding` | Penalty rate per snap, defensiveHolding | 0.62 | 0.64 | 80,694 | 80,694 | 80,694 | 0.58 to 0.69 | 0.3 pp | pass |
+| `penalty.defensivePassInterference` | Penalty rate per snap, defensivePassInterference | 0.71 | 0.81 | 80,694 | 80,694 | 80,694 | 0.75 to 0.87 | 0.3 pp | pass |
+| `penalty.intentionalGrounding` | Penalty rate per snap, intentionalGrounding | 0.11 | 0.12 | 80,694 | 80,694 | 80,694 | 0.10 to 0.15 | 0.3 pp | pass |
+| `penalty.roughingThePasser` | Penalty rate per snap, roughingThePasser | 0.28 | 0.25 | 80,694 | 80,694 | 80,694 | 0.22 to 0.29 | 0.3 pp | pass |
+| `penalty.unnecessaryRoughnessDeadBall` | Penalty rate per snap, unnecessaryRoughnessDeadBall | 0.28 | 0.40 | 80,694 | 80,694 | 80,694 | 0.36 to 0.45 | 0.3 pp | pass |
+| `penalty.kickoffIllegalFormation` | Penalty rate per snap, kickoffIllegalFormation | 0.00 | 0.00 | 80,694 | 80,694 | 80,694 | 0.00 to 0.00 | 0.3 pp | pass |
+| `penalty.returnTeamIllegalBlock` | Penalty rate per snap, returnTeamIllegalBlock | 0.25 | 0.26 | 80,694 | 80,694 | 80,694 | 0.22 to 0.29 | 0.3 pp | pass |
+| `penalty.offensivePassInterference` | Penalty rate per snap, offensivePassInterference | 0.21 | 0.21 | 80,694 | 80,694 | 80,694 | 0.18 to 0.24 | 0.3 pp | pass |
+| `penalty.illegalContact` | Penalty rate per snap, illegalContact | 0.21 | 0.27 | 80,694 | 80,694 | 80,694 | 0.24 to 0.31 | 0.3 pp | pass |
+| `penalty.unnecessaryRoughness` | Penalty rate per snap, unnecessaryRoughness | 0.06 | 0.08 | 80,694 | 80,694 | 80,694 | 0.07 to 0.11 | 0.3 pp | pass |
+| `flags.any` | Snaps with at least one supported flag | 6.80 | 7.32 | 80,694 | 80,694 | 80,694 | 7.14 to 7.50 | 0.0 pp | not gated (check (no pre-registered tolerance)) |
+| `flags.bothTeams` | Snaps with supported flags on both teams | 0.07 | 0.09 | 80,694 | 80,694 | 80,694 | 0.08 to 0.12 | 0.0 pp | not gated (check (no pre-registered tolerance)) |
+| `flags.twoOrMore` | Snaps with two or more supported flags | 0.07 | 0.21 | 80,694 | 80,694 | 80,694 | 0.18 to 0.24 | 0.0 pp | not gated (check (no pre-registered tolerance)) |
+
+### 1b. Sensitivity check: the team draw (report only, not gated)
+
+The same 2024-2025 run with the 32 generated teams drawn from team seeds 7, 99, 12345 instead of the validation seed, and with league-average teams (every rating 65, `flat`). Every other draw keeps seed 20261111, so only the teams change. Rows: every gated failure and every gate within 0.5 of its tolerance. The pre-registered gate is the validation column; this table changes no status. Reproduce one column with `node --import ./scripts/engine/register.mjs scripts/engine/validate.ts <in> <out> <seed> <k> <teamSeed|flat>`; the whole table with `uv run --project pipeline python -m pipeline.engine`.
+
+| metric | status | actual | validation teams | teams 7 | teams 99 | teams 12345 | teams flat | tolerance |
+|---|---|---|---|---|---|---|---|---|
+| `meanYards.insideRun` | pass | 4.07 | 3.99 | 4.04 | 3.97 | 3.95 | 3.97 | 0.4 yd |
+| `classShare.insideRun.r4_9` | pass | 36.22 | 34.52 | 34.50 | 34.28 | 34.18 | 34.39 | 2.0 pp |
+| `fumble.run` | pass | 0.80 | 0.75 | 0.69 | 0.67 | 0.74 | 0.70 | 0.4 pp |
+| `fumbleLost.run` | pass | 0.48 | 0.46 | 0.41 | 0.41 | 0.45 | 0.43 | 0.4 pp |
+| `meanYards.screenPass` | pass | 5.54 | 5.20 | 5.07 | 5.30 | 5.29 | 5.23 | 0.4 yd |
+| `classShare.screenPass.c10_19` | pass | 16.20 | 14.53 | 14.24 | 15.34 | 15.14 | 14.83 | 2.0 pp |
+| `bigPlay.pass` | pass | 8.06 | 8.32 | 8.02 | 8.58 | 8.38 | 8.31 | 0.75 pp |
+| `intRate` | pass | 2.12 | 2.48 | 2.41 | 2.30 | 2.33 | 2.43 | 0.5 pp |
+| `fumble.completion` | pass | 1.02 | 1.28 | 1.24 | 1.13 | 1.17 | 1.11 | 0.4 pp |
+| `fumbleLost.completion` | pass | 0.48 | 0.58 | 0.63 | 0.61 | 0.60 | 0.59 | 0.4 pp |
+| `meanYards.playAction` | pass | 7.27 | 7.50 | 7.31 | 7.72 | 7.54 | 7.54 | 0.4 yd |
+| `classShare.playAction.inc` | pass | 29.07 | 30.91 | 32.36 | 29.32 | 30.34 | 29.88 | 2.0 pp |
+| `meanYards.outsideRun` | pass | 4.72 | 4.75 | 4.83 | 4.75 | 4.71 | 4.71 | 0.4 yd |
+| `meanYards.shortPass` | pass | 4.80 | 4.62 | 4.63 | 4.79 | 4.72 | 4.67 | 0.4 yd |
+| `classShare.shortPass.inc` | pass | 23.75 | 25.41 | 26.44 | 24.05 | 24.81 | 24.88 | 2.0 pp |
+| `classShare.shortPass.c1_9` | pass | 44.64 | 43.02 | 43.11 | 43.91 | 43.30 | 43.50 | 2.0 pp |
+| `completion.shortPass` | pass | 71.47 | 69.54 | 68.69 | 71.31 | 70.40 | 70.21 | 2.0 pp |
+| `meanYards.intermediatePass` | pass | 7.60 | 7.63 | 7.54 | 7.94 | 7.70 | 7.70 | 0.4 yd |
+| `classShare.intermediatePass.c10_19` | pass | 35.14 | 33.30 | 33.34 | 34.83 | 33.83 | 33.97 | 2.0 pp |
+| `meanYards.deepPass` | pass | 9.36 | 9.47 | 9.17 | 9.89 | 9.60 | 9.44 | 0.4 yd |
+| `fieldGoal.50+` | pass | 69.50 | 63.80 | 64.74 | 63.82 | 63.32 | 63.96 | 6.0 pp |
+| `penalty.falseStart` | pass | 1.66 | 1.41 | 1.46 | 1.44 | 1.38 | 1.40 | 0.3 pp |
+| `penalty.delayOfGame` | pass | 0.44 | 0.31 | 0.31 | 0.31 | 0.31 | 0.31 | 0.3 pp |
+| `penalty.encroachment` | pass | 0.29 | 0.35 | 0.35 | 0.36 | 0.35 | 0.36 | 0.3 pp |
+| `penalty.defensiveOffside` | pass | 0.57 | 0.48 | 0.47 | 0.49 | 0.48 | 0.48 | 0.3 pp |
+| `penalty.offensiveHolding` | pass | 1.54 | 1.58 | 1.59 | 1.59 | 1.57 | 1.57 | 0.3 pp |
+| `penalty.defensiveHolding` | pass | 0.64 | 0.62 | 0.60 | 0.63 | 0.62 | 0.62 | 0.3 pp |
+| `penalty.defensivePassInterference` | pass | 0.81 | 0.71 | 0.69 | 0.72 | 0.71 | 0.72 | 0.3 pp |
+| `penalty.intentionalGrounding` | pass | 0.12 | 0.11 | 0.10 | 0.10 | 0.10 | 0.10 | 0.3 pp |
+| `penalty.roughingThePasser` | pass | 0.25 | 0.28 | 0.28 | 0.28 | 0.28 | 0.28 | 0.3 pp |
+| `penalty.unnecessaryRoughnessDeadBall` | pass | 0.40 | 0.28 | 0.28 | 0.29 | 0.28 | 0.28 | 0.3 pp |
+| `penalty.kickoffIllegalFormation` | pass | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.3 pp |
+| `penalty.returnTeamIllegalBlock` | pass | 0.26 | 0.25 | 0.25 | 0.25 | 0.25 | 0.25 | 0.3 pp |
+| `penalty.offensivePassInterference` | pass | 0.21 | 0.21 | 0.22 | 0.22 | 0.21 | 0.22 | 0.3 pp |
+| `penalty.illegalContact` | pass | 0.27 | 0.21 | 0.20 | 0.21 | 0.21 | 0.21 | 0.3 pp |
+| `penalty.unnecessaryRoughness` | pass | 0.08 | 0.06 | 0.06 | 0.06 | 0.06 | 0.06 | 0.3 pp |
+
+In-sample qbSneak 1-3 yard share, 2016-2023, season-weighted (1,554 sneaks), exact engine probability by team draw; actual 78.25%:
+
+| teams | predicted % |
+|---|---|
+| validation | 79.31 |
+| 7 | 79.90 |
+| 99 | 77.89 |
+| 12345 | 77.99 |
+| flat | 78.18 |
 
 ## 2. In-sample run, training seasons
 

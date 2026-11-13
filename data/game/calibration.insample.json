@@ -87,9 +87,9 @@
   "data/game/ep.json": "1a0aea2e3ba3f61e45c111d6e163c66e5e0f90f877ea56a133dfde45519d19e9",
   "data/game/league.json": "436c5d0f28db3649914c0faf2b829b23994545b4be49ebd019f148dafc79efa8",
   "data/teams/names.json": "af71a0998e9e42dddb44ff13cdc8780aee5fc5298abd6f10e3f1894f7b7598c2",
-  "data/game/actuals.json": "9da93d117e865393fe09cac193057ae0dfb984e878f8631aec3dcac39f3d9be2",
+  "data/game/actuals.json": "b01790cee1b8bf48fc7ae54a162839f5e78240b85229ff9d34a6d7a1702c2a39",
   "data/game/tolerances.json": "b4a000c17f4a50d84cf11b974ec648d0112810934f34e4963b573a314e110907",
-  "data/game/coach.validation.json": "a2ef620127c614eb095919e5fda65f0481471ab9205f4517468a86bf2c7d5d58"
+  "data/game/coach.validation.json": "488468eba0002f278b26878d0107324c8701eff7fb2d983234902051fcb8f9c3"
  },
  "rulesHash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895",
  "runSeed": 20261112,
@@ -226,8 +226,8 @@
   "postseasonTies": 0
  },
  "perf": {
-  "msPerGame": 6.594,
-  "wallSeconds": 68.2,
+  "msPerGame": 6.727,
+  "wallSeconds": 69.7,
   "machine": "darwin arm64, Apple M4, Node v25.6.0"
  },
  "metrics": [

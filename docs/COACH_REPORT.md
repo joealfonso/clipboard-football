@@ -12,11 +12,11 @@ Three coach decisions the step 2 caller does not make, fitted from nflverse pbp 
 
 Onside detection: a kickoff whose description says `onside`. 2016-2023: 454 of 21,350 kickoffs are flagged; 427 of them travelled 20 yards or less (0 have no distance), and 4 unflagged kickoffs went 15 yards or less (squibs and mis-hits).
 
-Timeouts outside the fit: 699 challenge or replay timeouts excluded; 96 before a try and 120 before a kickoff (not asked by the loop); 8,249 after a two-minute warning (counted in the fit).
+Timeouts outside the fit: 853 challenge or replay timeouts excluded; 123 before a try and 142 before a kickoff (not asked by the loop); 10,674 after a two-minute warning (counted in the fit).
 
 ## 2. Component validation (C7)
 
-Tolerances: data/game/tolerances.json, sha256 `78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa`. Predicted = the fitted share functions applied to each real dead ball or kickoff; actual = what happened. Tempo is compared on snaps whose run-off could be measured (play timestamps, 2022 on).
+Tolerances: data/game/tolerances.json, sha256 `b4a000c17f4a50d84cf11b974ec648d0112810934f34e4963b573a314e110907`. Predicted = the fitted share functions applied to each real dead ball or kickoff; actual = what happened. Tempo is compared on snaps whose run-off could be measured (play timestamps, 2022 on).
 
 ### in-sample 2016-2023
 
@@ -36,7 +36,25 @@ Gated failures: none.
 | `coach.timeouts.rate.offense.c120` | 5.05 | 5.64 | 16,526 | 5.29 to 6.00 | 2.0 pp | pass |
 | `coach.timeouts.rate.offense.c40` | 18.84 | 19.54 | 9,449 | 18.76 to 20.36 | 2.0 pp | pass |
 
-The 2024-2025 run has not been made yet (in-sample only).
+### validation 2024-2025
+
+Gated failures: coach.timeouts.rate.defense.c40.
+
+Post hoc: earlier 2024-2025 runs had been seen before this one. The timeout tables were changed after them by step 5 post-validation revisions 1-5 (docs/DECISIONS.md) and by step 5b's late timeout levels (docs/specs/m1-step5b-late-game-and-clock-control.md, milestone C), each driven by in-sample findings. Runs after step 5b, both 2026-11-12: run 1 after the late timeout levels, and run 2 (this report) after Joseph's scoped known deviations were added to data/game/tolerances.json (no table changed). Tolerance values are unchanged. Step 5c: run 3 on 2026-11-12, post hoc, after revision 1 (timeout rows in clock order, which also changes the 2024-2025 actuals) and milestones D-F: coach.timeouts.rate.defense.c40 fails (8.34 vs 10.35, tolerance 2 pp), not accepted, sent to Joseph.
+
+| Metric | Predicted | Actual | n | 95% interval of actual | Tolerance | Status |
+|---|---|---|---|---|---|---|
+| `coach.onside.rate.trailingQ4` | 23.51 | 24.64 | 422 | 20.77 to 28.97 | 5.0 pp | pass |
+| `coach.tempo.meanRunoff.G5` | 25.97 | 25.84 | 2,720 | 25.31 to 26.37 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.GF` | 17.60 | 18.20 | 1,648 | 17.50 to 18.91 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.H1` | 30.90 | 31.59 | 21,637 | 31.48 to 31.70 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.H1F` | 12.40 | 12.40 | 2,339 | 11.90 to 12.90 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.H2` | 30.49 | 30.98 | 19,665 | 30.85 to 31.11 | 2.0 s | pass |
+| `coach.timeouts.perTeamGame` | 3.50 | 3.67 | 1,088 | 3.67 to 3.67 | 0.3 timeouts | pass |
+| `coach.timeouts.rate.defense.c120` | 11.88 | 13.17 | 6,524 | 12.37 to 14.01 | 2.0 pp | pass |
+| `coach.timeouts.rate.defense.c40` | 8.34 | 10.35 | 3,912 | 9.44 to 11.35 | 2.0 pp | fail |
+| `coach.timeouts.rate.offense.c120` | 5.20 | 5.35 | 6,524 | 4.83 to 5.92 | 2.0 pp | pass |
+| `coach.timeouts.rate.offense.c40` | 19.72 | 19.86 | 3,912 | 18.64 to 21.14 | 2.0 pp | pass |
 
 ## 3. Late timeouts by score (step 5b C3, in-sample)
 
@@ -44,15 +62,15 @@ Timeouts per team-game in the dead ball before a Q4 scrimmage snap with 5:00 or 
 
 | Row (per dead ball) | Side | Score | Window | Sim per team-game | Real per team-game | Real timeouts | Sim per dead ball | Real per dead ball | Real dead balls | Check |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `diag.timeoutRate.offense.T.G5` | offense | T | G5 | 0.021 | 0.047 | 174 | 0.91% | 1.16% | 10,196 | pass |
-| `diag.timeoutRate.offense.T.GF` | offense | T | GF | 0.171 | 0.138 | 591 | 7.18% | 6.98% | 9,681 | pass |
-| `diag.timeoutRate.offense.0.G5` | offense | 0 | G5 | 0.007 | 0.006 | 17 | 4.07% | 2.92% | 871 | pass |
-| `diag.timeoutRate.offense.0.GF` | offense | 0 | GF | 0.025 | 0.044 | 196 | 11.50% | 14.81% | 1,394 | accepted |
-| `diag.timeoutRate.offense.L.G5` | offense | L | G5 | 0.073 | 0.063 | 276 | 3.82% | 3.67% | 7,747 | pass |
-| `diag.timeoutRate.offense.L.GF` | offense | L | GF | 0.112 | 0.078 | 321 | 6.95% | 7.22% | 5,072 | pass |
-| `diag.timeoutRate.defense.T.G5` | defense | T | G5 | 0.389 | 0.407 | 1,833 | 20.38% | 25.28% | 7,747 | accepted |
-| `diag.timeoutRate.defense.T.GF` | defense | T | GF | 0.339 | 0.230 | 901 | 21.09% | 17.41% | 5,072 | fail |
-| `diag.timeoutRate.defense.0.G5` | defense | 0 | G5 | 0.007 | 0.011 | 46 | 4.07% | 5.33% | 871 | pass |
-| `diag.timeoutRate.defense.0.GF` | defense | 0 | GF | 0.035 | 0.047 | 220 | 16.06% | 16.74% | 1,394 | pass |
-| `diag.timeoutRate.defense.L.G5` | defense | L | G5 | 0.029 | 0.033 | 143 | 1.25% | 1.41% | 10,196 | pass |
-| `diag.timeoutRate.defense.L.GF` | defense | L | GF | 0.134 | 0.162 | 586 | 5.63% | 7.26% | 9,681 | pass |
+| `diag.timeoutRate.offense.T.G5` | offense | T | G5 | 0.021 | 0.047 | 174 | 0.90% | 1.16% | 10,196 | pass |
+| `diag.timeoutRate.offense.T.GF` | offense | T | GF | 0.159 | 0.138 | 591 | 7.50% | 6.98% | 9,681 | pass |
+| `diag.timeoutRate.offense.0.G5` | offense | 0 | G5 | 0.007 | 0.006 | 17 | 4.10% | 2.92% | 871 | pass |
+| `diag.timeoutRate.offense.0.GF` | offense | 0 | GF | 0.024 | 0.044 | 196 | 11.33% | 14.81% | 1,394 | accepted |
+| `diag.timeoutRate.offense.L.G5` | offense | L | G5 | 0.073 | 0.063 | 276 | 3.80% | 3.67% | 7,747 | pass |
+| `diag.timeoutRate.offense.L.GF` | offense | L | GF | 0.053 | 0.078 | 321 | 3.91% | 7.22% | 5,072 | fail |
+| `diag.timeoutRate.defense.T.G5` | defense | T | G5 | 0.390 | 0.407 | 1,833 | 20.38% | 25.28% | 7,747 | accepted |
+| `diag.timeoutRate.defense.T.GF` | defense | T | GF | 0.274 | 0.230 | 901 | 20.07% | 17.41% | 5,072 | fail |
+| `diag.timeoutRate.defense.0.G5` | defense | 0 | G5 | 0.007 | 0.011 | 46 | 4.13% | 5.33% | 871 | pass |
+| `diag.timeoutRate.defense.0.GF` | defense | 0 | GF | 0.034 | 0.047 | 220 | 15.87% | 16.74% | 1,394 | pass |
+| `diag.timeoutRate.defense.L.G5` | defense | L | G5 | 0.029 | 0.033 | 143 | 1.24% | 1.41% | 10,196 | pass |
+| `diag.timeoutRate.defense.L.GF` | defense | L | GF | 0.120 | 0.162 | 586 | 5.69% | 7.26% | 9,681 | pass |
