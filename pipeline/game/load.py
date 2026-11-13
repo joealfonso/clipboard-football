@@ -46,6 +46,10 @@ def season_rows(pbp: pl.DataFrame) -> pl.DataFrame:
                        + desc.str.extract(r"(?i)timeout #\d+ by [A-Z]{2,3} at \d+:(\d\d)", 1).cast(pl.Int64, strict=False)),
         tod=pl.col("time_of_day").cast(pl.String).str.to_datetime(strict=False, time_zone="UTC"),
         is_timeout=_flag("timeout") & pl.col("timeout_team").is_not_null(),
+        # Step 5d code review: a timeout flagged on a play's own row (2016-2023: 672 rows, every one a
+        # lost challenge, "... Upheld ... (Timeout #1 at 02:13.)") is charged after that play. The row is
+        # a play; its timeout belongs to the next dead ball (decisions.timeout_row).
+        timeout_after_play=_flag("timeout") & pl.col("timeout_team").is_not_null() & pl.col("play_type").is_not_null() & (pl.col("play_type") != "no_play"),
         challenge=desc.str.contains(r"(?i)challenge|replay"),
         two_min=desc.str.contains(r"(?i)two-minute warning"),
         onside=(pl.col("play_type") == "kickoff") & desc.str.contains(r"(?i)\bonside\b"),

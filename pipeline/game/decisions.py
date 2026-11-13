@@ -110,12 +110,18 @@ class DeadBalls:
     special_views: list[dict[str, Any]] = field(default_factory=list)
 
 
+def timeout_row(r: dict[str, Any]) -> bool:
+    """A row that is only a timeout. A timeout flagged on a play's own row (`timeout_after_play`, a
+    lost challenge charged after the play; step 5d code review) is a play row instead."""
+    return bool(r["is_timeout"]) and not r.get("timeout_after_play")
+
+
 ROW_COLS = ["season", "game_id", "qtr", "down", "ydstogo", "yardline_100", "game_seconds_remaining", "half_seconds_remaining",
             "posteam", "defteam", "play_type", "timeout_team", "is_timeout", "challenge", "two_min", "is_try", "incomplete_pass",
             "qb_spike", "qb_kneel", "interception", "fumble_lost", "penalty", "out_of_bounds", "score_differential",
             "posteam_timeouts_remaining", "defteam_timeouts_remaining", "duration", "onside"]
 # Read when present (step 5c revision 1); hand-made frames without them keep row order.
-CLOCK_COLS = ["quarter_seconds_remaining", "timeout_clock", "tod"]
+CLOCK_COLS = ["quarter_seconds_remaining", "timeout_clock", "tod", "timeout_after_play"]
 # Read when present (step 5d milestone A): each snap carries its play_id, so the caller pipeline
 # can take the same clock reading per play (pipeline/caller/load.py).
 ID_COLS = ["play_id"]
@@ -158,14 +164,14 @@ def clock_order(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         res: list[dict[str, Any]] = []
         last = -1  # index in res of the last play row (a row with a play type that is not a timeout)
         for k, r in enumerate(g):
-            if r["is_timeout"]:
-                n = next((x for x in g[k + 1:] if x["play_type"] is not None and not x["is_timeout"]), None)
+            if timeout_row(r):
+                n = next((x for x in g[k + 1:] if x["play_type"] is not None and not timeout_row(x)), None)
                 if last >= 0 and _precedes(r, res[last], n):
                     res.insert(last, r)
                     last += 1
                     continue
             res.append(r)
-            if r["play_type"] is not None and not r["is_timeout"]:
+            if r["play_type"] is not None and not timeout_row(r):
                 last = len(res) - 1
         out.extend(res)
         i = j
@@ -191,7 +197,7 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
         # Step 5c revision 1: a timeout never carries across a period end.
         if pending and r["qtr"] != pending_qtr:
             pending = []
-        if r["is_timeout"]:
+        if timeout_row(r):
             pending.append((r["timeout_team"], bool(r["challenge"])))
             pending_qtr = r["qtr"]
             continue
@@ -235,8 +241,10 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
                 x = prev["game_seconds_remaining"] - prev["duration"] - r["game_seconds_remaining"]
                 if -1.5 <= x <= max_seconds + 5:
                     runoff = int(math.floor(min(max(x, 0.0), float(max_seconds)) + 0.5))
-            o_to = (r["posteam_timeouts_remaining"] if r["posteam_timeouts_remaining"] is not None else 0) + off
-            d_to = (r["defteam_timeouts_remaining"] if r["defteam_timeouts_remaining"] is not None else 0) + dfn
+            # A timeout charged after this play is already taken off this row's remaining count: add it back.
+            after = r.get("timeout_after_play") and r["timeout_team"] is not None
+            o_to = (r["posteam_timeouts_remaining"] if r["posteam_timeouts_remaining"] is not None else 0) + off + (1 if after and r["timeout_team"] == r["posteam"] else 0)
+            d_to = (r["defteam_timeouts_remaining"] if r["defteam_timeouts_remaining"] is not None else 0) + dfn + (1 if after and r["timeout_team"] == r["defteam"] else 0)
             base = {"quarter": int(r["qtr"]), "secondsLeftInHalf": r["half_seconds_remaining"], "secondsLeftInGame": r["game_seconds_remaining"],
                     "down": int(r["down"]), "clockRunning": running}
             out.snaps.append({
@@ -250,7 +258,37 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
                 **({"gameId": r["game_id"], "playId": r["play_id"]} if "play_id" in r else {}),
             })
         prev, pending, two_min = r, [], False
+        if r.get("timeout_after_play"):
+            # Its timeout belongs to the next dead ball (a lost challenge stays out of `legit`).
+            pending, pending_qtr = [(r["timeout_team"], bool(r["challenge"]))], r["qtr"]
     out.team_games = 2 * games
+    return out
+
+
+def late_kneel_counts(rows: pl.DataFrame, mask: dict[str, Any]) -> list[tuple[int, int]]:
+    """Step 5d milestone D (code review): real kneels and scrimmage snaps in each designed late-kneel
+    mask state (data/game/config.json clockRules.callerMasks.lateKneel), the same rule the sim's
+    inLateKneelMask applies: quarter at least quarterMin (overtime included), scoreDiff in
+    [scoreMin, scoreMax], more than secondsAbove left in the game (overtime: in the period),
+    yardLine100 above yardLine100Above. A snap: run, pass, punt, field_goal, qb_kneel or qb_spike, not a
+    try, with a down. The rows must be training seasons only (the caller checks)."""
+    out: list[tuple[int, int]] = []
+    snaps = rows.filter(pl.col("play_type").is_in(list(SNAP_TYPES)) & ~pl.col("is_try").fill_null(False) & pl.col("down").is_not_null()
+                        & (pl.col("qtr") >= mask["quarterMin"]))
+    left = pl.when(pl.col("qtr") >= 5).then(pl.col("quarter_seconds_remaining")).otherwise(pl.col("game_seconds_remaining"))
+    snaps = snaps.with_columns(_left=left, _d=pl.col("score_differential"))
+    for st in mask["states"]:
+        cond = pl.lit(True)
+        if "scoreMin" in st:
+            cond = cond & (pl.col("_d") >= st["scoreMin"])
+        if "scoreMax" in st:
+            cond = cond & (pl.col("_d") <= st["scoreMax"])
+        if "secondsAbove" in st:
+            cond = cond & (pl.col("_left") > st["secondsAbove"])
+        if "yardLine100Above" in st:
+            cond = cond & (pl.col("yardline_100") > st["yardLine100Above"])
+        f = snaps.filter(cond)
+        out.append((int((f["play_type"] == "qb_kneel").sum()), f.height))
     return out
 
 

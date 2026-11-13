@@ -1412,13 +1412,13 @@
             "scoreMax": -9,
             "secondsAbove": 47,
             "realKneels": 0,
-            "realSnaps": 22954
+            "realSnaps": 23000
           },
           {
             "scoreMin": -8,
             "scoreMax": -3,
             "realKneels": 0,
-            "realSnaps": 15600
+            "realSnaps": 15645
           },
           {
             "scoreMin": -2,
@@ -1426,7 +1426,7 @@
             "secondsAbove": 47,
             "yardLine100Above": 20,
             "realKneels": 0,
-            "realSnaps": 2156
+            "realSnaps": 2160
           }
         ]
       }

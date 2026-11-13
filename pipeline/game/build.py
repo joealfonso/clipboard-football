@@ -7,12 +7,14 @@ Writes data/game/tempo.json, timeouts.json, onside.json, golden.json, actuals.js
 coach.validation.json and docs/COACH_REPORT.md. `--in-sample-only` reads 2016-2023 only (no
 2024-2025 row is loaded), for the in-sample run that comes before the holdout. Exits 1 when a
 gated component metric (C7) fails on 2024-2025, after writing everything; 2 when the cache is
-not usable; 4 when a team name matches a real NFL nickname or city.
+not usable; 4 when a team name matches a real NFL nickname or city; 5 when a designed late-kneel
+mask state has a real kneel in 2016-2023 (the counts are rewritten into data/game/config.json first).
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -194,6 +196,21 @@ def build(source: Source, root: Path = REPO, *, in_sample_only: bool = False, lo
     holdout = list(s["holdout"])
     seasons = train if in_sample_only else list(range(FIRST, LAST + 1))
     rows = load_rows(source, seasons, log)
+    # Step 5d (code review): the designed late-kneel masks hold only where 2016-2023 has 0 kneels. The
+    # counts are written into the config from the data on every build, and the build fails if any is not 0.
+    mask = cfg.get("clockRules", {}).get("callerMasks", {}).get("lateKneel")
+    if mask is not None:
+        train_rows = rows.filter(pl.col("season").is_between(s["from"], s["to"]))
+        dec.check_holdout(set(train_rows["season"].unique().to_list()), s["neverTrainFrom"])
+        counts = dec.late_kneel_counts(train_rows, mask)
+        for st, (k, n) in zip(mask["states"], counts):
+            st["realKneels"], st["realSnaps"] = k, n
+        write_atomic(root / GAME_DIR / "config.json", json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+        bad = [(st, k) for st, (k, _) in zip(mask["states"], counts) if k != 0]
+        if bad:
+            print(f"lateKneel mask states with real kneels (each must be 0): {bad}", file=sys.stderr)
+            return 5
+        log(f"late-kneel masks: 0 kneels in {', '.join(f'{n:,}' for _, n in counts)} snaps")
     for season in seasons:
         TEAM_GAMES[season] = 2 * rows.filter(pl.col("season") == season)["game_id"].n_unique()
     log("reading dead balls")

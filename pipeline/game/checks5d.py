@@ -33,6 +33,8 @@ unweighted counts per game. Every measure is designed and computed the same way 
 - kneel.4thLate: late kneels on 4th down with more than 10 s left. Per game.
 - try.otDown2: overtime tries with the scoring team down 2 after the touchdown and
   ot_both_possessed 1 (pipeline/caller/load.py); 2016-2023 regular-season overtime has no try.
+- ottry.<flag>.<score> (E4, reported): every overtime try by ot_both_possessed and score after the
+  touchdown, tries and two-point tries.
 - Reported: spikes per game (all periods), late spikes by 1-8 trailers holding 1+ timeouts,
   margins (pipeline.game.checks5c.margins).
 """
@@ -56,7 +58,7 @@ SEASONS = list(range(2016, 2024))
 NEVER_FROM = 2024
 SNAP_TYPES = ("run", "pass", "punt", "field_goal", "qb_kneel", "qb_spike")
 OUT = "data/game/checks5d.real.json"
-COLS = ["season", "game_id", "play_id", "qtr", "down", "posteam", "defteam", "play_type", "is_timeout", "is_try",
+COLS = ["season", "game_id", "play_id", "qtr", "down", "posteam", "defteam", "play_type", "is_timeout", "timeout_after_play", "is_try",
         "game_seconds_remaining", "quarter_seconds_remaining", "score_differential", "posteam_timeouts_remaining",
         "defteam_timeouts_remaining", "fixed_drive", "extra_point_attempt", "two_point_attempt", "timeout_clock", "tod"]
 
@@ -95,10 +97,14 @@ def measure(rows: pl.DataFrame) -> dict[str, int]:
             q = int(r["qtr"] or 0)
             d = _f(r["score_differential"])
             if (r.get("extra_point_attempt") or 0) == 1 or (r.get("two_point_attempt") or 0) == 1:
+                if q >= 5:
+                    # E4 (reported): every overtime try by otBothPossessed and score after the touchdown.
+                    c[f"ottry.{fl}.{int(d)}.tries"] += 1
+                    c[f"ottry.{fl}.{int(d)}.two"] += 1 if (r.get("two_point_attempt") or 0) == 1 else 0
                 if q >= 5 and d == -2 and fl == 1:
                     c["try.otDown2.tries"] += 1
                     c["try.otDown2.two"] += 1 if (r.get("two_point_attempt") or 0) == 1 else 0
-            if r["is_timeout"] or pt not in SNAP_TYPES or r.get("is_try") or r["down"] is None:
+            if dec.timeout_row(r) or pt not in SNAP_TYPES or r.get("is_try") or r["down"] is None:
                 prev = None
                 continue
             running, to_snap = reading.get((r["game_id"], r.get("play_id")), (0, None))  # type: ignore[assignment]
