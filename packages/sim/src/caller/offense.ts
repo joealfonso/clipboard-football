@@ -7,6 +7,7 @@ import type { Rng } from "../rng";
 import { indexCatalog, type AvailabilityIndex } from "./availability";
 import { binSituation, type BinLabels } from "./bins";
 import { lookup, requireLookup, type Lookup } from "./lookup";
+import { fieldGoalMakeChance, type FieldGoalRange } from "./range";
 import { sampleIndex } from "./sample";
 
 export const RUN_PLAYS = ["insideRun", "outsideRun", "qbSneak"] as const;
@@ -65,7 +66,13 @@ function playLeaves(pRun: number, pPass: number, run: Lookup, passType: Lookup, 
   ];
 }
 
-export function offenseShares(situation: Situation, data: CallerData): OffenseShares {
+/**
+ * `range` (step 5c milestone B, Resolved 3): when given, a field goal try is masked wherever the
+ * engine's make chance is 0 (designed, from the engine's data; see range.ts), and the remaining
+ * calls keep their relative fitted weights. Without it the shares are the fitted tables' alone,
+ * as the pipeline's mirror (pipeline/caller/shares.py) computes them.
+ */
+export function offenseShares(situation: Situation, data: CallerData, range?: FieldGoalRange): OffenseShares {
   const labels = binSituation(situation, data.config.dimensions);
   const f = data.offense.factors;
   if (situation.phase === "try") {
@@ -91,6 +98,7 @@ export function offenseShares(situation: Situation, data: CallerData): OffenseSh
   const trace: Record<string, Lookup> = {};
   // Top-level shares in oTop target order: run, pass, punt, fieldGoal, spike, kneel.
   let top: number[];
+  const noKick = range !== undefined && fieldGoalMakeChance(situation.yardLine100, range) === 0;
   const fourth = f.o4Top;
   if (fourth !== undefined && fourth.downs?.includes(situation.down) === true) {
     // 4th down: go, kick or clock from o4Top, then punt or field goal given a kick.
@@ -100,8 +108,13 @@ export function offenseShares(situation: Situation, data: CallerData): OffenseSh
     trace["o4Kick"] = kick;
     const pKick = w(go, 2);
     top = [w(go, 0), w(go, 1), pKick * w(kick, 0), pKick * w(kick, 1), w(go, 3), w(go, 4)];
+    if (noKick && (top[3] ?? 0) > 0) {
+      const rest = 1 - (top[3] ?? 0);
+      // A cell of field goals only (none in the fitted tables) leaves the kick as a punt.
+      top = rest > 0 ? top.map((x, i) => (i === 3 ? 0 : x / rest)) : [0, 0, 1, 0, 0, 0];
+    }
   } else {
-    const t = maskedLookup(topTable, labels, topTable.targets.map((x) => avail.isAvailable(x, situation)));
+    const t = maskedLookup(topTable, labels, topTable.targets.map((x) => avail.isAvailable(x, situation) && !(noKick && x === "fieldGoal")));
     trace["oTop"] = t;
     top = topTable.targets.map((_, i) => w(t, i));
   }
@@ -143,8 +156,8 @@ export function formationShares(situation: Situation, play: string, data: Caller
 }
 
 /** Picks a leaf call, then (for a run or pass) a formation given that play. Two draws. */
-export function chooseOffenseCall(situation: Situation, data: CallerData, rng: Rng): OffenseCall {
-  const shares = offenseShares(situation, data);
+export function chooseOffenseCall(situation: Situation, data: CallerData, rng: Rng, range?: FieldGoalRange): OffenseCall {
+  const shares = offenseShares(situation, data, range);
   const leaf = shares.leaves[sampleIndex(shares.leaves.map((l) => l.p), rng)];
   if (leaf === undefined) throw new RangeError("sampled leaf out of range");
   const play = leaf.twoPointPlay ?? leaf.call;

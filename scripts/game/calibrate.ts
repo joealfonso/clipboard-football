@@ -27,6 +27,7 @@ const POSTSEASON_GAMES = 1000;
 export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
   ["baseline", "before step 5c (commit 3de880d)"],
   ["rev1", "after revision 1 (timeouts in clock order, refit)"],
+  ["B", "after B (field goal make-chance mask, o4Kick split at the opp 41)"],
 ];
 
 export interface ToleranceMetric {

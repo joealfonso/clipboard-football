@@ -223,10 +223,10 @@ export interface SimChecks {
   readonly ot: OtSoak | null;
 }
 
-export function simChecks(label: string, skipOt: boolean): SimChecks {
+export function simChecks(label: string, skipOt: boolean, size?: { leagues: number; games: number }): SimChecks {
   const data = loadGameData();
   const kit = prepareGame(data);
-  const lg = data.config.league;
+  const lg = { ...data.config.league, ...(size === undefined ? {} : { leagues: size.leagues, gamesPerLeague: size.games }) };
   const all = new Map<string, number>();
   const byLeague: Map<string, number>[] = [];
   const run = runLeagues(
@@ -268,7 +268,8 @@ if (import.meta.main && process.argv.includes("--show")) {
 } else if (import.meta.main) {
   const args = process.argv.slice(2);
   const label = args.includes("--label") ? (args[args.indexOf("--label") + 1] as string) : "current";
-  const out = simChecks(label, args.includes("--skip-ot"));
+  // --quick: 2 leagues x 500 games, for development only (never a reported run).
+  const out = simChecks(label, args.includes("--skip-ot"), args.includes("--quick") ? { leagues: 2, games: 500 } : undefined);
   const path = join(REPO, SIM_FILE);
   const prev = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as { runs: Record<string, SimChecks> }) : { runs: {} };
   const runs = { ...prev.runs, [label]: out };

@@ -14,6 +14,7 @@ import type { Dimension } from "../../../shared/src/types";
 import type { EngineData, PairingRule, RatingEffect, TeamPool, WhyTemplate } from "../../../shared/src/engine";
 import { binSituation, type BinLabels } from "../caller/bins";
 import type { OffenseCall } from "../caller/offense";
+import { makeChanceAt } from "../caller/range";
 import { FIELD_LENGTH, flip } from "../game/frame";
 import { toSituation } from "../game/situation";
 import type { GameState } from "../game/types";
@@ -720,8 +721,7 @@ export function createEngine(data: EngineData): ResolvePlay {
     const F = data.special.fieldGoals;
     const kickSpot = Math.max(1, s.spot - F.kickDepth);
     const distance = flip(kickSpot) + data.rules.field.endZoneYards;
-    const di = Math.min(F.maxDistance, Math.max(F.minDistance, distance)) - F.minDistance;
-    const make = distance > F.maxDistance ? 0 : (F.makePer10000[di] as number) / SHARE_TOTAL;
+    const make = makeChanceAt(distance, { ...F, endZoneYards: data.rules.field.endZoneYards });
     const band = F.bands.findIndex((b) => distance >= b.min && distance <= b.max);
     const block = (F.blockPer10000[band < 0 ? F.bands.length - 1 : band] as number) / SHARE_TOTAL;
     const baseW = [(1 - block) * make, (1 - block) * (1 - make), block];

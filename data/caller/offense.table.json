@@ -2,7 +2,7 @@
   "generated": true,
   "side": "offense",
   "configVersion": 3,
-  "configHash": "809c9b144e4869bd2db3ec934a9743bbb0619024adae816cd3b040eda12460ae",
+  "configHash": "2b3b68cb9c182c2d2b94f149d032a2b1608ba26775eb37d1497cfb607d829a3f",
   "halfLifeSeasons": 2,
   "weightAnchor": 2023,
   "factors": {
@@ -1712,13 +1712,22 @@
       "targets": ["punt","fieldGoal"],
       "levels": [
         {
+          "dims": ["zoneFG","time2","scoreLateOnly"]
+        },
+        {
           "dims": ["zone6","time2","scoreLateOnly"]
         },
         {
           "dims": ["zoneK","scoreLateOnly"]
         },
         {
+          "dims": ["zoneFG","time2","score3LateOnly"]
+        },
+        {
           "dims": ["zone6","time2","score3LateOnly"]
+        },
+        {
+          "dims": ["zoneFG","time2"]
         },
         {
           "dims": ["zone6","time2"]
@@ -1745,6 +1754,7 @@
       "plays": 24807,
       "cells": [
         {},
+        {},
         {
           "K37|-3..-1": [0,10000],
           "K37|4..8": [299,9701],
@@ -1754,6 +1764,25 @@
           "OWN|F|L": [10000,0],
           "OWN|N|L": [10000,0],
           "OWN|N|T": [10000,0]
+        },
+        {
+          "OWN|F|L": [10000,0],
+          "OWN|N|L": [10000,0],
+          "OWN|N|T": [10000,0]
+        },
+        {
+          "BACK|N": [10000,0],
+          "FR|F": [149,9851],
+          "FR|N": [69,9931],
+          "GL|N": [0,10000],
+          "M36|F": [4224,5776],
+          "M36|N": [5664,4336],
+          "M42|F": [9262,738],
+          "M42|N": [9954,46],
+          "OWN|F": [10000,0],
+          "OWN|N": [10000,0],
+          "RZ|F": [0,10000],
+          "RZ|N": [0,10000]
         },
         {
           "BACK|N": [10000,0],

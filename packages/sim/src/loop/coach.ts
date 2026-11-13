@@ -6,6 +6,7 @@
 import type { CallerData, CoachTables, CoachView, DecisionDim, DecisionLevel, GameConfig, KickView, Situation, SpecialTimeoutRole } from "../../../shared/src/types";
 import { chooseDefenseCall } from "../caller/defense";
 import { chooseOffenseCall, type OffenseCall } from "../caller/offense";
+import type { FieldGoalRange } from "../caller/range";
 import { sampleIndex } from "../caller/sample";
 import type { PenaltyOption } from "../game/enforce";
 import { flip, other } from "../game/frame";
@@ -214,6 +215,8 @@ export interface CoachData {
   readonly config: GameConfig;
   readonly tables: CoachTables;
   readonly perDeadBall: number;
+  /** The engine's field-goal data; when present, tries are masked where it makes them 0 (step 5c B). */
+  readonly fieldGoals?: FieldGoalRange;
 }
 
 /** The average coach: step 2 calls, fitted tempo, timeouts and onside, designed run-off rule. */
@@ -221,7 +224,7 @@ export function averageCoach(d: CoachData): CoachPolicies {
   const dims = d.config.dimensions;
   const final = d.config.runoffTimeout.finalSeconds;
   return {
-    offenseCall: (view, rng) => chooseOffenseCall(view, d.caller, rng),
+    offenseCall: (view, rng) => chooseOffenseCall(view, d.caller, rng, d.fieldGoals),
     defenseCall: (view, rng) => chooseDefenseCall(view, d.caller, rng),
     timeout(view, side, rng) {
       const p = timeoutShare(view, side, d.tables, dims, d.perDeadBall).value;

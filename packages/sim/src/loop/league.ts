@@ -79,7 +79,11 @@ export function drawPairing(rng: Rng, n: number): { home: number; away: number }
 
 /** The average coach for every team (M1). Policies are per team, so a later coach layer can replace one. */
 export function averageCoachFor(data: GameData): CoachPolicies {
-  return averageCoach({ caller: data.engine.caller, config: data.config, tables: data.tables, perDeadBall: data.engine.rules.timeouts.perTeamPerDeadBall });
+  const fg = data.engine.special.fieldGoals;
+  return averageCoach({
+    caller: data.engine.caller, config: data.config, tables: data.tables, perDeadBall: data.engine.rules.timeouts.perTeamPerDeadBall,
+    fieldGoals: { minDistance: fg.minDistance, maxDistance: fg.maxDistance, makePer10000: fg.makePer10000, kickDepth: fg.kickDepth, endZoneYards: data.engine.rules.field.endZoneYards },
+  });
 }
 
 /**

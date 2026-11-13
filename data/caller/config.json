@@ -117,6 +117,51 @@
         }
       ]
     },
+    "zoneFG": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": [
+        "scrimmage"
+      ],
+      "coarseOf": "zone6",
+      "buckets": [
+        {
+          "label": "GL",
+          "min": 1,
+          "max": 5
+        },
+        {
+          "label": "RZ",
+          "min": 6,
+          "max": 20
+        },
+        {
+          "label": "FR",
+          "min": 21,
+          "max": 35
+        },
+        {
+          "label": "M36",
+          "min": 36,
+          "max": 41
+        },
+        {
+          "label": "M42",
+          "min": 42,
+          "max": 50
+        },
+        {
+          "label": "OWN",
+          "min": 51,
+          "max": 89
+        },
+        {
+          "label": "BACK",
+          "min": 90,
+          "max": 99
+        }
+      ]
+    },
     "zone3": {
       "type": "range",
       "field": "yardLine100",
@@ -1375,6 +1420,13 @@
       "levels": [
         {
           "dims": [
+            "zoneFG",
+            "time2",
+            "scoreLateOnly"
+          ]
+        },
+        {
+          "dims": [
             "zone6",
             "time2",
             "scoreLateOnly"
@@ -1388,9 +1440,22 @@
         },
         {
           "dims": [
+            "zoneFG",
+            "time2",
+            "score3LateOnly"
+          ]
+        },
+        {
+          "dims": [
             "zone6",
             "time2",
             "score3LateOnly"
+          ]
+        },
+        {
+          "dims": [
+            "zoneFG",
+            "time2"
           ]
         },
         {
