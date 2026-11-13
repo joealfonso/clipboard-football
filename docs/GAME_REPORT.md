@@ -6,9 +6,9 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 ## 1. In-sample check, 2016-2023 (run first)
 
-Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `8fb92bdeed6093cfc5e04bb8cbcdcdbd2e944131b9646eb694a548c5d34a288e`; code hash `2a64654ee537d7f3ffe323bcda9dba2a8bba2a0629a3ffbbe4f544acc719eca0`.
+Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`; code hash `af1194ff41293ed8eb4c83bc878b1a305ff36bb6b81c1242eff80bfc59cf1907`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.28 ms per game, 65.1 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.186 ms per game, 64 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 
@@ -429,17 +429,18 @@ Every 2024-2025 game-level run so far, with its gated failures:
 - 2026-11-12, step 5b run 5, after Joseph accepted the remaining misses (scoped known deviations in data/game/tolerances.json): 0 gated failures, 13 accepted, every metric identical to run 4 (post hoc). Its speed reading (95 ms per game) was taken at load average about 40 and is not usable.
 - 2026-11-12, step 5b run 6, a speed remeasure on a quieter machine and the run label only: 0 gated failures, every metric identical to run 5 (post hoc).
 - 2026-11-12, step 5b run 7, after a change to this report's layout only (the gated-failure line lists accepted misses separately) and to the in-sample F1 stages: 0 gated failures, every metric identical to run 6 (post hoc).
-- 2026-11-12, step 5c, counted as step 5b run 8 in docs/DECISIONS.md (the run in section 2), after every step 5c change (docs/specs/m1-step5c-playtest-fixes.md, revision 1 and milestones A-G) and Joseph's step 5c approvals: 2 gated failures (post hoc).
+- 2026-11-12, step 5c, counted as step 5b run 8 in docs/DECISIONS.md, after every step 5c change (docs/specs/m1-step5c-playtest-fixes.md, revision 1 and milestones A-G) and Joseph's step 5c approvals: 2 gated failures (homeWin.rate, fieldGoalAttempts.perGame), and 3 accepted misses wider (post hoc).
+- 2026-11-12, step 5c, counted as step 5b run 9 in docs/DECISIONS.md (the run in section 2), approvals and timing only, metrics must match run 8: after Joseph accepted run 8's five misses (scoped known deviations), on an idle machine: 0 gated failures (post hoc).
 
 ## 2. Validation, 2024-2025 (holdout)
 
-Actual: regular-season games 2024-2025, unweighted; home-field rows leave out neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `8fb92bdeed6093cfc5e04bb8cbcdcdbd2e944131b9646eb694a548c5d34a288e`; code hash `2a64654ee537d7f3ffe323bcda9dba2a8bba2a0629a3ffbbe4f544acc719eca0`.
+Actual: regular-season games 2024-2025, unweighted; home-field rows leave out neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`; code hash `af1194ff41293ed8eb4c83bc878b1a305ff36bb6b81c1242eff80bfc59cf1907`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 28.223 ms per game, 288.5 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.382 ms per game, 66.2 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
-Gated failures: homeWin.rate, fieldGoalAttempts.perGame.
+Gated failures: .
 
-Accepted by Joseph (known deviations in data/game/tolerances.json for this sample, 2026-11-12): `total.mean`, `absMargin.share.1-3`, `absMargin.share.8-14`, `absMargin.share.22+`, `drives.perTeamGame`, `driveResult.share.touchdown`, `driveResult.share.fieldGoal`, `driveResult.share.punt`, `scrimmagePlays.perGame`, `driveDuration.mean`, `punts.perGame`, `twoPointTries.perGame`.
+Accepted by Joseph (known deviations in data/game/tolerances.json for this sample, 2026-11-12): `total.mean`, `absMargin.share.1-3`, `absMargin.share.8-14`, `absMargin.share.22+`, `homeWin.rate`, `drives.perTeamGame`, `driveResult.share.touchdown`, `driveResult.share.fieldGoal`, `driveResult.share.punt`, `scrimmagePlays.perGame`, `driveDuration.mean`, `punts.perGame`, `fieldGoalAttempts.perGame`, `twoPointTries.perGame`.
 
 | Metric | Predicted | Actual | n | 95% interval of actual | Tolerance | Spread across leagues | Status |
 |---|---|---|---|---|---|---|---|
@@ -461,7 +462,7 @@ Accepted by Joseph (known deviations in data/game/tolerances.json for this sampl
 | `absMargin.share.8-14` | 27.92 | 18.01 | 544 | 15.01 to 21.46 | 3 pp | 25.20 to 30.30 | accepted |
 | `absMargin.share.15-21` | 15.43 | 15.26 | 544 | 12.48 to 18.52 | 3 pp | 14.60 to 17.40 | pass |
 | `absMargin.share.22+` | 10.81 | 15.99 | 544 | 13.15 to 19.31 | 3 pp | 9.50 to 12.10 | accepted |
-| `homeWin.rate` | 57.16 | 53.10 | 532 | 48.85 to 57.30 | 4 pp | 54.90 to 58.75 | fail |
+| `homeWin.rate` | 57.16 | 53.10 | 532 | 48.85 to 57.30 | 4 pp | 54.90 to 58.75 | accepted |
 | `drives.perTeamGame` | 11.25 | 10.60 | 1,088 | 10.50 to 10.69 | 0.4 drives | 11.18 to 11.32 | accepted |
 | `driveStart.mean` | 30.41 | 30.43 | 11,528 | 30.14 to 30.71 | 1.5 yd | 30.15 to 30.56 | pass |
 | `driveResult.share.touchdown` | 20.81 | 22.96 | 11,528 | 22.20 to 23.74 | 2 pp | 20.21 to 22.03 | accepted |
@@ -489,7 +490,7 @@ Accepted by Joseph (known deviations in data/game/tolerances.json for this sampl
 | `timeouts.perTeamGame` | 3.44 | 3.72 | 1,088 | 3.63 to 3.82 | 0.3 timeouts | 3.35 to 3.50 | pass |
 | `fourthDownGo.perGame` | 2.99 | 3.03 | 544 | 2.88 to 3.17 | 0.4 plays | 2.91 to 3.11 | pass |
 | `punts.perGame` | 8.23 | 7.31 | 544 | 7.06 to 7.57 | 0.4 punts | 8.04 to 8.38 | accepted |
-| `fieldGoalAttempts.perGame` | 3.74 | 4.05 | 544 | 3.90 to 4.20 | 0.3 kicks | 3.65 to 3.82 | fail |
+| `fieldGoalAttempts.perGame` | 3.74 | 4.05 | 544 | 3.90 to 4.20 | 0.3 kicks | 3.65 to 3.82 | accepted |
 | `twoPointTries.perGame` | 0.38 | 0.48 | 544 | 0.42 to 0.55 | 0.1 tries | 0.36 to 0.41 | accepted |
 | `onside.perGame` | 0.21 | 0.19 | 544 | 0.15 to 0.23 | 0.05 kicks | 0.18 to 0.23 | pass |
 

@@ -16,7 +16,7 @@ Timeouts outside the fit: 853 challenge or replay timeouts excluded; 123 before 
 
 ## 2. Component validation (C7)
 
-Tolerances: data/game/tolerances.json, sha256 `8fb92bdeed6093cfc5e04bb8cbcdcdbd2e944131b9646eb694a548c5d34a288e`. Predicted = the fitted share functions applied to each real dead ball or kickoff; actual = what happened. Tempo is compared on snaps whose run-off could be measured (play timestamps, 2022 on).
+Tolerances: data/game/tolerances.json, sha256 `b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac`. Predicted = the fitted share functions applied to each real dead ball or kickoff; actual = what happened. Tempo is compared on snaps whose run-off could be measured (play timestamps, 2022 on).
 
 ### in-sample 2016-2023
 
@@ -40,7 +40,7 @@ Gated failures: none.
 
 Gated failures: none.
 
-Post hoc: earlier 2024-2025 runs had been seen before this one. The timeout tables were changed after them by step 5 post-validation revisions 1-5 (docs/DECISIONS.md) and by step 5b's late timeout levels (docs/specs/m1-step5b-late-game-and-clock-control.md, milestone C), each driven by in-sample findings. Runs after step 5b, both 2026-11-12: run 1 after the late timeout levels, and run 2 (this report) after Joseph's scoped known deviations were added to data/game/tolerances.json (no table changed). Tolerance values are unchanged. Step 5c: run 3 on 2026-11-12, post hoc, after revision 1 (timeout rows in clock order, which also changes the 2024-2025 actuals) and milestones D-F: coach.timeouts.rate.defense.c40 fails (8.34 vs 10.35, tolerance 2 pp). Run 4 (this report), same day: Joseph accepted that row (scoped known deviation); every number identical to run 3.
+Post hoc: earlier 2024-2025 runs had been seen before this one. The timeout tables were changed after them by step 5 post-validation revisions 1-5 (docs/DECISIONS.md) and by step 5b's late timeout levels (docs/specs/m1-step5b-late-game-and-clock-control.md, milestone C), each driven by in-sample findings. Runs after step 5b, both 2026-11-12: run 1 after the late timeout levels, and run 2 (this report) after Joseph's scoped known deviations were added to data/game/tolerances.json (no table changed). Tolerance values are unchanged. Step 5c: run 3 on 2026-11-12, post hoc, after revision 1 (timeout rows in clock order, which also changes the 2024-2025 actuals) and milestones D-F: coach.timeouts.rate.defense.c40 fails (8.34 vs 10.35, tolerance 2 pp). Run 4, same day: Joseph accepted that row (scoped known deviation); every number identical to run 3. Run 5 (this report): Joseph's game holdout known deviations changed the tolerances file this summary pins; every number identical to run 4.
 
 | Metric | Predicted | Actual | n | 95% interval of actual | Tolerance | Status |
 |---|---|---|---|---|---|---|

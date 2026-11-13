@@ -585,9 +585,9 @@
     },
     {
       "metric": "total.mean",
-      "observed": 44.2937,
+      "observed": 44.2341,
       "target": 45.9246,
-      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "reason": "Step 5c game holdout run 8 (post hoc): 44.2341 vs 45.9246. Accepted before step 5c at 44.2937 vs 45.9246 (step 5b run 4); wider after step 5c. Not tuned. Joseph accepted it at this value: 'Accept all five'.",
       "scope": "holdout",
       "date": "2026-11-12",
       "approved_by": "Joseph"
@@ -603,18 +603,18 @@
     },
     {
       "metric": "absMargin.share.8-14",
-      "observed": 27.64,
+      "observed": 27.92,
       "target": 18.0147,
-      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "reason": "Step 5c game holdout run 8 (post hoc): 27.92 vs 18.0147. Accepted before step 5c at 27.64 vs 18.0147 (step 5b run 4); wider after step 5c. Not tuned. Joseph accepted it at this value: 'Accept all five'.",
       "scope": "holdout",
       "date": "2026-11-12",
       "approved_by": "Joseph"
     },
     {
       "metric": "absMargin.share.22+",
-      "observed": 10.95,
+      "observed": 10.81,
       "target": 15.9926,
-      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "reason": "Step 5c game holdout run 8 (post hoc): 10.81 vs 15.9926. Accepted before step 5c at 10.95 vs 15.9926 (step 5b run 4); wider after step 5c. Not tuned. Joseph accepted it at this value: 'Accept all five'.",
       "scope": "holdout",
       "date": "2026-11-12",
       "approved_by": "Joseph"
@@ -715,6 +715,24 @@
       "target": 0.1741,
       "reason": "Step 5c C3 (2 pp per dead ball), in-sample run H: trailing defense timeout rate in the final 2:00. Moved by the step 5c designed rules (milestone F's leader clock drain, milestone E's trailer clock-out) and by revision 1's new real rates. Not tuned. Joseph accepted it as it stands: 'Accept'.",
       "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "homeWin.rate",
+      "observed": 57.155,
+      "target": 53.1015,
+      "reason": "Step 5c game holdout run 8 (post hoc): home win rate (the designed home edge is tuned on 2016-2023; 56.11 at step 5b run 7); 57.155 vs 53.1015. New in step 5c. Not tuned. Joseph accepted it: 'Accept all five'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "fieldGoalAttempts.perGame",
+      "observed": 3.7386,
+      "target": 4.0496,
+      "reason": "Step 5c game holdout run 8 (post hoc): field goal tries per game (3.86 at step 5b run 7; milestone B removed tries the engine makes at 0%); 3.7386 vs 4.0496. New in step 5c. Not tuned. Joseph accepted it: 'Accept all five'.",
+      "scope": "holdout",
       "date": "2026-11-12",
       "approved_by": "Joseph"
     }
