@@ -343,9 +343,31 @@ describe("F1-F4: step 5 in-sample recheck", () => {
     expect(gameReport).toMatch(/"after D" equals "after C"/);
   });
 
-  it("F1: the committed in-sample run is the after-C stage", () => {
-    const c = new Map(st.runs["afterC"]?.metrics.map((m) => [m.id, m.status]));
-    for (const m of ins.metrics) if (c.has(m.id)) expect(c.get(m.id), m.id).toBe(m.status);
+  // Amended 2026-11-12 (test-writer, M1 step 5c): step 5b ended with the after-C stage as the committed
+  // in-sample run. Step 5c then re-ran the in-sample check after each milestone and once at the end
+  // (docs/specs/m1-step5c-playtest-fixes.md, "Calibration rules for this step"); the committed run is now
+  // 5c's run H (DECISIONS.md, "Milestone H" and "5c checks accepted": run H reproduced after the revert).
+  // The pin is kept as two numeric links rather than dropped: the after-C stage is the run step 5c started
+  // from (its baseline block, commit 3de880d), and the committed run is run H. Every margin share and the
+  // two margin extras are compared exactly, so a stage file or run file from another run fails.
+  it("F1: the after-C stage is the in-sample run step 5c started from (then the committed run)", () => {
+    const sim5c = json<{ runs: Record<string, { games: number; counts: Record<string, number> }> }>("data/game/checks5c.sim.json").runs;
+    const base = sim5c["baseline"];
+    expect(base?.games).toBe(10000);
+    const c = base?.counts ?? {};
+    const after = new Map(st.runs["afterC"]?.metrics.map((m) => [m.id, m.predicted]));
+    for (const s of ["0", "1-3", "4-7", "8-14", "15-21", "22+"]) expect(after.get(`absMargin.share.${s}`), s).toBeCloseTo((100 * (c[`margin.${s}`] ?? NaN)) / 10000, 9);
+    expect(st.runs["afterC"]?.extras["exact3"]).toBeCloseTo((c["margin.exact3"] ?? NaN) / 10000, 9);
+    expect(st.runs["afterC"]?.extras["otEndingOn3"]).toBeCloseTo((c["ot.endsOn3"] ?? NaN) / (c["ot.games"] ?? NaN), 9);
+  });
+
+  it("F1: the committed in-sample run is step 5c's final run H", () => {
+    const H = json<{ runs: Record<string, { games: number; counts: Record<string, number> }> }>("data/game/checks5c.sim.json").runs["H"];
+    expect(H?.games).toBe(10000);
+    const c = H?.counts ?? {};
+    const now = new Map(ins.metrics.map((m) => [m.id, m.predicted]));
+    for (const s of ["0", "1-3", "4-7", "8-14", "15-21", "22+"]) expect(now.get(`absMargin.share.${s}`), s).toBeCloseTo((100 * (c[`margin.${s}`] ?? NaN)) / 10000, 9);
+    expect(gameReport).toMatch(/H = after G, the final in-sample run/);
   });
 
   it("F2: tolerances unchanged: game file is the pre-registered one apart from known_deviations; caller and engine as committed apart from known_deviations", () => {
