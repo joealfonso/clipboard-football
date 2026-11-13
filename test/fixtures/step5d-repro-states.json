@@ -1,0 +1,1187 @@
+{
+ "note": "Step 5d repro states (test-writer, 2026-11-13), captured from the game loop at 4f25b28 (git worktree; the same seeds and league seeds as `pnpm sim:game -- --league-seed L --seed S [--game-type postseason] --format json`, whose record events match these by index). For each event: `state` is the full GameState at the start of the dead ball that produced the event and `lastSnap` the loop lastSnap there; `snapState` is that state with the event `before` snapshot applied (the state at the call or run-off). `event` is the 4f25b28 record event, trimmed. Used by test/game/step5d.spec-check.test.ts (B2, C2, D2, E2).",
+ "commit": "4f25b28",
+ "states": [
+  {
+   "leagueSeed": 7,
+   "seed": 11,
+   "gameType": "regularSeason",
+   "ev": 268,
+   "stepEvents": [
+    "runoff",
+    "endPeriod"
+   ],
+   "lastSnap": {
+    "kneel": false,
+    "restart": 0,
+    "possession": "away",
+    "period": 4
+   },
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 11,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 35,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 19,
+    "down": 2,
+    "distance": 13,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 36,
+     "away": 30
+    },
+    "timeouts": {
+     "home": 1,
+     "away": 0
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 165,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 11,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 35,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 19,
+    "down": 2,
+    "distance": 13,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 36,
+     "away": 30
+    },
+    "timeouts": {
+     "home": 1,
+     "away": 0
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 165,
+    "result": null
+   },
+   "event": {
+    "t": "runoff",
+    "before": {
+     "period": 4,
+     "clock": 35,
+     "phase": "scrimmage",
+     "possession": "away",
+     "spot": 19,
+     "down": 2,
+     "distance": 13,
+     "goalToGo": false,
+     "score": {
+      "home": 36,
+      "away": 30
+     },
+     "timeouts": {
+      "home": 1,
+      "away": 0
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    },
+    "seconds": 39,
+    "drawn": 39,
+    "after": {
+     "period": 4,
+     "clock": 0,
+     "phase": "final",
+     "possession": "away",
+     "spot": 19,
+     "down": 0,
+     "distance": 0,
+     "goalToGo": false,
+     "score": {
+      "home": 36,
+      "away": 30
+     },
+     "timeouts": {
+      "home": 1,
+      "away": 0
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 2026,
+   "seed": 3,
+   "gameType": "regularSeason",
+   "ev": 264,
+   "stepEvents": [
+    "runoff",
+    "play"
+   ],
+   "lastSnap": {
+    "kneel": false,
+    "restart": 0,
+    "possession": "home",
+    "period": 4
+   },
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 3,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 31,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "home",
+    "spot": 26,
+    "down": 2,
+    "distance": 10,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 18,
+     "away": 21
+    },
+    "timeouts": {
+     "home": 0,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 156,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 3,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 31,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "home",
+    "spot": 26,
+    "down": 2,
+    "distance": 10,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 18,
+     "away": 21
+    },
+    "timeouts": {
+     "home": 0,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 156,
+    "result": null
+   },
+   "event": {
+    "t": "runoff",
+    "before": {
+     "period": 4,
+     "clock": 31,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 26,
+     "down": 2,
+     "distance": 10,
+     "goalToGo": false,
+     "score": {
+      "home": 18,
+      "away": 21
+     },
+     "timeouts": {
+      "home": 0,
+      "away": 2
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    },
+    "seconds": 19,
+    "drawn": 19,
+    "after": {
+     "period": 4,
+     "clock": 12,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 26,
+     "down": 2,
+     "distance": 10,
+     "goalToGo": false,
+     "score": {
+      "home": 18,
+      "away": 21
+     },
+     "timeouts": {
+      "home": 0,
+      "away": 2
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 2026,
+   "seed": 26,
+   "gameType": "regularSeason",
+   "ev": 263,
+   "stepEvents": [
+    "play"
+   ],
+   "lastSnap": null,
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 26,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 80,
+    "clockRunning": false,
+    "playClock": 25,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 53,
+    "down": 1,
+    "distance": 10,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 12,
+     "away": 14
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "home",
+     "choice": "defer",
+     "secondHalfReceiver": "home"
+    },
+    "overtime": null,
+    "playCount": 156,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 26,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 80,
+    "clockRunning": false,
+    "playClock": 25,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 53,
+    "down": 1,
+    "distance": 10,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 12,
+     "away": 14
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "home",
+     "choice": "defer",
+     "secondHalfReceiver": "home"
+    },
+    "overtime": null,
+    "playCount": 156,
+    "result": null
+   },
+   "event": {
+    "t": "play",
+    "before": {
+     "period": 4,
+     "clock": 80,
+     "phase": "scrimmage",
+     "possession": "away",
+     "spot": 53,
+     "down": 1,
+     "distance": 10,
+     "goalToGo": false,
+     "score": {
+      "home": 12,
+      "away": 14
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 2
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    },
+    "offense": {
+     "call": "kneel"
+    },
+    "after": {
+     "period": 4,
+     "clock": 79,
+     "phase": "scrimmage",
+     "possession": "away",
+     "spot": 52,
+     "down": 2,
+     "distance": 11,
+     "goalToGo": false,
+     "score": {
+      "home": 12,
+      "away": 14
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 2
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 2026,
+   "seed": 26,
+   "gameType": "regularSeason",
+   "ev": 273,
+   "stepEvents": [
+    "runoff",
+    "play"
+   ],
+   "lastSnap": {
+    "kneel": false,
+    "restart": 0,
+    "possession": "home",
+    "period": 4
+   },
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 26,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 55,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "home",
+    "spot": 8,
+    "down": 2,
+    "distance": 8,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 12,
+     "away": 14
+    },
+    "timeouts": {
+     "home": 0,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "home",
+     "choice": "defer",
+     "secondHalfReceiver": "home"
+    },
+    "overtime": null,
+    "playCount": 161,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 26,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 55,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "home",
+    "spot": 8,
+    "down": 2,
+    "distance": 8,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 12,
+     "away": 14
+    },
+    "timeouts": {
+     "home": 0,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "home",
+     "choice": "defer",
+     "secondHalfReceiver": "home"
+    },
+    "overtime": null,
+    "playCount": 161,
+    "result": null
+   },
+   "event": {
+    "t": "runoff",
+    "before": {
+     "period": 4,
+     "clock": 55,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 8,
+     "down": 2,
+     "distance": 8,
+     "goalToGo": false,
+     "score": {
+      "home": 12,
+      "away": 14
+     },
+     "timeouts": {
+      "home": 0,
+      "away": 2
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    },
+    "seconds": 14,
+    "drawn": 14,
+    "after": {
+     "period": 4,
+     "clock": 41,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 8,
+     "down": 2,
+     "distance": 8,
+     "goalToGo": false,
+     "score": {
+      "home": 12,
+      "away": 14
+     },
+     "timeouts": {
+      "home": 0,
+      "away": 2
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 2026,
+   "seed": 229,
+   "gameType": "regularSeason",
+   "ev": 270,
+   "stepEvents": [
+    "runoff",
+    "timeout",
+    "play"
+   ],
+   "lastSnap": {
+    "kneel": false,
+    "restart": 0,
+    "possession": "away",
+    "period": 4
+   },
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 229,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 117,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 40,
+    "down": 4,
+    "distance": 13,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 21,
+     "away": 23
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 168,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 229,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 77,
+    "clockRunning": false,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 40,
+    "down": 4,
+    "distance": 13,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 21,
+     "away": 23
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 1
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 168,
+    "result": null
+   },
+   "event": {
+    "t": "play",
+    "before": {
+     "period": 4,
+     "clock": 77,
+     "phase": "scrimmage",
+     "possession": "away",
+     "spot": 40,
+     "down": 4,
+     "distance": 13,
+     "goalToGo": false,
+     "score": {
+      "home": 21,
+      "away": 23
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 1
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    },
+    "offense": {
+     "call": "kneel"
+    },
+    "after": {
+     "period": 4,
+     "clock": 76,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 63,
+     "down": 1,
+     "distance": 10,
+     "goalToGo": false,
+     "score": {
+      "home": 21,
+      "away": 23
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 1
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 2026,
+   "seed": 107,
+   "gameType": "regularSeason",
+   "ev": 264,
+   "stepEvents": [
+    "runoff",
+    "timeout",
+    "play"
+   ],
+   "lastSnap": {
+    "kneel": false,
+    "restart": 0,
+    "possession": "home",
+    "period": 4
+   },
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 107,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 78,
+    "clockRunning": true,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "home",
+    "spot": 97,
+    "down": 1,
+    "distance": 3,
+    "goalToGo": true,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 18,
+     "away": 22
+    },
+    "timeouts": {
+     "home": 1,
+     "away": 3
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "home",
+     "choice": "defer",
+     "secondHalfReceiver": "home"
+    },
+    "overtime": null,
+    "playCount": 157,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 107,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 76,
+    "clockRunning": false,
+    "playClock": 40,
+    "phase": "scrimmage",
+    "possession": "home",
+    "spot": 97,
+    "down": 1,
+    "distance": 3,
+    "goalToGo": true,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 18,
+     "away": 22
+    },
+    "timeouts": {
+     "home": 0,
+     "away": 3
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "home",
+     "choice": "defer",
+     "secondHalfReceiver": "home"
+    },
+    "overtime": null,
+    "playCount": 157,
+    "result": null
+   },
+   "event": {
+    "t": "play",
+    "before": {
+     "period": 4,
+     "clock": 76,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 97,
+     "down": 1,
+     "distance": 3,
+     "goalToGo": true,
+     "score": {
+      "home": 18,
+      "away": 22
+     },
+     "timeouts": {
+      "home": 0,
+      "away": 3
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    },
+    "offense": {
+     "call": "kneel"
+    },
+    "after": {
+     "period": 4,
+     "clock": 75,
+     "phase": "scrimmage",
+     "possession": "home",
+     "spot": 96,
+     "down": 2,
+     "distance": 4,
+     "goalToGo": true,
+     "score": {
+      "home": 18,
+      "away": 22
+     },
+     "timeouts": {
+      "home": 0,
+      "away": 3
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 2026,
+   "seed": 4,
+   "gameType": "regularSeason",
+   "ev": 250,
+   "stepEvents": [
+    "play"
+   ],
+   "lastSnap": null,
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 4,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 119,
+    "clockRunning": false,
+    "playClock": 25,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 35,
+    "down": 1,
+    "distance": 10,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 27,
+     "away": 15
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 0
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 144,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 4,
+    "gameType": "regularSeason",
+    "period": 4,
+    "clock": 119,
+    "clockRunning": false,
+    "playClock": 25,
+    "phase": "scrimmage",
+    "possession": "away",
+    "spot": 35,
+    "down": 1,
+    "distance": 10,
+    "goalToGo": false,
+    "trySpots": null,
+    "safetyKick": false,
+    "score": {
+     "home": 27,
+     "away": 15
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 0
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": true,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": null,
+    "playCount": 144,
+    "result": null
+   },
+   "event": {
+    "t": "play",
+    "before": {
+     "period": 4,
+     "clock": 119,
+     "phase": "scrimmage",
+     "possession": "away",
+     "spot": 35,
+     "down": 1,
+     "distance": 10,
+     "goalToGo": false,
+     "score": {
+      "home": 27,
+      "away": 15
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 0
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    },
+    "offense": {
+     "call": "kneel"
+    },
+    "after": {
+     "period": 4,
+     "clock": 118,
+     "phase": "scrimmage",
+     "possession": "away",
+     "spot": 34,
+     "down": 2,
+     "distance": 11,
+     "goalToGo": false,
+     "score": {
+      "home": 27,
+      "away": 15
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 0
+     },
+     "clockRunning": true,
+     "safetyKick": false
+    }
+   }
+  },
+  {
+   "leagueSeed": 4242,
+   "seed": 6537,
+   "gameType": "postseason",
+   "ev": 296,
+   "stepEvents": [
+    "play",
+    "endPeriod"
+   ],
+   "lastSnap": {
+    "kneel": false,
+    "restart": 0,
+    "possession": "home",
+    "period": 5
+   },
+   "state": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 6537,
+    "gameType": "postseason",
+    "period": 5,
+    "clock": 381,
+    "clockRunning": false,
+    "playClock": 40,
+    "phase": "try",
+    "possession": "home",
+    "spot": 98,
+    "down": 0,
+    "distance": 0,
+    "goalToGo": false,
+    "trySpots": {
+     "kick": 85,
+     "twoPoint": 98
+    },
+    "safetyKick": false,
+    "score": {
+     "home": 23,
+     "away": 25
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": false,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": {
+     "firstTeam": "away",
+     "secondTeam": "home",
+     "secondTeamPossessed": true,
+     "suddenDeath": false,
+     "toss": {
+      "winner": "away",
+      "choice": "receive",
+      "secondHalfReceiver": "home"
+     }
+    },
+    "playCount": 178,
+    "result": null
+   },
+   "snapState": {
+    "rules": {
+     "id": "nfl-2026",
+     "hash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895"
+    },
+    "seed": 6537,
+    "gameType": "postseason",
+    "period": 5,
+    "clock": 381,
+    "clockRunning": false,
+    "playClock": 40,
+    "phase": "try",
+    "possession": "home",
+    "spot": 98,
+    "down": 0,
+    "distance": 0,
+    "goalToGo": false,
+    "trySpots": {
+     "kick": 85,
+     "twoPoint": 98
+    },
+    "safetyKick": false,
+    "score": {
+     "home": 23,
+     "away": 25
+    },
+    "timeouts": {
+     "home": 3,
+     "away": 2
+    },
+    "timeoutsThisDeadBall": {
+     "home": 0,
+     "away": 0
+    },
+    "twoMinuteWarningDone": false,
+    "untimedDown": false,
+    "toss": {
+     "winner": "away",
+     "choice": "defer",
+     "secondHalfReceiver": "away"
+    },
+    "overtime": {
+     "firstTeam": "away",
+     "secondTeam": "home",
+     "secondTeamPossessed": true,
+     "suddenDeath": false,
+     "toss": {
+      "winner": "away",
+      "choice": "receive",
+      "secondHalfReceiver": "home"
+     }
+    },
+    "playCount": 178,
+    "result": null
+   },
+   "event": {
+    "t": "play",
+    "before": {
+     "period": 5,
+     "clock": 381,
+     "phase": "try",
+     "possession": "home",
+     "spot": 98,
+     "down": 0,
+     "distance": 0,
+     "goalToGo": false,
+     "score": {
+      "home": 23,
+      "away": 25
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 2
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    },
+    "offense": {
+     "call": "extraPoint"
+    },
+    "after": {
+     "period": 5,
+     "clock": 381,
+     "phase": "final",
+     "possession": "home",
+     "spot": 35,
+     "down": 0,
+     "distance": 0,
+     "goalToGo": false,
+     "score": {
+      "home": 24,
+      "away": 25
+     },
+     "timeouts": {
+      "home": 3,
+      "away": 2
+     },
+     "clockRunning": false,
+     "safetyKick": false
+    }
+   }
+  }
+ ]
+}

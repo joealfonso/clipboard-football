@@ -206,18 +206,30 @@ describe("0.2, 0.3: real side and the baseline", () => {
 
 // ---------------------------------------------------------------- the committed runs
 
-describe("the committed in-sample run is run H, and the baseline block is the step 5b run 5c started from", () => {
+// Amended 2026-11-13 (test-writer, M1 step 5d): step 5d re-ran the in-sample check after each milestone and
+// once at the end, so the committed run is now step 5d's run H (DECISIONS.md, "Milestone H1" and "5d
+// holdout misses accepted": the pins-only in-sample rerun is identical to run H). The pin stays exact, as
+// a chain: 5c run H is the run step 5d started from (its 5c checks re-measured as label "5d.baseline"
+// equal run H count for count), and the committed summary's margin shares equal step 5d run H's margin
+// counts (label "5d.H" here, and runs.H of data/game/checks5d.sim.json). The baseline half is unchanged.
+describe("the committed in-sample run is step 5d's run H, 5c run H is where step 5d started, and the baseline block is the step 5b run 5c started from", () => {
   const shares = ["0", "1-3", "4-7", "8-14", "15-21", "22+"];
-  it("absMargin shares in calibration.insample.json equal run H's margin counts; the 5b after-C stage equals the baseline's", () => {
+  it("absMargin shares in calibration.insample.json equal 5d run H's margin counts; 5c run H equals the 5d baseline; the 5b after-C stage equals the 5c baseline's", () => {
     const H = sim["H"] as Run;
+    const H5d = sim["5d.H"] as Run;
+    const base5d = sim["5d.baseline"] as Run;
     const base = sim["baseline"] as Run;
     const now = new Map(insample.metrics.map((m) => [m.id, m.predicted]));
     const afterC = new Map(stages5b.runs["afterC"]?.metrics.map((m) => [m.id, m.predicted]));
     for (const s of shares) {
-      expect(now.get(`absMargin.share.${s}`), `H ${s}`).toBeCloseTo((100 * n(H.counts, `margin.${s}`)) / H.games, 9);
+      expect(now.get(`absMargin.share.${s}`), `5d H ${s}`).toBeCloseTo((100 * n(H5d.counts, `margin.${s}`)) / H5d.games, 9);
       expect(afterC.get(`absMargin.share.${s}`), `baseline ${s}`).toBeCloseTo((100 * n(base.counts, `margin.${s}`)) / base.games, 9);
     }
-    expect(insample.games).toBe(H.games);
+    expect(Object.keys(H.counts).length).toBeGreaterThan(20);
+    for (const k of Object.keys(H.counts)) expect(base5d.counts[k], `5c run H = 5d baseline: ${k}`).toBe(H.counts[k]);
+    const d5 = json<{ runs: Record<string, Run> }>("data/game/checks5d.sim.json").runs["H"] as Run;
+    for (const k of Object.keys(H5d.counts).filter((x) => x.startsWith("margin."))) expect(d5.counts[k], `5d checks run H: ${k}`).toBe(H5d.counts[k]);
+    expect(insample.games).toBe(H5d.games);
     expect(insample.runSeed).toBe(20261112);
   });
 });
@@ -245,20 +257,33 @@ describe("pre-registered checks at run H, by milestone", () => {
     ]);
   });
 
-  it("every acceptance is Joseph's, in-sample, dated, for a check that really fails at H, at its run H value, and recorded in DECISIONS.md", () => {
-    const H = sim["H"] as Run;
-    const sec = between(d5c, "### 5c checks accepted (Joseph, 2026-11-12)", "\n### ");
-    expect(accepted.length).toBeGreaterThan(0);
+  // Amended 2026-11-13 (test-writer, M1 step 5d): Joseph updated one record on 2026-11-13 (DECISIONS.md,
+  // "5d misses accepted (Joseph, 2026-11-13)"): `c.fg.50to59` is now accepted at step 5d's run H value
+  // (0.7650; label "5d.H" in checks5c.sim.json), dated 2026-11-13. The other two records are unchanged and
+  // still pinned to 5c run H. Each record is pinned to its own run, date and DECISIONS section; the list of
+  // records is exact, so a stray or missing record fails.
+  it("every acceptance is Joseph's, in-sample, dated, for a check that really fails at its run, at that run's value, and recorded in DECISIONS.md", () => {
+    const d5d = between(decisions, "## M1 step 5d", "\n## Publishing");
+    const want: Record<string, { date: string; run: string; sec: string }> = {
+      "c.kneel.ballBack": { date: "2026-11-12", run: "H", sec: between(d5c, "### 5c checks accepted (Joseph, 2026-11-12)", "\n### ") },
+      "c.fg.63": { date: "2026-11-12", run: "H", sec: between(d5c, "### 5c checks accepted (Joseph, 2026-11-12)", "\n### ") },
+      "c.fg.50to59": { date: "2026-11-13", run: "5d.H", sec: between(d5d, "### 5d misses accepted (Joseph, 2026-11-13)", "\n### ") },
+    };
+    expect(accepted.map((a) => a.check).sort()).toEqual(Object.keys(want).sort());
     for (const a of accepted) {
       const c = check(a.check);
-      expect([a.approved_by, a.scope, a.date], a.check).toEqual(["Joseph", "insample", "2026-11-12"]);
-      expect(passes(c, H), `${a.check} passes, so it needs no acceptance`).toBe(false);
-      // observed and real are the run H values, rounded as written.
+      const w = want[a.check] as { date: string; run: string; sec: string };
+      const run = sim[w.run] as Run;
+      expect([a.approved_by, a.scope, a.date], a.check).toEqual(["Joseph", "insample", w.date]);
+      expect(passes(c, run), `${a.check} passes at ${w.run}, so it needs no acceptance`).toBe(false);
+      // observed and real are that run's values, rounded as written.
       const digits = (x: number): number => (String(x).split(".")[1] ?? "").length;
-      expect(a.observed, a.check).toBeCloseTo(value(a.check, H.counts), digits(a.observed));
+      expect(a.observed, a.check).toBeCloseTo(value(a.check, run.counts), digits(a.observed));
       expect(a.real, a.check).toBeCloseTo(value(a.check, real.counts), digits(a.real));
-      expect(sec, a.check).toContain(`\`${a.check}\``);
+      expect(w.sec, a.check).toContain(`\`${a.check}\``);
     }
+    // The 2026-11-13 record says what it replaced (5c run H, 0.7641).
+    expect(accepted.find((a) => a.check === "c.fg.50to59")).toMatchObject({ reason: expect.stringMatching(/0\.764\b.*0\.7641/) });
   });
 });
 
@@ -442,24 +467,36 @@ describe("locked: tolerances untouched; only Joseph adds known deviations", () =
     expect(out).toEqual([]);
   });
 
-  it("each step 5c game deviation matches Joseph's recorded decision (metric, scope, observed, target, date)", () => {
-    // From DECISIONS.md: "5c holdout and C3 misses accepted", "5c checks accepted", "5c game holdout misses accepted".
-    const want: [string, string, number, number][] = [
-      ["coach.timeouts.rate.defense.c40", "holdout", 8.3444, 10.3528],
-      ["diag.timeoutRate.offense.L.GF", "insample", 0.0391, 0.0722],
-      ["diag.timeoutRate.defense.T.GF", "insample", 0.2007, 0.1741],
-      ["absMargin.share.8-14", "insample", 27.92, 22.7053],
-      ["homeWin.rate", "holdout", 57.155, 53.1015],
-      ["fieldGoalAttempts.perGame", "holdout", 3.7386, 4.0496],
-      ["total.mean", "holdout", 44.2341, 45.9246],
-      ["absMargin.share.8-14", "holdout", 27.92, 18.0147],
-      ["absMargin.share.22+", "holdout", 10.81, 15.9926],
+  // Amended 2026-11-13 (test-writer, M1 step 5d): Joseph updated four of these entries on 2026-11-13, each
+  // at its step 5d run value with no threshold moved (DECISIONS.md, "5d misses accepted (Joseph,
+  // 2026-11-13)": `absMargin.share.8-14` insample 28.12; "5d holdout misses accepted (Joseph, 2026-11-13)":
+  // `total.mean` 44.1685, `absMargin.share.8-14` holdout 28.12, `fieldGoalAttempts.perGame` 3.7309). Each
+  // entry is still pinned exactly (observed, target, date, approver) and to the DECISIONS section that
+  // records it; the targets are unchanged. The five entries step 5d did not touch keep their 5c values.
+  it("each step 5c game deviation matches Joseph's recorded decision (metric, scope, observed, target, date), with step 5d's updates", () => {
+    // From DECISIONS.md: "5c holdout and C3 misses accepted", "5c checks accepted", "5c game holdout misses accepted",
+    // and for the 2026-11-13 values "5d misses accepted" and "5d holdout misses accepted".
+    const d5d = between(decisions, "## M1 step 5d", "\n## Publishing");
+    const ins5d = between(d5d, "### 5d misses accepted (Joseph, 2026-11-13)", "\n### ");
+    const hold5d = between(d5d, "### 5d holdout misses accepted (Joseph, 2026-11-13)", "\n### ");
+    const want: [string, string, number, number, string, string][] = [
+      ["coach.timeouts.rate.defense.c40", "holdout", 8.3444, 10.3528, "2026-11-12", d5c],
+      ["diag.timeoutRate.offense.L.GF", "insample", 0.0391, 0.0722, "2026-11-12", d5c],
+      ["diag.timeoutRate.defense.T.GF", "insample", 0.2007, 0.1741, "2026-11-12", d5c],
+      ["absMargin.share.8-14", "insample", 28.12, 22.7053, "2026-11-13", ins5d],
+      ["homeWin.rate", "holdout", 57.155, 53.1015, "2026-11-12", d5c],
+      ["fieldGoalAttempts.perGame", "holdout", 3.7309, 4.0496, "2026-11-13", hold5d],
+      ["total.mean", "holdout", 44.1685, 45.9246, "2026-11-13", hold5d],
+      ["absMargin.share.8-14", "holdout", 28.12, 18.0147, "2026-11-13", hold5d],
+      ["absMargin.share.22+", "holdout", 10.81, 15.9926, "2026-11-12", d5c],
     ];
-    for (const [metric, scope, observed, target] of want) {
+    for (const [metric, scope, observed, target, date, sec] of want) {
       const d = tol.known_deviations.filter((x) => x.metric === metric && x.scope === scope);
       expect(d, `${metric} ${scope}`).toHaveLength(1);
-      expect([d[0]?.observed, d[0]?.target, d[0]?.date, d[0]?.approved_by], `${metric} ${scope}`).toEqual([observed, target, "2026-11-12", "Joseph"]);
-      expect(d5c, `${metric} in DECISIONS 5c`).toContain(metric);
+      expect([d[0]?.observed, d[0]?.target, d[0]?.date, d[0]?.approved_by], `${metric} ${scope}`).toEqual([observed, target, date, "Joseph"]);
+      expect(sec, `${metric} in its DECISIONS section`).toContain(metric);
+      // A 2026-11-13 update names its new observed value in its section.
+      if (date === "2026-11-13") expect(sec, `${metric} ${scope} value`).toContain(String(observed));
     }
   });
 });

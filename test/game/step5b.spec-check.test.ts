@@ -373,13 +373,26 @@ describe("F1-F4: step 5 in-sample recheck", () => {
     expect(st.runs["afterC"]?.extras["otEndingOn3"]).toBeCloseTo((c["ot.endsOn3"] ?? NaN) / (c["ot.games"] ?? NaN), 9);
   });
 
-  it("F1: the committed in-sample run is step 5c's final run H", () => {
-    const H = json<{ runs: Record<string, { games: number; counts: Record<string, number> }> }>("data/game/checks5c.sim.json").runs["H"];
-    expect(H?.games).toBe(10000);
-    const c = H?.counts ?? {};
+  // Amended 2026-11-13 (test-writer, M1 step 5d): step 5d re-ran the in-sample check after each milestone
+  // and once at the end; the committed run is now step 5d's run H (DECISIONS.md, "Milestone H1", and the
+  // pins-only in-sample rerun under "5d holdout misses accepted": identical to run H). The pin stays exact:
+  // the committed margin shares equal step 5d run H's margin counts (data/game/checks5d.sim.json runs.H),
+  // and step 5c's run H is still linked, as the run step 5d started from (its 5d baseline margins equal 5c
+  // run H's count for count). Both report labels must be there.
+  it("F1: the committed in-sample run is step 5d's final run H, which started from step 5c's run H", () => {
+    type Runs = Record<string, { games: number; counts: Record<string, number> }>;
+    const H5d = json<{ runs: Runs }>("data/game/checks5d.sim.json").runs["H"];
+    const base5d = json<{ runs: Runs }>("data/game/checks5d.sim.json").runs["baseline"];
+    const H5c = json<{ runs: Runs }>("data/game/checks5c.sim.json").runs["H"];
+    expect([H5d?.games, base5d?.games, H5c?.games]).toEqual([10000, 10000, 10000]);
+    const c = H5d?.counts ?? {};
     const now = new Map(ins.metrics.map((m) => [m.id, m.predicted]));
-    for (const s of ["0", "1-3", "4-7", "8-14", "15-21", "22+"]) expect(now.get(`absMargin.share.${s}`), s).toBeCloseTo((100 * (c[`margin.${s}`] ?? NaN)) / 10000, 9);
+    for (const s of ["0", "1-3", "4-7", "8-14", "15-21", "22+"]) {
+      expect(now.get(`absMargin.share.${s}`), s).toBeCloseTo((100 * (c[`margin.${s}`] ?? NaN)) / 10000, 9);
+      expect(base5d?.counts[`margin.${s}`], `5d baseline = 5c run H: ${s}`).toBe(H5c?.counts[`margin.${s}`]);
+    }
     expect(gameReport).toMatch(/H = after G, the final in-sample run/);
+    expect(gameReport).toMatch(/H = the final in-sample run \(H1\)/);
   });
 
   it("F2: tolerances unchanged: game file is the pre-registered one apart from known_deviations; caller and engine as committed apart from known_deviations", () => {

@@ -1,0 +1,56 @@
+{
+  "note": "Step 5d train/serve parity (test-writer, 2026-11-13). Each scenario is one sequence of game events, built twice: as hand-made nflverse rows through the pipeline (pipeline/tests/test_step5d_spec.py: pipeline.caller.load.clock_flags) and as states through the sim's machine and toSituation (packages/sim/test/game/step5d-flags.spec-check.test.ts). Both must give the `expect` values at every snap and try, which come from the spec (docs/specs/m1-step5d-clock-fixes.md milestone A): clockRunning 1 only when the clock runs at the snap (0 after an incompletion, a timeout, the two-minute warning, a period start, a change of possession, an out of bounds inside the Rule 4-3-2 windows, and on every try); otBothPossessed 1 in overtime once the second team has had its opportunity to possess, 0 in regulation. Teams in overtime scenarios are 'first' (received the opening overtime kickoff) and 'second'. `clock` is seconds left in the quarter (overtime: in the period) at the snap. Regular season only: the pipeline reads regular-season rows. No snap row here carries a timeout flag of its own (a known open issue, not pinned).",
+  "scenarios": [
+    {
+      "id": "regulation",
+      "start": { "period": 3, "possession": "home", "spot": 25 },
+      "steps": [
+        { "snap": "home", "qtr": 3, "clock": 600, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "first snap: the clock is stopped" },
+        { "snap": "home", "qtr": 3, "clock": 570, "play": "run", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "after an in-bounds run in Q3" },
+        { "snap": "home", "qtr": 3, "clock": 540, "play": "incomplete", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "after an in-bounds run" },
+        { "snap": "home", "qtr": 3, "clock": 535, "play": "runOOB", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "after an incompletion" },
+        { "snap": "home", "qtr": 3, "clock": 510, "play": "run", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "out of bounds outside the windows: the clock restarts" },
+        { "timeout": "away" },
+        { "snap": "home", "qtr": 3, "clock": 480, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "after a timeout" },
+        { "snap": "home", "qtr": 3, "clock": 450, "play": "punt", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "after an in-bounds run" },
+        { "snap": "away", "qtr": 3, "clock": 420, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "after a change of possession" },
+        { "snap": "away", "qtr": 3, "clock": 3, "play": "run", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "after an in-bounds run; this run ends Q3" },
+        { "snap": "away", "qtr": 4, "clock": 900, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "a period start" },
+        { "snap": "away", "qtr": 4, "clock": 180, "play": "runOOB", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "after an in-bounds run" },
+        { "snap": "away", "qtr": 4, "clock": 170, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "out of bounds inside the final 5:00 of Q4: the clock stays stopped" },
+        { "snap": "away", "qtr": 4, "clock": 124, "play": "run", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "after an in-bounds run; this run crosses 2:00" },
+        { "snap": "away", "qtr": 4, "clock": 115, "play": "td", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "after the two-minute warning" },
+        { "try": "away", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "a try" },
+        { "kickoff": "away", "result": "touchback" },
+        { "snap": "home", "qtr": 4, "clock": 108, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "after a kickoff" }
+      ]
+    },
+    {
+      "id": "overtime-score-then-answer",
+      "start": "overtime",
+      "steps": [
+        { "kickoff": "second", "result": "touchback" },
+        { "snap": "first", "qtr": 5, "clock": 600, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "the first team's first snap" },
+        { "snap": "first", "qtr": 5, "clock": 570, "play": "td", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "the first team's snap, clock running" },
+        { "try": "first", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "the first team's try (up 6): flag 0" },
+        { "kickoff": "first", "result": "touchback" },
+        { "snap": "second", "qtr": 5, "clock": 560, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 1 }, "why": "the second team's first snap" },
+        { "snap": "second", "qtr": 5, "clock": 530, "play": "td", "expect": { "clockRunning": 1, "otBothPossessed": 1 }, "why": "the second team's snap, clock running" },
+        { "try": "second", "expect": { "clockRunning": 0, "otBothPossessed": 1 }, "why": "the second team's try after its touchdown (down 1)" },
+        { "kickoff": "second", "result": "touchback" },
+        { "snap": "first", "qtr": 5, "clock": 520, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 1 }, "why": "the flag stays on" }
+      ]
+    },
+    {
+      "id": "overtime-punt",
+      "start": "overtime",
+      "steps": [
+        { "kickoff": "second", "result": "touchback" },
+        { "snap": "first", "qtr": 5, "clock": 600, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 0 }, "why": "the first team's first snap" },
+        { "snap": "first", "qtr": 5, "clock": 570, "play": "punt", "expect": { "clockRunning": 1, "otBothPossessed": 0 }, "why": "the first team punts" },
+        { "snap": "second", "qtr": 5, "clock": 560, "play": "run", "expect": { "clockRunning": 0, "otBothPossessed": 1 }, "why": "the second team's first snap after the punt" },
+        { "snap": "second", "qtr": 5, "clock": 530, "play": "run", "expect": { "clockRunning": 1, "otBothPossessed": 1 }, "why": "in-bounds run, flag stays" }
+      ]
+    }
+  ]
+}
