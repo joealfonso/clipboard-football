@@ -4,7 +4,7 @@ exports[`CLI (E) > E1: header, one line per event and a box score; snapshot on a
 "Clipboard Football headless game (M1)
 seed 3  league seed 2026  regularSeason
 rule set nfl-2026 sha256 5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895
-data rules/nfl-2026.json:5c8cca4e8320 calls/catalog.json:01b3b9e15378 caller/config.json:8d43788a703a caller/offense.table.json:9f5e0ea1707b caller/defense.table.json:e96a47e129d9 engine/config.json:855f02993766 engine/baseline.scrimmage.json:76ea8a62423e engine/baseline.special.json:bf9851d50c71 engine/baseline.penalties.json:2393518bb843 engine/kickoff.json:7a0e531091f6 engine/matchup.centered.json:c6db10affc12 engine/personnel.json:a3816cc3941c players/ratings.json:c71a112781d3 players/distributions.json:059f2a7f4d02 players/names.json:b11ced1100e5 engine/why.json:778bc80beaa1 game/config.json:88217f4734e3 game/tempo.json:516ccd49a750 game/timeouts.json:64bf9ee12d3e game/onside.json:5bf4dbf0f56a game/ep.json:1a0aea2e3ba3 game/league.json:436c5d0f28db teams/names.json:af71a0998e9e
+data rules/nfl-2026.json:5c8cca4e8320 calls/catalog.json:01b3b9e15378 caller/config.json:8d43788a703a caller/offense.table.json:9f5e0ea1707b caller/defense.table.json:e96a47e129d9 engine/config.json:855f02993766 engine/baseline.scrimmage.json:76ea8a62423e engine/baseline.special.json:bf9851d50c71 engine/baseline.penalties.json:2393518bb843 engine/kickoff.json:7a0e531091f6 engine/matchup.centered.json:c6db10affc12 engine/personnel.json:a3816cc3941c players/ratings.json:c71a112781d3 players/distributions.json:059f2a7f4d02 players/names.json:b11ced1100e5 engine/why.json:778bc80beaa1 game/config.json:684616869473 game/tempo.json:a67eb41b6b1f game/timeouts.json:3fd8e02c1c88 game/onside.json:18fa01c09452 game/ep.json:07a8bab26d5e game/league.json:436c5d0f28db teams/names.json:af71a0998e9e
 away Fox Hollow Foxes (FOXES)  at  home Cinder Hill Embers (EMBERS)
 
 Q1 15:00  FOXES kickoff  Kickoff: A return, EMBERS ball at own 32.  [FOXES 0 - EMBERS 0]  Why: Kickoff: a return.
@@ -100,7 +100,7 @@ Q2 7:20  FOXES 2nd & 13 at own 31  Short (Under center) vs Nickel Cover 2: Incom
 Q2 7:17  FOXES 3rd & 13 at own 31  Intermediate (Shotgun) vs Prevent: Complete for 12 yards.  [FOXES 7 - EMBERS 10]  Why: An intermediate pass for a 10-yard-plus completion, a common result in this situation (31%).
 Q2 7:11  FOXES lets 39 s run before the snap.
 Q2 6:32  FOXES 4th & 1 at own 43  Punt: Punt 34 yards, EMBERS ball at own 23.  [FOXES 7 - EMBERS 10]  Why: Punt: a fair catch, 34 yards gross.
-Q2 6:25  EMBERS 1st & 10 at own 23  Play action (Shotgun) vs Nickel Cover 3: Sacked for -3 yards.  [FOXES 7 - EMBERS 10]  Why: A play-action pass for a sack: a fluke, only 4.8% of plays like this end in a result that rare.
+Q2 6:25  EMBERS 1st & 10 at own 23  Play action (Shotgun) vs Nickel Cover 3: Sacked for -3 yards.  [FOXES 7 - EMBERS 10]  Why: A play-action pass for a sack: a fluke, only 4.7% of plays like this end in a result that rare.
 Q2 6:21  EMBERS lets 36 s run before the snap.
 Q2 5:45  EMBERS 2nd & 13 at own 20  Play action (Under center) vs Nickel Cover 3: Complete for 15 yards.  [FOXES 7 - EMBERS 10]  Why: A play-action pass for a 10-yard-plus completion (19% of plays in this situation).
 Q2 5:41  EMBERS lets 36 s run before the snap.
@@ -252,7 +252,7 @@ Q4 3:35  EMBERS 1st & 10 at own 20  Play action (Shotgun) vs Nickel Cover 1 Blit
 Q4 3:31  EMBERS lets 21 s run before the snap.
 Q4 3:10  EMBERS 2nd & 3 at own 27  Short (Shotgun) vs Nickel Cover 3: Complete for 5 yards.  [FOXES 21 - EMBERS 10]  Why: A short pass for a short completion, a common result in this situation (53%).
 Q4 3:06  EMBERS lets 17 s run before the snap.
-Q4 2:49  EMBERS 1st & 10 at own 32  Short (Shotgun) vs Nickel Cover 1: Scramble for 31 yards.  [FOXES 21 - EMBERS 10]  Why: A short pass for a scramble: a fluke, only 4.8% of plays like this end in a result that rare.
+Q4 2:49  EMBERS 1st & 10 at own 32  Short (Shotgun) vs Nickel Cover 1: Scramble for 31 yards.  [FOXES 21 - EMBERS 10]  Why: A short pass for a scramble: a fluke, only 4.7% of plays like this end in a result that rare.
 Q4 2:43  EMBERS lets 11 s run before the snap.
 Q4 2:32  EMBERS 1st & 10 at opp 37  Deep (Shotgun) vs Nickel Cover 4: Incomplete.  [FOXES 21 - EMBERS 10]  Why: A deep pass for an incompletion: the catch against the coverage decided it (x0.87).
 Q4 2:27  EMBERS 2nd & 10 at opp 37  Deep (Shotgun) vs Nickel 2-Man: Incomplete.  [FOXES 21 - EMBERS 10]  Why: A deep pass for an incompletion: the catch against the coverage decided it (x0.87).
@@ -270,7 +270,7 @@ Q4 1:01  FOXES 3rd & 6 at opp 41  Short (Empty) vs Run Stuff: Incomplete.  [FOXE
 Q4 0:58  FOXES 4th & 6 at opp 41  Punt: Punt 34 yards, EMBERS ball at own 7.  [FOXES 21 - EMBERS 18]  Why: Punt: a fair catch, 34 yards gross.
 Q4 0:52  EMBERS 1st & 10 at own 7  Intermediate (Shotgun) vs Dime Cover 4: Complete for 19 yards.  [FOXES 21 - EMBERS 18]  Why: An intermediate pass against Dime Cover 4: a 10-yard-plus completion happened despite the matchup (x0.89).
 Q4 0:48  EMBERS lets 13 s run before the snap.
-Q4 0:35  EMBERS 1st & 10 at own 26  Short (Shotgun) vs Nickel 2-Man: Complete for 0 yards.  [FOXES 21 - EMBERS 18]  Why: A short pass for a catch for no gain: a fluke, only 1.5% of plays like this end in a result that rare.
+Q4 0:35  EMBERS 1st & 10 at own 26  Short (Shotgun) vs Nickel 2-Man: Complete for 0 yards.  [FOXES 21 - EMBERS 18]  Why: A short pass for a catch for no gain: a fluke, only 1.4% of plays like this end in a result that rare.
 Q4 0:31  EMBERS lets 19 s run before the snap.
 Q4 0:12  EMBERS 2nd & 10 at own 26  Short (Shotgun) vs Dime Cover 4: Incomplete.  [FOXES 21 - EMBERS 18]  Why: A short pass against Dime Cover 4: an incompletion happened despite the matchup (x0.87).
 Q4 0:08  EMBERS 3rd & 10 at own 26  Intermediate (Shotgun) vs Nickel Cover 1 Blitz: Incomplete.  [FOXES 21 - EMBERS 18]  Why: An intermediate pass for an incompletion: the catch against the coverage decided it (x0.87).

@@ -60,6 +60,15 @@ const FINE_BAND_YARDS = 10;
 const IN_OPP_END_ZONE = FIELD_LENGTH + 1;
 const PER_MILLION = 1_000_000;
 const SHARE_TOTAL = 10_000;
+
+/**
+ * A base class chance in percent, rounded down to 0.1 (step 5c, lead's call): the fluke line quotes it,
+ * and a chance under the fluke threshold must never print at or above it (4.97% prints as 4.9%). The
+ * 1e-9 keeps an exact tenth (for example 3.1%) from flooring to the tenth below.
+ */
+function pctDown(share: number): number {
+  return Math.floor(share * PCT * 10 + 1e-9) / 10;
+}
 const PCT = 100;
 
 interface FoulDef {
@@ -409,7 +418,7 @@ export function createEngine(data: EngineData): ResolvePlay {
     const entries = (j: number): TraceEntry[] => {
       const cj = classes[j] as string;
       const out: TraceEntry[] = [
-        { factor: "class", name: cj, label: label(cj), basePct: Math.round(((baseW[j] as number) / baseTotal) * PCT * 10) / 10, pct: Math.round(((w[j] as number) / total) * PCT) },
+        { factor: "class", name: cj, label: label(cj), basePct: pctDown((baseW[j] as number) / baseTotal), pct: Math.round(((w[j] as number) / total) * PCT) },
       ];
       if (mm[j] !== 1) out.push({ factor: "matchup", preset, presetLabel: c.presetLabel[preset] ?? preset, class: cj, multiplier: round2(mm[j] as number) });
       if (fm[j] !== 1) out.push({ factor: "formation", formation, formationLabel: label(formation), package: pkg, packageLabel: label(pkg), class: cj, multiplier: round2(fm[j] as number) });
@@ -587,7 +596,7 @@ export function createEngine(data: EngineData): ResolvePlay {
     const p = (w[k] as number) / total;
     const probs: Record<string, number> = {};
     classes.forEach((cl, i) => (probs[cl] = (w[i] as number) / total));
-    ctx.trace.push({ factor: "class", name: cls, label: label(cls), basePct: Math.round(base * PCT * 10) / 10, pct: Math.round(p * PCT) });
+    ctx.trace.push({ factor: "class", name: cls, label: label(cls), basePct: pctDown(base), pct: Math.round(p * PCT) });
     for (const a of eff.applied) if (a.classes.includes(k)) ctx.trace.push({ factor: "rating", effect: a.id, label: a.label, class: cls, multiplier: round2(a.m) });
     return { cls, k, base, p, probs };
   }
@@ -833,7 +842,7 @@ export function createEngine(data: EngineData): ResolvePlay {
       const k = drawIndex(w, ctx.rng);
       const cls = names[k] as string;
       const base = w[k] as number;
-      ctx.trace.push({ factor: "class", name: cls, label: label(cls), basePct: Math.round(base * PCT * 10) / 10, pct: Math.round(base * PCT) });
+      ctx.trace.push({ factor: "class", name: cls, label: label(cls), basePct: pctDown(base), pct: Math.round(base * PCT) });
       detail["class"] = cls;
       let play: PlayResult;
       if (k === 0) play = { kind: "onsideKick", seconds: 0, outcome: "outOfBounds" };

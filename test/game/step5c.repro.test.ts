@@ -197,15 +197,17 @@ describe("F: the leader kneels only when it can", () => {
     clockRunning: true, playClock: 40, previousSnapKneel: true, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, ...o,
   });
 
+  const W = data.config.clockRules?.kneelOutDrainWindow ?? { quarterMin: 99, secondsLeftInGame: 0 };
+
   it("F: a leader running the clock out lets the whole play clock run; otherwise it draws from the fitted cells", () => {
     // Can kneel out from the next snap (K1 with the play clock run), or kneeled on the last one.
-    expect(drainsClock(cv({ previousSnapKneel: false }), data.engine.caller)).toBe(true);
+    expect(drainsClock(cv({ previousSnapKneel: false }), data.engine.caller, W)).toBe(true);
     expect(coach.tempo(cv({ previousSnapKneel: false }), Rng.fromSeed(1))).toBe(40);
-    expect(drainsClock(cv({ defenseTimeouts: 2 }), data.engine.caller)).toBe(true);
+    expect(drainsClock(cv({ defenseTimeouts: 2 }), data.engine.caller, W)).toBe(true);
     // Neither: the defense can stop the clock and the leader ran a play.
-    expect(drainsClock(cv({ defenseTimeouts: 3, previousSnapKneel: false }), data.engine.caller)).toBe(false);
-    expect(drainsClock(cv({ scoreDiff: -5 }), data.engine.caller)).toBe(false);
-    expect(drainsClock(cv({ quarter: 2, secondsLeftInHalf: 76, secondsLeftInGame: 1876 }), data.engine.caller)).toBe(false);
+    expect(drainsClock(cv({ defenseTimeouts: 3, previousSnapKneel: false }), data.engine.caller, W)).toBe(false);
+    expect(drainsClock(cv({ scoreDiff: -5 }), data.engine.caller, W)).toBe(false);
+    expect(drainsClock(cv({ quarter: 2, secondsLeftInHalf: 76, secondsLeftInGame: 1876 }), data.engine.caller, W)).toBe(false);
   });
 
   it("F2: league 2026 seed 9 and seed 892 do not kneel in Q1, and no kneel is left in Q1, Q3 or Q2 before 1:00", () => {

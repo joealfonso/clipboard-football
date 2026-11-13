@@ -40,6 +40,7 @@ export const gameConfigSchema = z
       .looseObject({
         clockOut: z.strictObject({ trailingMin: posInt, trailingMax: posInt }).optional(),
         kneelOutDrain: z.boolean().optional(),
+        kneelOutDrainWindow: z.strictObject({ quarterMin: posInt, secondsLeftInGame: posInt }).optional(),
         timeoutBeforeExpiry: z.boolean().optional(),
         callerMasks: z
           .looseObject({

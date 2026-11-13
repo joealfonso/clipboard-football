@@ -134,12 +134,14 @@ describe("outside the late windows nothing moves (B4)", () => {
       expect(d.presets.map((p) => p.p), `defense ${tag}`).toEqual(g.defense.presets.map((p) => p.p));
       for (const [name, t] of Object.entries(g.defense.trace)) expect([d.trace[name]?.level, d.trace[name]?.key], `${name} ${tag}`).toEqual([t.level, t.key]);
       const o = offenseShares(g.situation, data);
-      // Amended 2026-11-12 (M1 step 5c milestones B and C): o4Kick's kick cells at the opp 36-50 were
-      // split at the opp 41 (zoneFG), and late tries follow the designed chart, on purpose; those
-      // situations are the changed cells (b5c) and are skipped.
-      if (b5c(g.situation)) continue;
+      // Amended 2026-11-12 (M1 step 5c milestones B and C; narrowed after code review the same day):
+      // o4Kick's kick cells at the opp 36-50 were split at the opp 41 (zoneFG), and late tries follow the
+      // designed chart, on purpose. In those situations (b5c) only the o4Kick and oTry traces and the
+      // combined leaves are skipped; every other factor, the formations and the try play traces are compared.
+      const changed = b5c(g.situation);
       for (const [name, t] of Object.entries(g.offense.trace)) {
         if (LATE_FACTORS.has(name)) continue;
+        if (changed && (name === "o4Kick" || name === "oTry")) continue;
         // o4Kick's levels moved down when zoneFG levels were added before them (step 5c B): compare the level's dims.
         // Outside the opp 36-50 zoneFG labels equal zone6's, so a zoneFG level there is the same cell.
         const lv = name === "o4Kick" ? (i: number | undefined, tb: { levels: readonly { dims: readonly string[] }[] }): string => JSON.stringify(tb.levels[i ?? -1]?.dims.map((d) => (d === "zoneFG" ? "zone6" : d))) : null;
@@ -151,8 +153,12 @@ describe("outside the late windows nothing moves (B4)", () => {
         const f = formationShares(g.situation, play, data);
         expect([f.level, f.key, f.weights], `formation ${play} ${tag}`).toEqual([t.level, t.key, t.weights ?? f.weights]);
       }
-      if (late(g.situation)) {
-        inside++;
+      if (late(g.situation) || changed) {
+        if (!changed) inside++;
+        if (changed && !late(g.situation)) for (const name of LATE_FACTORS) {
+          const t = g.offense.trace[name];
+          if (t !== undefined) expect(o.trace[name]?.weights, `${name} ${tag}`).toEqual(t.weights);
+        }
         continue;
       }
       outside++;

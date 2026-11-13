@@ -104,7 +104,8 @@ export function resultText(ev: PlayEvent, codes: Record<Team, string>, whyLabels
       text = `Extra point ${scoredBy(off) === 1 ? "is good" : "is no good"}`;
       break;
     case "twoPoint":
-      text = `Two-point try ${scoredBy(off) === 2 ? "succeeds" : "fails"}`;
+      // Step 5c review: a two-point run or catch that the offense fumbles and keeps says so too.
+      text = `Two-point try${kept}${kept === "" ? "" : ","} ${scoredBy(off) === 2 ? "succeeds" : "fails"}`;
       break;
     case "kickoff":
     case "onsideKick": {

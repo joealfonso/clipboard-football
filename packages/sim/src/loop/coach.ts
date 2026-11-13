@@ -238,14 +238,21 @@ export interface CoachData {
 }
 
 /** The average coach: step 2 calls, fitted tempo, timeouts and onside, designed run-off rule. */
+/** Where the kneel-out drain applies (data/game/config.json clockRules.kneelOutDrainWindow, designed). */
+export interface DrainWindow {
+  readonly quarterMin: number;
+  readonly secondsLeftInGame: number;
+}
+
 /**
  * Step 5c milestone F (designed): a leading offense that is running the clock out lets the whole
  * play clock run, the assumption the kneel-out test makes: when it kneeled on the previous snap,
  * or when it can kneel out from the snap this run-off leads to (the caller's kneelOut dimension,
  * K1, read with the play clock already run).
  */
-export function drainsClock(view: CoachView, caller: CallerData): boolean {
-  if (view.scoreDiff <= 0 || view.down < 1 || view.quarter < 4 || !view.clockRunning || view.beforeTimeout) return false;
+export function drainsClock(view: CoachView, caller: CallerData, window: DrainWindow): boolean {
+  if (view.quarter < window.quarterMin || view.secondsLeftInGame > window.secondsLeftInGame) return false;
+  if (view.scoreDiff <= 0 || view.down < 1 || !view.clockRunning || view.beforeTimeout) return false;
   if (view.previousSnapKneel) return true;
   if (view.down > 3 || caller.config.dimensions["kneelOut"] === undefined) return false;
   const run = Math.min(view.playClock, view.secondsLeftInGame);
@@ -275,7 +282,8 @@ export function averageCoach(d: CoachData): CoachPolicies {
       return p > 0 && rng.nextFloat() < p;
     },
     tempo(view, rng) {
-      if (rules?.kneelOutDrain === true && view.quarter >= 4 && view.secondsLeftInGame <= 120 && drainsClock(view, d.caller)) return view.playClock;
+      const dw = rules?.kneelOutDrainWindow;
+      if (rules?.kneelOutDrain === true && dw !== undefined && drainsClock(view, d.caller, dw)) return view.playClock;
       const drawn = sampleIndex(tempoShares(view, d.tables, dims).value, rng);
       // Step 5c milestone E (designed, clockRules.timeoutBeforeExpiry): a team that calls a timeout
       // calls it before 0:00, so the clock it lets run first stops a second short of the end of the

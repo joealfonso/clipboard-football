@@ -1374,12 +1374,16 @@
     "finalSeconds": 120
   },
   "clockRules": {
-    "note": "Designed (step 5c milestones E and F). clockOut: an offense trailing by trailingMin-trailingMax with a timeout left calls it rather than let a drawn run-off end the 4th quarter or overtime; 2016-2023 has 1 game in 2,095 whose last 4th-quarter snap is by such a team with 15 s or more left. timeoutBeforeExpiry: a team calling a timeout lets the clock run first (the tempo cells of dead balls with a timeout) only to a second before the end of the half or the game, since a timeout is called before time expires. kneelOutDrain: a leading offense that can kneel out (the caller's kneelOut test, K1) lets the whole play clock run before each snap, the assumption that test makes. callerMasks: the average coach never spikes with the clock stopped (6 such spikes in 2,095 real games) and never kneels in Q1, Q3, or Q2 with more than 1:00 left (0 real kneels).",
+    "note": "Designed (step 5c milestones E and F). clockOut: an offense trailing by trailingMin-trailingMax with a timeout left calls it rather than let a drawn run-off end the 4th quarter or overtime; 2016-2023 has 1 game in 2,095 whose last 4th-quarter snap is by such a team with 15 s or more left. timeoutBeforeExpiry: a team calling a timeout lets the clock run first (the tempo cells of dead balls with a timeout) only to a second before the end of the half or the game, since a timeout is called before time expires. kneelOutDrain (within kneelOutDrainWindow: the 4th quarter or overtime, 2:00 or less left in the game): a leading offense that can kneel out (the caller's kneelOut test, K1) lets the whole play clock run before each snap, the assumption that test makes. callerMasks: the average coach never spikes with the clock stopped (6 such spikes in 2,095 real games) and never kneels in Q1, Q3, or Q2 with more than 1:00 left (0 real kneels).",
     "clockOut": {
       "trailingMin": 1,
       "trailingMax": 8
     },
     "kneelOutDrain": true,
+    "kneelOutDrainWindow": {
+      "quarterMin": 4,
+      "secondsLeftInGame": 120
+    },
     "timeoutBeforeExpiry": true,
     "callerMasks": {
       "spikeNeedsRunningClock": true,

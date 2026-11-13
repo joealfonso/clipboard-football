@@ -80,6 +80,7 @@ export interface GameConfig {
   readonly clockRules?: {
     readonly clockOut?: { readonly trailingMin: number; readonly trailingMax: number };
     readonly kneelOutDrain?: boolean;
+    readonly kneelOutDrainWindow?: { readonly quarterMin: number; readonly secondsLeftInGame: number };
     readonly timeoutBeforeExpiry?: boolean;
     readonly callerMasks?: { readonly spikeNeedsRunningClock?: boolean; readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number } };
   };
