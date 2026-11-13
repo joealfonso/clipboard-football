@@ -196,6 +196,16 @@ function penaltyChoice(s: GameState, rules: RuleSet, play: PlayResult, runoffTim
   return team(offended).coach.penalty(outcomes, offended);
 }
 
+/**
+ * A loop cap in force during `period` (step 5c milestone A), for scrimmage snaps and for inputs:
+ * the per-game value covers regulation, and each overtime period adds its share (cap /
+ * regulation periods), so a legal postseason game that keeps playing periods never reaches it
+ * while a loop that stops making progress inside a period still does.
+ */
+export function snapCapAt(period: number, perGame: number, regulationPeriods: number): number {
+  return Math.ceil((perGame * Math.max(period, regulationPeriods)) / regulationPeriods);
+}
+
 /** Loop events the machine's state change implies: two-minute warning, end of a period. */
 function stateEvents(prev: GameState, next: GameState, out: GameEvent[]): void {
   if (!prev.twoMinuteWarningDone && next.twoMinuteWarningDone && next.period === prev.period) out.push({ t: "twoMinuteWarning", period: prev.period });
@@ -216,7 +226,8 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   const team = (t: Team): TeamSetup => (t === "home" ? setup.home : setup.away);
   const input = (): void => {
     inputs++;
-    if (inputs > cap.maxInputsPerGame) throw new GameLoopError("inputCap", `game ${setup.seed} passed ${cap.maxInputsPerGame} inputs`);
+    const inputCap = snapCapAt(s.period, cap.maxInputsPerGame, rules.game.regulationPeriods);
+    if (inputs > inputCap) throw new GameLoopError("inputCap", `game ${setup.seed} passed ${inputCap} inputs by period ${s.period}`);
   };
   /** Records the input's own event first, then what the state change implies. */
   const advance = (next: GameState, ev: (after: GameState) => GameEvent): void => {
@@ -301,7 +312,8 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     defense = FORMATION_PLAYS.includes(offense.call) ? team(other(s.possession)).coach.defenseCall(sit, rng) : null;
     runoffTimeout = off.coach.runoffTimeout(coachView(s, rules, lastSnap));
     snaps++;
-    if (snaps > cap.maxScrimmageSnapsPerGame) throw new GameLoopError("snapCap", `game ${setup.seed} passed ${cap.maxScrimmageSnapsPerGame} scrimmage snaps`);
+    const snapCap = snapCapAt(s.period, cap.maxScrimmageSnapsPerGame, rules.game.regulationPeriods);
+    if (snaps > snapCap) throw new GameLoopError("snapCap", `game ${setup.seed} passed ${snapCap} scrimmage snaps by period ${s.period}`);
   } else {
     return run;
   }

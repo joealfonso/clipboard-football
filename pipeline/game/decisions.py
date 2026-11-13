@@ -104,12 +104,67 @@ class DeadBalls:
     challenge_timeouts: int = 0
     timeouts_after_warning: int = 0
     team_games: int = 0
+    # Step 5c: (season, quarter, "kickoff" or "try", timeouts called in the dead ball before it).
+    special_timeouts: list[tuple[int, int, str, int]] = field(default_factory=list)
 
 
 ROW_COLS = ["season", "game_id", "qtr", "down", "ydstogo", "yardline_100", "game_seconds_remaining", "half_seconds_remaining",
             "posteam", "defteam", "play_type", "timeout_team", "is_timeout", "challenge", "two_min", "is_try", "incomplete_pass",
             "qb_spike", "qb_kneel", "interception", "fumble_lost", "penalty", "out_of_bounds", "score_differential",
             "posteam_timeouts_remaining", "defteam_timeouts_remaining", "duration", "onside"]
+# Read when present (step 5c revision 1); hand-made frames without them keep row order.
+CLOCK_COLS = ["quarter_seconds_remaining", "timeout_clock", "tod"]
+
+
+def _precedes(t: dict[str, Any], p: dict[str, Any], n: dict[str, Any] | None) -> bool:
+    """Whether timeout row `t`, listed after play `p` (and before play `n`), was really called in
+    the dead ball before `p`. Designed, step 5c revision 1. A team timeout stops the clock until
+    the next snap, so it carries the game clock of the snap it precedes. In 2022-2023 nflverse
+    often lists it after that snap (96% of final-2:00 timeout dead balls with a 35 s gap or more),
+    so row order put it one dead ball late. The game-clock stamp decides when it can: equal to
+    p's snap clock and not to n's means before p; equal to n's means before n. When the two
+    clocks agree (a play that used no clock) or the stamp matches neither, the wall-clock time
+    of day decides where both rows have one. Otherwise row order stands."""
+    if p.get("qtr") != t.get("qtr"):
+        return False
+    tc = t.get("timeout_clock")
+    pc = p.get("quarter_seconds_remaining")
+    nc = n.get("quarter_seconds_remaining") if n is not None and n.get("qtr") == t.get("qtr") else None
+    if tc is not None and pc is not None:
+        if int(tc) == int(pc) and (nc is None or int(nc) != int(tc)):
+            return True
+        if nc is not None and int(nc) == int(tc) and int(pc) != int(tc):
+            return False
+    tt, pt = t.get("tod"), p.get("tod")
+    return tt is not None and pt is not None and tt < pt
+
+
+def clock_order(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Rows in play order, except that a timeout row is moved before the play it was called
+    before (`_precedes`). Every other row keeps its place."""
+    out: list[dict[str, Any]] = []
+    i = 0
+    while i < len(rows):
+        game = rows[i]["game_id"]
+        j = i
+        while j < len(rows) and rows[j]["game_id"] == game:
+            j += 1
+        g = rows[i:j]
+        res: list[dict[str, Any]] = []
+        last = -1  # index in res of the last play row (a row with a play type that is not a timeout)
+        for k, r in enumerate(g):
+            if r["is_timeout"]:
+                n = next((x for x in g[k + 1:] if x["play_type"] is not None and not x["is_timeout"]), None)
+                if last >= 0 and _precedes(r, res[last], n):
+                    res.insert(last, r)
+                    last += 1
+                    continue
+            res.append(r)
+            if r["play_type"] is not None and not r["is_timeout"]:
+                last = len(res) - 1
+        out.extend(res)
+        i = j
+    return out
 
 
 def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
@@ -120,14 +175,20 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
     prev: dict[str, Any] | None = None
     game = None
     pending: list[tuple[str, bool]] = []
+    pending_qtr = None
     two_min = False
     warned = {2: False, 4: False}
-    for r in rows.select(ROW_COLS).iter_rows(named=True):
+    cols = ROW_COLS + [c for c in CLOCK_COLS if c in rows.columns]
+    for r in clock_order(list(rows.select(cols).iter_rows(named=True))):
         if r["game_id"] != game:
             game, prev, pending, two_min, warned = r["game_id"], None, [], False, {2: False, 4: False}
             games += 1
+        # Step 5c revision 1: a timeout never carries across a period end.
+        if pending and r["qtr"] != pending_qtr:
+            pending = []
         if r["is_timeout"]:
             pending.append((r["timeout_team"], bool(r["challenge"])))
+            pending_qtr = r["qtr"]
             continue
         if r["play_type"] is None:
             if r["two_min"]:
@@ -147,6 +208,8 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
             for role, team_, left in ((roles[0], r["posteam"], r["posteam_timeouts_remaining"]), (roles[1], r["defteam"], r["defteam_timeouts_remaining"])):
                 called = sum(1 for t in legit if t == team_)
                 out.special.append((r["season"], role, 1 if called else 0, int(left or 0) + called))
+        if r["play_type"] == "kickoff" or r["is_try"]:
+            out.special_timeouts.append((r["season"], int(r["qtr"]), "kickoff" if r["play_type"] == "kickoff" else "try", len(legit)))
         if r["play_type"] == "kickoff":
             out.timeouts_before_kickoff += len(legit)
             out.kickoffs.append({
@@ -176,6 +239,7 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
                 "timeoutCalled": 1 if legit else 0,
                 "prevKneel": 1 if (prev is not None and prev["qtr"] == r["qtr"] and (prev["qb_kneel"] or 0) == 1 and prev["posteam"] == r["posteam"]) else 0,
                 "offenseTimeout": 1 if off > 0 else 0, "defenseTimeout": 1 if dfn > 0 else 0, "runoff": runoff,
+                "playType": r["play_type"],
             })
         prev, pending, two_min = r, [], False
     out.team_games = 2 * games

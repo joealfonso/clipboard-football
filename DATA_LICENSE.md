@@ -34,7 +34,7 @@ Credit: nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse".
 | `data/engine/validation.json` | Engine validation summary |
 | `data/caller/tolerances.json`, `data/engine/tolerances.json` | Designed thresholds; their `known_deviations` entries quote predicted and actual figures from the validation files above |
 | `data/game/calibration.json`, `data/game/calibration.insample.json`, `data/game/calibration.insample.pre5a.json`, `data/game/calibration.insample.stages5b.json` | Sim calibration runs, which use the tables above and compare against `data/game/actuals.json` |
-| `data/game/investigations.json`, `data/game/late-backoff.json` | Sim-side report files from the same runs |
+| `data/game/investigations.json`, `data/game/late-backoff.json`, `data/game/checks5c.sim.json` | Sim-side report files from the same runs |
 | `data/game/tolerances.json` | Designed thresholds; its `known_deviations` entries quote sim and actual figures from the calibration runs |
 
 ### Built from play-by-play only: CC-BY 4.0
@@ -46,7 +46,7 @@ Credit: nflverse.
 | `data/game/tempo.json`, `data/game/timeouts.json`, `data/game/onside.json` | Fitted coach decision tables (`python -m pipeline.game`) |
 | `data/game/ep.json` | Expected points table, from play-by-play's `ep` column |
 | `data/game/golden.json`, `data/game/actuals.json`, `data/game/coach.validation.json` | Coach golden situations, real game aggregates and coach validation summary |
-| `data/game/c3.real.json`, `data/game/investigations.real.json` | Real-side report files (`python -m pipeline.game.c3`, `pipeline.game.investigate`) |
+| `data/game/c3.real.json`, `data/game/investigations.real.json`, `data/game/checks5c.real.json` | Real-side report files (`python -m pipeline.game.c3`, `pipeline.game.investigate`, `pipeline.game.checks5c`) |
 | `data/engine/kickoff.json` | Designed kickoff weights, tuned by hand until simulated kickoffs match 2025 play-by-play (docs/DECISIONS.md, "Kickoffs are designed, tuned to 2025") |
 
 ### Built from the combine: CC-BY 4.0, with Pro Football Reference's terms
@@ -72,6 +72,7 @@ Hand-written settings, menus and rules. `data/players/names.json` and `data/team
 | `test/fixtures/caller-golden-v1.json`, `test/fixtures/caller-golden-pre5b.json` | `data/caller/golden.json` | CC-BY-SA 4.0 | nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse" |
 | `test/fixtures/caller-v1/offense.table.json`, `test/fixtures/caller-v2/offense.table.json` | `data/caller/offense.table.json` | CC-BY-SA 4.0 | nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse" |
 | `test/fixtures/game-golden-pre5b.json` | `data/game/golden.json` | CC-BY 4.0 | nflverse |
+| `test/fixtures/game-timeouts-rev1.json` | Rates from `data/game/timeouts.json` (step 5c revision 1) | CC-BY 4.0 | nflverse |
 | `test/fixtures/caller-v1/config.json`, `test/fixtures/caller-v2/config.json` | `data/caller/config.json` (designed) | MIT, with the code | |
 | `test/fixtures/caller-bins.json`, `test/fixtures/caller-late-bins.json`, `test/fixtures/caller-5b-bins.json` | Hand-built binning cases, no nflverse data | MIT, with the code | |
 

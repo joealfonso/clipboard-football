@@ -6,13 +6,13 @@ Three coach decisions the step 2 caller does not make, fitted from nflverse pbp 
 
 ## 1. Tables
 
-- Tempo (pre-snap run-off with the clock running): seasons 2022-2023, 48,058 measured snaps, cells per level [36, 28, 30, 15, 5, 2], minimum 150 snaps. Whole seconds 0 to 40.
-- Timeouts (per team per dead ball before a scrimmage snap): seasons 2016-2023, 309,962 dead balls, cells per level [259, 137, 39, 28, 16, 6, 55, 20, 4, 2], minimum 150. Before a kickoff or a try (one rate per role, per 1,000,000 dead balls, observations): {'kickKicker': [15837, 20686], 'kickReceiver': [18966, 20748], 'tryDefense': [23695, 10444], 'tryOffense': [24259, 10341]}.
+- Tempo (pre-snap run-off with the clock running): seasons 2022-2023, 48,058 measured snaps, cells per level [34, 33, 30, 15, 5, 2], minimum 150 snaps. Whole seconds 0 to 40.
+- Timeouts (per team per dead ball before a scrimmage snap): seasons 2016-2023, 309,962 dead balls, cells per level [256, 136, 39, 28, 16, 6, 55, 20, 4, 2], minimum 150. Before a kickoff or a try (one rate per role, per 1,000,000 dead balls, observations): {'kickKicker': [419, 20673], 'kickReceiver': [5510, 20729], 'tryDefense': [3806, 10424], 'tryOffense': [4870, 10323]}.
 - Onside (per kickoff): seasons 2016-2023, 21,342 kickoffs, 451 onside attempts, fitted cells per level [12, 10, 9] (at least 150 kickoffs each, by score bin and time left); every other situation uses the designed rule (trailing by 9+ in the final 300 s of the 4th quarter or overtime).
 
 Onside detection: a kickoff whose description says `onside`. 2016-2023: 454 of 21,350 kickoffs are flagged; 427 of them travelled 20 yards or less (0 have no distance), and 4 unflagged kickoffs went 15 yards or less (squibs and mis-hits).
 
-Timeouts outside the fit: 865 challenge or replay timeouts excluded; 537 before a try and 735 before a kickoff (not asked by the loop); 10,389 after a two-minute warning (counted in the fit).
+Timeouts outside the fit: 699 challenge or replay timeouts excluded; 96 before a try and 120 before a kickoff (not asked by the loop); 8,249 after a two-minute warning (counted in the fit).
 
 ## 2. Component validation (C7)
 
@@ -25,36 +25,18 @@ Gated failures: none.
 | Metric | Predicted | Actual | n | 95% interval of actual | Tolerance | Status |
 |---|---|---|---|---|---|---|
 | `coach.onside.rate.trailingQ4` | 23.75 | 24.65 | 1,032 | 22.12 to 27.37 | 5.0 pp | pass |
-| `coach.tempo.meanRunoff.G5` | 25.66 | 25.47 | 2,656 | 24.94 to 26.01 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.GF` | 18.47 | 18.58 | 1,623 | 17.86 to 19.29 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.H1` | 31.11 | 31.14 | 21,101 | 31.03 to 31.25 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.G5` | 25.85 | 25.47 | 2,656 | 24.94 to 26.01 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.GF` | 16.85 | 18.58 | 1,623 | 17.86 to 19.29 | 2.0 s | pass |
+| `coach.tempo.meanRunoff.H1` | 31.08 | 31.14 | 21,101 | 31.03 to 31.25 | 2.0 s | pass |
 | `coach.tempo.meanRunoff.H1F` | 12.56 | 12.20 | 2,244 | 11.70 to 12.69 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.H2` | 30.68 | 30.71 | 19,114 | 30.58 to 30.83 | 2.0 s | pass |
-| `coach.timeouts.perTeamGame` | 3.28 | 3.32 | 4,190 | 3.32 to 3.32 | 0.3 timeouts | pass |
-| `coach.timeouts.rate.defense.c120` | 10.23 | 10.41 | 16,526 | 9.95 to 10.88 | 2.0 pp | pass |
-| `coach.timeouts.rate.defense.c40` | 8.00 | 8.37 | 9,449 | 7.83 to 8.95 | 2.0 pp | pass |
-| `coach.timeouts.rate.offense.c120` | 5.03 | 5.14 | 16,526 | 4.82 to 5.49 | 2.0 pp | pass |
-| `coach.timeouts.rate.offense.c40` | 18.41 | 18.38 | 9,449 | 17.61 to 19.17 | 2.0 pp | pass |
+| `coach.tempo.meanRunoff.H2` | 30.63 | 30.71 | 19,114 | 30.58 to 30.83 | 2.0 s | pass |
+| `coach.timeouts.perTeamGame` | 3.56 | 3.60 | 4,190 | 3.60 to 3.60 | 0.3 timeouts | pass |
+| `coach.timeouts.rate.defense.c120` | 11.64 | 11.76 | 16,526 | 11.28 to 12.26 | 2.0 pp | pass |
+| `coach.timeouts.rate.defense.c40` | 8.68 | 8.91 | 9,449 | 8.35 to 9.50 | 2.0 pp | pass |
+| `coach.timeouts.rate.offense.c120` | 5.49 | 5.64 | 16,526 | 5.29 to 6.00 | 2.0 pp | pass |
+| `coach.timeouts.rate.offense.c40` | 19.40 | 19.54 | 9,449 | 18.76 to 20.36 | 2.0 pp | pass |
 
-### validation 2024-2025
-
-Gated failures: none.
-
-Post hoc: earlier 2024-2025 runs had been seen before this one. The timeout tables were changed after them by step 5 post-validation revisions 1-5 (docs/DECISIONS.md) and by step 5b's late timeout levels (docs/specs/m1-step5b-late-game-and-clock-control.md, milestone C), each driven by in-sample findings. Runs after step 5b, both 2026-11-12: run 1 after the late timeout levels, and run 2 (this report) after Joseph's scoped known deviations were added to data/game/tolerances.json (no table changed). Tolerance values are unchanged.
-
-| Metric | Predicted | Actual | n | 95% interval of actual | Tolerance | Status |
-|---|---|---|---|---|---|---|
-| `coach.onside.rate.trailingQ4` | 23.51 | 24.64 | 422 | 20.77 to 28.97 | 5.0 pp | pass |
-| `coach.tempo.meanRunoff.G5` | 25.70 | 25.84 | 2,720 | 25.31 to 26.37 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.GF` | 18.37 | 18.20 | 1,648 | 17.50 to 18.91 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.H1` | 30.93 | 31.59 | 21,637 | 31.48 to 31.70 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.H1F` | 12.48 | 12.40 | 2,339 | 11.90 to 12.90 | 2.0 s | pass |
-| `coach.tempo.meanRunoff.H2` | 30.54 | 30.98 | 19,665 | 30.85 to 31.11 | 2.0 s | pass |
-| `coach.timeouts.perTeamGame` | 3.28 | 3.10 | 1,088 | 3.10 to 3.10 | 0.3 timeouts | pass |
-| `coach.timeouts.rate.defense.c120` | 10.64 | 10.09 | 6,524 | 9.38 to 10.84 | 2.0 pp | pass |
-| `coach.timeouts.rate.defense.c40` | 7.70 | 8.44 | 3,912 | 7.60 to 9.35 | 2.0 pp | pass |
-| `coach.timeouts.rate.offense.c120` | 5.10 | 5.01 | 6,524 | 4.51 to 5.57 | 2.0 pp | pass |
-| `coach.timeouts.rate.offense.c40` | 18.19 | 17.77 | 3,912 | 16.60 to 19.00 | 2.0 pp | pass |
+The 2024-2025 run has not been made yet (in-sample only).
 
 ## 3. Late timeouts by score (step 5b C3, in-sample)
 

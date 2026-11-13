@@ -1,0 +1,7565 @@
+{
+ "note": "Frozen at M1 step 5c revision 1 (timeouts in clock order, lead 2026-11-12): the views of game-golden-pre5b.json with the rates of data/game/timeouts.json sha256 853da78a248e36030db60527e64c9028f8f06d8a59bcd53b4cb20ae0c00d6ca2. Step 5c D4: later milestones change no scrimmage timeout rate outside the late windows.",
+ "timeouts": [
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1797,
+    "secondsLeftInGame": 3597,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|1-3",
+   "p": 0.005992
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1797,
+    "secondsLeftInGame": 3597,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|1-3",
+   "p": 0.001019
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 18,
+    "secondsLeftInGame": 18,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 22,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c40|L|0|1-3",
+   "p": 0.013487
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 18,
+    "secondsLeftInGame": 18,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -22,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 3,
+   "key": "defense|GF|T|0",
+   "p": 0.014832
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 264,
+    "secondsLeftInGame": 2064,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 264,
+    "secondsLeftInGame": 2064,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 760,
+    "secondsLeftInGame": 760,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 760,
+    "secondsLeftInGame": 760,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1619,
+    "secondsLeftInGame": 1619,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1619,
+    "secondsLeftInGame": 1619,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1385,
+    "secondsLeftInGame": 3185,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|3|1-3",
+   "p": 0.016351
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1385,
+    "secondsLeftInGame": 3185,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|3|1-3",
+   "p": 0.004267
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -15,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 15,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 388,
+    "secondsLeftInGame": 388,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 388,
+    "secondsLeftInGame": 388,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 656,
+    "secondsLeftInGame": 2456,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|2|1-3",
+   "p": 0.012205
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 656,
+    "secondsLeftInGame": 2456,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 839,
+    "secondsLeftInGame": 2639,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 839,
+    "secondsLeftInGame": 2639,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 691,
+    "secondsLeftInGame": 691,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|0|3|1-3",
+   "p": 0.007655
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 691,
+    "secondsLeftInGame": 691,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -1,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|0|2|1-3",
+   "p": 0.000646
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1064,
+    "secondsLeftInGame": 1064,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1064,
+    "secondsLeftInGame": 1064,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 80,
+    "secondsLeftInGame": 1880,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -10,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|T|0|2|1-3",
+   "p": 0.014659
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 80,
+    "secondsLeftInGame": 1880,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|L|0|3|1-3",
+   "p": 0.009199
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 80,
+    "secondsLeftInGame": 1880,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|L|1|3|1-3",
+   "p": 0.157028
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 80,
+    "secondsLeftInGame": 1880,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|T|1|3|1-3",
+   "p": 0.256114
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1755,
+    "secondsLeftInGame": 1755,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1755,
+    "secondsLeftInGame": 1755,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 762,
+    "secondsLeftInGame": 2562,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 10,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|2|1-3",
+   "p": 0.014606
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 762,
+    "secondsLeftInGame": 2562,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|3|1-3",
+   "p": 0.004267
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1724,
+    "secondsLeftInGame": 1724,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1724,
+    "secondsLeftInGame": 1724,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 699,
+    "secondsLeftInGame": 2499,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 11,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|H1|-|L|1|4",
+   "p": 0.03914
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 699,
+    "secondsLeftInGame": 2499,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|3|4",
+   "p": 0.019007
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1800,
+    "secondsLeftInGame": 3600,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|1-3",
+   "p": 0.005992
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1800,
+    "secondsLeftInGame": 3600,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|1-3",
+   "p": 0.001019
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1628,
+    "secondsLeftInGame": 3428,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|1-3",
+   "p": 0.006528
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1628,
+    "secondsLeftInGame": 3428,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 220,
+    "secondsLeftInGame": 220,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -14,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 220,
+    "secondsLeftInGame": 220,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 14,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|L|0|1|1-3",
+   "p": 0.003827
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 594,
+    "secondsLeftInGame": 594,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -44,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 594,
+    "secondsLeftInGame": 594,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 44,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1529,
+    "secondsLeftInGame": 1529,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -25,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1529,
+    "secondsLeftInGame": 1529,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 25,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 114,
+    "secondsLeftInGame": 1914,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|T|0|2|1-3",
+   "p": 0.014659
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 114,
+    "secondsLeftInGame": 1914,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|L|0|2|1-3",
+   "p": 0.014401
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1198,
+    "secondsLeftInGame": 2998,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1198,
+    "secondsLeftInGame": 2998,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1731,
+    "secondsLeftInGame": 1731,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1731,
+    "secondsLeftInGame": 1731,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1092,
+    "secondsLeftInGame": 1092,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1092,
+    "secondsLeftInGame": 1092,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|2|1-3",
+   "p": 0.013811
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 669,
+    "secondsLeftInGame": 2469,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 669,
+    "secondsLeftInGame": 2469,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1114,
+    "secondsLeftInGame": 2914,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1114,
+    "secondsLeftInGame": 2914,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1521,
+    "secondsLeftInGame": 3321,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1521,
+    "secondsLeftInGame": 3321,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 467,
+    "secondsLeftInGame": 467,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -28,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 467,
+    "secondsLeftInGame": 467,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 28,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1056,
+    "secondsLeftInGame": 1056,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1056,
+    "secondsLeftInGame": 1056,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 887,
+    "secondsLeftInGame": 887,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -5,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|2|1-3",
+   "p": 0.004488
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 887,
+    "secondsLeftInGame": 887,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 5,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 707,
+    "secondsLeftInGame": 707,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 707,
+    "secondsLeftInGame": 707,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 11,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|2|1-3",
+   "p": 0.004222
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 919,
+    "secondsLeftInGame": 919,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 27,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 919,
+    "secondsLeftInGame": 919,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -27,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|2|1-3",
+   "p": 0.013811
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1019,
+    "secondsLeftInGame": 1019,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -17,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1019,
+    "secondsLeftInGame": 1019,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|2|1-3",
+   "p": 0.00275
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 631,
+    "secondsLeftInGame": 2431,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|4",
+   "p": 0.003954
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 631,
+    "secondsLeftInGame": 2431,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|4",
+   "p": 0.005503
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1490,
+    "secondsLeftInGame": 3290,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|4",
+   "p": 0.015751
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1490,
+    "secondsLeftInGame": 3290,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|4",
+   "p": 0.0157
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 913,
+    "secondsLeftInGame": 2713,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 913,
+    "secondsLeftInGame": 2713,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 850,
+    "secondsLeftInGame": 2650,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|3|1-3",
+   "p": 0.009285
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 850,
+    "secondsLeftInGame": 2650,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|0|3|1-3",
+   "p": 0.003143
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1411,
+    "secondsLeftInGame": 3211,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1411,
+    "secondsLeftInGame": 3211,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 820,
+    "secondsLeftInGame": 820,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 820,
+    "secondsLeftInGame": 820,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|2|1-3",
+   "p": 0.013811
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1248,
+    "secondsLeftInGame": 3048,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|3|1-3",
+   "p": 0.009285
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1248,
+    "secondsLeftInGame": 3048,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|0|3|1-3",
+   "p": 0.003143
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 785,
+    "secondsLeftInGame": 2585,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 785,
+    "secondsLeftInGame": 2585,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 130,
+    "secondsLeftInGame": 1930,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|3|1-3",
+   "p": 0.009285
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 130,
+    "secondsLeftInGame": 1930,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -10,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|0|2|1-3",
+   "p": 0.002211
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1710,
+    "secondsLeftInGame": 1710,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1710,
+    "secondsLeftInGame": 1710,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1561,
+    "secondsLeftInGame": 1561,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 25,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|0|3|1-3",
+   "p": 0.007655
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1561,
+    "secondsLeftInGame": 1561,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -25,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|0|3|1-3",
+   "p": 0.001384
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 497,
+    "secondsLeftInGame": 497,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -28,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 497,
+    "secondsLeftInGame": 497,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 28,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1555,
+    "secondsLeftInGame": 1555,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|0|3|1-3",
+   "p": 0.007655
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1555,
+    "secondsLeftInGame": 1555,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|0|3|1-3",
+   "p": 0.001384
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1600,
+    "secondsLeftInGame": 3400,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|4",
+   "p": 0.007299
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1600,
+    "secondsLeftInGame": 3400,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|4",
+   "p": 0.003167
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1401,
+    "secondsLeftInGame": 3201,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|1-3",
+   "p": 0.006528
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1401,
+    "secondsLeftInGame": 3201,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 364,
+    "secondsLeftInGame": 364,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|0|1|3|1-3",
+   "p": 0.006664
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 364,
+    "secondsLeftInGame": 364,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|0|1|3|1-3",
+   "p": 0.001898
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1157,
+    "secondsLeftInGame": 1157,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|2|1-3",
+   "p": 0.005758
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1157,
+    "secondsLeftInGame": 1157,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|2|1-3",
+   "p": 0.00275
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1428,
+    "secondsLeftInGame": 1428,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1428,
+    "secondsLeftInGame": 1428,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 728,
+    "secondsLeftInGame": 728,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -15,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 728,
+    "secondsLeftInGame": 728,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 15,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 429,
+    "secondsLeftInGame": 429,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -17,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 429,
+    "secondsLeftInGame": 429,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 17,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1080,
+    "secondsLeftInGame": 2880,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1080,
+    "secondsLeftInGame": 2880,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1495,
+    "secondsLeftInGame": 3295,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1495,
+    "secondsLeftInGame": 3295,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 487,
+    "secondsLeftInGame": 487,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -13,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|2|1-3",
+   "p": 0.005758
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 487,
+    "secondsLeftInGame": 487,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 13,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|2|1-3",
+   "p": 0.00275
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 485,
+    "secondsLeftInGame": 485,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 21,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 485,
+    "secondsLeftInGame": 485,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -21,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1645,
+    "secondsLeftInGame": 1645,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1645,
+    "secondsLeftInGame": 1645,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 900,
+    "secondsLeftInGame": 2700,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|1-3",
+   "p": 0.006528
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 900,
+    "secondsLeftInGame": 2700,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|2|1-3",
+   "p": 0.002304
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1060,
+    "secondsLeftInGame": 2860,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|4",
+   "p": 0.01562
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1060,
+    "secondsLeftInGame": 2860,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|4",
+   "p": 0.008151
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1080,
+    "secondsLeftInGame": 2880,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|1-3",
+   "p": 0.005992
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1080,
+    "secondsLeftInGame": 2880,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|1-3",
+   "p": 0.001019
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 570,
+    "secondsLeftInGame": 2370,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -11,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|2|1-3",
+   "p": 0.012205
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 570,
+    "secondsLeftInGame": 2370,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 11,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 40,
+    "secondsLeftInGame": 1840,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -17,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c40|T|1|1|1-3",
+   "p": 0.582365
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 40,
+    "secondsLeftInGame": 1840,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c40|L|1|2|1-3",
+   "p": 0.094744
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1284,
+    "secondsLeftInGame": 3084,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|4",
+   "p": 0.015751
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1284,
+    "secondsLeftInGame": 3084,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|4",
+   "p": 0.0157
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1304,
+    "secondsLeftInGame": 1304,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 17,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|0|3|1-3",
+   "p": 0.007655
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1304,
+    "secondsLeftInGame": 1304,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -17,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|0|3|1-3",
+   "p": 0.001384
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1336,
+    "secondsLeftInGame": 1336,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1336,
+    "secondsLeftInGame": 1336,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 20,
+    "secondsLeftInGame": 1820,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c40|T|0|3|1-3",
+   "p": 0.045699
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 20,
+    "secondsLeftInGame": 1820,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c40|L|0|2|1-3",
+   "p": 0.085639
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1091,
+    "secondsLeftInGame": 2891,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1091,
+    "secondsLeftInGame": 2891,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 76,
+    "secondsLeftInGame": 1876,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|L|0|3|1-3",
+   "p": 0.022623
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 76,
+    "secondsLeftInGame": 1876,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -14,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|T|0|2|1-3",
+   "p": 0.015749
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 812,
+    "secondsLeftInGame": 2612,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|1-3",
+   "p": 0.006528
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 812,
+    "secondsLeftInGame": 2612,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 775,
+    "secondsLeftInGame": 2575,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|4",
+   "p": 0.015751
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 775,
+    "secondsLeftInGame": 2575,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|4",
+   "p": 0.0157
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1651,
+    "secondsLeftInGame": 3451,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1651,
+    "secondsLeftInGame": 3451,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 193,
+    "secondsLeftInGame": 193,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|G5|-|L|0|4",
+   "p": 0.011031
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 193,
+    "secondsLeftInGame": 193,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 1,
+   "key": "defense|G5|-|T|0|4",
+   "p": 0.015478
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1315,
+    "secondsLeftInGame": 1315,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1315,
+    "secondsLeftInGame": 1315,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 290,
+    "secondsLeftInGame": 2090,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|3|1-3",
+   "p": 0.016351
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 290,
+    "secondsLeftInGame": 2090,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -10,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|2|1-3",
+   "p": 0.005062
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 642,
+    "secondsLeftInGame": 2442,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 642,
+    "secondsLeftInGame": 2442,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 10,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 213,
+    "secondsLeftInGame": 2013,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|2|1-3",
+   "p": 0.012205
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 213,
+    "secondsLeftInGame": 2013,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 662,
+    "secondsLeftInGame": 2462,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|2|1-3",
+   "p": 0.00649
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 662,
+    "secondsLeftInGame": 2462,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1210,
+    "secondsLeftInGame": 1210,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 18,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1210,
+    "secondsLeftInGame": 1210,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -18,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1451,
+    "secondsLeftInGame": 1451,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|0|0|3|1-3",
+   "p": 0.00887
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1451,
+    "secondsLeftInGame": 1451,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|0|0|3|1-3",
+   "p": 0.003487
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 436,
+    "secondsLeftInGame": 2236,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|2|1-3",
+   "p": 0.012205
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 436,
+    "secondsLeftInGame": 2236,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1225,
+    "secondsLeftInGame": 1225,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1225,
+    "secondsLeftInGame": 1225,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 103,
+    "secondsLeftInGame": 1903,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|0|0|2|1-3",
+   "p": 0.020626
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 103,
+    "secondsLeftInGame": 1903,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|0|0|3|1-3",
+   "p": 0.011453
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 497,
+    "secondsLeftInGame": 2297,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|3|1-3",
+   "p": 0.016351
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 497,
+    "secondsLeftInGame": 2297,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|3|1-3",
+   "p": 0.004267
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 229,
+    "secondsLeftInGame": 2029,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|2|1-3",
+   "p": 0.014606
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 229,
+    "secondsLeftInGame": 2029,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|2|1-3",
+   "p": 0.005062
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1431,
+    "secondsLeftInGame": 3231,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1431,
+    "secondsLeftInGame": 3231,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1596,
+    "secondsLeftInGame": 3396,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|1-3",
+   "p": 0.005992
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1596,
+    "secondsLeftInGame": 3396,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|1-3",
+   "p": 0.001019
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1135,
+    "secondsLeftInGame": 2935,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|4",
+   "p": 0.007299
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1135,
+    "secondsLeftInGame": 2935,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|4",
+   "p": 0.003167
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 460,
+    "secondsLeftInGame": 460,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -40,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|2|1-3",
+   "p": 0.004488
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 460,
+    "secondsLeftInGame": 460,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 40,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|2|1-3",
+   "p": 0.004222
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 562,
+    "secondsLeftInGame": 2362,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|1-3",
+   "p": 0.006528
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 562,
+    "secondsLeftInGame": 2362,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1280,
+    "secondsLeftInGame": 3080,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1280,
+    "secondsLeftInGame": 3080,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 130,
+    "secondsLeftInGame": 1930,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 130,
+    "secondsLeftInGame": 1930,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 1,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1295,
+    "secondsLeftInGame": 1295,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1295,
+    "secondsLeftInGame": 1295,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 384,
+    "secondsLeftInGame": 2184,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -13,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|2|1-3",
+   "p": 0.012205
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 384,
+    "secondsLeftInGame": 2184,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 13,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 704,
+    "secondsLeftInGame": 2504,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|3|1-3",
+   "p": 0.009285
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 704,
+    "secondsLeftInGame": 2504,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|0|3|1-3",
+   "p": 0.003143
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 354,
+    "secondsLeftInGame": 2154,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 354,
+    "secondsLeftInGame": 2154,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 989,
+    "secondsLeftInGame": 2789,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 989,
+    "secondsLeftInGame": 2789,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 299,
+    "secondsLeftInGame": 2099,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|2|1-3",
+   "p": 0.014606
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 299,
+    "secondsLeftInGame": 2099,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|3|1-3",
+   "p": 0.004267
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 444,
+    "secondsLeftInGame": 2244,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|3|1-3",
+   "p": 0.006528
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 444,
+    "secondsLeftInGame": 2244,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 285,
+    "secondsLeftInGame": 2085,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|1-3",
+   "p": 0.005992
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 285,
+    "secondsLeftInGame": 2085,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|1-3",
+   "p": 0.001019
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 385,
+    "secondsLeftInGame": 2185,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 385,
+    "secondsLeftInGame": 2185,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1603,
+    "secondsLeftInGame": 1603,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1603,
+    "secondsLeftInGame": 1603,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1377,
+    "secondsLeftInGame": 1377,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|4",
+   "p": 0.034317
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1377,
+    "secondsLeftInGame": 1377,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -6,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|4",
+   "p": 0.013613
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 663,
+    "secondsLeftInGame": 663,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 663,
+    "secondsLeftInGame": 663,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 106,
+    "secondsLeftInGame": 1906,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|H1F|c120|T|1|4",
+   "p": 0.07507
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 106,
+    "secondsLeftInGame": 1906,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 1,
+   "key": "defense|H1F|c120|L|1|4",
+   "p": 0.787397
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 398,
+    "secondsLeftInGame": 2198,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|2|1-3",
+   "p": 0.006001
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 398,
+    "secondsLeftInGame": 2198,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|0|3|1-3",
+   "p": 0.003143
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 116,
+    "secondsLeftInGame": 116,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 24,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c120|L|0|4",
+   "p": 0.040216
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 116,
+    "secondsLeftInGame": 116,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -24,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 816,
+    "secondsLeftInGame": 2616,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 816,
+    "secondsLeftInGame": 2616,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 970,
+    "secondsLeftInGame": 970,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 14,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|2|1-3",
+   "p": 0.014008
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 970,
+    "secondsLeftInGame": 970,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1236,
+    "secondsLeftInGame": 1236,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -5,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1236,
+    "secondsLeftInGame": 1236,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 5,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1108,
+    "secondsLeftInGame": 1108,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 8,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1108,
+    "secondsLeftInGame": 1108,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -8,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|2|1-3",
+   "p": 0.013811
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 51,
+    "secondsLeftInGame": 51,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -2,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 51,
+    "secondsLeftInGame": 51,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 2,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 949,
+    "secondsLeftInGame": 949,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|0|1|2|1-3",
+   "p": 0.026304
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 949,
+    "secondsLeftInGame": 949,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|0|1|2|1-3",
+   "p": 0.012646
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1711,
+    "secondsLeftInGame": 3511,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1711,
+    "secondsLeftInGame": 3511,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -35,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|3|1-3",
+   "p": 0.01387
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 35,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 816,
+    "secondsLeftInGame": 816,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|1|3|1-3",
+   "p": 0.007158
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 816,
+    "secondsLeftInGame": 816,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|1|3|1-3",
+   "p": 0.003907
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 984,
+    "secondsLeftInGame": 2784,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -13,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 984,
+    "secondsLeftInGame": 2784,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 13,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 989,
+    "secondsLeftInGame": 2789,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 989,
+    "secondsLeftInGame": 2789,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1673,
+    "secondsLeftInGame": 3473,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1673,
+    "secondsLeftInGame": 3473,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1249,
+    "secondsLeftInGame": 1249,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|0|1|2|1-3",
+   "p": 0.026304
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 1249,
+    "secondsLeftInGame": 1249,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|0|1|3|1-3",
+   "p": 0.001898
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 608,
+    "secondsLeftInGame": 608,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -28,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 608,
+    "secondsLeftInGame": 608,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 28,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 854,
+    "secondsLeftInGame": 2654,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|3|1-3",
+   "p": 0.009285
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 854,
+    "secondsLeftInGame": 2654,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|0|3|1-3",
+   "p": 0.003143
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 597,
+    "secondsLeftInGame": 2397,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|4",
+   "p": 0.015751
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 597,
+    "secondsLeftInGame": 2397,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|4",
+   "p": 0.0157
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 806,
+    "secondsLeftInGame": 2606,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|3|1-3",
+   "p": 0.011809
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 806,
+    "secondsLeftInGame": 2606,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|2|1-3",
+   "p": 0.004114
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 45,
+    "secondsLeftInGame": 45,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|0|0|2|1-3",
+   "p": 0.01586
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 45,
+    "secondsLeftInGame": 45,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|0|0|2|1-3",
+   "p": 0.015943
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 60,
+    "secondsLeftInGame": 1860,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|L|1|3|1-3",
+   "p": 0.157028
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 60,
+    "secondsLeftInGame": 1860,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|T|1|2|1-3",
+   "p": 0.265316
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 46,
+    "secondsLeftInGame": 1846,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 18,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1F|c120|L|0|2|1-3",
+   "p": 0.008632
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 46,
+    "secondsLeftInGame": 1846,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -18,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|T|0|2|1-3",
+   "p": 0.015749
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 137,
+    "secondsLeftInGame": 137,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|G5|-|L|1|2|1-3",
+   "p": 0.031524
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 137,
+    "secondsLeftInGame": 137,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 660,
+    "secondsLeftInGame": 2460,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 16,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|0|3|4",
+   "p": 0.002219
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 660,
+    "secondsLeftInGame": 2460,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -16,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 1,
+   "key": "defense|H1|-|T|0|4",
+   "p": 0.004045
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1019,
+    "secondsLeftInGame": 2819,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|1|2|1-3",
+   "p": 0.012205
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1019,
+    "secondsLeftInGame": 2819,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|1|3|1-3",
+   "p": 0.004404
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1747,
+    "secondsLeftInGame": 3547,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|0|3|1-3",
+   "p": 0.005992
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1747,
+    "secondsLeftInGame": 3547,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|0|3|1-3",
+   "p": 0.001019
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 416,
+    "secondsLeftInGame": 2216,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 416,
+    "secondsLeftInGame": 2216,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1683,
+    "secondsLeftInGame": 3483,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1683,
+    "secondsLeftInGame": 3483,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 343,
+    "secondsLeftInGame": 343,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -34,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|1-3",
+   "p": 0.007125
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 343,
+    "secondsLeftInGame": 343,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 34,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|1-3",
+   "p": 0.001798
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1640,
+    "secondsLeftInGame": 3440,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|4",
+   "p": 0.01562
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1640,
+    "secondsLeftInGame": 3440,
+    "down": 4,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|4",
+   "p": 0.008151
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 272,
+    "secondsLeftInGame": 272,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 24,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|G5|-|L|0|3|1-3",
+   "p": 0.029498
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 272,
+    "secondsLeftInGame": 272,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -24,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|T|0|3|1-3",
+   "p": 0.002519
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1236,
+    "secondsLeftInGame": 3036,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|0|1|3|1-3",
+   "p": 0.00978
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1236,
+    "secondsLeftInGame": 3036,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|0|1|3|1-3",
+   "p": 0.003259
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 206,
+    "secondsLeftInGame": 206,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|G5|-|L|1|3|1-3",
+   "p": 0.035973
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 206,
+    "secondsLeftInGame": 206,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|T|1|2|1-3",
+   "p": 0.446719
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 767,
+    "secondsLeftInGame": 767,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|4",
+   "p": 0.006372
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 767,
+    "secondsLeftInGame": 767,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|4",
+   "p": 0.007344
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 218,
+    "secondsLeftInGame": 218,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -12,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|G5|-|T|1|3|1-3",
+   "p": 0.008569
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 218,
+    "secondsLeftInGame": 218,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 12,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|L|1|3|1-3",
+   "p": 0.011204
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 582,
+    "secondsLeftInGame": 582,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|T|0|3|4",
+   "p": 0.006372
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 582,
+    "secondsLeftInGame": 582,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|L|0|3|4",
+   "p": 0.007344
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 185,
+    "secondsLeftInGame": 185,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -5,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|G5|-|T|1|3|1-3",
+   "p": 0.008569
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 185,
+    "secondsLeftInGame": 185,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 5,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|L|1|1|1-3",
+   "p": 0.012956
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 175,
+    "secondsLeftInGame": 175,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|G5|-|L|1|2|1-3",
+   "p": 0.031524
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 175,
+    "secondsLeftInGame": 175,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|T|1|2|1-3",
+   "p": 0.446719
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 630,
+    "secondsLeftInGame": 630,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 630,
+    "secondsLeftInGame": 630,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1138,
+    "secondsLeftInGame": 2938,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|L|1|2|1-3",
+   "p": 0.014606
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1138,
+    "secondsLeftInGame": 2938,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|T|1|3|1-3",
+   "p": 0.004267
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1416,
+    "secondsLeftInGame": 3216,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H1|-|T|0|2|1-3",
+   "p": 0.00649
+  },
+  {
+   "view": {
+    "quarter": 1,
+    "secondsLeftInHalf": 1416,
+    "secondsLeftInGame": 3216,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1|-|L|0|3|1-3",
+   "p": 0.003226
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 937,
+    "secondsLeftInGame": 937,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|H2|-|L|1|3|1-3",
+   "p": 0.015514
+  },
+  {
+   "view": {
+    "quarter": 3,
+    "secondsLeftInHalf": 937,
+    "secondsLeftInGame": 937,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -14,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 6,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|0|1|1-3",
+   "p": 0.010195
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -6,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|0|1|1-3",
+   "p": 0.011301
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 182,
+    "secondsLeftInGame": 182,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 16,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 182,
+    "secondsLeftInGame": 182,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -16,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 58,
+    "secondsLeftInGame": 58,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|3|1-3",
+   "p": 0.080458
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 58,
+    "secondsLeftInGame": 58,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 12,
+    "secondsLeftInGame": 12,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 11,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c40|L|0|1-3",
+   "p": 0.013487
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 12,
+    "secondsLeftInGame": 12,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -11,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 3,
+   "key": "defense|GF|T|0",
+   "p": 0.014832
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 97,
+    "secondsLeftInGame": 97,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -9,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 97,
+    "secondsLeftInGame": 97,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 9,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|1|2|1-3",
+   "p": 0.129194
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 1831,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 1831,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c40|T|0|3|1-3",
+   "p": 0.084505
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 73,
+    "secondsLeftInGame": 73,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -5,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|1|1|1-3",
+   "p": 0.123844
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 73,
+    "secondsLeftInGame": 73,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 5,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|1|1|1-3",
+   "p": 0.170177
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 31,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c40|0|0|1-3",
+   "p": 0.038386
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 31,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 25,
+    "secondsLeftInGame": 25,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -25,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c40|T|0|1-3",
+   "p": 0.097037
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 25,
+    "secondsLeftInGame": 25,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 25,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|0|1|1-3",
+   "p": 0.112975
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 52,
+    "secondsLeftInGame": 52,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -17,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|1|1-3",
+   "p": 0.015034
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 52,
+    "secondsLeftInGame": 52,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|2|1-3",
+   "p": 0.015933
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 39,
+    "secondsLeftInGame": 39,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 16,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 39,
+    "secondsLeftInGame": 39,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -16,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 32,
+    "secondsLeftInGame": 32,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c40|T|0|1-3",
+   "p": 0.097037
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 32,
+    "secondsLeftInGame": 32,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 1920,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -13,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 1920,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 13,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|L|0|2|1-3",
+   "p": 0.014401
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 101,
+    "secondsLeftInGame": 101,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -10,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|1|1|1-3",
+   "p": 0.123844
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 101,
+    "secondsLeftInGame": 101,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 10,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|1|1|1-3",
+   "p": 0.170177
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 50,
+    "secondsLeftInGame": 1850,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 50,
+    "secondsLeftInGame": 1850,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|0|0|3|1-3",
+   "p": 0.011453
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 8,
+    "secondsLeftInGame": 8,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -11,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 8,
+    "secondsLeftInGame": 8,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 11,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 7,
+    "secondsLeftInGame": 1807,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 13,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 7,
+    "secondsLeftInGame": 1807,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -13,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c40|T|0|1|1-3",
+   "p": 0.059694
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 119,
+    "secondsLeftInGame": 119,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|2|1-3",
+   "p": 0.023355
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 119,
+    "secondsLeftInGame": 119,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|2|1-3",
+   "p": 0.015933
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 39,
+    "secondsLeftInGame": 39,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -5,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c40|T|0|1|1-3",
+   "p": 0.111242
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 39,
+    "secondsLeftInGame": 39,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 5,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|0|2|1-3",
+   "p": 0.118745
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 21,
+    "secondsLeftInGame": 1821,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -10,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 21,
+    "secondsLeftInGame": 1821,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c40|L|0|3|1-3",
+   "p": 0.093652
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 83,
+    "secondsLeftInGame": 83,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -10,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|2|1-3",
+   "p": 0.023355
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 83,
+    "secondsLeftInGame": 83,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|3|1-3",
+   "p": 0.015461
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 20,
+    "secondsLeftInGame": 20,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -7,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 20,
+    "secondsLeftInGame": 20,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 7,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 1,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|0|1|1-3",
+   "p": 0.112975
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 112,
+    "secondsLeftInGame": 112,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -22,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|1|2|1-3",
+   "p": 0.144091
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 112,
+    "secondsLeftInGame": 112,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 22,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|1|1|1-3",
+   "p": 0.170177
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 31,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 5,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c40|L|1|2|1-3",
+   "p": 0.004315
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 31,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -5,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 110,
+    "secondsLeftInGame": 110,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|3|1-3",
+   "p": 0.080458
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 110,
+    "secondsLeftInGame": 110,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|1|1|1-3",
+   "p": 0.777489
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 22,
+    "secondsLeftInGame": 22,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c40|L|0|1-3",
+   "p": 0.013487
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 22,
+    "secondsLeftInGame": 22,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -10,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 17,
+    "secondsLeftInGame": 1817,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -17,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 17,
+    "secondsLeftInGame": 1817,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c40|L|1|2|1-3",
+   "p": 0.094744
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 100,
+    "secondsLeftInGame": 100,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -14,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 100,
+    "secondsLeftInGame": 100,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 14,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|2|1-3",
+   "p": 0.015933
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 115,
+    "secondsLeftInGame": 115,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 13,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|3|1-3",
+   "p": 0.080458
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 115,
+    "secondsLeftInGame": 115,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -13,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|1|3|1-3",
+   "p": 0.567534
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 77,
+    "secondsLeftInGame": 77,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 12,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|3|1-3",
+   "p": 0.080458
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 77,
+    "secondsLeftInGame": 77,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -12,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 63,
+    "secondsLeftInGame": 63,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -17,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|1|1-3",
+   "p": 0.015034
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 63,
+    "secondsLeftInGame": 63,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|2|1-3",
+   "p": 0.015933
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 446,
+    "secondsLeftInGame": 446,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 10,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 446,
+    "secondsLeftInGame": 446,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -10,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H2|-|T|1|3|1-3",
+   "p": 0.005646
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 117,
+    "secondsLeftInGame": 117,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|3|1-3",
+   "p": 0.01387
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 117,
+    "secondsLeftInGame": 117,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|2|1-3",
+   "p": 0.015933
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 5,
+    "secondsLeftInGame": 5,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 5,
+    "secondsLeftInGame": 5,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 71,
+    "secondsLeftInGame": 71,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|0|1|1-3",
+   "p": 0.015034
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 71,
+    "secondsLeftInGame": 71,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|3|1-3",
+   "p": 0.015461
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 13,
+    "secondsLeftInGame": 13,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -17,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 13,
+    "secondsLeftInGame": 13,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 17,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|0|2|1-3",
+   "p": 0.118745
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 105,
+    "secondsLeftInGame": 105,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 3,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|3|1-3",
+   "p": 0.080458
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 105,
+    "secondsLeftInGame": 105,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -3,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|1|1|1-3",
+   "p": 0.777489
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 6,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|0|2|1-3",
+   "p": 0.011571
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -6,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|0|2|1-3",
+   "p": 0.001714
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 25,
+    "secondsLeftInGame": 25,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -12,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 25,
+    "secondsLeftInGame": 25,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 12,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|0|2|1-3",
+   "p": 0.118745
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 111,
+    "secondsLeftInGame": 111,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 8,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|2|1-3",
+   "p": 0.086576
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 111,
+    "secondsLeftInGame": 111,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -8,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|1|2|1-3",
+   "p": 0.770078
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 2,
+   "key": "offense|GF|c120|0|0",
+   "p": 0.009983
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 2,
+   "key": "defense|GF|c120|0|0",
+   "p": 0.005799
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 31,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -19,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c40|T|0|1|1-3",
+   "p": 0.111242
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 31,
+    "secondsLeftInGame": 31,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 19,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 2,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|0|1|1-3",
+   "p": 0.112975
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 75,
+    "secondsLeftInGame": 75,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 7,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|1|1-3",
+   "p": 0.047143
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 75,
+    "secondsLeftInGame": 75,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -7,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 119,
+    "secondsLeftInGame": 119,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -20,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 119,
+    "secondsLeftInGame": 119,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 20,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|1|1-3",
+   "p": 0.010119
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 118,
+    "secondsLeftInGame": 118,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 3,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|0|2|1-3",
+   "p": 0.011571
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 118,
+    "secondsLeftInGame": 118,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -3,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 41,
+    "secondsLeftInGame": 41,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 21,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|0|1|1-3",
+   "p": 0.010195
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 41,
+    "secondsLeftInGame": 41,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -21,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|0|3|1-3",
+   "p": 0.010732
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 77,
+    "secondsLeftInGame": 77,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": 4,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|0|3|1-3",
+   "p": 0.004055
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 77,
+    "secondsLeftInGame": 77,
+    "down": 1,
+    "clockRunning": 0,
+    "scoreDiff": -4,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|0|2|1-3",
+   "p": 0.001714
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 46,
+    "secondsLeftInGame": 46,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -1,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|T|1|3|1-3",
+   "p": 0.13624
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 46,
+    "secondsLeftInGame": 46,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 1,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|1|1|1-3",
+   "p": 0.170177
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": -7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 1,
+   "key": "offense|GF|c120|T|0|4",
+   "p": 0.08976
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 7,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|3|4",
+   "p": 0.128135
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 109,
+    "secondsLeftInGame": 109,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 2,
+   "key": "offense|GF|c120|0|0",
+   "p": 0.009983
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 109,
+    "secondsLeftInGame": 109,
+    "down": 4,
+    "clockRunning": 0,
+    "scoreDiff": 0,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 2,
+   "key": "defense|GF|c120|0|0",
+   "p": 0.005799
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 53,
+    "secondsLeftInGame": 53,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -16,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 53,
+    "secondsLeftInGame": 53,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 16,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|1|3|1-3",
+   "p": 0.134698
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 57,
+    "secondsLeftInGame": 1857,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -17,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 2,
+    "secondsLeftInHalf": 57,
+    "secondsLeftInGame": 1857,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 17,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|H1F|c120|L|1|3|1-3",
+   "p": 0.178284
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 34,
+    "secondsLeftInGame": 34,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 31,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c40|L|1|1|1-3",
+   "p": 0.00641
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 34,
+    "secondsLeftInGame": 34,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -31,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 1,
+   "key": "defense|GF|c40|T|1|1-3",
+   "p": 0.084618
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 109,
+    "secondsLeftInGame": 109,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": 16,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|1|1-3",
+   "p": 0.047143
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 109,
+    "secondsLeftInGame": 109,
+    "down": 3,
+    "clockRunning": 1,
+    "scoreDiff": -16,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": 5,
+    "ownTimeouts": 2,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|0|2|1-3",
+   "p": 0.011571
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "down": 3,
+    "clockRunning": 0,
+    "scoreDiff": -5,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 1
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|T|0|3|1-3",
+   "p": 0.010732
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 73,
+    "secondsLeftInGame": 73,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": 21,
+    "ownTimeouts": 3,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": 0,
+   "key": "offense|GF|c120|L|1|3|1-3",
+   "p": 0.080458
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 73,
+    "secondsLeftInGame": 73,
+    "down": 2,
+    "clockRunning": 1,
+    "scoreDiff": -21,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 1,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 153,
+    "secondsLeftInGame": 153,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -14,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 153,
+    "secondsLeftInGame": 153,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 14,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|G5|-|L|0|1|1-3",
+   "p": 0.003827
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 4,
+    "secondsLeftInGame": 4,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 4,
+    "secondsLeftInGame": 4,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 0,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 1,
+   "key": "defense|GF|c40|0|1|1-3",
+   "p": 0.234906
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 65,
+    "secondsLeftInGame": 65,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": -8,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 65,
+    "secondsLeftInGame": 65,
+    "down": 2,
+    "clockRunning": 0,
+    "scoreDiff": 8,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c120|L|0|1|1-3",
+   "p": 0.010119
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 17,
+    "secondsLeftInGame": 17,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": -11,
+    "ownTimeouts": 0,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "offense",
+   "level": -1,
+   "key": "",
+   "p": 0
+  },
+  {
+   "view": {
+    "quarter": 4,
+    "secondsLeftInHalf": 17,
+    "secondsLeftInGame": 17,
+    "down": 1,
+    "clockRunning": 1,
+    "scoreDiff": 11,
+    "ownTimeouts": 1,
+    "previousSnapKneel": 0,
+    "clockRestarted": 0,
+    "timeoutCalled": 0
+   },
+   "side": "defense",
+   "level": 0,
+   "key": "defense|GF|c40|L|1|1|1-3",
+   "p": 0.070265
+  }
+ ]
+}

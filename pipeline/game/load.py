@@ -22,6 +22,7 @@ COLS = [
     "score_differential", "posteam_timeouts_remaining", "defteam_timeouts_remaining", "time_of_day",
     "end_clock_time", "home_score", "away_score", "result", "fixed_drive", "fixed_drive_result",
     "drive_time_of_possession", "kick_distance", "posteam_score_post", "defteam_score_post", "ep",
+    "quarter_seconds_remaining", "qb_scramble",
 ]
 
 SNAP_TYPES = ("run", "pass", "punt", "field_goal", "qb_kneel", "qb_spike")
@@ -38,6 +39,12 @@ def season_rows(pbp: pl.DataFrame) -> pl.DataFrame:
     desc = pl.col("desc").cast(pl.String).fill_null("")
     return df.with_columns(
         duration=duration_expr(),
+        # Step 5c revision 1: the game clock a timeout row is stamped with ("Timeout #1 by X at
+        # 01:43."), in seconds left in the period, and the play's wall-clock time, so the dead-ball
+        # reader can put each timeout before the snap it preceded (decisions.clock_order).
+        timeout_clock=(desc.str.extract(r"(?i)timeout #\d+ by [A-Z]{2,3} at (\d+):\d\d", 1).cast(pl.Int64, strict=False) * 60
+                       + desc.str.extract(r"(?i)timeout #\d+ by [A-Z]{2,3} at \d+:(\d\d)", 1).cast(pl.Int64, strict=False)),
+        tod=pl.col("time_of_day").cast(pl.String).str.to_datetime(strict=False, time_zone="UTC"),
         is_timeout=_flag("timeout") & pl.col("timeout_team").is_not_null(),
         challenge=desc.str.contains(r"(?i)challenge|replay"),
         two_min=desc.str.contains(r"(?i)two-minute warning"),

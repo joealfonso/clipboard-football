@@ -3,6 +3,7 @@
 //
 //   node --import ./scripts/engine/register.mjs scripts/game/calibrate.ts --target insample
 //   node --import ./scripts/engine/register.mjs scripts/game/calibrate.ts --target holdout
+//   node --import ./scripts/engine/register.mjs scripts/game/calibrate.ts --report-only
 //
 // insample compares with 2016-2023 (season-weighted, as the fits are) and writes
 // data/game/calibration.insample.json; holdout compares with 2024-2025 and writes
@@ -16,12 +17,17 @@ import { dirname, join, relative, resolve } from "node:path";
 import { prepareGame } from "../../packages/sim/src/loop/play";
 import { REPO, loadGameData, sha256 } from "./data";
 import { digest, runLeagues, type Metrics } from "./metrics";
-import { renderReport, type Step5bInputs } from "./report";
+import { renderReport, type Step5bInputs, type Step5cInputs } from "./report";
 
 export const TARGETS = { insample: "inSample", holdout: "holdout" } as const;
 export type Target = keyof typeof TARGETS;
 export const SUMMARY = { insample: "data/game/calibration.insample.json", holdout: "data/game/calibration.json" } as const;
 const POSTSEASON_GAMES = 1000;
+/** Step 5c sim runs shown in GAME_REPORT.md, in order (labels in data/game/checks5c.sim.json). */
+export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
+  ["baseline", "before step 5c (commit 3de880d)"],
+  ["rev1", "after revision 1 (timeouts in clock order, refit)"],
+];
 
 export interface ToleranceMetric {
   readonly id: string;
@@ -138,6 +144,10 @@ export function pinnedFiles(dataHashes: Readonly<Record<string, string>>): Recor
 
 function main(): number {
   const args = process.argv.slice(2);
+  if (args.includes("--report-only")) {
+    writeReport(JSON.parse(readFileSync(join(REPO, "data/game/tolerances.json"), "utf8")) as Tolerances);
+    return 0;
+  }
   const target = (args[args.indexOf("--target") + 1] ?? "holdout") as Target;
   if (!(target in TARGETS)) throw new Error("--target must be insample or holdout");
   const data = loadGameData();
@@ -204,6 +214,15 @@ function main(): number {
     slice,
   };
   writeFileSync(join(REPO, SUMMARY[target]), JSON.stringify(summary, null, 1) + "\n");
+  writeReport(tol);
+  const failed = table.filter((r) => r.status === "fail");
+  process.stderr.write(`[calibrate] ${target}: ${run.games} games, ${summary.perf.msPerGame} ms per game, ${summary.perf.wallSeconds} s; ${failed.length} gated failures; ${violations.length} invariant violations; ${postTies} postseason ties\n`);
+  for (const r of failed) process.stderr.write(`  FAIL ${r.id}: predicted ${r.predicted.toFixed(2)}, actual ${r.actual.toFixed(2)}, tolerance ${r.tolerance}\n`);
+  return failed.length > 0 || violations.length > 0 || postTies > 0 ? 1 : 0;
+}
+
+/** Rewrites docs/GAME_REPORT.md from whichever summaries and step files exist (no games played). */
+function writeReport(tol: Tolerances): void {
   const present = (Object.keys(SUMMARY) as Target[]).filter((t) => existsSync(join(REPO, SUMMARY[t])));
   const summaries = Object.fromEntries(present.map((t) => [t, JSON.parse(readFileSync(join(REPO, SUMMARY[t]), "utf8"))]));
   const coach = JSON.parse(readFileSync(join(REPO, "data/game/coach.validation.json"), "utf8"));
@@ -218,11 +237,10 @@ function main(): number {
     investigations: real !== undefined && sim !== undefined ? { sim, real } : undefined,
     acceptedInSample: [...approvedFor(tol, "insample")],
   };
-  writeFileSync(join(REPO, "docs/GAME_REPORT.md"), renderReport(summaries, coach, pre, step5b));
-  const failed = table.filter((r) => r.status === "fail");
-  process.stderr.write(`[calibrate] ${target}: ${run.games} games, ${summary.perf.msPerGame} ms per game, ${summary.perf.wallSeconds} s; ${failed.length} gated failures; ${violations.length} invariant violations; ${postTies} postseason ties\n`);
-  for (const r of failed) process.stderr.write(`  FAIL ${r.id}: predicted ${r.predicted.toFixed(2)}, actual ${r.actual.toFixed(2)}, tolerance ${r.tolerance}\n`);
-  return failed.length > 0 || violations.length > 0 || postTies > 0 ? 1 : 0;
+  const c5real = opt("data/game/checks5c.real.json") as Step5cInputs["real"] | undefined;
+  const c5sim = opt("data/game/checks5c.sim.json") as Step5cInputs["sim"] | undefined;
+  const step5c: Step5cInputs | undefined = c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS } : undefined;
+  writeFileSync(join(REPO, "docs/GAME_REPORT.md"), renderReport(summaries, coach, pre, step5b, step5c));
 }
 
 if (import.meta.main) process.exit(main());
