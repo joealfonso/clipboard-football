@@ -33,8 +33,9 @@ function randomSituation(rng: Rng, tryShare = 0.05): Situation {
   const half = firstOfHalf ? int(rng, 901, 1800) : pick(rng, [int(rng, 0, 900), int(rng, 0, 130), int(rng, 110, 130), int(rng, 0, 45)]);
   const game = quarter <= 2 ? half + 1800 : half;
   const yardLine100 = int(rng, 1, 99);
+  const phase = rng.nextFloat() < tryShare ? "try" : "scrimmage";
   return {
-    phase: rng.nextFloat() < tryShare ? "try" : "scrimmage",
+    phase,
     down: int(rng, 1, 4),
     yardsToGo: int(rng, 1, Math.max(1, Math.min(yardLine100, 30))),
     yardLine100,
@@ -44,6 +45,9 @@ function randomSituation(rng: Rng, tryShare = 0.05): Situation {
     secondsLeftInGame: game,
     offenseTimeouts: int(rng, 0, 3),
     defenseTimeouts: int(rng, 0, 3),
+    // Step 5d fields, from values already drawn (no extra draw, so the sampled situations are unchanged).
+    clockRunning: phase === "try" ? 0 : half % 2,
+    otBothPossessed: quarter === 5 ? game % 2 : 0,
   };
 }
 

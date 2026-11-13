@@ -13,7 +13,7 @@ from typing import Any
 import polars as pl
 
 from pipeline.caller.fit import label_col, level_key_expr
-from pipeline.caller.frames import situation_of
+from pipeline.caller.frames import situation_columns, situation_of
 from pipeline.caller.config import PASS_PLAYS
 from pipeline.caller.shares import Caller
 
@@ -77,8 +77,7 @@ def late_checks(plays: pl.DataFrame, caller: Caller, thr: dict[str, Any], gate: 
     acc: dict[str, list[float]] = defaultdict(lambda: [0, 0.0, 0.0])
     labels_of: dict[str, str] = {}
     cache: dict[tuple[Any, ...], dict[str, float]] = {}
-    sit_cols = ["phase", "down", "ydstogo", "yardline_100", "score_differential", "qtr", "half_seconds_remaining",
-                "game_seconds_remaining", "offense_timeouts", "defense_timeouts"]
+    sit_cols = situation_columns(plays.columns)
     sc = plays.filter((pl.col("phase") == "scrimmage") & pl.col("call").is_not_null())
     if fourth_gate_seasons is not None:
         sc = sc.with_columns(_recent=pl.col("season").is_between(*fourth_gate_seasons))
@@ -146,8 +145,7 @@ def checks_5b(plays: pl.DataFrame, ot: pl.DataFrame | None, caller: Caller, thr:
     the same rows in overtime are shown, not gated."""
     acc: dict[str, list[float]] = defaultdict(lambda: [0, 0.0, 0.0])
     labels_of: dict[str, str] = {}
-    sit_cols = ["phase", "down", "ydstogo", "yardline_100", "score_differential", "qtr", "half_seconds_remaining",
-                "game_seconds_remaining", "offense_timeouts", "defense_timeouts"]
+    sit_cols = situation_columns(plays.columns)
     frames = [("", plays)] + ([("OT", ot)] if ot is not None else [])
     for tag, f in frames:
         sc = f.filter((pl.col("phase") == "scrimmage") & pl.col("call").is_not_null() & pl.col("season").is_between(2016, 2023))

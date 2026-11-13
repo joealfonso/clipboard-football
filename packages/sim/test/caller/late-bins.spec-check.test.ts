@@ -54,7 +54,7 @@ const metricOf8b = (label: string): string | null => {
 
 const isLate = (s: Situation): boolean => s.phase === "scrimmage" && binSituation(s, dims)["scoreLateOnly"] !== null;
 const sit = (o: Partial<Situation>): Situation => ({
-  phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 30, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 180, secondsLeftInGame: 180, offenseTimeouts: 2, defenseTimeouts: 2, ...o,
+  phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 30, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 180, secondsLeftInGame: 180, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0, ...o,
 });
 const p = (s: Situation, call: string): number => offenseShares(s, data).leaves.filter((l) => l.call === call).reduce((a, l) => a + l.p, 0);
 const go = (s: Situation): number => [...RUNS, ...PASSES].reduce((a, c) => a + p(s, c), 0);

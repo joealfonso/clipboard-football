@@ -117,10 +117,14 @@ describe("A4: decision policies see only the views (type level)", () => {
   });
 
   it("CoachView is Situation plus clock and dead-ball fields only: no call, formation, players or GameState", () => {
+    // Amended 2026-11-13 (M1 step 5d milestone A): Situation gained clockRunning (a number), so
+    // CoachView's boolean clockRunning is no longer an extra key; the view still has exactly it.
     type Extra = Exclude<keyof CoachView, keyof Situation>;
     expectTypeOf<Extra>().toEqualTypeOf<
-      "clockRunning" | "playClock" | "previousSnapKneel" | "previousSnapRestart" | "beforeTimeout" | "offenseTimeoutsThisDeadBall" | "defenseTimeoutsThisDeadBall"
+      "playClock" | "previousSnapKneel" | "previousSnapRestart" | "beforeTimeout" | "offenseTimeoutsThisDeadBall" | "defenseTimeoutsThisDeadBall"
     >();
+    expectTypeOf<CoachView["clockRunning"]>().toEqualTypeOf<boolean>();
+    expectTypeOf<Exclude<keyof Situation, keyof CoachView>>().toEqualTypeOf<never>();
     expectTypeOf<keyof KickView>().toEqualTypeOf<"quarter" | "secondsLeftInHalf" | "secondsLeftInGame" | "scoreDiff" | "safetyKick">();
     // Every field is a plain number, boolean or the shared phase string.
     expectTypeOf<CoachView[keyof CoachView]>().toEqualTypeOf<number | boolean | Situation["phase"]>();
@@ -139,7 +143,7 @@ describe("C6: masking and clipping", () => {
         phase: "scrimmage", down: 1 + Math.floor(rng.nextFloat() * 4), yardsToGo: 10, yardLine100: 1 + Math.floor(rng.nextFloat() * 99),
         scoreDiff: Math.floor(rng.nextFloat() * 41) - 20, quarter: q, secondsLeftInHalf: half, secondsLeftInGame: q <= 2 ? half + 1800 : half,
         offenseTimeouts: Math.floor(rng.nextFloat() * 4), defenseTimeouts: Math.floor(rng.nextFloat() * 4), clockRunning: rng.nextFloat() < 0.5,
-        playClock: 40, previousSnapKneel: false, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0,
+        playClock: 40, previousSnapKneel: false, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, otBothPossessed: 0,
       };
       const r = Rng.fromSeed(i);
       expect(coach.timeout({ ...v, offenseTimeouts: 0 }, "offense", r)).toBe(false);

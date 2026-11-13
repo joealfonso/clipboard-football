@@ -105,9 +105,70 @@ def classify(pbp: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+OT_SCRIMMAGE = ("run", "pass", "punt", "field_goal", "qb_kneel", "qb_spike", "no_play", "extra_point")
+CLOCK_FLAG_COLS = ["game_id", "play_id", "clock_running", "ot_both_possessed"]
+
+
+def ot_both_possessed(rows: list[dict[str, Any]]) -> list[int]:
+    """Step 5d milestone A: whether the second overtime team has had its opportunity to possess,
+    for each row (rows of one or more games, in play order). A fact about who had the ball, derived
+    the same way in every season: 0 on every regulation row. In overtime the first team receives
+    OT's first possession (the posteam of the first OT kickoff, which nflverse lists as the
+    receiving team; else the first OT row's posteam). The flag turns on at the first OT row where
+    the other team has the ball on a scrimmage play or a try (that row is 1), and after a kick by the
+    first team: a kickoff to the second team or a punt (the rows after it are 1). It stays on."""
+    out: list[int] = []
+    game = None
+    first: str | None = None
+    on = False
+    for r in rows:
+        if r["game_id"] != game:
+            game, first, on = r["game_id"], None, False
+        if (r["qtr"] or 0) < 5:
+            out.append(0)
+            continue
+        pos, pt = r["posteam"], r["play_type"]
+        if first is None and pos is not None and pt is not None:
+            first = pos
+        if not on and first is not None and pos is not None and pos != first and pt in OT_SCRIMMAGE:
+            on = True
+        out.append(1 if on else 0)
+        if first is not None and pos is not None and ((pt == "kickoff" and pos != first and r["defteam"] == first) or (pt == "punt" and pos == first)):
+            on = True
+    return out
+
+
+def clock_flags(pbp: pl.DataFrame) -> pl.DataFrame:
+    """Step 5d milestone A: two Situation fields per regular-season play (game_id, play_id).
+
+    clock_running is designed (nflverse has no clock-state field): the game pipeline's reading,
+    decisions.clock_running, and 0 when a team called a timeout in the dead ball before the snap,
+    with timeout rows in revision 1's clock order (decisions.clock_order). The same reading the
+    game pipeline uses for tempo and `c.spike.stopped`. Rows that are not a scrimmage snap (tries,
+    kickoffs) get 0. ot_both_possessed: see ot_both_possessed()."""
+    from pipeline.game import decisions as dec
+    from pipeline.game.load import season_rows
+
+    rows = season_rows(pbp)
+    db = dec.dead_balls(rows, 40)
+    running = {(x["gameId"], x["playId"]): 0 if x["timeoutCalled"] else int(x["base"]["clockRunning"]) for x in db.snaps}
+    ordered = list(rows.select("game_id", "play_id", "qtr", "posteam", "defteam", "play_type").iter_rows(named=True))
+    ot = ot_both_possessed(ordered)
+    return pl.DataFrame(
+        {
+            "game_id": [r["game_id"] for r in ordered],
+            "play_id": [r["play_id"] for r in ordered],
+            "clock_running": [running.get((r["game_id"], r["play_id"]), 0) for r in ordered],
+            "ot_both_possessed": ot,
+        },
+        schema={"game_id": pl.String, "play_id": pl.Float64, "clock_running": pl.Int64, "ot_both_possessed": pl.Int64},
+    )
+
+
 def build_season(
     season: int, pbp: pl.DataFrame, part: pl.DataFrame | None, ftn: pl.DataFrame | None
 ) -> SeasonData:
+    flags = clock_flags(pbp)
     pbp = classify(_cols(pbp, PBP_COLS))
     exclusions = {r: 0 for r in EXCLUSION_REASONS}
     for scope, n in pbp.group_by("scope").len().iter_rows():
@@ -124,6 +185,11 @@ def build_season(
         & (pl.col("aborted_play").fill_null(0) != 1) & (pl.col("extra_point_attempt").fill_null(0) != 1) & (pl.col("two_point_attempt").fill_null(0) != 1)
     plays = pbp.filter(pl.col("scope").is_in(["scrimmage", "try"]) | ot_scrimmage).with_columns(is_ot=pl.col("scope") == "overtime").join(
         passers, on=["game_id", "posteam", "rusher_player_id"], how="left"
+    )
+    plays = plays.with_columns(pl.col("play_id").cast(pl.Float64)).join(flags, on=["game_id", "play_id"], how="left").with_columns(
+        # A try never has the clock running (the 2026 rule set and the sim agree).
+        clock_running=pl.when(pl.col("scope") == "try").then(0).otherwise(pl.col("clock_running").fill_null(0)),
+        ot_both_possessed=pl.col("ot_both_possessed").fill_null(0),
     )
     data = SeasonData(season=season, plays=plays, exclusions=exclusions)
 
@@ -194,7 +260,7 @@ def build_season(
     numeric = [
         "down", "ydstogo", "yardline_100", "score_differential", "qtr", "half_seconds_remaining",
         "game_seconds_remaining", "qb_dropback", "qb_scramble", "qb_spike", "qb_kneel", "air_yards",
-        "extra_point_attempt", "two_point_attempt", "timeout",
+        "extra_point_attempt", "two_point_attempt", "timeout", "clock_running", "ot_both_possessed",
     ]
     plays = plays.with_columns([pl.col(c).cast(pl.Float64) for c in numeric])
     plays = plays.with_columns(

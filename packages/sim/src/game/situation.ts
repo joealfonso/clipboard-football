@@ -41,5 +41,8 @@ export function toSituation(s: GameState, rules: RuleSet): Situation {
     secondsLeftInGame,
     offenseTimeouts: s.timeouts[offense],
     defenseTimeouts: s.timeouts[defense],
+    // Step 5d milestone A. The clock never runs on a try (invariants.ts); overtime is null in regulation.
+    clockRunning: !onTry && s.clockRunning ? 1 : 0,
+    otBothPossessed: s.overtime !== null && s.overtime.secondTeamPossessed ? 1 : 0,
   };
 }

@@ -31,7 +31,7 @@ describe("late score bins (A1)", () => {
 describe("late buckets refine score7 and score3 (A2)", () => {
   it("every late bucket lies inside one score7 bucket and one score3 bucket", () => {
     for (let d = -40; d <= 40; d++) {
-      const sit: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: d, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1 };
+      const sit: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: d, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1, clockRunning: 0, otBothPossessed: 0 };
       const l = binSituation(sit, dims);
       const late = l["scoreLateOnly"] as string;
       // Every diff with this late label has the same score7 and score3 label.

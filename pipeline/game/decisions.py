@@ -116,6 +116,9 @@ ROW_COLS = ["season", "game_id", "qtr", "down", "ydstogo", "yardline_100", "game
             "posteam_timeouts_remaining", "defteam_timeouts_remaining", "duration", "onside"]
 # Read when present (step 5c revision 1); hand-made frames without them keep row order.
 CLOCK_COLS = ["quarter_seconds_remaining", "timeout_clock", "tod"]
+# Read when present (step 5d milestone A): each snap carries its play_id, so the caller pipeline
+# can take the same clock reading per play (pipeline/caller/load.py).
+ID_COLS = ["play_id"]
 
 
 def _precedes(t: dict[str, Any], p: dict[str, Any], n: dict[str, Any] | None) -> bool:
@@ -180,7 +183,7 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
     pending_qtr = None
     two_min = False
     warned = {2: False, 4: False}
-    cols = ROW_COLS + [c for c in CLOCK_COLS if c in rows.columns]
+    cols = ROW_COLS + [c for c in CLOCK_COLS + ID_COLS if c in rows.columns]
     for r in clock_order(list(rows.select(cols).iter_rows(named=True))):
         if r["game_id"] != game:
             game, prev, pending, two_min, warned = r["game_id"], None, [], False, {2: False, 4: False}
@@ -244,6 +247,7 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
                 "prevKneel": 1 if (prev is not None and prev["qtr"] == r["qtr"] and (prev["qb_kneel"] or 0) == 1 and prev["posteam"] == r["posteam"]) else 0,
                 "offenseTimeout": 1 if off > 0 else 0, "defenseTimeout": 1 if dfn > 0 else 0, "runoff": runoff,
                 "playType": r["play_type"],
+                **({"gameId": r["game_id"], "playId": r["play_id"]} if "play_id" in r else {}),
             })
         prev, pending, two_min = r, [], False
     out.team_games = 2 * games

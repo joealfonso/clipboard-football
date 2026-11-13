@@ -72,7 +72,7 @@ describe("B: field goal range", () => {
   const fg = data.engine.special.fieldGoals;
   const range = { minDistance: fg.minDistance, maxDistance: fg.maxDistance, makePer10000: fg.makePer10000, kickDepth: fg.kickDepth, endZoneYards: data.engine.rules.field.endZoneYards };
   const sit = (o: Partial<Situation>): Situation => ({
-    phase: "scrimmage", down: 4, yardsToGo: 8, yardLine100: 50, scoreDiff: 0, quarter: 1, secondsLeftInHalf: 1647, secondsLeftInGame: 3447, offenseTimeouts: 3, defenseTimeouts: 3, ...o,
+    phase: "scrimmage", down: 4, yardsToGo: 8, yardLine100: 50, scoreDiff: 0, quarter: 1, secondsLeftInHalf: 1647, secondsLeftInGame: 3447, offenseTimeouts: 3, defenseTimeouts: 3, clockRunning: 0, otBothPossessed: 0, ...o,
   });
   const pFG = (s: Situation, r = range): number => offenseShares(s, data.engine.caller, { fieldGoals: r }).leaves.find((l) => l.call === "fieldGoal")?.p ?? 0;
 
@@ -113,7 +113,7 @@ describe("B: field goal range", () => {
 
 describe("C: the try choice reads the late score", () => {
   const trySit = (scoreDiff: number, quarter: number, secs: number, yardLine100 = 2): Situation => ({
-    phase: "try", down: 1, yardsToGo: yardLine100, yardLine100, scoreDiff, quarter, secondsLeftInHalf: secs, secondsLeftInGame: secs, offenseTimeouts: 1, defenseTimeouts: 1,
+    phase: "try", down: 1, yardsToGo: yardLine100, yardLine100, scoreDiff, quarter, secondsLeftInHalf: secs, secondsLeftInGame: secs, offenseTimeouts: 1, defenseTimeouts: 1, clockRunning: 0, otBothPossessed: 0,
   });
   const pXP = (s: Situation): number => offenseShares(s, data.engine.caller).leaves.find((l) => l.call === "extraPoint")?.p ?? 0;
 
@@ -173,7 +173,7 @@ describe("E: the trailing team uses its clock", () => {
   it("E2: the clock-out rule calls the timeout; a tied team or one down 9 may let it run", () => {
     const v = (scoreDiff: number, offenseTimeouts = 2): CoachView => ({
       phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 12, scoreDiff, quarter: 4, secondsLeftInHalf: 8, secondsLeftInGame: 8, offenseTimeouts, defenseTimeouts: 1,
-      clockRunning: true, playClock: 40, previousSnapKneel: false, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0,
+      clockRunning: true, playClock: 40, previousSnapKneel: false, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, otBothPossessed: 0,
     });
     expect(coach.clockOut?.(v(-4))).toBe(true);
     expect(coach.clockOut?.(v(-8))).toBe(true);
@@ -185,7 +185,7 @@ describe("E: the trailing team uses its clock", () => {
   it("E2: seed 12 has no spike with the clock stopped, and a stopped clock masks the spike", () => {
     const r = playGame(setupGame(league(2026), 2026, 12, () => coach), kit, Rng.fromSeed(12));
     expect(r.events.filter((e) => e.t === "play" && e.play.kind === "spike" && !e.before.clockRunning)).toEqual([]);
-    const s: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 71, secondsLeftInGame: 71, offenseTimeouts: 2, defenseTimeouts: 2 };
+    const s: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 71, secondsLeftInGame: 71, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 };
     const spike = (m: CallerMasks): number => offenseShares(s, data.engine.caller, m).leaves.find((l) => l.call === "spike")?.p ?? 0;
     expect(spike({ clockStopped: true })).toBe(0);
   });
@@ -194,7 +194,7 @@ describe("E: the trailing team uses its clock", () => {
 describe("F: the leader kneels only when it can", () => {
   const cv = (o: Partial<CoachView>): CoachView => ({
     phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 79, scoreDiff: 5, quarter: 4, secondsLeftInHalf: 76, secondsLeftInGame: 76, offenseTimeouts: 3, defenseTimeouts: 0,
-    clockRunning: true, playClock: 40, previousSnapKneel: true, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, ...o,
+    clockRunning: true, playClock: 40, previousSnapKneel: true, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, otBothPossessed: 0, ...o,
   });
 
   const W = data.config.clockRules?.kneelOutDrainWindow ?? { quarterMin: 99, secondsLeftInGame: 0 };
@@ -215,7 +215,7 @@ describe("F: the leader kneels only when it can", () => {
       const r = playGame(setupGame(league(2026), 2026, seed, () => coach), kit, Rng.fromSeed(seed));
       expect(r.events.filter((e) => e.t === "play" && e.play.kind === "kneel" && (e.before.period === 1 || e.before.period === 3 || (e.before.period === 2 && e.before.clock > 60))), `seed ${seed}`).toEqual([]);
     }
-    const s: Situation = { phase: "scrimmage", down: 4, yardsToGo: 7, yardLine100: 7, scoreDiff: 0, quarter: 1, secondsLeftInHalf: 135 + 900, secondsLeftInGame: 135 + 2700, offenseTimeouts: 3, defenseTimeouts: 3 };
+    const s: Situation = { phase: "scrimmage", down: 4, yardsToGo: 7, yardLine100: 7, scoreDiff: 0, quarter: 1, secondsLeftInHalf: 135 + 900, secondsLeftInGame: 135 + 2700, offenseTimeouts: 3, defenseTimeouts: 3, clockRunning: 0, otBothPossessed: 0 };
     const k = data.config.clockRules?.callerMasks?.earlyKneel;
     expect(k).toBeDefined();
     expect(offenseShares(s, data.engine.caller, k === undefined ? {} : { earlyKneel: k }).leaves.find((l) => l.call === "kneel")?.p).toBe(0);

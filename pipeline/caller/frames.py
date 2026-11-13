@@ -22,12 +22,23 @@ SITUATION_COLUMNS = {
     "game_seconds_remaining": "secondsLeftInGame",
     "offense_timeouts": "offenseTimeouts",
     "defense_timeouts": "defenseTimeouts",
+    # Step 5d milestone A (pipeline/caller/load.py clock_flags).
+    "clock_running": "clockRunning",
+    "ot_both_possessed": "otBothPossessed",
 }
+
+
+def situation_columns(columns: list[str]) -> list[str]:
+    """The Situation columns a frame has. The step 5d columns (clock_running, ot_both_possessed)
+    are missing from frames built before them; a bin that reads a missing field then fails loudly."""
+    return [c for c in SITUATION_COLUMNS if c in columns]
 
 
 def situation_of(row: dict[str, Any]) -> dict[str, Any]:
     sit: dict[str, Any] = {}
     for col, name in SITUATION_COLUMNS.items():
+        if col not in row:
+            continue
         v = row[col]
         sit[name] = v if (v is None or isinstance(v, str)) else (int(v) if float(v).is_integer() else v)
     return sit
@@ -35,7 +46,7 @@ def situation_of(row: dict[str, Any]) -> dict[str, Any]:
 
 def add_labels(plays: pl.DataFrame, dims: dict[str, Any]) -> pl.DataFrame:
     """Adds one string column per configured dimension (null where it does not apply)."""
-    cols = list(SITUATION_COLUMNS)
+    cols = situation_columns(plays.columns)
     uniq = plays.select(cols).unique(maintain_order=True)
     out: dict[str, list[str | None]] = {d: [] for d in dims}
     for row in uniq.iter_rows(named=True):

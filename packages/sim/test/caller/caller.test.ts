@@ -22,6 +22,8 @@ function sit(over: Partial<Situation> = {}): Situation {
     secondsLeftInGame: 3300,
     offenseTimeouts: 3,
     defenseTimeouts: 3,
+    clockRunning: 0,
+    otBothPossessed: 0,
     ...over,
   };
 }

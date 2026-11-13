@@ -133,6 +133,8 @@ describe("availability rules (A4)", () => {
       secondsLeftInGame: true,
       offenseTimeouts: true,
       defenseTimeouts: true,
+      clockRunning: true,
+      otBothPossessed: true,
     };
     expect([...SITUATION_FIELDS].sort()).toEqual(Object.keys(sample).sort());
   });

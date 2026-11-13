@@ -256,7 +256,7 @@ export function drainsClock(view: CoachView, caller: CallerData, window: DrainWi
   if (view.previousSnapKneel) return true;
   if (view.down > 3 || caller.config.dimensions["kneelOut"] === undefined) return false;
   const run = Math.min(view.playClock, view.secondsLeftInGame);
-  const atSnap = { ...view, secondsLeftInGame: view.secondsLeftInGame - run, secondsLeftInHalf: view.secondsLeftInHalf - run };
+  const atSnap = { ...view, clockRunning: 1, secondsLeftInGame: view.secondsLeftInGame - run, secondsLeftInHalf: view.secondsLeftInHalf - run };
   return binSituation(atSnap, caller.config.dimensions)["kneelOut"] === "K1";
 }
 

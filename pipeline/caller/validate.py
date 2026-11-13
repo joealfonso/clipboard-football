@@ -13,7 +13,7 @@ from typing import Any
 import polars as pl
 
 from pipeline.caller.config import FORMATION_PLAYS, PASS_PLAYS
-from pipeline.caller.frames import situation_of
+from pipeline.caller.frames import situation_columns, situation_of
 from pipeline.caller.shares import Caller
 
 
@@ -95,8 +95,7 @@ def run_validation(plays: pl.DataFrame, caller: Caller, tolerances: dict[str, An
         "spike on 4th down": [0, 0.0, 0.0],
     }
     cache: dict[tuple[Any, ...], dict[str, Any]] = {}
-    sit_cols = ["phase", "down", "ydstogo", "yardline_100", "score_differential", "qtr",
-                "half_seconds_remaining", "game_seconds_remaining", "offense_timeouts", "defense_timeouts"]
+    sit_cols = situation_columns(plays.columns)
     cols = sit_cols + ["call", "try_call", "depth", "pass_type", "run_type", "formation", "rush",
                        "man_zone", "preset", "b_zone6", "b_time5", "b_score3"]
     for row in plays.select(cols).iter_rows(named=True):

@@ -41,6 +41,8 @@ describe("Situation adapter (E1)", () => {
       secondsLeftInGame: PS * 4,
       offenseTimeouts: 2,
       defenseTimeouts: 1,
+      clockRunning: 0,
+      otBothPossessed: 0,
     });
   });
 
@@ -62,9 +64,13 @@ describe("Situation adapter (E1)", () => {
       secondsLeftInGame: 100,
       offenseTimeouts: 2,
       defenseTimeouts: 2,
+      clockRunning: 0,
+      otBothPossessed: 0,
     });
+    // The golden grid may predate the step 5d fields (clockRunning, otBothPossessed): compare the rest.
+    const pre5d = (x: Situation): Record<string, unknown> => Object.fromEntries(Object.entries(x).filter(([k]) => k !== "clockRunning" && k !== "otBothPossessed"));
     const golden = readJson("data/caller/golden.json") as { situations: { situation: Situation }[] };
-    expect(golden.situations.map((g) => g.situation)).toContainEqual(s);
+    expect(golden.situations.map((g) => pre5d(g.situation))).toContainEqual(pre5d(s));
   });
 
   it("says plainly that no Situation exists in other phases", () => {

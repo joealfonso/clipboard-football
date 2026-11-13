@@ -556,7 +556,7 @@ describe("C3: the designed try chart reaches only the final 5:00 of Q4 and overt
   const noChart: typeof caller = { ...caller, config: configNoChart };
   const trySit = (scoreDiff: number, quarter: number, secs: number, yl: number): Situation => ({
     phase: "try", down: 1, yardsToGo: yl, yardLine100: yl, scoreDiff, quarter, secondsLeftInHalf: quarter === 2 || quarter === 4 ? secs : secs + 900,
-    secondsLeftInGame: quarter <= 2 ? secs + (quarter === 1 ? 2700 : 1800) : quarter === 3 ? secs + 900 : secs, offenseTimeouts: 2, defenseTimeouts: 2,
+    secondsLeftInGame: quarter <= 2 ? secs + (quarter === 1 ? 2700 : 1800) : quarter === 3 ? secs + 900 : secs, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0,
   });
   const leaves = (s: Situation, d: typeof caller): string => JSON.stringify(offenseShares(s, d).leaves.map((l) => [l.call, l.twoPointPlay ?? null, l.p]));
 
@@ -586,7 +586,7 @@ describe("B1b, E: the game's average coach applies the make-chance and stopped-c
   const data = loadGameData();
   const coach = averageCoachFor(data);
   const sit = (o: Partial<Situation>): Situation => ({
-    phase: "scrimmage", down: 4, yardsToGo: 10, yardLine100: 50, scoreDiff: -2, quarter: 2, secondsLeftInHalf: 4, secondsLeftInGame: 1804, offenseTimeouts: 1, defenseTimeouts: 1, ...o,
+    phase: "scrimmage", down: 4, yardsToGo: 10, yardLine100: 50, scoreDiff: -2, quarter: 2, secondsLeftInHalf: 4, secondsLeftInGame: 1804, offenseTimeouts: 1, defenseTimeouts: 1, clockRunning: 0, otBothPossessed: 0, ...o,
   });
   const fitted = (s: Situation, call: string): number => offenseShares(s, data.engine.caller).leaves.find((l) => l.call === call)?.p ?? 0;
   const draws = (s: Situation, clockRunning: boolean, call: string): number => {

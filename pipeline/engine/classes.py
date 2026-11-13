@@ -11,7 +11,7 @@ from typing import Any
 
 import polars as pl
 
-from pipeline.caller.frames import situation_of
+from pipeline.caller.frames import situation_columns, situation_of
 from pipeline.caller.shares import Caller
 
 # Outcome tuple flags (packages/sim/src/engine/pools.ts reads the same bits).
@@ -151,8 +151,7 @@ def split_unknown_depth(plays: pl.DataFrame, caller: Caller) -> pl.DataFrame:
     if todo.height == 0:
         return keep
     cache: dict[tuple[Any, ...], tuple[float, float, float]] = {}
-    cols = ["phase", "down", "ydstogo", "yardline_100", "score_differential", "qtr", "half_seconds_remaining",
-            "game_seconds_remaining", "offense_timeouts", "defense_timeouts"]
+    cols = situation_columns(todo.columns)
     shares: list[tuple[float, float, float]] = []
     for row in todo.select(cols).iter_rows(named=True):
         key = tuple(row[c] for c in cols)

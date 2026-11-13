@@ -23,6 +23,16 @@ export interface Situation {
   readonly secondsLeftInGame: number;
   readonly offenseTimeouts: number;
   readonly defenseTimeouts: number;
+  /**
+   * M1 step 5d: 1 when the game clock is running at the snap, else 0. Always 0 on a try. 0 after
+   * a timeout, the two-minute warning, a period start or any play that stopped the clock.
+   */
+  readonly clockRunning: number;
+  /**
+   * M1 step 5d: 1 in overtime once the second team has had its opportunity to possess (Rule
+   * 16-1-3, 16-1-4, 16-1-5 (c)), else 0. Always 0 in regulation; once 1, 1 for the rest of the game.
+   */
+  readonly otBothPossessed: number;
 }
 
 /** Every field an availability rule or a bin may read. Kept in sync with Situation by a test. */
@@ -37,6 +47,8 @@ export const SITUATION_FIELDS = [
   "secondsLeftInGame",
   "offenseTimeouts",
   "defenseTimeouts",
+  "clockRunning",
+  "otBothPossessed",
 ] as const satisfies readonly (keyof Situation)[];
 
 export type SituationField = (typeof SITUATION_FIELDS)[number];

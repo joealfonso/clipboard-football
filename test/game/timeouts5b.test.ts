@@ -18,7 +18,7 @@ const view = (v: Record<string, number>): CoachView => ({
   phase: "scrimmage", down: v["down"] ?? 1, yardsToGo: 10, yardLine100: 50, scoreDiff: v["scoreDiff"] ?? 0, quarter: v["quarter"] ?? 1,
   secondsLeftInHalf: v["secondsLeftInHalf"] ?? 900, secondsLeftInGame: v["secondsLeftInGame"] ?? 900, offenseTimeouts: v["ownTimeouts"] ?? 3, defenseTimeouts: v["ownTimeouts"] ?? 3,
   clockRunning: v["clockRunning"] === 1, playClock: 40, previousSnapKneel: v["previousSnapKneel"] === 1, previousSnapRestart: (v["clockRestarted"] ?? 0) as 0 | 1 | 2, beforeTimeout: v["timeoutCalled"] === 1,
-  offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0,
+  offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0, otBothPossessed: 0,
 });
 
 const late = (v: CoachView): boolean => v.quarter >= 5 || (v.quarter === 4 && v.secondsLeftInGame <= 300);

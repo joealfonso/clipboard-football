@@ -22,7 +22,7 @@ const top = data.offense.factors["oTop"] as FactorTable;
 const four = data.offense.factors["o4Top"] as FactorTable;
 
 const sit = (o: Partial<Situation>): Situation => ({
-  phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 2, defenseTimeouts: 2, ...o,
+  phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0, ...o,
 });
 const p = (s: Situation, call: string): number => offenseShares(s, data).leaves.filter((l) => l.call === call).reduce((a, l) => a + l.p, 0);
 const KICKS = new Set(["punt", "fieldGoal"]);

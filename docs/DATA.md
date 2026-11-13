@@ -30,6 +30,38 @@ None of the nflverse terms forbids redistributing derived aggregates. CC-BY-SA 4
 
 Local-only file: pipeline/game/real_names.py, a hand-kept list of real NFL nicknames and cities used only to reject collisions with the designed fictional team names (data/teams/names.json, M1 step 5). It is gitignored, never shipped and never committed; the collision check runs locally, and CI skips it when the file is absent.
 
+## Fields behind the caller's clock and overtime columns
+
+M1 step 5d milestone A adds two caller Situation columns (pipeline/caller/load.py). `clock_running` is designed, because nflverse has no clock-state field: it is the game pipeline's reading (`decisions.clock_running`), 0 when a timeout was called in the dead ball before the snap, with timeout rows placed in clock order (`decisions.clock_order`, which also reads the game clock stamped in each timeout row's `desc`, "Timeout #1 by X at" minutes and seconds), and the try flag `is_try` from `extra_point_attempt`, `two_point_attempt` and `play_type`. `ot_both_possessed` is a fact about who had the ball, read from `qtr`, `posteam`, `defteam`, `play_type` and `game_id` in row order (`play_id`).
+
+Definitions quoted from the nflverse play-by-play data dictionary: nflreadr's `dictionary_pbp` (https://nflreadr.nflverse.com/articles/dictionary_pbp.html; source file github.com/nflverse/nflreadr, data-raw/dictionary_pbp.csv), read 13 November 2026. nflreadpy loads the same nflverse files and ships no dictionary of its own.
+
+| field | definition (quoted) |
+|---|---|
+| `qtr` | "Quarter of the game (5 is overtime)." |
+| `half_seconds_remaining` | "Numeric seconds remaining in the half." |
+| `game_seconds_remaining` | "Numeric seconds remaining in the game." |
+| `quarter_seconds_remaining` | "Numeric seconds remaining in the quarter." |
+| `play_type` | "String indicating the type of play: pass (includes sacks), run (includes scrambles), punt, field_goal, kickoff, extra_point, qb_kneel, qb_spike, no_play (timeouts and penalties), and missing for rows indicating end of play." |
+| `posteam` | "String abbreviation for the team with possession." |
+| `defteam` | "String abbreviation for the team on defense." |
+| `game_id` | "Ten digit identifier for NFL game." |
+| `play_id` | "Numeric play id that when used with game_id and drive provides the unique identifier for a single play." |
+| `desc` | "Detailed string description for the given play." |
+| `incomplete_pass` | "Binary indicator for if the pass was incomplete." |
+| `qb_spike` | "Binary indicator for whether or not the QB spiked the ball." |
+| `interception` | "Binary indicator for if the pass was intercepted." |
+| `fumble_lost` | "Binary indicator for if the fumble was lost." |
+| `penalty` | "Binary indicator for whether or not a penalty occurred." |
+| `out_of_bounds` | "1 if play description contains ran ob, pushed ob, or sacked ob; 0 otherwise." |
+| `timeout` | "Binary indicator for whether or not a timeout was called by either team." |
+| `timeout_team` | "String abbreviation for which team called the timeout." |
+| `extra_point_attempt` | "Binary indicator for extra point attempt." |
+| `two_point_attempt` | "Binary indicator for two point conversion attempt." |
+| `time_of_day` | "Time of day of play in UTC "HH:MM:SS" format. Available 2011 and beyond with source "nfl"." |
+
+Which team `posteam` names on a kickoff row: the dictionary says only "the team with possession". Checked against the kick itself: of the 2016-2023 regular-season kickoffs whose `desc` names the spot of the kick ("kicks 65 yards from KC 35", the kicking team's side of the field), the team named is `defteam` on 21,190 of 21,191 rows and `posteam` on 1, so `posteam` is the receiving team; 159 rows name no spot. Known game: 2023_01_DET_KC, the opening kickoff "7-H.Butker kicks 65 yards from KC 35 to end zone, Touchback." has `posteam` DET (receiving) and `defteam` KC (kicking).
+
 ## Contents
 
 1. Play-by-play (ok)

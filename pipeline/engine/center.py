@@ -19,7 +19,7 @@ from typing import Any
 
 import polars as pl
 
-from pipeline.caller.frames import situation_of
+from pipeline.caller.frames import situation_columns, situation_of
 from pipeline.caller.shares import Caller
 from pipeline.engine.fit import key_expr
 
@@ -152,8 +152,7 @@ def groups_for(train: pl.DataFrame, cells: list[dict[str, list[int]]], levels: l
     baseline class probabilities (the same backoff lookup as the engine), the caller's preset
     shares and the summed weight (season weight x frac). A play without a formation is spread
     over the caller's formation shares for its leaf."""
-    sit_cols = ["phase", "down", "ydstogo", "yardline_100", "score_differential", "qtr", "half_seconds_remaining",
-                "game_seconds_remaining", "offense_timeouts", "defense_timeouts"]
+    sit_cols = situation_columns(train.columns)
     df = train.with_columns(ww=pl.col("w") * pl.col("frac"))
     g = df.group_by([*sit_cols, "family", "leaf", "formation", *[c for c in df.columns if c.startswith("b_")]]).agg(pl.col("ww").sum())
     acc: dict[tuple[str, int, str, str], Group] = {}

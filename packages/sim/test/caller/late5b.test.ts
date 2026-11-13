@@ -40,7 +40,7 @@ describe("5b binning fixture (B2)", () => {
   });
 
   it("other dimensions keep binning overtime as before (time5 is not OT)", () => {
-    const ot: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1 };
+    const ot: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1, clockRunning: 0, otBothPossessed: 0 };
     const l = binSituation(ot, dims);
     expect(l["lateTime"]).toBe("OT");
     expect(l["time5"]).not.toBe("OT");
@@ -50,7 +50,7 @@ describe("5b binning fixture (B2)", () => {
 describe("scoreLate5 is a union of finer buckets (B3)", () => {
   it("every diff sharing a scoreLate5 bucket shares its scoreLate (5a), score7 and score3 parents' coarseness", () => {
     // scoreLate5 must be a union of 5a late buckets, and must lie inside one score3 bucket.
-    const base: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1 };
+    const base: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1, clockRunning: 0, otBothPossessed: 0 };
     const of = (d: number): Record<string, string | null> => binSituation({ ...base, scoreDiff: d }, dims);
     for (let d = -40; d <= 40; d++) {
       for (let e = -40; e <= 40; e++) {
@@ -65,7 +65,7 @@ describe("scoreLate5 is a union of finer buckets (B3)", () => {
   });
 
   it("every score7 bucket edge that keeps the sign is a scoreLate5 edge or inside a 5a bucket", () => {
-    const base: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1 };
+    const base: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 50, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 100, secondsLeftInGame: 100, offenseTimeouts: 1, defenseTimeouts: 1, clockRunning: 0, otBothPossessed: 0 };
     for (let d = -40; d < 40; d++) {
       const a = binSituation({ ...base, scoreDiff: d }, dims);
       const b = binSituation({ ...base, scoreDiff: d + 1 }, dims);
@@ -194,23 +194,23 @@ describe("backoff on each new level lands on the specified parent (B7)", () => {
   // so every oTop index below moved up by one; the new level's own case is first.
   const cases: { factor: "oTop" | "o4Top"; situation: Situation; level: number; parent: number }[] = [
     // Leading by 4 with 1:30 left, 1st down, the defense holding 3 timeouts (can't kneel out, K0F): [down,kneelGap,scoreLate5,lateTime] -> [down,kneelOut,scoreLate5,lateTime].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 3 }, level: 0, parent: 1 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 3, clockRunning: 0, otBothPossessed: 0 }, level: 0, parent: 1 },
     // Leading by 4 in the final 2:00, 1st down, can kneel out: [down,kneelOut,scoreLate5,lateTime] -> [down,kneelOut,lateTime].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0 }, level: 1, parent: 2 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0, clockRunning: 0, otBothPossessed: 0 }, level: 1, parent: 2 },
     // [down,kneelOut,lateTime] -> the regulation chain's first level.
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0 }, level: 2, parent: 3 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 4, quarter: 4, secondsLeftInHalf: 90, secondsLeftInGame: 90, offenseTimeouts: 1, defenseTimeouts: 0, clockRunning: 0, otBothPossessed: 0 }, level: 2, parent: 3 },
     // Overtime, tied, 3rd down at the 30: [down,zoneK,scoreLate5,lateTime] -> [zoneK,scoreLate5,lateTime] -> [fieldHalf,scoreLate5,lateTime].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 6, parent: 7 },
-    { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 7, parent: 8 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 6, parent: 7 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 3, yardsToGo: 5, yardLine100: 30, scoreDiff: 0, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 7, parent: 8 },
     // Overtime with no overtime cell backs off to the G5/GF cells (resolved question 2):
     // [fieldHalf,scoreLate5,lateTime] -> [down,zoneK,scoreLate5,lateClock].
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 8, parent: 9 },
-    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 9, parent: 10 },
-    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 13, parent: 14 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 8, parent: 9 },
+    { factor: "oTop", situation: { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 9, parent: 10 },
+    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 13, parent: 14 },
     // o4Top, overtime, trailing 3 at the 40: late zoneK level -> its 2016-2023 twin -> fieldHalf.
-    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 10, parent: 11 },
-    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 11, parent: 12 },
-    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2 }, level: 12, parent: 13 },
+    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 10, parent: 11 },
+    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 11, parent: 12 },
+    { factor: "o4Top", situation: { phase: "scrimmage", down: 4, yardsToGo: 3, yardLine100: 40, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 300, secondsLeftInGame: 300, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 }, level: 12, parent: 13 },
   ];
 
   it.each(cases.map((c) => [`${c.factor} level ${c.level} -> ${c.parent}`, c] as const))("%s", (_n, c) => {
@@ -246,7 +246,7 @@ describe("overtime falls back to the G5/GF cells (resolved question 2)", () => {
   });
 
   it("an overtime 1st down trailing by 3 with no overtime cell is served by a G5 cell, not a score-free level", () => {
-    const sit: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2 };
+    const sit: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: -3, quarter: 5, secondsLeftInHalf: 400, secondsLeftInGame: 400, offenseTimeouts: 2, defenseTimeouts: 2, clockRunning: 0, otBothPossessed: 0 };
     const t = offenseShares(sit, data).trace["oTop"];
     const top = data.offense.factors["oTop"] as FactorTable;
     expect(top.levels[t?.level ?? -1]?.dims).toContain("scoreLate5Only");

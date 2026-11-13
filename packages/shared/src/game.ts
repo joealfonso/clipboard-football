@@ -10,9 +10,10 @@ import type { Situation } from "./situation";
  * What a coach sees before a snap: the step 2 Situation (offense's perspective) plus the clock
  * state both sidelines can see. Built by the loop from the game state (spec resolved question
  * 13: type-only; give it a schemaVersion if it is ever serialized). Nothing here describes
- * either side's call, formation, personnel or ratings.
+ * either side's call, formation, personnel or ratings. Its clockRunning is a boolean; the
+ * Situation's numeric clockRunning (step 5d) is the same fact for the play caller.
  */
-export interface CoachView extends Situation {
+export interface CoachView extends Omit<Situation, "clockRunning"> {
   /** The game clock runs before this snap (it restarted on the ready-for-play signal). */
   readonly clockRunning: boolean;
   /** Seconds left on the play clock. */
