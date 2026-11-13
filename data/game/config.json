@@ -1132,192 +1132,6 @@
           "if": []
         }
       ]
-    },
-    "afterKneelC": {
-      "buckets": [
-        {
-          "label": "Kc",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 5
-            },
-            {
-              "field": "down",
-              "min": 1,
-              "max": 1
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 122
-            }
-          ]
-        },
-        {
-          "label": "Kc",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 5
-            },
-            {
-              "field": "down",
-              "min": 2,
-              "max": 2
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 82
-            }
-          ]
-        },
-        {
-          "label": "Kc",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 5
-            },
-            {
-              "field": "down",
-              "min": 3,
-              "max": 3
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 42
-            }
-          ]
-        },
-        {
-          "label": "Kx",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 5
-            }
-          ]
-        },
-        {
-          "label": "Kc",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 3,
-              "max": 4
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 300
-            },
-            {
-              "field": "down",
-              "min": 1,
-              "max": 1
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 122
-            }
-          ]
-        },
-        {
-          "label": "Kc",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 3,
-              "max": 4
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 300
-            },
-            {
-              "field": "down",
-              "min": 2,
-              "max": 2
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 82
-            }
-          ]
-        },
-        {
-          "label": "Kc",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 3,
-              "max": 4
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 300
-            },
-            {
-              "field": "down",
-              "min": 3,
-              "max": 3
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 42
-            }
-          ]
-        },
-        {
-          "label": "Kx",
-          "if": [
-            {
-              "field": "previousSnapKneel",
-              "min": 1
-            },
-            {
-              "field": "quarter",
-              "min": 3,
-              "max": 4
-            },
-            {
-              "field": "secondsLeftInGame",
-              "max": 300
-            }
-          ]
-        },
-        {
-          "label": null,
-          "if": []
-        }
-      ]
     }
   },
   "tempo": {
@@ -1387,23 +1201,6 @@
   },
   "timeouts": {
     "levels": [
-      {
-        "dims": [
-          "side",
-          "time5",
-          "final",
-          "lateS5",
-          "afterKneelC",
-          "running"
-        ]
-      },
-      {
-        "dims": [
-          "side",
-          "lateS5",
-          "afterKneelC"
-        ]
-      },
       {
         "dims": [
           "side",
@@ -1521,7 +1318,7 @@
       }
     ],
     "minN": 150,
-    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged. Step 5c milestones E and F: two levels first keep a five-way late score (`lateS5`: trailing by 9 or more, by 1-8, tied, leading by 1-8, by 9 or more; null outside the late windows), so every rate outside them is unchanged. Step 5c milestone F: levels for the dead ball after a kneel (null otherwise and outside the late windows): first by `afterKneelC`, Kc when the leader's remaining kneels run the clock out if the defense uses no timeout ((4 - down) x 40 + 2 s, the caller's kneelOut test with no timeouts), else Kx. Then by `afterKneel` alone (any kneel)."
+    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged. Step 5c milestones E and F: two levels first keep a five-way late score (`lateS5`: trailing by 9 or more, by 1-8, tied, leading by 1-8, by 9 or more; null outside the late windows), so every rate outside them is unchanged. Step 5c milestone F: a first level for the dead ball after a kneel (`afterKneel`, null otherwise and outside the late windows), where a team down two scores concedes."
   },
   "specialTimeouts": {
     "levels": [
@@ -1577,13 +1374,12 @@
     "finalSeconds": 120
   },
   "clockRules": {
-    "note": "Designed (step 5c milestones E and F). clockOut: an offense trailing by trailingMin-trailingMax with a timeout left calls it rather than let a drawn run-off end the 4th quarter or overtime; 2016-2023 has 1 game in 2,095 whose last 4th-quarter snap is by such a team with 15 s or more left. timeoutBeforeExpiry: a team calling a timeout lets the clock run first (the tempo cells of dead balls with a timeout) only to a second before the end of the half or the game, since a timeout is called before time expires. kneelOutDrain: a leading offense that can kneel out (the caller's kneelOut test, K1) lets the whole play clock run before each snap, the assumption that test makes. callerMasks: the average coach never spikes with the clock stopped (6 such spikes in 2,095 real games) and never kneels in Q1, Q3, or Q2 with more than 1:00 left (0 real kneels). kneelAgain (second pass): a leader that kneeled on the previous snap kneels again on downs 1-3 in the final 2:00 of Q4 or OT (real 2016-2023: 1,107 of 1,115 such snaps).",
+    "note": "Designed (step 5c milestones E and F). clockOut: an offense trailing by trailingMin-trailingMax with a timeout left calls it rather than let a drawn run-off end the 4th quarter or overtime; 2016-2023 has 1 game in 2,095 whose last 4th-quarter snap is by such a team with 15 s or more left. timeoutBeforeExpiry: a team calling a timeout lets the clock run first (the tempo cells of dead balls with a timeout) only to a second before the end of the half or the game, since a timeout is called before time expires. kneelOutDrain: a leading offense that can kneel out (the caller's kneelOut test, K1) lets the whole play clock run before each snap, the assumption that test makes. callerMasks: the average coach never spikes with the clock stopped (6 such spikes in 2,095 real games) and never kneels in Q1, Q3, or Q2 with more than 1:00 left (0 real kneels).",
     "clockOut": {
       "trailingMin": 1,
       "trailingMax": 8
     },
     "kneelOutDrain": true,
-    "kneelAgain": true,
     "timeoutBeforeExpiry": true,
     "callerMasks": {
       "spikeNeedsRunningClock": true,

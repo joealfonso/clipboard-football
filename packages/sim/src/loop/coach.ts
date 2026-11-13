@@ -207,8 +207,6 @@ export function choosePenalty(outcomes: readonly PenaltyOutcome[], offended: Tea
 /** What the offense's caller may know about the clock before a scrimmage snap (step 5c E). */
 export interface OffenseClock {
   readonly clockRunning: boolean;
-  /** The same offense kneeled on the previous snap of this period (step 5c F, second pass). */
-  readonly previousSnapKneel?: boolean;
 }
 
 export interface CoachPolicies {
@@ -255,28 +253,18 @@ export function drainsClock(view: CoachView, caller: CallerData): boolean {
   return binSituation(atSnap, caller.config.dimensions)["kneelOut"] === "K1";
 }
 
-/**
- * Step 5c milestone F, second pass (designed, clockRules.kneelAgain): a leader that kneeled on the
- * previous snap kneels again on downs 1-3 in the final 2:00 of the 4th quarter or overtime. Real
- * 2016-2023: 1,107 of 1,115 such snaps were kneels.
- */
-export function kneelsAgain(view: Situation): boolean {
-  return view.phase === "scrimmage" && view.quarter >= 4 && view.secondsLeftInGame <= 120 && view.scoreDiff > 0 && view.down >= 1 && view.down <= 3;
-}
-
 export function averageCoach(d: CoachData): CoachPolicies {
   const dims = d.config.dimensions;
   const final = d.config.runoffTimeout.finalSeconds;
   const rules = d.config.clockRules;
   const cm = rules?.callerMasks;
-  const masks = (view: Situation, clock: OffenseClock | undefined): CallerMasks => ({
+  const masks = (clock: OffenseClock | undefined): CallerMasks => ({
     ...(d.fieldGoals === undefined ? {} : { fieldGoals: d.fieldGoals }),
     ...(cm?.spikeNeedsRunningClock === true && clock !== undefined && !clock.clockRunning ? { clockStopped: true } : {}),
     ...(cm?.earlyKneel === undefined ? {} : { earlyKneel: cm.earlyKneel }),
-    ...(rules?.kneelAgain === true && clock?.previousSnapKneel === true && kneelsAgain(view) ? { kneelAgain: true } : {}),
   });
   return {
-    offenseCall: (view, rng, clock) => chooseOffenseCall(view, d.caller, rng, masks(view, clock)),
+    offenseCall: (view, rng, clock) => chooseOffenseCall(view, d.caller, rng, masks(clock)),
     defenseCall: (view, rng) => chooseDefenseCall(view, d.caller, rng),
     timeout(view, side, rng) {
       const p = timeoutShare(view, side, d.tables, dims, d.perDeadBall).value;

@@ -78,8 +78,6 @@ export interface CallerMasks {
   readonly clockStopped?: boolean;
   /** Milestone F: no kneel in `quarters`, nor in `halfEndQuarter` with more than `secondsAbove` left in the half. */
   readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number };
-  /** Milestone F, second pass: a kneel is the only call (downs 1-3; ignored when a kneel is not available). */
-  readonly kneelAgain?: boolean;
 }
 
 /** Top-level targets the masks remove in this situation. */
@@ -137,8 +135,7 @@ export function offenseShares(situation: Situation, data: CallerData, masks: Cal
       top = rest > 0 ? top.map((x, i) => (gone[i] === true ? 0 : x / rest)) : [0, 0, 1, 0, 0, 0];
     }
   } else {
-    const onlyKneel = masks.kneelAgain === true && avail.isAvailable("kneel", situation);
-    const t = maskedLookup(topTable, labels, topTable.targets.map((x) => avail.isAvailable(x, situation) && !blocked.has(x) && (!onlyKneel || x === "kneel")));
+    const t = maskedLookup(topTable, labels, topTable.targets.map((x) => avail.isAvailable(x, situation) && !blocked.has(x)));
     trace["oTop"] = t;
     top = topTable.targets.map((_, i) => w(t, i));
   }

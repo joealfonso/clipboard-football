@@ -41,7 +41,6 @@ export const gameConfigSchema = z
         clockOut: z.strictObject({ trailingMin: posInt, trailingMax: posInt }).optional(),
         kneelOutDrain: z.boolean().optional(),
         timeoutBeforeExpiry: z.boolean().optional(),
-        kneelAgain: z.boolean().optional(),
         callerMasks: z
           .looseObject({
             spikeNeedsRunningClock: z.boolean().optional(),

@@ -3586,7 +3586,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|1-3",
       "p": 0.005992
     },
@@ -3604,7 +3604,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|1-3",
       "p": 0.001019
     },
@@ -3622,7 +3622,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 7,
+      "level": 5,
       "key": "offense|GF|c40|L|0|1-3",
       "p": 0.013487
     },
@@ -3640,7 +3640,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 9,
+      "level": 7,
       "key": "defense|GF|T|0",
       "p": 0.014832
     },
@@ -3658,7 +3658,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -3676,7 +3676,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -3694,7 +3694,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -3712,7 +3712,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -3730,7 +3730,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -3748,7 +3748,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -3766,7 +3766,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|3|1-3",
       "p": 0.016351
     },
@@ -3784,7 +3784,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|3|1-3",
       "p": 0.004267
     },
@@ -3802,7 +3802,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -3820,7 +3820,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -3838,7 +3838,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -3856,7 +3856,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -3874,7 +3874,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|2|1-3",
       "p": 0.012205
     },
@@ -3892,7 +3892,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -3910,7 +3910,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -3928,7 +3928,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -3946,7 +3946,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|0|3|1-3",
       "p": 0.007655
     },
@@ -3964,7 +3964,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|0|2|1-3",
       "p": 0.000646
     },
@@ -3982,7 +3982,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -4000,7 +4000,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -4018,7 +4018,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|T|0|2|1-3",
       "p": 0.014659
     },
@@ -4036,7 +4036,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|L|0|3|1-3",
       "p": 0.009199
     },
@@ -4054,7 +4054,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|L|1|3|1-3",
       "p": 0.157028
     },
@@ -4072,7 +4072,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|T|1|3|1-3",
       "p": 0.256114
     },
@@ -4090,7 +4090,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -4108,7 +4108,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -4126,7 +4126,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|2|1-3",
       "p": 0.014606
     },
@@ -4144,7 +4144,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|3|1-3",
       "p": 0.004267
     },
@@ -4162,7 +4162,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -4180,7 +4180,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -4198,7 +4198,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 7,
+      "level": 5,
       "key": "offense|H1|-|L|1|4",
       "p": 0.03914
     },
@@ -4216,7 +4216,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|3|4",
       "p": 0.019007
     },
@@ -4234,7 +4234,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|1-3",
       "p": 0.005992
     },
@@ -4252,7 +4252,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|1-3",
       "p": 0.001019
     },
@@ -4270,7 +4270,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|1-3",
       "p": 0.006528
     },
@@ -4288,7 +4288,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -4324,7 +4324,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L9|0|1|1-3",
       "p": 0.006013
     },
@@ -4342,7 +4342,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -4360,7 +4360,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -4378,7 +4378,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -4396,7 +4396,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -4414,7 +4414,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|T|0|2|1-3",
       "p": 0.014659
     },
@@ -4432,7 +4432,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|L|0|2|1-3",
       "p": 0.014401
     },
@@ -4450,7 +4450,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -4468,7 +4468,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -4486,7 +4486,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -4504,7 +4504,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -4522,7 +4522,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -4540,7 +4540,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|2|1-3",
       "p": 0.013811
     },
@@ -4558,7 +4558,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -4576,7 +4576,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -4594,7 +4594,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -4612,7 +4612,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -4630,7 +4630,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -4648,7 +4648,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -4666,7 +4666,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -4684,7 +4684,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -4702,7 +4702,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -4720,7 +4720,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -4738,7 +4738,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|2|1-3",
       "p": 0.004488
     },
@@ -4756,7 +4756,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -4774,7 +4774,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -4792,7 +4792,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|2|1-3",
       "p": 0.004222
     },
@@ -4810,7 +4810,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -4828,7 +4828,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|2|1-3",
       "p": 0.013811
     },
@@ -4846,7 +4846,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -4864,7 +4864,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|2|1-3",
       "p": 0.00275
     },
@@ -4882,7 +4882,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|4",
       "p": 0.003954
     },
@@ -4900,7 +4900,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|4",
       "p": 0.005503
     },
@@ -4918,7 +4918,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|4",
       "p": 0.015751
     },
@@ -4936,7 +4936,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|4",
       "p": 0.0157
     },
@@ -4954,7 +4954,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -4972,7 +4972,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -4990,7 +4990,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|3|1-3",
       "p": 0.009285
     },
@@ -5008,7 +5008,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|0|3|1-3",
       "p": 0.003143
     },
@@ -5026,7 +5026,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -5044,7 +5044,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -5062,7 +5062,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -5080,7 +5080,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|2|1-3",
       "p": 0.013811
     },
@@ -5098,7 +5098,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|3|1-3",
       "p": 0.009285
     },
@@ -5116,7 +5116,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|0|3|1-3",
       "p": 0.003143
     },
@@ -5134,7 +5134,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -5152,7 +5152,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -5170,7 +5170,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|3|1-3",
       "p": 0.009285
     },
@@ -5188,7 +5188,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|0|2|1-3",
       "p": 0.002211
     },
@@ -5206,7 +5206,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -5224,7 +5224,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -5242,7 +5242,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|0|3|1-3",
       "p": 0.007655
     },
@@ -5260,7 +5260,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|0|3|1-3",
       "p": 0.001384
     },
@@ -5278,7 +5278,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -5296,7 +5296,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -5314,7 +5314,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|0|3|1-3",
       "p": 0.007655
     },
@@ -5332,7 +5332,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|0|3|1-3",
       "p": 0.001384
     },
@@ -5350,7 +5350,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|4",
       "p": 0.007299
     },
@@ -5368,7 +5368,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|4",
       "p": 0.003167
     },
@@ -5386,7 +5386,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|1-3",
       "p": 0.006528
     },
@@ -5404,7 +5404,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -5422,7 +5422,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|0|1|3|1-3",
       "p": 0.006664
     },
@@ -5440,7 +5440,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|0|1|3|1-3",
       "p": 0.001898
     },
@@ -5458,7 +5458,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|2|1-3",
       "p": 0.005758
     },
@@ -5476,7 +5476,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|2|1-3",
       "p": 0.00275
     },
@@ -5494,7 +5494,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -5512,7 +5512,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -5530,7 +5530,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -5548,7 +5548,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -5566,7 +5566,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -5584,7 +5584,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -5602,7 +5602,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -5620,7 +5620,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -5638,7 +5638,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -5656,7 +5656,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -5674,7 +5674,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|2|1-3",
       "p": 0.005758
     },
@@ -5692,7 +5692,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|2|1-3",
       "p": 0.00275
     },
@@ -5710,7 +5710,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -5728,7 +5728,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -5746,7 +5746,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -5764,7 +5764,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -5782,7 +5782,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|1-3",
       "p": 0.006528
     },
@@ -5800,7 +5800,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|2|1-3",
       "p": 0.002304
     },
@@ -5818,7 +5818,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|4",
       "p": 0.01562
     },
@@ -5836,7 +5836,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|4",
       "p": 0.008151
     },
@@ -5854,7 +5854,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|1-3",
       "p": 0.005992
     },
@@ -5872,7 +5872,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|1-3",
       "p": 0.001019
     },
@@ -5890,7 +5890,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|2|1-3",
       "p": 0.012205
     },
@@ -5908,7 +5908,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -5926,7 +5926,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c40|T|1|1|1-3",
       "p": 0.582365
     },
@@ -5944,7 +5944,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c40|L|1|2|1-3",
       "p": 0.094744
     },
@@ -5962,7 +5962,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|4",
       "p": 0.015751
     },
@@ -5980,7 +5980,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|4",
       "p": 0.0157
     },
@@ -5998,7 +5998,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|0|3|1-3",
       "p": 0.007655
     },
@@ -6016,7 +6016,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|0|3|1-3",
       "p": 0.001384
     },
@@ -6034,7 +6034,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -6052,7 +6052,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -6070,7 +6070,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c40|T|0|3|1-3",
       "p": 0.045699
     },
@@ -6088,7 +6088,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c40|L|0|2|1-3",
       "p": 0.085639
     },
@@ -6106,7 +6106,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -6124,7 +6124,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -6142,7 +6142,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|L|0|3|1-3",
       "p": 0.022623
     },
@@ -6160,7 +6160,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|T|0|2|1-3",
       "p": 0.015749
     },
@@ -6178,7 +6178,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|1-3",
       "p": 0.006528
     },
@@ -6196,7 +6196,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -6214,7 +6214,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|4",
       "p": 0.015751
     },
@@ -6232,7 +6232,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|4",
       "p": 0.0157
     },
@@ -6250,7 +6250,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -6268,7 +6268,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -6286,7 +6286,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|G5|-|L|0",
       "p": 0.029258
     },
@@ -6304,7 +6304,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|G5|-|T|0",
       "p": 0.008095
     },
@@ -6322,7 +6322,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -6340,7 +6340,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -6358,7 +6358,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|3|1-3",
       "p": 0.016351
     },
@@ -6376,7 +6376,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|2|1-3",
       "p": 0.005062
     },
@@ -6394,7 +6394,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -6412,7 +6412,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -6430,7 +6430,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|2|1-3",
       "p": 0.012205
     },
@@ -6448,7 +6448,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -6466,7 +6466,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|2|1-3",
       "p": 0.00649
     },
@@ -6484,7 +6484,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -6502,7 +6502,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -6520,7 +6520,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -6538,7 +6538,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|0|0|3|1-3",
       "p": 0.00887
     },
@@ -6556,7 +6556,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|0|0|3|1-3",
       "p": 0.003487
     },
@@ -6574,7 +6574,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|2|1-3",
       "p": 0.012205
     },
@@ -6592,7 +6592,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -6610,7 +6610,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -6628,7 +6628,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -6646,7 +6646,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|0|0|2|1-3",
       "p": 0.020626
     },
@@ -6664,7 +6664,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|0|0|3|1-3",
       "p": 0.011453
     },
@@ -6682,7 +6682,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|3|1-3",
       "p": 0.016351
     },
@@ -6700,7 +6700,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|3|1-3",
       "p": 0.004267
     },
@@ -6718,7 +6718,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|2|1-3",
       "p": 0.014606
     },
@@ -6736,7 +6736,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|2|1-3",
       "p": 0.005062
     },
@@ -6754,7 +6754,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -6772,7 +6772,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -6790,7 +6790,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|1-3",
       "p": 0.005992
     },
@@ -6808,7 +6808,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|1-3",
       "p": 0.001019
     },
@@ -6826,7 +6826,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|4",
       "p": 0.007299
     },
@@ -6844,7 +6844,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|4",
       "p": 0.003167
     },
@@ -6862,7 +6862,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|2|1-3",
       "p": 0.004488
     },
@@ -6880,7 +6880,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|2|1-3",
       "p": 0.004222
     },
@@ -6898,7 +6898,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|1-3",
       "p": 0.006528
     },
@@ -6916,7 +6916,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -6934,7 +6934,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -6952,7 +6952,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -6970,7 +6970,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -6988,7 +6988,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -7006,7 +7006,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -7024,7 +7024,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -7042,7 +7042,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|2|1-3",
       "p": 0.012205
     },
@@ -7060,7 +7060,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -7078,7 +7078,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|3|1-3",
       "p": 0.009285
     },
@@ -7096,7 +7096,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|0|3|1-3",
       "p": 0.003143
     },
@@ -7114,7 +7114,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -7132,7 +7132,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -7150,7 +7150,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -7168,7 +7168,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -7186,7 +7186,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|2|1-3",
       "p": 0.014606
     },
@@ -7204,7 +7204,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|3|1-3",
       "p": 0.004267
     },
@@ -7222,7 +7222,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|3|1-3",
       "p": 0.006528
     },
@@ -7240,7 +7240,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -7258,7 +7258,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|1-3",
       "p": 0.005992
     },
@@ -7276,7 +7276,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|1-3",
       "p": 0.001019
     },
@@ -7294,7 +7294,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -7312,7 +7312,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -7330,7 +7330,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -7348,7 +7348,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -7366,7 +7366,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|4",
       "p": 0.034317
     },
@@ -7384,7 +7384,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|4",
       "p": 0.013613
     },
@@ -7402,7 +7402,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -7420,7 +7420,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -7438,7 +7438,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 7,
+      "level": 5,
       "key": "offense|H1F|c120|T|1|4",
       "p": 0.07507
     },
@@ -7456,7 +7456,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 7,
+      "level": 5,
       "key": "defense|H1F|c120|L|1|4",
       "p": 0.787397
     },
@@ -7474,7 +7474,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|2|1-3",
       "p": 0.006001
     },
@@ -7492,7 +7492,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|0|3|1-3",
       "p": 0.003143
     },
@@ -7510,7 +7510,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c120|L9|0",
       "p": 0.004076
     },
@@ -7546,7 +7546,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -7564,7 +7564,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -7582,7 +7582,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|2|1-3",
       "p": 0.014008
     },
@@ -7600,7 +7600,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -7618,7 +7618,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -7636,7 +7636,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -7654,7 +7654,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -7672,7 +7672,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|2|1-3",
       "p": 0.013811
     },
@@ -7726,7 +7726,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|0|1|2|1-3",
       "p": 0.026304
     },
@@ -7744,7 +7744,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|0|1|2|1-3",
       "p": 0.012646
     },
@@ -7762,7 +7762,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -7780,7 +7780,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -7798,7 +7798,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T9|0|3|1-3",
       "p": 0.001322
     },
@@ -7834,7 +7834,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|1|3|1-3",
       "p": 0.007158
     },
@@ -7852,7 +7852,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|1|3|1-3",
       "p": 0.003907
     },
@@ -7870,7 +7870,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -7888,7 +7888,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -7906,7 +7906,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -7924,7 +7924,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -7942,7 +7942,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -7960,7 +7960,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -7978,7 +7978,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|0|1|2|1-3",
       "p": 0.026304
     },
@@ -7996,7 +7996,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|0|1|3|1-3",
       "p": 0.001898
     },
@@ -8014,7 +8014,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -8032,7 +8032,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -8050,7 +8050,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|3|1-3",
       "p": 0.009285
     },
@@ -8068,7 +8068,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|0|3|1-3",
       "p": 0.003143
     },
@@ -8086,7 +8086,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|4",
       "p": 0.015751
     },
@@ -8104,7 +8104,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|4",
       "p": 0.0157
     },
@@ -8122,7 +8122,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|3|1-3",
       "p": 0.011809
     },
@@ -8140,7 +8140,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|2|1-3",
       "p": 0.004114
     },
@@ -8158,7 +8158,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|0|0|2|1-3",
       "p": 0.01586
     },
@@ -8176,7 +8176,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|0|0|2|1-3",
       "p": 0.015943
     },
@@ -8194,7 +8194,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|L|1|3|1-3",
       "p": 0.157028
     },
@@ -8212,7 +8212,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|T|1|2|1-3",
       "p": 0.265316
     },
@@ -8230,7 +8230,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1F|c120|L|0|2|1-3",
       "p": 0.008632
     },
@@ -8248,7 +8248,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|T|0|1|1-3",
       "p": 0.010874
     },
@@ -8266,7 +8266,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|G5|-|L|1|2|1-3",
       "p": 0.022395
     },
@@ -8284,7 +8284,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|T|1|1|1-3",
       "p": 0.609077
     },
@@ -8302,7 +8302,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|0|3|4",
       "p": 0.002219
     },
@@ -8320,7 +8320,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 7,
+      "level": 5,
       "key": "defense|H1|-|T|0|4",
       "p": 0.004045
     },
@@ -8338,7 +8338,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|1|2|1-3",
       "p": 0.012205
     },
@@ -8356,7 +8356,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|1|3|1-3",
       "p": 0.004404
     },
@@ -8374,7 +8374,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|0|3|1-3",
       "p": 0.005992
     },
@@ -8392,7 +8392,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|0|3|1-3",
       "p": 0.001019
     },
@@ -8410,7 +8410,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -8428,7 +8428,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -8446,7 +8446,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -8464,7 +8464,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -8482,7 +8482,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|1-3",
       "p": 0.007125
     },
@@ -8500,7 +8500,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|1-3",
       "p": 0.001798
     },
@@ -8518,7 +8518,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|4",
       "p": 0.01562
     },
@@ -8536,7 +8536,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|4",
       "p": 0.008151
     },
@@ -8554,7 +8554,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|G5|-|L9|0|3|1-3",
       "p": 0.03252
     },
@@ -8572,7 +8572,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|T9|0|3|1-3",
       "p": 0.004983
     },
@@ -8590,7 +8590,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|0|1|3|1-3",
       "p": 0.00978
     },
@@ -8608,7 +8608,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|3|1-3",
       "p": 0.003259
     },
@@ -8626,7 +8626,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|G5|-|L|1|3|1-3",
       "p": 0.037042
     },
@@ -8644,7 +8644,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|T|1|2|1-3",
       "p": 0.446777
     },
@@ -8662,7 +8662,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|4",
       "p": 0.006372
     },
@@ -8680,7 +8680,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|4",
       "p": 0.007344
     },
@@ -8698,7 +8698,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|G5|-|T9|1|3|1-3",
       "p": 0.00866
     },
@@ -8716,7 +8716,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L9|1|3|1-3",
       "p": 0.004888
     },
@@ -8734,7 +8734,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|T|0|3|4",
       "p": 0.006372
     },
@@ -8752,7 +8752,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|L|0|3|4",
       "p": 0.007344
     },
@@ -8770,7 +8770,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|G5|-|T|1|3|1-3",
       "p": 0.008477
     },
@@ -8788,7 +8788,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L|1|1|1-3",
       "p": 0.013652
     },
@@ -8806,7 +8806,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|G5|-|L9|1|2|1-3",
       "p": 0.040412
     },
@@ -8824,7 +8824,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|T9|1|2|1-3",
       "p": 0.446653
     },
@@ -8842,7 +8842,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -8860,7 +8860,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -8878,7 +8878,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|L|1|2|1-3",
       "p": 0.014606
     },
@@ -8896,7 +8896,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|T|1|3|1-3",
       "p": 0.004267
     },
@@ -8914,7 +8914,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H1|-|T|0|2|1-3",
       "p": 0.00649
     },
@@ -8932,7 +8932,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|L|0|3|1-3",
       "p": 0.003226
     },
@@ -8950,7 +8950,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 6,
+      "level": 4,
       "key": "offense|H2|-|L|1|3|1-3",
       "p": 0.015514
     },
@@ -8968,7 +8968,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -8986,7 +8986,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|L|0|1|1-3",
       "p": 0.022526
     },
@@ -9004,7 +9004,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|T|0|1|1-3",
       "p": 0.006923
     },
@@ -9076,7 +9076,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c40|L|0|2|1-3",
       "p": 0.144687
     },
@@ -9094,7 +9094,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|L|1",
       "p": 0.187417
     },
@@ -9148,7 +9148,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H2|-|T|1|3|1-3",
       "p": 0.005646
     },
@@ -9166,7 +9166,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|3|1-3",
       "p": 0.023014
     },
@@ -9184,7 +9184,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|2|1-3",
       "p": 0.009879
     },
@@ -9256,7 +9256,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L9|0|3|1-3",
       "p": 0.01837
     },
@@ -9274,7 +9274,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|T9|1",
       "p": 0.237614
     },
@@ -9292,7 +9292,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c40|L9|1|2|1-3",
       "p": 0.04558
     },
@@ -9310,7 +9310,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c120|0|0",
       "p": 0.013656
     },
@@ -9328,7 +9328,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c120|0|0",
       "p": 0.016039
     },
@@ -9364,7 +9364,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c40|L9|0|2|1-3",
       "p": 0.060716
     },
@@ -9382,7 +9382,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T9|1|2|1-3",
       "p": 0.183456
     },
@@ -9400,7 +9400,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L9|1|3|1-3",
       "p": 0.022985
     },
@@ -9418,7 +9418,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|0|0",
       "p": 0.043704
     },
@@ -9436,7 +9436,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c40|0|0",
       "p": 0.155358
     },
@@ -9455,8 +9455,8 @@
       },
       "side": "offense",
       "level": 0,
-      "key": "offense|GF|c40|L|Kc|1",
-      "p": 0.003185
+      "key": "offense|GF|c40|L|K|1",
+      "p": 0.024944
     },
     {
       "view": {
@@ -9508,7 +9508,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c40|L9|0",
       "p": 0.042809
     },
@@ -9526,7 +9526,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|0|0|2|1-3",
       "p": 0.01586
     },
@@ -9544,7 +9544,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c120|0|0",
       "p": 0.016039
     },
@@ -9562,7 +9562,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c40|T|1|1|1-3",
       "p": 0.507517
     },
@@ -9580,7 +9580,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c40|L|1|2|1-3",
       "p": 0.102947
     },
@@ -9598,7 +9598,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|3|1-3",
       "p": 0.023014
     },
@@ -9616,7 +9616,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|2|1-3",
       "p": 0.009879
     },
@@ -9652,7 +9652,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|1|3|1-3",
       "p": 0.1975
     },
@@ -9688,7 +9688,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L|0|3|1-3",
       "p": 0.002448
     },
@@ -9724,7 +9724,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c120|T|1|2|1-3",
       "p": 0.265316
     },
@@ -9760,7 +9760,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L9|0|3|1-3",
       "p": 0.013124
     },
@@ -9814,7 +9814,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|1|1-3",
       "p": 0.014907
     },
@@ -9832,7 +9832,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|2|1-3",
       "p": 0.009879
     },
@@ -9850,7 +9850,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T9|0|1|1-3",
       "p": 0.015254
     },
@@ -9868,7 +9868,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L9|0|1|1-3",
       "p": 0.011027
     },
@@ -9904,7 +9904,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L9|0|2|1-3",
       "p": 0.01339
     },
@@ -9922,7 +9922,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c40|T|0|1|1-3",
       "p": 0.127137
     },
@@ -9940,7 +9940,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c40|L|0|1|1-3",
       "p": 0.147898
     },
@@ -9958,7 +9958,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|3|1-3",
       "p": 0.023014
     },
@@ -9976,7 +9976,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|3|1-3",
       "p": 0.013597
     },
@@ -9995,8 +9995,8 @@
       },
       "side": "offense",
       "level": 0,
-      "key": "offense|GF|c40|L9|Kc|1",
-      "p": 0.0
+      "key": "offense|GF|c40|L9|K|1",
+      "p": 0.026657
     },
     {
       "view": {
@@ -10013,8 +10013,8 @@
       },
       "side": "defense",
       "level": 0,
-      "key": "defense|GF|c40|T9|Kc|1",
-      "p": 0.005495
+      "key": "defense|GF|c40|T9|K|1",
+      "p": 0.00527
     },
     {
       "view": {
@@ -10048,7 +10048,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|G5|-|L9|0|2|1-3",
       "p": 0.01339
     },
@@ -10066,7 +10066,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T9|1|1|1-3",
       "p": 0.132672
     },
@@ -10084,7 +10084,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L9|1|2|1-3",
       "p": 0.036694
     },
@@ -10102,7 +10102,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|3|1-3",
       "p": 0.023014
     },
@@ -10120,7 +10120,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|1|1-3",
       "p": 0.009183
     },
@@ -10138,7 +10138,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|L9|1|3|1-3",
       "p": 0.054183
     },
@@ -10156,7 +10156,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c120|T9|1",
       "p": 0.391664
     },
@@ -10174,7 +10174,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c120|L9|1",
       "p": 0.13051
     },
@@ -10228,7 +10228,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c40|L9|1",
       "p": 0.038142
     },
@@ -10246,7 +10246,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|2|1-3",
       "p": 0.031474
     },
@@ -10264,7 +10264,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|3|1-3",
       "p": 0.013597
     },
@@ -10300,7 +10300,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|3|1-3",
       "p": 0.013597
     },
@@ -10336,7 +10336,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c40|L|1|1|1-3",
       "p": 0.121993
     },
@@ -10426,7 +10426,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|L|0|2|1-3",
       "p": 0.015838
     },
@@ -10444,7 +10444,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c120|T|0",
       "p": 0.011174
     },
@@ -10462,7 +10462,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|0|0",
       "p": 0.043704
     },
@@ -10480,7 +10480,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c40|0|0",
       "p": 0.155358
     },
@@ -10498,7 +10498,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|0|0|2|1-3",
       "p": 0.01586
     },
@@ -10516,7 +10516,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|0|0|2|1-3",
       "p": 0.015943
     },
@@ -10571,8 +10571,8 @@
       },
       "side": "offense",
       "level": 0,
-      "key": "offense|GF|c40|L9|Kc|1",
-      "p": 0.0
+      "key": "offense|GF|c40|L9|K|1",
+      "p": 0.026657
     },
     {
       "view": {
@@ -10606,7 +10606,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|0|0",
       "p": 0.043704
     },
@@ -10624,7 +10624,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c40|0|0",
       "p": 0.155358
     },
@@ -10678,7 +10678,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|L|0",
       "p": 0.01612
     },
@@ -10714,7 +10714,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|L9|0|1|1-3",
       "p": 0.0
     },
@@ -10732,7 +10732,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|T9|0|3|1-3",
       "p": 0.00833
     },
@@ -10750,7 +10750,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c120|T|0",
       "p": 0.035876
     },
@@ -10768,7 +10768,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 5,
+      "level": 3,
       "key": "defense|GF|c120|L|0",
       "p": 0.022336
     },
@@ -10786,7 +10786,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|L|0",
       "p": 0.01612
     },
@@ -10822,7 +10822,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|1|3|1-3",
       "p": 0.146149
     },
@@ -10840,7 +10840,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|1|1|1-3",
       "p": 0.2732
     },
@@ -10876,7 +10876,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1|-|0|1|2|1-3",
       "p": 0.004857
     },
@@ -10894,7 +10894,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T|0|3|1-3",
       "p": 0.023014
     },
@@ -10912,7 +10912,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|2|1-3",
       "p": 0.009879
     },
@@ -10930,7 +10930,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|T9|0|2|1-3",
       "p": 0.008299
     },
@@ -10948,7 +10948,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L9|0|3|1-3",
       "p": 0.01837
     },
@@ -10966,7 +10966,7 @@
         "timeoutCalled": 0
       },
       "side": "offense",
-      "level": 5,
+      "level": 3,
       "key": "offense|GF|c40|L|1",
       "p": 0.187417
     },
@@ -11056,7 +11056,7 @@
         "timeoutCalled": 0
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|L|0|3|1-3",
       "p": 0.013597
     },
@@ -11074,7 +11074,7 @@
         "timeoutCalled": 1
       },
       "side": "offense",
-      "level": 4,
+      "level": 2,
       "key": "offense|GF|c120|L|1|3|1-3",
       "p": 0.096391
     },
@@ -11092,7 +11092,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 4,
+      "level": 2,
       "key": "defense|GF|c120|T|1|2|1-3",
       "p": 0.957626
     },
@@ -11128,7 +11128,7 @@
         "timeoutCalled": 1
       },
       "side": "defense",
-      "level": 6,
+      "level": 4,
       "key": "defense|H1F|c40|L|0|2|1-3",
       "p": 0.085639
     }
