@@ -332,7 +332,8 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     if (!ranOff && !runoff(false)) return { state: s, events, inputs, snaps, lastSnap: null };
     const sit = toSituation(s, rules);
     const off = team(s.possession);
-    offense = off.coach.offenseCall(sit, rng, { clockRunning: s.clockRunning });
+    const prevKneel = lastSnap !== null && lastSnap.kneel && lastSnap.possession === s.possession && lastSnap.period === s.period;
+    offense = off.coach.offenseCall(sit, rng, { clockRunning: s.clockRunning, previousSnapKneel: prevKneel });
     defense = FORMATION_PLAYS.includes(offense.call) ? team(other(s.possession)).coach.defenseCall(sit, rng) : null;
     runoffTimeout = off.coach.runoffTimeout(coachView(s, rules, lastSnap));
     snaps++;
