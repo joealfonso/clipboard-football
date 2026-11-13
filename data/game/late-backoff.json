@@ -1,25 +1,11 @@
 {
  "generated": true,
  "games": 10000,
- "lateLookups": 183563,
+ "lateLookups": 170216,
  "rows": [
   {
    "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|OWN",
-   "lateTime": "GF",
-   "score": ">=9",
-   "lookups": 394,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -27,13 +13,13 @@
    "key": "7-10|OWN",
    "lateTime": "GF",
    "score": ">=9",
-   "lookups": 253,
+   "lookups": 133,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -41,13 +27,13 @@
    "key": "4-6|OWN",
    "lateTime": "GF",
    "score": ">=9",
-   "lookups": 188,
+   "lookups": 130,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -55,55 +41,27 @@
    "key": "2-3|OWN",
    "lateTime": "GF",
    "score": ">=9",
-   "lookups": 120,
+   "lookups": 115,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "11+|OWN",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 100,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "7-10|OWN",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 92,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 19,
-   "dims": [
-    "dist3",
-    "zone6"
-   ],
-   "key": "7+|BACK",
    "lateTime": "GF",
    "score": ">=9",
-   "lookups": 87,
+   "lookups": 114,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -111,32 +69,32 @@
    "key": "4-6|OWN",
    "lateTime": "OT",
    "score": "0",
-   "lookups": 83,
+   "lookups": 95,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 94,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "7-10|OWN",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 81,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "2-3|OWN",
    "lateTime": "OT",
    "score": "0",
    "lookups": 77,
@@ -145,7 +103,7 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -153,33 +111,33 @@
    "key": "11+|OWN",
    "lateTime": "GF",
    "score": "0",
-   "lookups": 65,
+   "lookups": 70,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "4-6|OWN",
+   "key": "7-10|OWN",
    "lateTime": "GF",
    "score": "0",
-   "lookups": 64,
+   "lookups": 56,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "2-3|OWN",
-   "lateTime": "GF",
+   "lateTime": "OT",
    "score": "0",
    "lookups": 51,
    "b9a": 0,
@@ -187,7 +145,7 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -195,75 +153,33 @@
    "key": "1|OWN",
    "lateTime": "GF",
    "score": ">=9",
-   "lookups": 45,
+   "lookups": 50,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "7-10|RZ",
-   "lateTime": "OT",
+   "key": "4-6|OWN",
+   "lateTime": "GF",
    "score": "0",
-   "lookups": 44,
+   "lookups": 47,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "7-10|MID",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 38,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|MID",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 35,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "1|OWN",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 34,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|FR",
-   "lateTime": "OT",
+   "key": "2-3|OWN",
+   "lateTime": "GF",
    "score": "0",
    "lookups": 33,
    "b9a": 0,
@@ -271,49 +187,7 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "4-6|FR",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 33,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "7-10|FR",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 33,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "2-3|MID",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 31,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -321,13 +195,69 @@
    "key": "4-6|MID",
    "lateTime": "OT",
    "score": "0",
+   "lookups": 33,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 32,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 32,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 32,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|MID",
+   "lateTime": "GF",
+   "score": "0",
    "lookups": 31,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -335,32 +265,74 @@
    "key": "4-6|RZ",
    "lateTime": "OT",
    "score": "0",
-   "lookups": 28,
+   "lookups": 31,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "7-10|MID",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 27,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "2-3|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 30,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 30,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|MID",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 29,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 29,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|MID",
    "lateTime": "OT",
    "score": "0",
    "lookups": 26,
@@ -369,12 +341,26 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "2-3|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 26,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|FR",
    "lateTime": "GF",
    "score": "0",
    "lookups": 25,
@@ -383,7 +369,77 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 22,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|MID",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 22,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 21,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 21,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 20,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -391,83 +447,55 @@
    "key": "2-3|FR",
    "lateTime": "OT",
    "score": "0",
-   "lookups": 22,
+   "lookups": 20,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "4-6|MID",
-   "lateTime": "G5",
+   "key": "1|OWN",
+   "lateTime": "GF",
    "score": "0",
-   "lookups": 22,
+   "lookups": 19,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 19,
+   "level": 23,
    "dims": [
     "dist3",
     "zone6"
    ],
    "key": "7+|BACK",
-   "lateTime": "OT",
-   "score": "0",
-   "lookups": 22,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|RZ",
-   "lateTime": "OT",
-   "score": "0",
+   "lateTime": "GF",
+   "score": ">=9",
    "lookups": 19,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "7-10|FR",
-   "lateTime": "G5",
-   "score": "0",
-   "lookups": 19,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "7-10|FR",
+   "key": "2-3|FR",
    "lateTime": "GF",
    "score": "0",
-   "lookups": 17,
+   "lookups": 18,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -481,25 +509,12 @@
   },
   {
    "factor": "o4Top",
-   "level": 20,
-   "dims": [
-    "zone6"
-   ],
-   "key": "BACK",
-   "lateTime": "GF",
-   "score": ">=9",
-   "lookups": 17,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "2-3|MID",
+   "key": "11+|MID",
    "lateTime": "G5",
    "score": "0",
    "lookups": 16,
@@ -508,40 +523,12 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "4-6|RZ",
-   "lateTime": "G5",
-   "score": "0",
-   "lookups": 16,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 19,
-   "dims": [
-    "dist3",
-    "zone6"
-   ],
-   "key": "7+|BACK",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 16,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "1|MID",
+   "key": "2-3|GL",
    "lateTime": "OT",
    "score": "0",
    "lookups": 15,
@@ -550,147 +537,49 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 23,
    "dims": [
-    "dist5",
+    "dist3",
     "zone6"
    ],
-   "key": "1|OWN",
-   "lateTime": "G5",
-   "score": "0",
-   "lookups": 14,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "2-3|FR",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 14,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "2-3|RZ",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 14,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "4-6|MID",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 14,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "1|RZ",
+   "key": "7+|BACK",
    "lateTime": "OT",
    "score": "0",
-   "lookups": 13,
+   "lookups": 15,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "4-6|RZ",
+   "key": "11+|MID",
    "lateTime": "GF",
    "score": "0",
-   "lookups": 13,
+   "lookups": 14,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "1|OWN",
+   "key": "2-3|MID",
    "lateTime": "GF",
    "score": "0",
-   "lookups": 12,
+   "lookups": 14,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|FR",
-   "lateTime": "G5",
-   "score": "0",
-   "lookups": 12,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|RZ",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 12,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "4-6|FR",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 12,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -698,69 +587,41 @@
    "key": "7-10|MID",
    "lateTime": "G5",
    "score": "0",
-   "lookups": 12,
+   "lookups": 14,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "7-10|RZ",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 12,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|FR",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 11,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "2-3|FR",
+   "key": "1|OWN",
    "lateTime": "G5",
    "score": "0",
-   "lookups": 11,
+   "lookups": 13,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "2-3|GL",
-   "lateTime": "OT",
+   "key": "2-3|MID",
+   "lateTime": "G5",
    "score": "0",
-   "lookups": 11,
+   "lookups": 13,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -768,13 +629,27 @@
    "key": "2-3|RZ",
    "lateTime": "G5",
    "score": "0",
-   "lookups": 11,
+   "lookups": 13,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -782,18 +657,45 @@
    "key": "4-6|FR",
    "lateTime": "G5",
    "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 24,
+   "dims": [
+    "zone6"
+   ],
+   "key": "GL",
+   "lateTime": "GF",
+   "score": "0",
    "lookups": 11,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "1|GL",
+   "key": "1|MID",
    "lateTime": "OT",
    "score": "0",
    "lookups": 10,
@@ -802,13 +704,13 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "11+|MID",
-   "lateTime": "G5",
+   "key": "2-3|GL",
+   "lateTime": "GF",
    "score": "0",
    "lookups": 10,
    "b9a": 0,
@@ -816,12 +718,12 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "1|FR",
+   "key": "11+|RZ",
    "lateTime": "G5",
    "score": "0",
    "lookups": 9,
@@ -830,12 +732,12 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "2-3|GL",
+   "key": "2-3|RZ",
    "lateTime": "GF",
    "score": "0",
    "lookups": 9,
@@ -844,12 +746,13 @@
   },
   {
    "factor": "o4Top",
-   "level": 20,
+   "level": 22,
    "dims": [
+    "dist5",
     "zone6"
    ],
-   "key": "GL",
-   "lateTime": "OT",
+   "key": "7-10|FR",
+   "lateTime": "G5",
    "score": "0",
    "lookups": 9,
    "b9a": 0,
@@ -857,12 +760,26 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
-   "key": "11+|RZ",
+   "key": "1|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 8,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|FR",
    "lateTime": "G5",
    "score": "0",
    "lookups": 8,
@@ -871,7 +788,34 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 23,
+   "dims": [
+    "dist3",
+    "zone6"
+   ],
+   "key": "7+|BACK",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 8,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 24,
+   "dims": [
+    "zone6"
+   ],
+   "key": "GL",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 8,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -885,26 +829,25 @@
   },
   {
    "factor": "o4Top",
-   "level": 19,
+   "level": 24,
    "dims": [
-    "dist3",
     "zone6"
    ],
-   "key": "7+|BACK",
-   "lateTime": "G5",
-   "score": "0",
+   "key": "BACK",
+   "lateTime": "GF",
+   "score": ">=9",
    "lookups": 7,
    "b9a": 0,
    "b9b": 0
   },
   {
    "factor": "o4Top",
-   "level": 20,
+   "level": 24,
    "dims": [
     "zone6"
    ],
    "key": "GL",
-   "lateTime": "GF",
+   "lateTime": "OT",
    "score": "0",
    "lookups": 7,
    "b9a": 0,
@@ -912,12 +855,54 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "1|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 6,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 6,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 6,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|RZ",
    "lateTime": "OT",
    "score": "0",
    "lookups": 6,
@@ -926,7 +911,7 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -940,21 +925,7 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "1|GL",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 5,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
@@ -968,54 +939,55 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "11+|MID",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 5,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 20,
-   "dims": [
-    "zone6"
-   ],
-   "key": "GL",
-   "lateTime": "G5",
-   "score": "0",
-   "lookups": 5,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "1|FR",
-   "lateTime": "GF",
-   "score": "0",
-   "lookups": 3,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "1|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 4,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|FR",
    "lateTime": "GF",
+   "score": "0",
+   "lookups": 4,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 23,
+   "dims": [
+    "dist3",
+    "zone6"
+   ],
+   "key": "7+|BACK",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 4,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|FR",
+   "lateTime": "G5",
    "score": "0",
    "lookups": 3,
    "b9a": 0,
@@ -1023,11 +995,12 @@
   },
   {
    "factor": "o4Top",
-   "level": 20,
+   "level": 22,
    "dims": [
+    "dist5",
     "zone6"
    ],
-   "key": "BACK",
+   "key": "1|GL",
    "lateTime": "OT",
    "score": "0",
    "lookups": 3,
@@ -1036,7 +1009,48 @@
   },
   {
    "factor": "o4Top",
-   "level": 20,
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|FR",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 3,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 24,
+   "dims": [
+    "zone6"
+   ],
+   "key": "BACK",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 3,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|GL",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 2,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 24,
    "dims": [
     "zone6"
    ],
@@ -1049,40 +1063,26 @@
   },
   {
    "factor": "o4Top",
-   "level": 18,
+   "level": 24,
+   "dims": [
+    "zone6"
+   ],
+   "key": "BACK",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 2,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 22,
    "dims": [
     "dist5",
     "zone6"
    ],
    "key": "1|GL",
    "lateTime": "G5",
-   "score": "0",
-   "lookups": 1,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 18,
-   "dims": [
-    "dist5",
-    "zone6"
-   ],
-   "key": "1|RZ",
-   "lateTime": "G5",
-   "score": "0",
-   "lookups": 1,
-   "b9a": 0,
-   "b9b": 0
-  },
-  {
-   "factor": "o4Top",
-   "level": 20,
-   "dims": [
-    "zone6"
-   ],
-   "key": "BACK",
-   "lateTime": "GF",
    "score": "0",
    "lookups": 1,
    "b9a": 0,

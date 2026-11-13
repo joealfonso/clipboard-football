@@ -58,7 +58,8 @@ export function lateBackoff(): { games: number; lateLookups: number; rows: LateB
     onGame: (record) => {
       for (const ev of record.events) {
         if (ev.t !== "play" || ev.before.phase !== "scrimmage") continue;
-        const sit: Situation = toSituation(ev.before as unknown as GameState, data.engine.rules);
+        // The snapshot has no overtime state (step 5d's otBothPossessed); no oTop or o4Top level reads it.
+        const sit: Situation = toSituation({ ...ev.before, overtime: null } as unknown as GameState, data.engine.rules);
         const labels = binSituation(sit, dims);
         const lateTime = labels["lateTime"];
         if (lateTime === "-" || lateTime === null || lateTime === undefined) continue;

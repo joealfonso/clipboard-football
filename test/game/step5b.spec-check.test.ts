@@ -115,7 +115,16 @@ describe("B1: candidate late-cell counts before the fit, and the level order in 
 
   // Amended 2026-11-12 (M1 step 5c milestone F): oTop's kneelGap level was added by step 5c, not 5b; it has
   // no 5b candidate count table and is recorded, with its real counts, in DECISIONS.md (M1 step 5c, Milestone F).
-  const STEP5C_LEVELS = new Set(["kneelGap, scoreLate5Only, lateTime"]);
+  // Amended 2026-11-13 (M1 step 5d milestone D): the not-leading late levels and the c40-banded o4Top late
+  // levels were added by step 5d; their cells are recorded in DECISIONS.md (M1 step 5d, Milestones C and D).
+  const STEP5C_LEVELS = new Set([
+    "kneelGap, scoreLate5Only, lateTime",
+    "down, zoneK, scoreNL, clock, lateTime",
+    "zoneK, scoreNL, clock, lateTime",
+    "fieldHalf, scoreNL, clock, lateTime",
+    "zoneK, scoreLate5Only, lateTime, clock",
+    "fieldHalf, scoreLate5Only, lateTime, clock",
+  ]);
 
   it("every late-only level in the v3 config has an 8e count table", () => {
     for (const f of ["oTop", "o4Top"]) {
@@ -233,7 +242,9 @@ describe("B12/F4/C4: every holdout run is disclosed post hoc, and the run counts
   // hoc in its report, and DECISIONS.md "Holdout runs for step 5b" counts them: caller 5, game 7, engine 4, C7 2.
   // Amended 2026-11-12 (M1 step 5c): the step 5c holdout runs are counted in the same table (caller run 6,
   // engine runs 6 and 7, C7 runs 3 to 6, step 5 game runs 8 to 10).
-  const EXPECTED: Record<string, number> = { Caller: 6, "Step 5 game": 10, Engine: 7, C7: 6 };
+  // Amended 2026-11-13 (M1 step 5d H2): the step 5d holdout runs are counted in the same table (caller run 7,
+  // engine run 8, C7 run 7, step 5 game run 11).
+  const EXPECTED: Record<string, number> = { Caller: 7, "Step 5 game": 11, Engine: 8, C7: 7 };
   const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
   const maxRun = (label: string): number => {
     const ns = [...label.matchAll(/\brun (\d+)\b/gi)].map((m) => Number(m[1]));

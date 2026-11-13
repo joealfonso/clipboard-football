@@ -1117,6 +1117,10 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 8 | 2026-11-12, step 5c | Every step 5c change (revision 1, milestones A-G) and Joseph's step 5c approvals | 2 new gated failures and 3 accepted misses wider (see "Holdout runs for step 5c"); stopped, nothing recorded |
 | Step 5 game | 9 | 2026-11-12, step 5c | Approvals and timing only, metrics must match run 8: Joseph's five holdout known deviations; rerun on an idle machine to pin the new tolerances hash and remeasure speed | See "5c game holdout misses accepted" |
 | Step 5 game | 10 | 2026-11-12, step 5c | Pins only, metrics must match run 9: code review fixes (two-point fumble text, fluke chance rounded down, drain window in config, C7 run 6) | Every metric and diagnostic identical to run 9, 0 gated failures; the slice digests changed because the fluke chance in the play trace is now rounded down (text only) |
+| Caller | 7 | 2026-11-13, step 5d | Every step 5d caller change (Situation fields, timeouts in clock order, spike, not-leading and banded late levels, K0x split, OT try rule) | 0 unaccepted gated failures; the four accepted rows at or better (three identical to run 6) |
+| Engine | 8 | 2026-11-13, step 5d | Step 5d caller tables and code (engine tables differ only in the caller config hash they record) | Every metric identical to run 7 |
+| C7 | 7 | 2026-11-13, step 5d | Step 5d tempo level (B) and Joseph's step 5d known deviation (the summary pins the tolerances file) | Every metric passes or stays at its accepted value; `defense.c40` identical |
+| Step 5 game | 11 | 2026-11-13, step 5d | Every step 5d change and Joseph's step 5d approvals | 0 gated failures; 3 accepted misses wider (see "Holdout runs for step 5d"); stopped, nothing recorded |
 
 
 ## M1 step 5c: playtest fixes
@@ -1348,6 +1352,22 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 ### Lead's calls on the step 5d engineer's choices (lead, 2026-11-13)
 - Confirmed: (1) C's late score covers trailing offenses only (`scoreTrail`); (2) C splits its cells by field goal range first (`fgRange`); (3) D's third designed mask, trailing by 1-2 with more than 0:47 left outside the opponent's 20 (0 real kneels in 2,156 snaps); (4) D's c40-banded o4Top levels, each on 2021-2023 with a 2016-2023 twin.
 - Noted: the spec's D2 statements for league 2026 seed 26 ev 263 (it is K0c.d23, not K0x, under the kneelGap definition) and seed 229 ev 270 (its c40-banded cell has under 150 real snaps and backs off to the unbanded late cell) do not match the bins and the data; milestone D above has the details.
+
+### Caller config hash after step 5d
+- Catalog plus config: from `7d02532afdb007f0c592bf299c8562492dc1ffc47706e149a81bc3e055cca8df` (after step 5c) to `53e080443e38306bee3d1db8c5aadd7b4283dd89cf4d20279d64ee2ccf81946d` (still version 3; new dimensions `clockRun`, `ownTO2`, `downs23`, `timeGF`, `scoreTrail`, `fgRange`, `scoreLateNL5`, `scoreNL`; the oTop spike and not-leading late levels; o4Top's c40-banded late levels; `kneelGap.concedeSplit` and `k0xSplit`; overtime buckets in `tryLate` and `time3`). data/game/late-backoff.json (B10) was regenerated for the new level indices.
+
+### Holdout runs for step 5d (2026-11-13, all post hoc): stopped
+- Run after Joseph's step 5d acceptances, one per changed pipeline, in the order caller, engine (its summary pins the caller tables), C7, game, so no pin went stale. Each is labelled post hoc in its report and counted in the "Holdout runs for step 5b" table (caller run 7, engine run 8, C7 run 7, step 5 game run 11).
+- Caller run 7: 0 unaccepted gated failures. The four accepted holdout rows are at or better: `man`, `preset.nickelCover2` and `preset.nickelCover4` identical to run 6; `fourthDown.MID.fieldGoal` 11.25% vs 16.99% (11.23% at run 6). The tables did not change.
+- Engine run 8: all 118 metrics identical to run 7.
+- C7 run 7: every holdout metric passes, and `coach.timeouts.rate.defense.c40` stays at its accepted value (8.34 vs 10.35, identical). `coach.tempo.meanRunoff.GF` 17.60 -> 17.43 vs 18.20 and `H1F` 12.40 -> 12.61 vs 12.40 moved with B's tempo level and pass. Coach tables differ only in the config hash they record (milestone D's mask is in data/game/config.json).
+- Step 5 game in-sample, rerun before the holdout ("pins only, metrics must match run H": tolerances, coach.validation.json and the engine tables' recorded hash changed): every metric and diagnostic identical to run H. The slice digests changed because each game record carries the hashes of the data files.
+- Step 5 game holdout run 11 (`calibrate --target holdout`; 0 gated failures, 0 invariant violations, 8.3 ms per game): three accepted holdout misses are wider than accepted (|predicted - actual|, accepted -> run 11; league-seed spread):
+  - `total.mean` 1.6905 -> 1.7561 (44.17 vs 45.92; seeds 43.60 to 45.36; 1.6905 at run 10).
+  - `absMargin.share.8-14` 9.9053 -> 10.1053 (28.12% vs 18.01%; seeds 26.1 to 31.0; 9.9053 at run 10).
+  - `fieldGoalAttempts.perGame` 0.3110 -> 0.3187 (3.731 vs 4.050; seeds 3.621 to 3.792; 0.3110 at run 10).
+  The other twelve accepted holdout rows are at or better; no new gated miss.
+- Stop rule (lead's H2 instruction): nothing is recorded for the three wider misses; they go to Joseph.
 
 ## Publishing
 

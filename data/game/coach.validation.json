@@ -1,6 +1,6 @@
 {
   "generated": true,
-  "tolerancesSha256": "b8f18c6191633446f7e27f0eed1bc78a29d0ee302c2c03aabb8967fa42fc41ac",
+  "tolerancesSha256": "cc228f6023042cf9f7be661f821c3dc13ff713fe5bd166ed79feab5e62670c01",
   "inSample": {
     "label": "in-sample 2016-2023",
     "seasons": [2016,2017,2018,2019,2020,2021,2022,2023],
@@ -134,6 +134,144 @@
         "n": 9448.58489486858,
         "lo": 18.756792125814247,
         "hi": 20.355804194816702,
+        "tolerance": 2.0,
+        "status": "pass"
+      }
+    ]
+  },
+  "holdout": {
+    "label": "validation 2024-2025",
+    "seasons": [2024,2025],
+    "metrics": [
+      {
+        "id": "coach.onside.rate.trailingQ4",
+        "label": "Onside attempt rate per kickoff, kicker trailing in Q4",
+        "unit": "pp",
+        "predicted": 23.508765639810427,
+        "actual": 24.644549763033176,
+        "n": 422.0,
+        "lo": 20.773823883916556,
+        "hi": 28.97274855052855,
+        "tolerance": 5.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.tempo.meanRunoff.G5",
+        "label": "Mean pre-snap run-off with the clock running, time5 G5",
+        "unit": "s",
+        "predicted": 25.972643088235294,
+        "actual": 25.83970588235294,
+        "n": 2720.0,
+        "lo": 25.308949667024606,
+        "hi": 26.370462097681276,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.tempo.meanRunoff.GF",
+        "label": "Mean pre-snap run-off with the clock running, time5 GF",
+        "unit": "s",
+        "predicted": 17.42976541262136,
+        "actual": 18.204490291262136,
+        "n": 1648.0,
+        "lo": 17.495511591516244,
+        "hi": 18.913468991008028,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.tempo.meanRunoff.H1",
+        "label": "Mean pre-snap run-off with the clock running, time5 H1",
+        "unit": "s",
+        "predicted": 30.899530309192585,
+        "actual": 31.59259601608356,
+        "n": 21637.0,
+        "lo": 31.482098931042817,
+        "hi": 31.703093101124306,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.tempo.meanRunoff.H1F",
+        "label": "Mean pre-snap run-off with the clock running, time5 H1F",
+        "unit": "s",
+        "predicted": 12.605217486105174,
+        "actual": 12.400171013253527,
+        "n": 2339.0,
+        "lo": 11.897613151699941,
+        "hi": 12.902728874807112,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.tempo.meanRunoff.H2",
+        "label": "Mean pre-snap run-off with the clock running, time5 H2",
+        "unit": "s",
+        "predicted": 30.490317986270025,
+        "actual": 30.978794813119755,
+        "n": 19665.0,
+        "lo": 30.85093764754558,
+        "hi": 31.10665197869393,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.timeouts.perTeamGame",
+        "label": "Timeouts per team-game (dead balls before scrimmage snaps)",
+        "unit": "timeouts",
+        "predicted": 3.49511003492547,
+        "actual": 3.666360294117647,
+        "n": 1088,
+        "lo": 3.666360294117647,
+        "hi": 3.666360294117647,
+        "tolerance": 0.3,
+        "status": "pass"
+      },
+      {
+        "id": "coach.timeouts.rate.defense.c120",
+        "label": "Timeout rate per dead ball, defense, final 2:00 bucket c120",
+        "unit": "pp",
+        "predicted": 11.878543179031269,
+        "actual": 13.166768853464134,
+        "n": 6524.0,
+        "lo": 12.367894275724286,
+        "hi": 14.008995751754325,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.timeouts.rate.defense.c40",
+        "label": "Timeout rate per dead ball, defense, final 2:00 bucket c40",
+        "unit": "pp",
+        "predicted": 8.344448133946832,
+        "actual": 10.352760736196318,
+        "n": 3912.0,
+        "lo": 9.43666245494232,
+        "hi": 11.346650128488022,
+        "tolerance": 2.0,
+        "status": "accepted"
+      },
+      {
+        "id": "coach.timeouts.rate.offense.c120",
+        "label": "Timeout rate per dead ball, offense, final 2:00 bucket c120",
+        "unit": "pp",
+        "predicted": 5.203352161250767,
+        "actual": 5.349478847332924,
+        "n": 6524.0,
+        "lo": 4.8292542682254735,
+        "hi": 5.922256614023874,
+        "tolerance": 2.0,
+        "status": "pass"
+      },
+      {
+        "id": "coach.timeouts.rate.offense.c40",
+        "label": "Timeout rate per dead ball, offense, final 2:00 bucket c40",
+        "unit": "pp",
+        "predicted": 19.718804141104297,
+        "actual": 19.86196319018405,
+        "n": 3912.0,
+        "lo": 18.64157165733589,
+        "hi": 21.141488004730114,
         "tolerance": 2.0,
         "status": "pass"
       }
