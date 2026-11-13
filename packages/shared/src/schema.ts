@@ -161,8 +161,10 @@ export const dimensionSchema = z.discriminatedUnion("type", [
     playClockRule: z.string().regex(/^[A-Za-z]+(\.[A-Za-z]+)+$/),
     playClock: z.number().int().positive().optional(),
     concede: z.boolean().optional(),
+    concedeSplit: z.number().int().min(1).max(3).optional(),
+    k0xSplit: z.number().int().min(1).max(3).optional(),
     shortOnly: z.boolean().optional(),
-  }),
+  }).refine((d) => d.concede !== true || d.concedeSplit !== undefined, { message: "a kneelOut dimension with concede needs concedeSplit" }),
   z.strictObject({
     type: z.literal("endState"),
     of: z.string(),

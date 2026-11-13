@@ -18,6 +18,16 @@ function rangeLabel(value: number, buckets: readonly RangeBucket[], what: string
   return b.label;
 }
 
+const MAX_TIMEOUTS = 3;
+
+/** Step 5d: "d" and the timeout counts on the same side of the split, e.g. split 2: d01 or d23. */
+function timeoutBand(timeouts: number, split: number): string {
+  let out = "d";
+  if (timeouts < split) for (let i = 0; i < split; i++) out += String(i);
+  else for (let i = split; i <= MAX_TIMEOUTS; i++) out += String(i);
+  return out;
+}
+
 /** Bins a situation on every configured dimension. null means "does not apply in this phase". */
 export function binSituation(situation: Situation, dimensions: Readonly<Record<string, Dimension>>): BinLabels {
   const out: Record<string, string | null> = {};
@@ -81,9 +91,18 @@ export function binSituation(situation: Situation, dimensions: Readonly<Record<s
           const can = left * dim.playClock + dim.kneelSeconds - dim.playClock * Math.min(situation.defenseTimeouts, left) >= situation.secondsLeftInGame;
           label = can ? "K1" : "K0";
           // Step 5c milestone F (designed, optional): K0 split by whether the kneels would run the
-          // clock out if the defense used no timeout (K0c, with the defense holding 0-1 or 2-3
-          // timeouts) or not even then (K0x); shortOnly makes K1 null.
-          if (!can && dim.concede === true) label = left * dim.playClock + dim.kneelSeconds >= situation.secondsLeftInGame ? (situation.defenseTimeouts >= 2 ? "K0c.d23" : "K0c.d01") : "K0x";
+          // clock out if the defense used no timeout (K0c) or not even then (K0x), each by the
+          // defense's timeouts at the split points in the config (step 5d milestone D:
+          // `concedeSplit`, and `k0xSplit` when present); shortOnly makes K1 null.
+          if (!can && dim.concede === true) {
+            if (dim.concedeSplit === undefined) throw new RangeError(`${name}: concede needs concedeSplit`);
+            label =
+              left * dim.playClock + dim.kneelSeconds >= situation.secondsLeftInGame
+                ? `K0c.${timeoutBand(situation.defenseTimeouts, dim.concedeSplit)}`
+                : dim.k0xSplit === undefined
+                  ? "K0x"
+                  : `K0x.${timeoutBand(situation.defenseTimeouts, dim.k0xSplit)}`;
+          }
           if (can && dim.shortOnly === true) label = null;
           break;
         }

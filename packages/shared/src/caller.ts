@@ -71,8 +71,12 @@ export type Dimension =
       readonly kneelSeconds: number;
       readonly playClockRule: string;
       readonly playClock?: number;
-      /** Step 5c F: split K0 into K0c.d01 / K0c.d23 (kneels run the clock out if the defense, holding 0-1 or 2-3 timeouts, uses none) and K0x (not even then). */
+      /** Step 5c F: split K0 into K0c (kneels run the clock out if the defense uses no timeout) and K0x (not even then). */
       readonly concede?: boolean;
+      /** Step 5d D: K0c's split by the defense's timeouts (required with concede): below it K0c.d0..., at or above it K0c.d...3 (2 gives K0c.d01 / K0c.d23). */
+      readonly concedeSplit?: number;
+      /** Step 5d D: when present, K0x is split the same way (1 gives K0x.d0 / K0x.d123). */
+      readonly k0xSplit?: number;
       /** Step 5c F: K1 is null here, so a level using this dimension serves K0 states only. */
       readonly shortOnly?: boolean;
     })

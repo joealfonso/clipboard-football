@@ -22,6 +22,15 @@ def _int_str(v: float) -> str:
     return str(int(v)) if float(v).is_integer() else str(v)
 
 
+MAX_TIMEOUTS = 3
+
+
+def _timeout_band(timeouts: float, split: int) -> str:
+    """Step 5d: "d" and the timeout counts on the same side of the split, e.g. split 2: d01 or d23."""
+    side = range(0, split) if timeouts < split else range(split, MAX_TIMEOUTS + 1)
+    return "d" + "".join(str(i) for i in side)
+
+
 def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Labels:
     out: Labels = {}
 
@@ -72,10 +81,14 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
                 can = left * p + d["kneelSeconds"] - p * min(sit["defenseTimeouts"], left) >= sit["secondsLeftInGame"]
                 label = "K1" if can else "K0"
                 # Step 5c milestone F (designed, optional): K0 split by whether the kneels would run
-                # the clock out if the defense used no timeout (K0c, with the defense holding 0-1 or
-                # 2-3 timeouts) or not even then (K0x); shortOnly makes K1 null.
+                # the clock out if the defense used no timeout (K0c) or not even then (K0x), each by
+                # the defense's timeouts at the split points in the config (step 5d milestone D:
+                # `concedeSplit`, and `k0xSplit` when present); shortOnly makes K1 null.
                 if not can and d.get("concede"):
-                    label = ("K0c.d23" if sit["defenseTimeouts"] >= 2 else "K0c.d01") if left * p + d["kneelSeconds"] >= sit["secondsLeftInGame"] else "K0x"
+                    if left * p + d["kneelSeconds"] >= sit["secondsLeftInGame"]:
+                        label = "K0c." + _timeout_band(sit["defenseTimeouts"], d["concedeSplit"])
+                    else:
+                        label = "K0x" if "k0xSplit" not in d else "K0x." + _timeout_band(sit["defenseTimeouts"], d["k0xSplit"])
                 if can and d.get("shortOnly"):
                     label = None
         elif d["type"] == "endState":

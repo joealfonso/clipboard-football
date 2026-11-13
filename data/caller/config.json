@@ -808,7 +808,8 @@
       "kneelSeconds": 2,
       "playClockRule": "clock.playClockAfterPlay",
       "shortOnly": true,
-      "concede": true
+      "concede": true,
+      "concedeSplit": 2
     },
     "fieldHalf": {
       "type": "range",
