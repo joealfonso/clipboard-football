@@ -22,7 +22,8 @@ const view = (v: Record<string, number>): CoachView => ({
 });
 
 const late = (v: CoachView): boolean => v.quarter >= 5 || (v.quarter === 4 && v.secondsLeftInGame <= 300);
-const SCORE = new Set(["score3", "lateS3"]);
+// Amended 2026-11-12 (M1 step 5c milestones E and F): the new late levels carry the five-way late score lateS5.
+const SCORE = new Set(["score3", "lateS3", "lateS5"]);
 
 describe("timeout levels keep score3 in the late windows (C1)", () => {
   it("every late lookup, both sides, lands on a level with score3 or on the side-only fallback", () => {

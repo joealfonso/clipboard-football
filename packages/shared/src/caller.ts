@@ -71,6 +71,8 @@ export type Dimension =
       readonly kneelSeconds: number;
       readonly playClockRule: string;
       readonly playClock?: number;
+      /** Step 5c F: label K0F instead of K0 when more than this many seconds short of a kneel-out. */
+      readonly farAbove?: number;
     })
   | (DimensionBase & {
       readonly type: "endState";

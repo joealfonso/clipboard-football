@@ -36,6 +36,19 @@ export const gameConfigSchema = z
     onside: z.looseObject({ levels: z.array(level).min(1), minN: posInt, designedRule: rule }),
     expectedPoints: z.looseObject({ levels: z.array(level).min(1), minN: posInt }),
     runoffTimeout: z.looseObject({ finalSeconds: posInt }),
+    clockRules: z
+      .looseObject({
+        clockOut: z.strictObject({ trailingMin: posInt, trailingMax: posInt }).optional(),
+        kneelOutDrain: z.boolean().optional(),
+        timeoutBeforeExpiry: z.boolean().optional(),
+        callerMasks: z
+          .looseObject({
+            spikeNeedsRunningClock: z.boolean().optional(),
+            earlyKneel: z.strictObject({ quarters: z.array(posInt), halfEndQuarter: posInt, secondsAbove: nonNeg }).optional(),
+          })
+          .optional(),
+      })
+      .optional(),
     loop: z.looseObject({ maxInputsPerGame: posInt, maxScrimmageSnapsPerGame: posInt }),
     league: z.looseObject({ teams: posInt, leagues: posInt, gamesPerLeague: posInt, calibrationSeed: nonNeg, ciSliceGames: posInt }),
     driveResults: z.record(z.string(), z.union([z.array(z.string()), z.string()])),

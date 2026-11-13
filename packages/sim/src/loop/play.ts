@@ -8,8 +8,10 @@
 //   kickoff:      kicking team's onside policy, resolvePlay, penalty choice, applyPlay.
 //   try:          offense caller (extra point or two), defense caller on a two-point try,
 //                 resolvePlay, penalty choice, applyPlay.
-//   scrimmage:    offense timeout policy, then defense; tempo run-off when the clock runs; then
-//                 offense and defense calls, resolvePlay, penalty choice, applyPlay.
+//   scrimmage:    offense timeout policy, then defense; tempo run-off when the clock runs (if it
+//                 would end the period, the offense's clock-out policy may call a timeout
+//                 instead, step 5c E); then offense and defense calls, resolvePlay, penalty
+//                 choice, applyPlay.
 
 import type { GameData, PlayResult, RuleSet, TeamPool } from "../../../shared/src/types";
 import { FORMATION_PLAYS, type OffenseCall } from "../caller/offense";
@@ -281,8 +283,28 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     /** The offense's run-off before the snap, or before a timeout when `beforeTimeout`. False when it ended the period. */
     const runoff = (beforeTimeout: boolean): boolean => {
       if (!s.clockRunning) return true;
-      const drawn = team(s.possession).coach.tempo({ ...coachView(s, rules, lastSnap), beforeTimeout }, rng);
+      const off = team(s.possession).coach;
+      const view = { ...coachView(s, rules, lastSnap), beforeTimeout };
+      const drawn = off.tempo(view, rng);
       const seconds = Math.min(drawn, s.playClock);
+      if (!beforeTimeout && seconds >= s.clock && off.clockOut?.(view) === true) {
+        // Step 5c milestone E (designed): rather than let this run-off end the period, the offense
+        // calls a timeout. The clock runs until it is called, from the cells of dead balls with a
+        // timeout, as on the timeout path above; if that too reaches 0:00 the period ends.
+        const pre = Math.min(off.tempo({ ...view, beforeTimeout: true }, rng), s.playClock);
+        if (pre > 0) {
+          input();
+          const b0 = snapshot(s);
+          advance(runPreSnap(s, rules, pre), (next) => ({ t: "runoff", before: b0, seconds: pre, drawn: pre, after: snapshot(next) }));
+          if (s.phase !== "scrimmage") return false;
+          if (!s.clockRunning) return true;
+        }
+        const t = s.possession;
+        input();
+        const b1 = snapshot(s);
+        advance(callTimeout(s, rules, t), (next) => ({ t: "timeout", before: b1, team: t, side: "offense", left: next.timeouts[t] }));
+        return true;
+      }
       if (seconds === 0) return true;
       input();
       const before = snapshot(s);
@@ -308,7 +330,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     if (!ranOff && !runoff(false)) return { state: s, events, inputs, snaps, lastSnap: null };
     const sit = toSituation(s, rules);
     const off = team(s.possession);
-    offense = off.coach.offenseCall(sit, rng);
+    offense = off.coach.offenseCall(sit, rng, { clockRunning: s.clockRunning });
     defense = FORMATION_PLAYS.includes(offense.call) ? team(other(s.possession)).coach.defenseCall(sit, rng) : null;
     runoffTimeout = off.coach.runoffTimeout(coachView(s, rules, lastSnap));
     snaps++;

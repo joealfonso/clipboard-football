@@ -1158,6 +1158,11 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 - Fitted cells (per 1,000,000 dead balls, n): receiving team Q1-3 711 (16,147), Q4 2,177 (3,006), G5 18,735 (966), GF 129,117 (610); kicking team Q1-3 292, GF 6,635; try offense Q1-3 2,776, GF 45,654; try defense Q1-3 1,183, GF 58,780.
 - Result (run CD): `c.to.kickoffQ13` 0.0074 vs 0.0076, `c.to.tryQ13` 0.0151 vs 0.0129, `c.to.kickoffAll` 0.067 vs 0.057, all pass. C and D share one in-sample run (CD); they touch disjoint decisions.
 
+### Milestone E: the trailing team uses its clock (engineer)
+- Diagnosis (debugger, before revision 1): 72% of the trailer's run-outs were a declined timeout ask (p about 0.37 in offense|GF|c40|T|1 cells), 27% the misattributed 40 s run-off. After revision 1 and D, a third path showed up in the sim's games: the trailer asks for the timeout and the run-off before it (from the timeout cells) runs the period out first, so the timeout is moot. Real 2016-2023 per dead ball, trailing by 1-8 with a timeout and the clock running, Q4: 83% call one with 15 s or less left (n 96), 48% with 16-40 s (n 260); down 9 or more, 33% and 27%. The cells with 15 s or less hold fewer than 150 dead balls, so a fitted bin can't carry them.
+- Decision: (1) fitted, two timeout levels first with `lateS5` (five-way late score; null outside the late windows, so the re-frozen revision 1 rates outside them still match, D4); (2) designed clock-out rule: a 1-8 trailer with a timeout calls it rather than let a drawn run-off end Q4 or OT (`clockRules.clockOut`, new optional policy `clockOut`, asked only then); (3) designed: the run-off a team lets go before its own timeout stops at least 1 s short of the end of the half or the game (`clockRules.timeoutBeforeExpiry`, in the coach's tempo policy; every team; a timeout is called before time expires); (4) designed mask: the average coach doesn't spike with the clock stopped (`clockRules.callerMasks.spikeNeedsRunningClock`; the caller now gets `{ clockRunning }` before a scrimmage snap, an optional third argument of `offenseCall`). Tied teams are not covered, per the spec.
+- Result (run E): `c.trail.lastSnap` 0.00% vs 0.05%, `c.trail.longGap` and `c.spike.stopped` pass. Margins: see GAME_REPORT.md (E3).
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

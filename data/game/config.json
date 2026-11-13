@@ -924,6 +924,175 @@
           "if": []
         }
       ]
+    },
+    "lateS5": {
+      "buckets": [
+        {
+          "label": "T9",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "max": -9
+            }
+          ]
+        },
+        {
+          "label": "T",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "min": -8,
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "0",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "min": 0,
+              "max": 0
+            }
+          ]
+        },
+        {
+          "label": "L",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "min": 1,
+              "max": 8
+            }
+          ]
+        },
+        {
+          "label": "L9",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "min": 9
+            }
+          ]
+        },
+        {
+          "label": "T9",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "max": -9
+            }
+          ]
+        },
+        {
+          "label": "T",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "min": -8,
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "0",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "min": 0,
+              "max": 0
+            }
+          ]
+        },
+        {
+          "label": "L",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "min": 1,
+              "max": 8
+            }
+          ]
+        },
+        {
+          "label": "L9",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "min": 9
+            }
+          ]
+        },
+        {
+          "label": null,
+          "if": []
+        }
+      ]
     }
   },
   "tempo": {
@@ -982,10 +1151,30 @@
     "minN": 150,
     "maxSeconds": 40,
     "cellTotal": 10000,
-    "note": "Seconds the offense lets run before the snap when the game clock is running. Measured 2022-2023: game clock at the previous snap minus that play's measured duration minus the game clock at this snap; nflverse play_clock is 0 on every row 2016-2025, so it cannot be used (DECISIONS.md). restart: the previous snap went out of bounds (1) or drew a flag (2), so the clock was stopped and restarted on the ready signal (designed bin, added after the first in-sample game run showed run-off after such plays is about 4 s shorter and the pooled cells cut run-off after ordinary plays by 2-3 s). toCalled: a timeout is called in this dead ball; the run-off is then the time that runs before the timeout (post-validation revision 2 of step 5). Levels keep score3 down to the third level (revision 3)."
+    "note": "Seconds the offense lets run before the snap when the game clock is running. Measured 2022-2023: game clock at the previous snap minus that play's measured duration minus the game clock at this snap; nflverse play_clock is 0 on every row 2016-2025, so it cannot be used (DECISIONS.md). restart: the previous snap went out of bounds (1) or drew a flag (2), so the clock was stopped and restarted on the ready signal (designed bin, added after the first in-sample game run showed run-off after such plays is about 4 s shorter and the pooled cells cut run-off after ordinary plays by 2-3 s). toCalled: a timeout is called in this dead ball; the run-off is then the time that runs before the timeout (post-validation revision 2 of step 5). Levels keep score3 down to the third level (revision 3). Step 5c milestone F: a late-only level (time5, lateS3, toCalled) before the score-free level, so a late leader without its own cell no longer pools with trailing teams."
   },
   "timeouts": {
     "levels": [
+      {
+        "dims": [
+          "side",
+          "time5",
+          "final",
+          "lateS5",
+          "running",
+          "ownTO",
+          "down4"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "time5",
+          "final",
+          "lateS5",
+          "running"
+        ]
+      },
       {
         "dims": [
           "side",
@@ -1066,7 +1255,7 @@
       }
     ],
     "minN": 150,
-    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged."
+    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged. Step 5c milestones E and F: two levels first keep a five-way late score (`lateS5`: trailing by 9 or more, by 1-8, tied, leading by 1-8, by 9 or more; null outside the late windows), so every rate outside them is unchanged."
   },
   "specialTimeouts": {
     "levels": [
@@ -1120,6 +1309,18 @@
   "runoffTimeout": {
     "note": "Designed: the offense spends a timeout instead of a ten-second run-off when it is trailing or tied in the final 2:00 of a half with a timeout left; otherwise the step 3 default (take the run-off).",
     "finalSeconds": 120
+  },
+  "clockRules": {
+    "note": "Designed (step 5c milestones E and F). clockOut: an offense trailing by trailingMin-trailingMax with a timeout left calls it rather than let a drawn run-off end the 4th quarter or overtime; 2016-2023 has 1 game in 2,095 whose last 4th-quarter snap is by such a team with 15 s or more left. timeoutBeforeExpiry: a team calling a timeout lets the clock run first (the tempo cells of dead balls with a timeout) only to a second before the end of the half or the game, since a timeout is called before time expires. kneelOutDrain: a leading offense that can kneel out (the caller's kneelOut test, K1) lets the whole play clock run before each snap, the assumption that test makes. callerMasks: the average coach never spikes with the clock stopped (6 such spikes in 2,095 real games) and never kneels in Q1, Q3, or Q2 with more than 1:00 left (0 real kneels).",
+    "clockOut": {
+      "trailingMin": 1,
+      "trailingMax": 8
+    },
+    "kneelOutDrain": false,
+    "timeoutBeforeExpiry": true,
+    "callerMasks": {
+      "spikeNeedsRunningClock": true
+    }
   },
   "loop": {
     "maxInputsPerGame": 2500,

@@ -5,7 +5,8 @@
 
 import type { CallerData, CoachTables, CoachView, DecisionDim, DecisionLevel, GameConfig, KickView, Situation, SpecialTimeoutRole } from "../../../shared/src/types";
 import { chooseDefenseCall } from "../caller/defense";
-import { chooseOffenseCall, type OffenseCall } from "../caller/offense";
+import { binSituation } from "../caller/bins";
+import { chooseOffenseCall, type CallerMasks, type OffenseCall } from "../caller/offense";
 import type { FieldGoalRange } from "../caller/range";
 import { sampleIndex } from "../caller/sample";
 import type { PenaltyOption } from "../game/enforce";
@@ -203,8 +204,14 @@ export function choosePenalty(outcomes: readonly PenaltyOutcome[], offended: Tea
  * later coach layer can wrap the average coach without changing the loop. Every policy sees only
  * the views; none can reach the other side's call, formation, players or the game state.
  */
+/** What the offense's caller may know about the clock before a scrimmage snap (step 5c E). */
+export interface OffenseClock {
+  readonly clockRunning: boolean;
+}
+
 export interface CoachPolicies {
-  offenseCall(view: Situation, rng: Rng): OffenseCall;
+  /** `clock` is given before a scrimmage snap (step 5c E), not before a try. */
+  offenseCall(view: Situation, rng: Rng, clock?: OffenseClock): OffenseCall;
   defenseCall(view: Situation, rng: Rng): string;
   /** Whether this team calls a timeout now, as the offense or the defense of the next snap. */
   timeout(view: CoachView, side: Side, rng: Rng): boolean;
@@ -217,6 +224,8 @@ export interface CoachPolicies {
   penalty(outcomes: readonly PenaltyOutcome[], offended: Team): PenaltyOption;
   /** Spend a timeout instead of a ten-second run-off, if one applies to the next play. */
   runoffTimeout(view: CoachView): boolean;
+  /** Call a timeout rather than let a drawn run-off end the period (step 5c E); asked only then. */
+  clockOut?(view: CoachView): boolean;
 }
 
 export interface CoachData {
@@ -229,11 +238,28 @@ export interface CoachData {
 }
 
 /** The average coach: step 2 calls, fitted tempo, timeouts and onside, designed run-off rule. */
+/**
+ * Step 5c milestone F (designed): a leading offense that can kneel out (the caller's kneelOut
+ * dimension says K1) lets the whole play clock run, the assumption the kneel-out test makes.
+ */
+export function drainsClock(view: CoachView, caller: CallerData): boolean {
+  if (view.scoreDiff <= 0 || view.down < 1 || view.down > 3 || view.quarter < 4 || !view.clockRunning || view.beforeTimeout) return false;
+  if (caller.config.dimensions["kneelOut"] === undefined) return false;
+  return binSituation(view, caller.config.dimensions)["kneelOut"] === "K1";
+}
+
 export function averageCoach(d: CoachData): CoachPolicies {
   const dims = d.config.dimensions;
   const final = d.config.runoffTimeout.finalSeconds;
+  const rules = d.config.clockRules;
+  const cm = rules?.callerMasks;
+  const masks = (clock: OffenseClock | undefined): CallerMasks => ({
+    ...(d.fieldGoals === undefined ? {} : { fieldGoals: d.fieldGoals }),
+    ...(cm?.spikeNeedsRunningClock === true && clock !== undefined && !clock.clockRunning ? { clockStopped: true } : {}),
+    ...(cm?.earlyKneel === undefined ? {} : { earlyKneel: cm.earlyKneel }),
+  });
   return {
-    offenseCall: (view, rng) => chooseOffenseCall(view, d.caller, rng, d.fieldGoals === undefined ? {} : { fieldGoals: d.fieldGoals }),
+    offenseCall: (view, rng, clock) => chooseOffenseCall(view, d.caller, rng, masks(clock)),
     defenseCall: (view, rng) => chooseDefenseCall(view, d.caller, rng),
     timeout(view, side, rng) {
       const p = timeoutShare(view, side, d.tables, dims, d.perDeadBall).value;
@@ -244,7 +270,16 @@ export function averageCoach(d: CoachData): CoachPolicies {
       return p > 0 && rng.nextFloat() < p;
     },
     tempo(view, rng) {
-      return sampleIndex(tempoShares(view, d.tables, dims).value, rng);
+      if (rules?.kneelOutDrain === true && view.quarter >= 4 && view.secondsLeftInGame <= 120 && drainsClock(view, d.caller)) return view.playClock;
+      const drawn = sampleIndex(tempoShares(view, d.tables, dims).value, rng);
+      // Step 5c milestone E (designed, clockRules.timeoutBeforeExpiry): a team that calls a timeout
+      // calls it before 0:00, so the clock it lets run first stops a second short of the end of the
+      // half or the game (before, a long draw ran the period out and made the timeout moot).
+      if (view.beforeTimeout && rules?.timeoutBeforeExpiry === true) {
+        const left = view.quarter === 2 ? view.secondsLeftInHalf : view.quarter >= 4 ? view.secondsLeftInGame : Number.POSITIVE_INFINITY;
+        return Math.min(drawn, Math.max(0, left - 1));
+      }
+      return drawn;
     },
     onside(view, rng) {
       const p = onsideShare(view, d.tables, dims).value;
@@ -254,6 +289,11 @@ export function averageCoach(d: CoachData): CoachPolicies {
     runoffTimeout(view) {
       const inFinal = view.quarter <= 2 ? view.secondsLeftInHalf <= final : view.secondsLeftInGame <= final;
       return inFinal && view.scoreDiff <= 0 && view.offenseTimeouts > 0 && view.offenseTimeoutsThisDeadBall < d.perDeadBall;
+    },
+    clockOut(view) {
+      const r = rules?.clockOut;
+      if (r === undefined || view.quarter < 4) return false;
+      return view.scoreDiff <= -r.trailingMin && view.scoreDiff >= -r.trailingMax && view.offenseTimeouts > 0 && view.offenseTimeoutsThisDeadBall < d.perDeadBall;
     },
   };
 }

@@ -76,6 +76,13 @@ export interface GameConfig {
   readonly onside: { readonly levels: readonly DecisionLevel[]; readonly minN: number; readonly designedRule: OnsideRule };
   readonly expectedPoints: { readonly levels: readonly DecisionLevel[]; readonly minN: number };
   readonly runoffTimeout: { readonly finalSeconds: number };
+  /** Step 5c milestones E and F: designed clock rules of the average coach. */
+  readonly clockRules?: {
+    readonly clockOut?: { readonly trailingMin: number; readonly trailingMax: number };
+    readonly kneelOutDrain?: boolean;
+    readonly timeoutBeforeExpiry?: boolean;
+    readonly callerMasks?: { readonly spikeNeedsRunningClock?: boolean; readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number } };
+  };
   readonly loop: { readonly maxInputsPerGame: number; readonly maxScrimmageSnapsPerGame: number };
   readonly league: {
     readonly teams: number;

@@ -4,12 +4,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { KickView, PlayResult, Situation, SpecialTimeoutRole } from "../../packages/shared/src/types";
-import { offenseShares } from "../../packages/sim/src/caller/offense";
+import type { CoachView, KickView, PlayResult, Situation, SpecialTimeoutRole } from "../../packages/shared/src/types";
+import { offenseShares, type CallerMasks } from "../../packages/sim/src/caller/offense";
 import { fieldGoalMakeChance } from "../../packages/sim/src/caller/range";
 import { specialTimeoutShare } from "../../packages/sim/src/loop/coach";
 import { averageCoachFor, leagueFromSeed, setupGame } from "../../packages/sim/src/loop/league";
-import { GameLoopError, playGame, prepareGame, snapCapAt, type GameKit } from "../../packages/sim/src/loop/play";
+import { GameLoopError, playGame, prepareGame, snapCapAt, type GameKit, type GameRecord } from "../../packages/sim/src/loop/play";
 import { Rng } from "../../packages/sim/src/rng";
 import { REPO, loadGameData } from "../../scripts/game/data";
 import { digest } from "../../scripts/game/metrics";
@@ -150,5 +150,42 @@ describe("D: kickoff and try timeouts by period", () => {
     // Q1-Q3 and the final 2:00 sit in different cells for at least one role.
     const at = (q: number, secs: number): number => specialTimeoutShare("kickReceiver", 3, 0, data.tables, 1, { quarter: q, secondsLeftInHalf: secs, secondsLeftInGame: secs, scoreDiff: 0, safetyKick: false }, dims);
     expect(at(1, 600 + 1800)).toBeLessThan(at(4, 60));
+  });
+});
+
+describe("E: the trailing team uses its clock", () => {
+  const trailerRunsOut = (r: GameRecord): string[] => {
+    const out: string[] = [];
+    for (const e of r.events) {
+      if (e.t !== "runoff" || e.before.period < 4 || e.after.clock > 0) continue;
+      const o = e.before.possession;
+      const d = e.before.score[o] - e.before.score[o === "home" ? "away" : "home"];
+      if (d >= -8 && d <= -1 && e.before.timeouts[o] >= 1) out.push(`${e.before.period} ${e.before.clock} trailing ${-d}`);
+    }
+    return out;
+  };
+
+  it("E2: seeds 93, 3 and 12 (league 2026): no 1-8 trailer holding a timeout lets a run-off end Q4 or OT", () => {
+    for (const seed of [93, 3, 12]) expect(trailerRunsOut(playGame(setupGame(league(2026), 2026, seed, () => coach), kit, Rng.fromSeed(seed))), `seed ${seed}`).toEqual([]);
+  });
+
+  it("E2: the clock-out rule calls the timeout; a tied team or one down 9 may let it run", () => {
+    const v = (scoreDiff: number, offenseTimeouts = 2): CoachView => ({
+      phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 12, scoreDiff, quarter: 4, secondsLeftInHalf: 8, secondsLeftInGame: 8, offenseTimeouts, defenseTimeouts: 1,
+      clockRunning: true, playClock: 40, previousSnapKneel: false, previousSnapRestart: 0, beforeTimeout: false, offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0,
+    });
+    expect(coach.clockOut?.(v(-4))).toBe(true);
+    expect(coach.clockOut?.(v(-8))).toBe(true);
+    expect(coach.clockOut?.(v(0))).toBe(false);
+    expect(coach.clockOut?.(v(-9))).toBe(false);
+    expect(coach.clockOut?.(v(-4, 0))).toBe(false);
+  });
+
+  it("E2: seed 12 has no spike with the clock stopped, and a stopped clock masks the spike", () => {
+    const r = playGame(setupGame(league(2026), 2026, 12, () => coach), kit, Rng.fromSeed(12));
+    expect(r.events.filter((e) => e.t === "play" && e.play.kind === "spike" && !e.before.clockRunning)).toEqual([]);
+    const s: Situation = { phase: "scrimmage", down: 1, yardsToGo: 10, yardLine100: 60, scoreDiff: 0, quarter: 4, secondsLeftInHalf: 71, secondsLeftInGame: 71, offenseTimeouts: 2, defenseTimeouts: 2 };
+    const spike = (m: CallerMasks): number => offenseShares(s, data.engine.caller, m).leaves.find((l) => l.call === "spike")?.p ?? 0;
+    expect(spike({ clockStopped: true })).toBe(0);
   });
 });
