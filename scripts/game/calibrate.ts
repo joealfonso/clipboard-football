@@ -37,6 +37,7 @@ export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
 /** Step 5d runs shown in GAME_REPORT.md, in order (labels in data/game/checks5d.sim.json). */
 export const STEP5D_RUNS: readonly (readonly [string, string])[] = [
   ["baseline", "before step 5d (the behavior of 4f25b28; milestone A changes no behavior)"],
+  ["res3", "after resolution 3 (the caller reads timeouts at the snap in clock order; caller refit)"],
 ];
 
 export interface ToleranceMetric {

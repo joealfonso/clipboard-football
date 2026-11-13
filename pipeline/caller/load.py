@@ -151,17 +151,23 @@ def clock_flags(pbp: pl.DataFrame) -> pl.DataFrame:
 
     rows = season_rows(pbp)
     db = dec.dead_balls(rows, 40)
-    running = {(x["gameId"], x["playId"]): 0 if x["timeoutCalled"] else int(x["base"]["clockRunning"]) for x in db.snaps}
+    snap = {(x["gameId"], x["playId"]): x for x in db.snaps}
     ordered = list(rows.select("game_id", "play_id", "qtr", "posteam", "defteam", "play_type").iter_rows(named=True))
     ot = ot_both_possessed(ordered)
+    got = [snap.get((r["game_id"], r["play_id"])) for r in ordered]
     return pl.DataFrame(
         {
             "game_id": [r["game_id"] for r in ordered],
             "play_id": [r["play_id"] for r in ordered],
-            "clock_running": [running.get((r["game_id"], r["play_id"]), 0) for r in ordered],
+            "clock_running": [0 if x is None or x["timeoutCalled"] else int(x["base"]["clockRunning"]) for x in got],
             "ot_both_possessed": ot,
+            # Step 5d resolution 3: timeouts at the snap in clock order (the dead-ball count less the
+            # team's own timeout in that dead ball); null where the dead-ball reader lists no snap.
+            "offense_timeouts_clock": [None if x is None else x["offenseTimeouts"] - x["offenseTimeout"] for x in got],
+            "defense_timeouts_clock": [None if x is None else x["defenseTimeouts"] - x["defenseTimeout"] for x in got],
         },
-        schema={"game_id": pl.String, "play_id": pl.Float64, "clock_running": pl.Int64, "ot_both_possessed": pl.Int64},
+        schema={"game_id": pl.String, "play_id": pl.Float64, "clock_running": pl.Int64, "ot_both_possessed": pl.Int64,
+                "offense_timeouts_clock": pl.Float64, "defense_timeouts_clock": pl.Float64},
     )
 
 
@@ -242,9 +248,13 @@ def build_season(
         part_present=pl.col("part_present").fill_null(False),
         ftn_present=pl.col("ftn_present").fill_null(False),
         # nflverse records timeouts remaining after the play's own timeout (checked against
-        # known plays, docs/DECISIONS.md); add it back for the count at the snap.
-        offense_timeouts=pl.col("posteam_timeouts_remaining") + own_timeout.fill_null(False).cast(pl.Float64),
-        defense_timeouts=pl.col("defteam_timeouts_remaining") + def_timeout.fill_null(False).cast(pl.Float64),
+        # known plays, docs/DECISIONS.md); add it back for the count at the snap. Step 5d
+        # resolution 3: where the game pipeline reads the snap's dead ball, its clock-order count
+        # is used instead (they differ on 23 snaps of 2016-2023, DECISIONS.md).
+        offense_timeouts=pl.coalesce(pl.col("offense_timeouts_clock"),
+                                     pl.col("posteam_timeouts_remaining") + own_timeout.fill_null(False).cast(pl.Float64)),
+        defense_timeouts=pl.coalesce(pl.col("defense_timeouts_clock"),
+                                     pl.col("defteam_timeouts_remaining") + def_timeout.fill_null(False).cast(pl.Float64)),
         is_screen_pass=pl.col("is_screen_pass").cast(pl.Boolean),
         is_play_action=pl.col("is_play_action").cast(pl.Boolean),
         is_qb_sneak=pl.col("is_qb_sneak").cast(pl.Boolean),
@@ -268,7 +278,8 @@ def build_season(
         run_location=pl.col("run_location").cast(pl.String),
         run_gap=pl.col("run_gap").cast(pl.String),
     )
-    plays = plays.drop([c for c in ID_COLS + ["posteam_timeouts_remaining", "defteam_timeouts_remaining"] if c in plays.columns])
+    plays = plays.drop([c for c in ID_COLS + ["posteam_timeouts_remaining", "defteam_timeouts_remaining", "offense_timeouts_clock",
+                                               "defense_timeouts_clock"] if c in plays.columns])
     data.plays = plays.filter(~pl.col("is_ot")).drop("is_ot")
     data.ot_plays = plays.filter(pl.col("is_ot")).drop("is_ot")
     return data
