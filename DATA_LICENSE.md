@@ -33,6 +33,7 @@ Credit: nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse".
 | `data/engine/matchup.centered.json` | The designed matchup table centered on the fitted caller and engine tables |
 | `data/engine/validation.json` | Engine validation summary |
 | `data/caller/tolerances.json`, `data/engine/tolerances.json` | Designed thresholds; their `known_deviations` entries quote predicted and actual figures from the validation files above |
+| `data/game/step5c-accepted-caller.json` | Joseph's step 5c acceptance of a caller row (CALLER_REPORT 8f); quotes predicted and actual figures from the caller's in-sample check |
 | `data/game/calibration.json`, `data/game/calibration.insample.json`, `data/game/calibration.insample.pre5a.json`, `data/game/calibration.insample.stages5b.json` | Sim calibration runs, which use the tables above and compare against `data/game/actuals.json` |
 | `data/game/investigations.json`, `data/game/late-backoff.json`, `data/game/checks5c.sim.json` | Sim-side report files from the same runs |
 | `data/game/tolerances.json` | Designed thresholds; its `known_deviations` entries quote sim and actual figures from the calibration runs |

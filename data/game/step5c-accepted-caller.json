@@ -1,0 +1,16 @@
+{
+  "note": "Step 5c caller rows that are worse than before step 5c (spec F3, CALLER_REPORT 8f) and that Joseph accepted (question dialog, 2026-11-12). Kept out of data/caller/tolerances.json because data/caller/validation.json pins that file's hash. Values are percent, predicted (sim) vs actual (2016-2023), as CALLER_REPORT 8f prints them; docs/DECISIONS.md, M1 step 5c, milestone F.",
+  "accepted": [
+    {
+      "metric": "b9.c.kneel.K0",
+      "observed": 23.7,
+      "target": 25.1,
+      "before": 25.0,
+      "unit": "pct",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph",
+      "reason": "Leader kneel share in K0 (final 2:00, downs 1-3, can't kneel out) moved from 25.0% to 23.7% against 25.1% real, the price of milestone F's kneel-gap bins and early-kneel mask. Not tuned; Joseph accepted it as it stands."
+    }
+  ]
+}

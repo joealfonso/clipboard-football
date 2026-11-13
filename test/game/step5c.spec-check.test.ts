@@ -330,16 +330,55 @@ describe("H1: the final in-sample run against the run 5c started from", () => {
 describe("F3: CALLER_REPORT kneel rows at or better than before step 5c", () => {
   // Before step 5c: docs/CALLER_REPORT.md at commit 3de880d (predicted %, actual %).
   const BEFORE: Record<string, [number, number]> = { "b9.c.kneel.K0": [25.0, 25.1], "b9.c.kneel.K1": [98.2, 98.4], "lateDowns.>=17.kneel": [23.3, 28.6] };
-  for (const [id, [p0, a0]] of Object.entries(BEFORE)) {
+  // Amended 2026-11-13 (test-writer, coordinator's follow-up): a worse row passes only with Joseph's record
+  // in data/game/step5c-accepted-caller.json (kept out of data/caller/tolerances.json, whose hash the caller
+  // validation summary pins) at exactly the current values, and a matching DECISIONS.md line. Rows without
+  // a record stay strict.
+  interface CallerAcceptance { metric?: unknown; observed?: unknown; target?: unknown; before?: unknown; scope?: unknown; date?: unknown; approved_by?: unknown; reason?: unknown }
+  const records = json<{ accepted: CallerAcceptance[] }>("data/game/step5c-accepted-caller.json").accepted;
+  const row = (id: string): [number, number] => {
+    const re = new RegExp(`^\\| \`${id.replace(/[.>=]/g, (c) => `\\${c}`)}\` \\| \\d+ \\| ([\\d.]+) \\| ([\\d.]+) \\|`, "m");
+    const m = callerReport.match(re);
+    expect(m, id).not.toBeNull();
+    return [Number(m?.[1]), Number(m?.[2])];
+  };
+  const worse = (id: string): boolean => {
+    const [p, a] = row(id);
+    const [p0, a0] = BEFORE[id] as [number, number];
+    return Math.round(Math.abs(p - a) * 10) / 10 > Math.round(Math.abs(p0 - a0) * 10) / 10;
+  };
+  /** Why a record does not accept this row at its current values, or null if it does. */
+  const recordProblem = (id: string): string | null => {
+    const mine = records.filter((r) => r.metric === id);
+    if (mine.length !== 1) return `${id}: ${mine.length} acceptance records`;
+    const r = mine[0] as CallerAcceptance;
+    const [p, a] = row(id);
+    const [p0] = BEFORE[id] as [number, number];
+    if (r.approved_by !== "Joseph") return `${id}: approved_by ${String(r.approved_by)}`;
+    if (r.scope !== "insample") return `${id}: scope ${String(r.scope)}`;
+    if (r.date !== "2026-11-12") return `${id}: date ${String(r.date)}`;
+    if (typeof r.reason !== "string" || r.reason.trim() === "") return `${id}: reason`;
+    if (r.observed !== p || r.target !== a) return `${id}: record ${String(r.observed)} vs ${String(r.target)}, report ${p} vs ${a}`;
+    if (r.before !== p0) return `${id}: record before ${String(r.before)}, pre-5c ${p0}`;
+    const line = d5c.split("\n").find((l) => l.includes(`\`${id}\``) && l.includes(`${p.toFixed(1)}% vs ${a.toFixed(1)}%`) && /accepted by Joseph/.test(l) && /insample/.test(l));
+    if (line === undefined) return `${id}: no DECISIONS.md step 5c line accepting it by Joseph, insample, at ${p.toFixed(1)}% vs ${a.toFixed(1)}%`;
+    return null;
+  };
+
+  for (const id of Object.keys(BEFORE)) {
     it(`${id}`, () => {
-      const re = new RegExp(`^\\| \`${id.replace(/[.>=]/g, (c) => `\\${c}`)}\` \\| \\d+ \\| ([\\d.]+) \\| ([\\d.]+) \\|`, "m");
-      const m = callerReport.match(re);
-      expect(m, id).not.toBeNull();
-      const now = Math.round(Math.abs(Number(m?.[1]) - Number(m?.[2])) * 10) / 10;
-      const before = Math.round(Math.abs(p0 - a0) * 10) / 10;
-      expect(now, `${id}: |diff| now ${now} pp, before ${before} pp`).toBeLessThanOrEqual(before);
+      const [p, a] = row(id);
+      if (!worse(id)) return;
+      expect(recordProblem(id), `${id} is worse (${p} vs ${a}); it needs Joseph's acceptance at these values`).toBeNull();
     });
   }
+
+  it("every acceptance record is for an F3 row that is worse now (no stale or stray records)", () => {
+    for (const r of records) {
+      expect(Object.keys(BEFORE), String(r.metric)).toContain(r.metric);
+      expect(worse(r.metric as string), `${String(r.metric)} is not worse, so it needs no acceptance`).toBe(true);
+    }
+  });
 });
 
 describe("C4, E3, F4: the report rows the spec asks for", () => {
