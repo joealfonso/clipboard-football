@@ -112,6 +112,9 @@ def _hits(caller: Caller, sit: dict[str, Any], entry: dict[str, Any]) -> set[str
                     hits.add(f"late:{k}@{v['level']}")
     else:
         hits.add("try")
+        # Step 5d milestone E: overtime tries once both teams have possessed (the designed GF reading).
+        if sit["quarter"] == 5 and sit.get("otBothPossessed") == 1:
+            hits.add(f"try:otBoth:{sit['scoreDiff']}")
     return hits
 
 

@@ -809,7 +809,8 @@
       "playClockRule": "clock.playClockAfterPlay",
       "shortOnly": true,
       "concede": true,
-      "concedeSplit": 2
+      "concedeSplit": 2,
+      "k0xSplit": 1
     },
     "fieldHalf": {
       "type": "range",
@@ -996,6 +997,80 @@
             "K50",
             "K75",
             "K99"
+          ]
+        }
+      ]
+    },
+    "scoreLateNL5": {
+      "type": "window",
+      "of": "lateTime",
+      "members": [
+        "G5",
+        "GF",
+        "OT"
+      ],
+      "field": "scoreDiff",
+      "phases": [
+        "scrimmage"
+      ],
+      "buckets": [
+        {
+          "label": "<=-9",
+          "min": null,
+          "max": -9
+        },
+        {
+          "label": "-8..-4",
+          "min": -8,
+          "max": -4
+        },
+        {
+          "label": "-3..-1",
+          "min": -3,
+          "max": -1
+        },
+        {
+          "label": "0",
+          "min": 0,
+          "max": 0
+        },
+        {
+          "label": "L",
+          "min": 1,
+          "max": null
+        }
+      ],
+      "otherwise": null
+    },
+    "scoreNL": {
+      "type": "group",
+      "of": "scoreLateNL5",
+      "phases": [
+        "scrimmage"
+      ],
+      "groups": [
+        {
+          "label": "<=-9",
+          "members": [
+            "<=-9"
+          ]
+        },
+        {
+          "label": "-8..-4",
+          "members": [
+            "-8..-4"
+          ]
+        },
+        {
+          "label": "-3..-1",
+          "members": [
+            "-3..-1"
+          ]
+        },
+        {
+          "label": "0",
+          "members": [
+            "0"
           ]
         }
       ]
@@ -1304,6 +1379,31 @@
           "dims": [
             "down",
             "zoneK",
+            "scoreNL",
+            "clock",
+            "lateTime"
+          ]
+        },
+        {
+          "dims": [
+            "zoneK",
+            "scoreNL",
+            "clock",
+            "lateTime"
+          ]
+        },
+        {
+          "dims": [
+            "fieldHalf",
+            "scoreNL",
+            "clock",
+            "lateTime"
+          ]
+        },
+        {
+          "dims": [
+            "down",
+            "zoneK",
             "scoreLate5Only",
             "lateTime"
           ]
@@ -1500,6 +1600,46 @@
             "score3",
             "time2R"
           ]
+        },
+        {
+          "dims": [
+            "zoneK",
+            "scoreLate5Only",
+            "lateTime",
+            "clock"
+          ]
+        },
+        {
+          "dims": [
+            "zoneK",
+            "scoreLate5Only",
+            "lateTime",
+            "clock"
+          ],
+          "seasons": {
+            "from": 2016,
+            "to": 2023
+          }
+        },
+        {
+          "dims": [
+            "fieldHalf",
+            "scoreLate5Only",
+            "lateTime",
+            "clock"
+          ]
+        },
+        {
+          "dims": [
+            "fieldHalf",
+            "scoreLate5Only",
+            "lateTime",
+            "clock"
+          ],
+          "seasons": {
+            "from": 2016,
+            "to": 2023
+          }
         },
         {
           "dims": [

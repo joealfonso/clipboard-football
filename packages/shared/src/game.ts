@@ -29,6 +29,17 @@ export interface CoachView extends Omit<Situation, "clockRunning"> {
   readonly defenseTimeoutsThisDeadBall: number;
 }
 
+/**
+ * Step 5d milestone D: states (from `quarterMin` on, overtime included) where the average coach
+ * never kneels. A state matches when every bound it sets holds: scoreDiff in [scoreMin, scoreMax],
+ * more than `secondsAbove` seconds left in the game (overtime: the period), yardLine100 above
+ * `yardLine100Above`.
+ */
+export interface LateKneelMask {
+  readonly quarterMin: number;
+  readonly states: readonly { readonly scoreMin?: number; readonly scoreMax?: number; readonly secondsAbove?: number; readonly yardLine100Above?: number; readonly realKneels: number; readonly realSnaps: number }[];
+}
+
 /** What the kicking team's coach sees before a kickoff, from the kicker's perspective. */
 export interface KickView {
   readonly quarter: number;
@@ -83,7 +94,12 @@ export interface GameConfig {
     readonly kneelOutDrain?: boolean;
     readonly kneelOutDrainWindow?: { readonly quarterMin: number; readonly secondsLeftInGame: number };
     readonly timeoutBeforeExpiry?: boolean;
-    readonly callerMasks?: { readonly spikeNeedsRunningClock?: boolean; readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number } };
+    readonly callerMasks?: {
+      readonly spikeNeedsRunningClock?: boolean;
+      readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number };
+      /** Step 5d milestone D (designed): no kneel in these late states, each with 0 real kneels in 2016-2023 (docs/MODEL.md). */
+      readonly lateKneel?: LateKneelMask;
+    };
   };
   readonly loop: { readonly maxInputsPerGame: number; readonly maxScrimmageSnapsPerGame: number };
   readonly league: {

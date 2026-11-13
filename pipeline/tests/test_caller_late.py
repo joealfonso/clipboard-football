@@ -80,7 +80,8 @@ def test_o4top_late_levels_seasons_are_pinned() -> None:
             assert "seasons" not in prev and [("scoreLateOnly" if d == "scoreLate" else d) for d in prev["dims"]] == lv["dims"], (prev, lv)
         elif late:
             assert "seasons" not in lv
-    assert twins == 8  # Amended by step 5b: 4 in 5a, plus the late zoneK and fieldHalf twins (lateTime and lateClock).
+    # Amended 2026-11-13 (M1 step 5d milestone D): plus the c40-banded late zoneK and fieldHalf twins.
+    assert twins == 10  # Amended by step 5b: 4 in 5a, plus the late zoneK and fieldHalf twins (lateTime and lateClock).
     # Fitting reads those ranges: a non-twin late level takes only 2021-2023 rows.
     from pipeline.caller.fit import level_seasons
     frame = pl.DataFrame({"season": [2018, 2022], "down": [4.0, 4.0]})

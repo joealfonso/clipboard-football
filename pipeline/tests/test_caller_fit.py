@@ -109,7 +109,7 @@ def test_holdout_and_2026_rows_never_reach_a_fitted_cell() -> None:
         # Step 5c (amended 2026-11-12): the new label columns, so their cells are covered too.
         "b_kneelGap": "K0c.d23", "b_zoneFG": "OWN",
         # Step 5d (amended 2026-11-13, milestone C): the spike level's label columns.
-        "b_clockRun": "1", "b_ownTO2": "o0", "b_downs23": "2-3", "b_scoreTrail": "-8..-1", "b_timeGF": "GF", "b_fgRange": "in",
+        "b_clockRun": "1", "b_ownTO2": "o0", "b_downs23": "2-3", "b_scoreTrail": "-8..-1", "b_timeGF": "GF", "b_fgRange": "in", "b_scoreNL": "0",
         "depth": None, "leaf": "insideRun", "formation": "shotgun", "front": "front.nickelLight",
         "coverage": "cover3.zone.le4", "preset": "nickelCover3",
     }

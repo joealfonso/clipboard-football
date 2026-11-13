@@ -46,6 +46,24 @@ export const gameConfigSchema = z
           .looseObject({
             spikeNeedsRunningClock: z.boolean().optional(),
             earlyKneel: z.strictObject({ quarters: z.array(posInt), halfEndQuarter: posInt, secondsAbove: nonNeg }).optional(),
+            lateKneel: z
+              .strictObject({
+                quarterMin: posInt,
+                states: z
+                  .array(
+                    z.strictObject({
+                      scoreMin: z.number().int().optional(),
+                      scoreMax: z.number().int().optional(),
+                      secondsAbove: nonNeg.optional(),
+                      yardLine100Above: nonNeg.optional(),
+                      // A designed mask needs a real count of exactly 0 (spec locked rule 4).
+                      realKneels: z.literal(0),
+                      realSnaps: posInt,
+                    }),
+                  )
+                  .min(1),
+              })
+              .optional(),
           })
           .optional(),
       })

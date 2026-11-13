@@ -2,7 +2,7 @@
 // pipeline/caller/shares.py computes the same shares with the same arithmetic in the same
 // order; data/caller/golden.json pins the two together.
 
-import type { CallerData, FactorTable, Situation } from "../../../shared/src/types";
+import type { CallerData, FactorTable, LateKneelMask, Situation } from "../../../shared/src/types";
 import type { Rng } from "../rng";
 import { indexCatalog, type AvailabilityIndex } from "./availability";
 import { binSituation, type BinLabels } from "./bins";
@@ -78,6 +78,20 @@ export interface CallerMasks {
   readonly clockStopped?: boolean;
   /** Milestone F: no kneel in `quarters`, nor in `halfEndQuarter` with more than `secondsAbove` left in the half. */
   readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number };
+  /** Step 5d milestone D: no kneel in these late states (each with 0 real kneels in 2016-2023). */
+  readonly lateKneel?: LateKneelMask;
+}
+
+/** Whether a step 5d late-kneel state covers this situation. */
+export function inLateKneelMask(situation: Situation, m: LateKneelMask): boolean {
+  if (situation.quarter < m.quarterMin) return false;
+  return m.states.some(
+    (st) =>
+      (st.scoreMin === undefined || situation.scoreDiff >= st.scoreMin) &&
+      (st.scoreMax === undefined || situation.scoreDiff <= st.scoreMax) &&
+      (st.secondsAbove === undefined || situation.secondsLeftInGame > st.secondsAbove) &&
+      (st.yardLine100Above === undefined || situation.yardLine100 > st.yardLine100Above),
+  );
 }
 
 /** Top-level targets the masks remove in this situation. */
@@ -87,6 +101,7 @@ export function maskedCalls(situation: Situation, masks: CallerMasks): ReadonlyS
   if (masks.clockStopped === true) out.add("spike");
   const k = masks.earlyKneel;
   if (k !== undefined && (k.quarters.includes(situation.quarter) || (situation.quarter === k.halfEndQuarter && situation.secondsLeftInHalf > k.secondsAbove))) out.add("kneel");
+  if (masks.lateKneel !== undefined && inLateKneelMask(situation, masks.lateKneel)) out.add("kneel");
   return out;
 }
 

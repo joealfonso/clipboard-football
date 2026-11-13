@@ -74,7 +74,7 @@ FOUR = CFG["factors"]["o4Top"]
 # Amended 2026-11-12 (M1 step 5c milestone F): kneelGap, oTop's new first level.
 # Amended 2026-11-13 (M1 step 5d milestone C): the spike level's dimensions.
 LATE_DIMS = ["down", "kneelOut", "kneelGap", "scoreLate5Only", "lateTime", "lateClock", "zoneK", "fieldHalf", "time5R", "time2R", "scoreLateOnlyR", "dist5", "dist3", "zone6",
-             "zone3", "scoreLate", "scoreLateOnly", "score3", "time5", "time2", "end", "clock", "clockRun", "ownTO2", "downs23", "scoreTrail", "timeGF", "fgRange"]
+             "zone3", "scoreLate", "scoreLateOnly", "score3", "time5", "time2", "end", "clock", "clockRun", "ownTO2", "downs23", "scoreTrail", "timeGF", "fgRange", "scoreNL"]
 
 
 def _rows(situations: list[tuple[dict, int, str, bool]]) -> pl.DataFrame:
@@ -142,13 +142,14 @@ def _key(level: dict, sit: dict) -> str | None:
         # [down,kneelOut,lateTime] -> the first regulation level.
         ("oTop", _sit(1, 4, 4, 90), 2, 3, None),
         # Amended 2026-11-13 (M1 step 5d milestone C): oTop gained four spike levels ahead of
-        # [down,zoneK,scoreLate5,lateTime] (trailers in the final 2:00 only), so the indices below moved up by four.
+        # [down,zoneK,scoreLate5,lateTime] (trailers in the final 2:00 only), so the indices below moved up by four,
+        # and milestone D's three not-leading late levels by three more.
         # Overtime, tied, 3rd down at the 30: [down,zoneK,scoreLate5,lateTime] -> [zoneK,scoreLate5,lateTime].
-        ("oTop", _sit(3, 0, 5, 400, 30, 2), 10, 11, _sit(1, 0, 5, 400, 30, 2)),
+        ("oTop", _sit(3, 0, 5, 400, 30, 2), 13, 14, _sit(1, 0, 5, 400, 30, 2)),
         # [zoneK,scoreLate5,lateTime] -> [fieldHalf,scoreLate5,lateTime].
-        ("oTop", _sit(3, 0, 5, 400, 30, 2), 11, 12, _sit(3, 0, 5, 400, 45, 2)),
+        ("oTop", _sit(3, 0, 5, 400, 30, 2), 14, 15, _sit(3, 0, 5, 400, 45, 2)),
         # Overtime with no overtime cell -> the G5 cell (resolved question 2), fitted on regulation only.
-        ("oTop", _sit(1, -3, 5, 400, 60, 2), 12, 13, None),
+        ("oTop", _sit(1, -3, 5, 400, 60, 2), 15, 16, None),
     ],
 )
 def test_otop_backoff_at_n_minus_1_and_n(factor: str, sit: dict, level: int, parent: int, spill: dict | None) -> None:
@@ -188,7 +189,9 @@ def test_o4top_late_zone_level_twin_and_field_half_parent() -> None:
     then fieldHalf (and its twin)."""
     sit = _sit(4, -3, 5, 300, 40, 2)
     levels = FOUR["levels"]
-    idx = [i for i, lv in enumerate(levels) if "lateTime" in lv["dims"]]
+    # Amended 2026-11-13 (M1 step 5d milestone D): the c40-banded copies (with `clock`) come first; this
+    # test follows the unbanded late levels.
+    idx = [i for i, lv in enumerate(levels) if "lateTime" in lv["dims"] and "clock" not in lv["dims"]]
     assert [levels[i]["dims"] for i in idx] == [["zoneK", "scoreLate5Only", "lateTime"]] * 2 + [["fieldHalf", "scoreLate5Only", "lateTime"]] * 2
     fit = lambda rows: fit_factor(_rows(rows), FOUR, 2023, 2, 2024)  # noqa: E731
     zk, zk_twin, fh, fh_twin = idx

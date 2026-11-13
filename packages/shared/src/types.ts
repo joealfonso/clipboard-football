@@ -81,6 +81,7 @@ export { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_
 export type {
   CoachTables,
   CoachView,
+  LateKneelMask,
   DecisionCondition,
   DecisionDim,
   DecisionLevel,

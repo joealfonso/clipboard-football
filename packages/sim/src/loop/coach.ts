@@ -269,6 +269,7 @@ export function averageCoach(d: CoachData): CoachPolicies {
     ...(d.fieldGoals === undefined ? {} : { fieldGoals: d.fieldGoals }),
     ...(cm?.spikeNeedsRunningClock === true && clock !== undefined && !clock.clockRunning ? { clockStopped: true } : {}),
     ...(cm?.earlyKneel === undefined ? {} : { earlyKneel: cm.earlyKneel }),
+    ...(cm?.lateKneel === undefined ? {} : { lateKneel: cm.lateKneel }),
   });
   return {
     offenseCall: (view, rng, clock) => chooseOffenseCall(view, d.caller, rng, masks(clock)),

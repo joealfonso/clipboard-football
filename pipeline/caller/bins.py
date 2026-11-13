@@ -54,7 +54,8 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
         elif d["type"] == "rules":
             label = None
             for b in d["buckets"]:
-                if b["quarterMin"] <= sit["quarter"] <= b["quarterMax"] and _in_range(sit[b["field"]], b):
+                # Step 5d: a bucket on a field the situation lacks (a frozen fixture) never matches, as in bins.ts.
+                if b["quarterMin"] <= sit["quarter"] <= b["quarterMax"] and b["field"] in sit and _in_range(sit[b["field"]], b):
                     label = b["label"]
                     break
             if label is None:

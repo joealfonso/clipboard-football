@@ -45,6 +45,8 @@ describe("binning fixture", () => {
     // other level gives the same key, in the same order, as before. Amended by step 5b: the
     // new late levels are null here; the regulation levels keep their keys. Amended again for
     // the o4Top reorder (Joseph, 2026-11-12): the score3 levels now come before the late levels.
+    // Amended 2026-11-13 (M1 step 5d milestone D): four c40-banded late levels (two pairs, each with
+    // its 2016-2023 twin) come before the late levels; they are null here too.
     expect(config.factors.o4Top.levels.map((l) => levelKey(l, labels))).toEqual([
       "1|GL|-8..-1|H1F|c40.o1+.d1",
       null,
@@ -56,6 +58,10 @@ describe("binning fixture", () => {
       null,
       "1|GL|T|H1F",
       "1|GL|T|F",
+      null,
+      null,
+      null,
+      null,
       null,
       null,
       null,
