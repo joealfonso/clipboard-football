@@ -1104,3 +1104,13 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 6 | After it | Nothing but the report label: a speed remeasure (run 5's 95 ms per game was taken at load average about 40) | Every metric identical to run 5 |
 | Step 5 game | 7 | After it | The report layout (accepted misses listed apart from the gated-failure line) and the recomputed F1 stages | Every metric identical to run 6 |
 
+
+## Publishing
+
+### Public repo (Joseph, 2026-11-12)
+
+- Date: 2026-11-11 and 2026-11-12.
+- Decision: the repo is published on GitHub as joealfonso/clipboard-football. The code is under the MIT license (LICENSE, "Copyright (c) 2026 Joseph Alfonso"). Shipped data under `data/` keeps the license and credit of its nflverse source, listed per file in DATA_LICENSE.md: play-by-play CC-BY 4.0; participation and FTN charting CC-BY-SA 4.0 ("FTN Data via nflverse"), so files built from them are offered under CC-BY-SA 4.0; the combine percentiles credited "courtesy of PFR via nflverse". Designed files that hold no nflverse data are under MIT with the code.
+- Commit author and committer email: rewritten to 8185449+joealfonso@users.noreply.github.com on all local history before the first push. Names and dates are kept. Commit SHAs cited in this file and in other docs from before the rewrite no longer resolve.
+- data/players/distributions.json (combine drill percentile cut points) is published. This resolves "Pro Football Reference terms (open, for Joseph before any public build)" in M1 step 4: Joseph read sports-reference.com terms 5.10 (no competing database) and 5.11 (no use to train, prompt or instruct AI) and judged publishing fine for now, since this is a hobby project. What would change it: the project going beyond a hobby. Revisit 5.10 and 5.11 before that happens.
+- Never public: real nflverse rosters and pipeline/game/real_names.py. Rosters stay in the download cache outside the repo; real_names.py is gitignored.
