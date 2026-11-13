@@ -1236,6 +1236,44 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 - Also accepted: `absMargin.share.8-14` (insample) at the run H value, 27.92 vs 22.7053 (|diff| 5.21, 4.93 before 5c, league-seed spread 25.2 to 30.3); its known_deviation in data/game/tolerances.json was updated (observed, reason, date 2026-11-12, approved_by Joseph). Only that entry changed; no tolerance, threshold or other entry moved.
 - Check that run H reproduces after the revert: the in-sample 10k on f55ba64 gave identical metrics, slice digests and check counts (8-14 at |diff| 5.21 accepted, `absMargin.share.22+` 10.81 vs 13.78, passing).
 
+## M1 step 5d: clock fixes
+
+Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run at `d94384c`) and the debugger's diagnosis below.
+
+### Schema change approved (Joseph, 2026-11-13)
+- Decision (Joseph, question dialog, 2026-11-13): add exactly two fields to the caller `Situation` (and `SITUATION_FIELDS`, packages/shared/src/situation.ts): `clockRunning` (1 when the game clock is running at the snap, else 0) and the overtime-possession flag `otBothPossessed` (1 in overtime once the second team has had its opportunity to possess, else 0). Spec locked rule 7 and milestone A. Any other Situation, config schema or version change is still ask-first.
+
+### Diagnosis (debugger, 2026-11-13, at `4f25b28`, before any fix; 5c locked rule 7)
+- Copied from the debugger's scratchpad note (probe scripts and the pre-5c build unpacked from `d73620f` were in the session scratchpad, not the repo). Real data used: 2016-2023 only.
+- Finding 1a, too few spikes (confirmed):
+  - A 1-8 trailer with 0 timeouts, running clock, final 2:00 gets its spike share from oTop L6 (down|zoneK|scoreLate5Only|lateTime), sometimes L7. These cells pool clock state, timeout counts and the whole 2:00. L3-5 have no cell here.
+  - The 5c stopped-clock spike mask (coach.ts:270, offense.ts:87) removed the stopped-clock spikes that had masked the shortfall. Running-clock spikes are unchanged: old 0.0070, new 0.0063 per game. Old total 0.0208, new 0.0063, real 0.075.
+  - Real 2016-2023: 0-timeout trailer, 1st down, final 0:40: 69.5% spike when the clock is running (114/164); 1 in 242 when it is stopped.
+  - Drawing at real running-clock rates lifts sim spikes to 0.048 a game. The remaining gap is fewer running-clock snaps (0.19 vs 0.26 a game).
+  - Fix: an oTop level ahead of L6, for the final 2:00 and OT, keyed by down, clockRunning, own timeouts (0 / 1+) and late score, fitted on 2016-2023. Downs 2-3 have about 100-130 snaps, so pool them to reach N 150. Needs clockRunning in the caller's Situation (schema change, approved above).
+- Finding 1b, final-minute gaps of 15 s or more, 35% vs 23% real (confirmed for tempo):
+  - Revision 1 (decisions.py:121-169) correctly removed mislabelled near-zero run-offs from the no-timeout tempo cells.
+  - A 0-timeout trailer inside 0:40 has no L0 cell (fewer than 150 snaps), so it falls back to L1 GF|c40|T|0|0|0, which pools timeout counts. That cell: mean 18.2 s, P(>= 20 s) 0.34.
+  - Real 2022-2023: 0-timeout trailer, running clock: mean 11.7 s, P(>= 20 s) 0.05 (n 56). 1+ timeouts: 21.9 s, 0.43.
+  - With the old tempo.json: 25.8%. The clock-out rule, timeoutBeforeExpiry and the kneel splits are ruled out.
+  - Fix (data and refit only): a tempo level between L0 and L1 that keeps ownTO and drops final: (time5, score3, ownTO, prevKneel, restart, toCalled). GF|T|0 has n 260, mean 15.7 s, P(>= 20 s) 0.18.
+  - Leftover (likely, untested): in-bounds play-ending composition (5b milestone A out-of-bounds no-go), plus missing post-spike gaps.
+- Finding 2, kneels by teams that can't kneel out (confirmed; the trailer part predates 5c):
+  - Soak, Q4/OT kneels outside a K1 state: trailers 187 (146 from oTop L6, 23 from L7); tied 101 (L6/L7/L8, OT included); leaders up 1-8 102 (43 K0x|1..8|GF at 2.9%, 40 K0c.d23|1..8|GF at 3.6%, 13 L1 K0|1..8, 6 from o4Top L13/L7).
+  - Real 2016-2023: all 36 red-zone kneels by 1-8 trailers are down 1-2, mostly with the defense at 0 timeouts; all 30 kneels by trailers down 9+ come at 0:47 or less; tied kneels are mostly inside 0:22; K0x kneels by 1-8 leaders: 21 of 22 with the defense at 0 timeouts; K0c.d23 has 10 kneels in 2,095 games, 6 of them at 16 s or less.
+  - Masks: earlyKneel never applies in Q4/OT. kneelGap and kneelOut are null for teams not leading and on 4th down (bins.ts:68). The late o4Top levels have no clock band.
+  - Fix direction: finer late levels ahead of L6-L8 for teams not leading, with the -3..-1 / -8..-4 split and a c40/c120 clock split; split K0x by defense timeouts (0 / 1+); move the K0c split (hard-coded at bins.ts:79 and bins.py) into data; add a c40 band to the late o4Top levels; designed masks only for states with 0 real kneels, after counting them.
+- Finding 3, overtime try ignores the score (confirmed):
+  - situation.ts:21-24 gives OT the period clock and quarter 5. tryLate (data/caller/config.json:400) maps GF to 120 s or less and G5 to 121-300 s, so an OT try above 5:00 gets "-" and oTry backs off to L1 -8..-1|Q4 with P(two) 0.199.
+  - Rule: docs/RULES.md Overtime, Rule 16-1-3/4/5 (once both teams have had a possession, sudden death).
+  - Fix: in OT a try is always treated as GF, designed and citing the rule. The exact version keys on "the second team has had its possession", which needs that in the Situation (schema change, approved above). Side effect: a first-possession OT touchdown (up 6) would follow the GF|6 chart (always kicks), where today it is fitted (63 kicks, 18 twos). The spec keeps the flag-0 case unchanged (milestone E).
+- Not in 5d (deferred to M2, which rewrites the text): PLAYTEST_M1_5C findings 4 and 5 (touchdown yardage, run-off line over the time left, "End of half" on the last drive, missed-XP wording, "no good (75% chance)"), and 6 (QB sneak at 5+ yards to go, an observation only).
+
+### Spec open questions resolved (lead, 2026-11-13, before milestone 0)
+1. `d.kneel.thenPlay.lead9` is reported only, not gated. It measures the leaders behind the accepted `c.kneel.ballBack` miss, which 5d does not target, so it stays covered by that acceptance: `c.kneel.ballBack` must stay at or better than 8.97%.
+2. The spike tolerance stands as written. It isn't loosened to fit the projection. If the spike check fails at H, it goes to Joseph with the evidence. (The spec's Resolved 2 names it `d.spike.perGame`; the table has no check by that id, and the per-game spike check is `d.spike.trail0TO`.)
+3. Fix it in 5d. If A5 finds that the caller's timeouts at the snap disagree with revision 1's clock order, the caller reads timeouts in clock order, the same fix as revision 1. The disagreement count and the refit are logged here.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
