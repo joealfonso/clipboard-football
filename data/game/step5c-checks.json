@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "source": "docs/specs/m1-step5c-playtest-fixes.md, Pre-registered checks (thresholds accepted by the lead, Resolved 1)",
+  "note": "Pre-registered before any M1 step 5c diagnosis, measure code or sim run. Never edited after its sha256 is recorded in DECISIONS.md.",
+  "definitions": "Each measure is designed and computed the same way on both sides: a pipeline module for real 2016-2023 regular season and a script for the sim's in-sample run. \"Per game\" is per game, not per team-game. \"Gap\" means the game-clock seconds between two consecutive scrimmage snaps of one drive with no timeout, period end or two-minute warning between them.",
+  "checks": [
+    {
+      "id": "c.ot.complete",
+      "measure": "Postseason games, league 4242, seeds 1-10,000: games without a record, and tied games",
+      "passRule": "both 0",
+      "playtestReference": "1 crash in 1,000"
+    },
+    {
+      "id": "c.trail.lastSnap",
+      "measure": "Share of games whose last Q4 scrimmage snap is by an offense trailing by 1-8 with 1 or more timeouts and 15 s or more on the clock at the snap",
+      "passRule": "abs(sim - real) <= 0.6 pp",
+      "playtestReference": "2.8% vs 1.2%"
+    },
+    {
+      "id": "c.trail.longGap",
+      "measure": "Q4 final 2:00, offense trailing 1-8 with 1 or more timeouts: share of gaps of 35 s or more",
+      "passRule": "abs(sim - real) <= 3 pp",
+      "playtestReference": "not measured this way"
+    },
+    {
+      "id": "c.spike.stopped",
+      "measure": "Spikes snapped with the clock stopped, per game",
+      "passRule": "abs(sim - real) <= 0.02",
+      "playtestReference": "0.13 vs not measured"
+    },
+    {
+      "id": "c.kneel.ballBack",
+      "measure": "Of games where the leader kneels in Q4, the share where the opponent then snaps in regulation",
+      "passRule": "abs(sim - real) <= 2 pp",
+      "playtestReference": "36.8% vs 1.9%"
+    },
+    {
+      "id": "c.kneel.shortGap0TO",
+      "measure": "Q4 final 2:00, leading offense, defense with 0 timeouts: share of gaps of 15 s or less",
+      "passRule": "abs(sim - real) <= 3 pp",
+      "playtestReference": "11.8% vs not measured"
+    },
+    {
+      "id": "c.kneel.early",
+      "measure": "Kneels in Q1, Q3, or Q2 with more than 1:00 left, per game",
+      "passRule": "sim <= real + 0.001",
+      "playtestReference": "0.007 vs 0"
+    },
+    {
+      "id": "c.fg.60",
+      "measure": "Field goal tries of 60+ yards, per game",
+      "passRule": "abs(sim - real) <= 0.015",
+      "playtestReference": "0.225 vs 0.029"
+    },
+    {
+      "id": "c.fg.63",
+      "measure": "Tries of 63+ yards, per game",
+      "passRule": "abs(sim - real) <= 0.008",
+      "playtestReference": "0.163 vs 0.0086"
+    },
+    {
+      "id": "c.fg.70",
+      "measure": "Tries of 70+ yards, per game",
+      "passRule": "sim <= 0.002",
+      "playtestReference": "0.060 vs 0.0005"
+    },
+    {
+      "id": "c.fg.50to59",
+      "measure": "Tries of 50-59 yards, per game (guards against over-correction)",
+      "passRule": "abs(sim - real) <= 0.05",
+      "playtestReference": "-"
+    },
+    {
+      "id": "c.try.down2GF",
+      "measure": "Q4 final 2:00, trailing by 2 after the touchdown: two-point share of tries",
+      "passRule": "sim >= real - 15 pp",
+      "playtestReference": "14/34 vs 28/28"
+    },
+    {
+      "id": "c.try.tiedG5",
+      "measure": "Q4 final 5:00, tied after the touchdown: extra-point share of tries",
+      "passRule": "sim >= real - 10 pp",
+      "playtestReference": "73/92 vs 45/45"
+    },
+    {
+      "id": "c.to.kickoffQ13",
+      "measure": "Timeouts before kickoffs in Q1-Q3, per game",
+      "passRule": "abs(sim - real) <= 0.02",
+      "playtestReference": "0.257 vs 0.0033"
+    },
+    {
+      "id": "c.to.tryQ13",
+      "measure": "Timeouts before tries in Q1-Q3, per game",
+      "passRule": "abs(sim - real) <= 0.02",
+      "playtestReference": "0.174 vs 0.0105"
+    },
+    {
+      "id": "c.to.kickoffAll",
+      "measure": "Timeouts before kickoffs, all periods, per game",
+      "passRule": "abs(sim - real) <= 0.03",
+      "playtestReference": "0.332 vs 0.050"
+    },
+    {
+      "id": "c.rough.scramble",
+      "measure": "Accepted roughing the passer on QB scrambles, per game",
+      "passRule": "abs(sim - real) <= 0.005",
+      "playtestReference": "0.02 vs not measured"
+    }
+  ],
+  "reportedNotGated": "Reported, not gated: the playtester's \"Q4 ends on a run-off by a 1-8 trailer holding timeouts\" share; every `absMargin.share.*` bucket, the exact-3 margin share and the overtime-ending-on-3 share; postseason periods played per OT game."
+}
