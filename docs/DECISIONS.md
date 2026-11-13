@@ -1240,6 +1240,12 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 
 Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run at `d94384c`) and the debugger's diagnosis below.
 
+### Checks pre-registered before any measure, sim or fit (spec milestone 0)
+- Date: 2026-11-13.
+- Decision: the 10 checks in data/game/step5d-checks.json (one reported only, `d.kneel.thenPlay.lead9`) are frozen. The file was committed alone in 46268e6 at 2026-11-13 05:06:36 -0800, with sha256 `3f79f1a626eb27817fd6e0912b7dfde0adf2a44b24009b28f86e1469d7af15a5`. The lead recorded this hash before any 5d measure code, sim run or fit. Any later change to that file is a post-registration revision and is logged here.
+- Commit order: the diagnosis (ceaa08c) was committed before the checks file. It holds no measurement made for 5d. As the spec says, the playtest and the diagnosis saw some real values before the thresholds were written.
+- Resolved 2 names `d.spike.perGame`. The check it means is `d.spike.trail0TO`.
+
 ### Schema change approved (Joseph, 2026-11-13)
 - Decision (Joseph, question dialog, 2026-11-13): add exactly two fields to the caller `Situation` (and `SITUATION_FIELDS`, packages/shared/src/situation.ts): `clockRunning` (1 when the game clock is running at the snap, else 0) and the overtime-possession flag `otBothPossessed` (1 in overtime once the second team has had its opportunity to possess, else 0). Spec locked rule 7 and milestone A. Any other Situation, config schema or version change is still ask-first.
 
