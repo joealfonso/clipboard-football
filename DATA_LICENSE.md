@@ -34,8 +34,8 @@ Credit: nflverse; "NFL NextGenStats via nflverse"; "FTN Data via nflverse".
 | `data/engine/validation.json` | Engine validation summary |
 | `data/caller/tolerances.json`, `data/engine/tolerances.json` | Designed thresholds; their `known_deviations` entries quote predicted and actual figures from the validation files above |
 | `data/game/step5c-accepted-caller.json` | Joseph's step 5c acceptance of a caller row (CALLER_REPORT 8f); quotes predicted and actual figures from the caller's in-sample check |
-| `data/game/calibration.json`, `data/game/calibration.insample.json`, `data/game/calibration.insample.pre5a.json`, `data/game/calibration.insample.stages5b.json` | Sim calibration runs, which use the tables above and compare against `data/game/actuals.json` |
-| `data/game/investigations.json`, `data/game/late-backoff.json`, `data/game/checks5c.sim.json` | Sim-side report files from the same runs |
+| `data/game/calibration.json`, `data/game/calibration.insample.json`, `data/game/calibration.insample.pre5a.json`, `data/game/calibration.insample.stages5b.json`, `data/game/calibration.insample.stages5d.json` | Sim calibration runs, which use the tables above and compare against `data/game/actuals.json` |
+| `data/game/investigations.json`, `data/game/late-backoff.json`, `data/game/checks5c.sim.json`, `data/game/checks5d.sim.json` | Sim-side report files from the same runs |
 | `data/game/tolerances.json` | Designed thresholds; its `known_deviations` entries quote sim and actual figures from the calibration runs |
 
 ### Built from play-by-play only: CC-BY 4.0
@@ -47,7 +47,7 @@ Credit: nflverse.
 | `data/game/tempo.json`, `data/game/timeouts.json`, `data/game/onside.json` | Fitted coach decision tables (`python -m pipeline.game`) |
 | `data/game/ep.json` | Expected points table, from play-by-play's `ep` column |
 | `data/game/golden.json`, `data/game/actuals.json`, `data/game/coach.validation.json` | Coach golden situations, real game aggregates and coach validation summary |
-| `data/game/c3.real.json`, `data/game/investigations.real.json`, `data/game/checks5c.real.json` | Real-side report files (`python -m pipeline.game.c3`, `pipeline.game.investigate`, `pipeline.game.checks5c`) |
+| `data/game/c3.real.json`, `data/game/investigations.real.json`, `data/game/checks5c.real.json`, `data/game/checks5d.real.json` | Real-side report files (`python -m pipeline.game.c3`, `pipeline.game.investigate`, `pipeline.game.checks5c`, `pipeline.game.checks5d`) |
 | `data/engine/kickoff.json` | Designed kickoff weights, tuned by hand until simulated kickoffs match 2025 play-by-play (docs/DECISIONS.md, "Kickoffs are designed, tuned to 2025") |
 
 ### Built from the combine: CC-BY 4.0, with Pro Football Reference's terms
@@ -62,7 +62,7 @@ Credit: "Combine data courtesy of PFR via nflverse".
 
 Hand-written settings, menus and rules. `data/players/names.json` and `data/teams/names.json` are fictional; the pipeline checks them against real names locally but holds none.
 
-`data/calls/catalog.json`, `data/caller/config.json`, `data/caller/latechecks.json`, `data/engine/config.json`, `data/engine/matchup.json`, `data/engine/personnel.json`, `data/engine/why.json`, `data/game/config.json`, `data/game/league.json`, `data/game/step5c-checks.json` (pre-registered thresholds only), `data/game/step5c-accepted.json` (Joseph's accepted check misses), `data/players/ratings.json`, `data/players/names.json`, `data/teams/names.json`, `data/rules/nfl-2026.json`.
+`data/calls/catalog.json`, `data/caller/config.json`, `data/caller/latechecks.json`, `data/engine/config.json`, `data/engine/matchup.json`, `data/engine/personnel.json`, `data/engine/why.json`, `data/game/config.json`, `data/game/league.json`, `data/game/step5c-checks.json` (pre-registered thresholds only), `data/game/step5c-accepted.json` (Joseph's accepted check misses), `data/game/step5d-checks.json` (pre-registered thresholds only), `data/game/step5d-accepted.json` (Joseph's accepted step 5d check misses; quotes sim and real figures from the 5d check files), `data/players/ratings.json`, `data/players/names.json`, `data/teams/names.json`, `data/rules/nfl-2026.json`.
 
 ## Test fixtures
 

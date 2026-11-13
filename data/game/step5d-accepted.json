@@ -1,0 +1,45 @@
+{
+ "note": "Step 5d pre-registered checks that fail in the final in-sample run (H) and that Joseph accepted as misses (question dialog, 2026-11-13, 'Accept and move on'). The checks file data/game/step5d-checks.json stays frozen; this list only changes the report's status from fail to accepted. Values are sim vs real at run H; docs/DECISIONS.md, '5d misses accepted (Joseph, 2026-11-13)'.",
+ "accepted": [
+  {
+   "check": "d.spike.trail0TO",
+   "observed": 0.0502,
+   "real": 0.0749,
+   "unit": "perGame",
+   "scope": "insample",
+   "date": "2026-11-13",
+   "approved_by": "Joseph",
+   "reason": "Run H 0.0502 vs 0.0749 a game (tolerance 0.015); 0.0078 before step 5d. The spike level (C) fixed the running-clock share (d.spike.running0TO passes); the rest is fewer running-clock snaps for 0-timeout trailers, as the diagnosis projected."
+  },
+  {
+   "check": "d.gap.trail0TO",
+   "observed": 31.72,
+   "real": 22.53,
+   "unit": "pp",
+   "scope": "insample",
+   "date": "2026-11-13",
+   "approved_by": "Joseph",
+   "reason": "Run H 31.72% vs 22.53% (tolerance 4 pp); 35.41% before step 5d. The real cell for 0-timeout trailers inside 0:40 has 56 snaps, under N = 150; the diagnosis's other leftovers were reported, not fixed."
+  },
+  {
+   "check": "d.kneel.thenPlay.lead1to8",
+   "observed": 0.0171,
+   "real": 0.0029,
+   "unit": "perGame",
+   "scope": "insample",
+   "date": "2026-11-13",
+   "approved_by": "Joseph",
+   "reason": "Run H 0.0171 vs 0.0029 a game (tolerance 0.004); 0.0199 before step 5d. Fitted K0c, K0x.d0 and K1 shares of leaders who kneel and then must play."
+  },
+  {
+   "check": "d.kneel.thenPlay.notLeading",
+   "observed": 0.0207,
+   "real": 0.0,
+   "unit": "perGame",
+   "scope": "insample",
+   "date": "2026-11-13",
+   "approved_by": "Joseph",
+   "reason": "Run H 0.0207 vs 0 a game (rule sim <= real + 0.002); 0.0478 before step 5d. Mostly tied teams in the fitted not-leading cells; tied kneels with more than 0:47 left are real (17), so no mask applies."
+  }
+ ]
+}

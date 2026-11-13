@@ -259,6 +259,10 @@ function writeReport(tol: Tolerances): void {
   const acc5c = (opt("data/game/step5c-accepted.json") as { accepted: { check: string; approved_by: string }[] } | undefined)?.accepted.filter((a) => a.approved_by === "Joseph").map((a) => a.check);
   const step5c: Step5cInputs | undefined =
     c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS, ...(chart === undefined ? {} : { chart }), ...(acc5c === undefined ? {} : { accepted: acc5c }) } : undefined;
+  const acc5d = (opt("data/game/step5d-accepted.json") as { accepted: { check: string; approved_by: string }[] } | undefined)?.accepted.filter((a) => a.approved_by === "Joseph").map((a) => a.check);
+  const acc5cRecs = (opt("data/game/step5c-accepted.json") as { accepted: { check: string; approved_by: string; observed: number; unit: string }[] } | undefined)?.accepted.filter((a) => a.approved_by === "Joseph");
+  // The report shows pp checks in percent; the record's observed is in the check's unit.
+  const acc5cValues = acc5cRecs === undefined ? undefined : Object.fromEntries(acc5cRecs.map((a) => [a.check, a.observed]));
   const d5real = opt("data/game/checks5d.real.json") as Step5dInputs["real"] | undefined;
   const d5sim = opt("data/game/checks5d.sim.json") as Step5dInputs["sim"] | undefined;
   const step5d: Step5dInputs | undefined =
@@ -267,6 +271,8 @@ function writeReport(tol: Tolerances): void {
           real: d5real,
           sim: d5sim,
           order: STEP5D_RUNS,
+          ...(acc5d === undefined ? {} : { accepted: acc5d }),
+          ...(acc5cValues === undefined ? {} : { accepted5c: acc5cValues }),
           ...(c5sim === undefined ? {} : { sim5c: c5sim }),
           ...(c5real === undefined ? {} : { real5c: c5real }),
           ...(existsSync(join(REPO, "data/game/calibration.insample.stages5d.json")) ? { stages: (opt("data/game/calibration.insample.stages5d.json") as { stages: NonNullable<Step5dInputs["stages"]> }).stages } : {}),

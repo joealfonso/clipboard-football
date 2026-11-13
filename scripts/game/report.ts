@@ -302,6 +302,10 @@ export interface Step5dInputs {
   readonly stages?: Readonly<Record<string, { readonly what: string; readonly msPerGame: number; readonly metrics: readonly { readonly id: string; readonly predicted: number; readonly actual: number; readonly tolerance: number | null; readonly status: string; readonly spread: readonly [number, number] }[] }>>;
   /** Labels in order with what each stands for. */
   readonly order: readonly (readonly [string, string])[];
+  /** 5d checks Joseph accepted as misses (data/game/step5d-accepted.json); a failing one reads "accepted" on the last run. */
+  readonly accepted?: readonly string[];
+  /** Joseph's accepted 5c values (data/game/step5c-accepted.json, `observed`): the at-or-better reference where present. */
+  readonly accepted5c?: Readonly<Record<string, number>>;
 }
 
 /** 5c checks that fail at run H and stay accepted only at or better than their run H value (spec, No regression). */
@@ -319,8 +323,8 @@ export function step5dSection(inp: Step5dInputs | undefined): string[] {
     `| Check | ${head.join(" | ")} | Real | Rule | ${head.join(" / ")} |`, `|---|${runs.map(() => "---|").join("")}---|---|---|`];
   (evals[0] as Check5dRow[]).forEach((r, i) => {
     const cells = evals.map((e) => e[i] as Check5dRow);
-    const st = (c: Check5dRow): string => (!c.gated ? "reported" : c.pass ? "pass" : "fail");
-    out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c.unit, c.sim)).join(" | ")} | ${fmt(r.unit, r.real)} | ${r.rule} | ${cells.map(st).join(" / ")} |`);
+    const st = (c: Check5dRow, last: boolean): string => (!c.gated ? "reported" : c.pass ? "pass" : last && (inp.accepted ?? []).includes(c.id) ? "accepted" : "fail");
+    out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c.unit, c.sim)).join(" | ")} | ${fmt(r.unit, r.real)} | ${r.rule} | ${cells.map((c, j) => st(c, j === cells.length - 1)).join(" / ")} |`);
   });
   const lastRows = evals[evals.length - 1] as Check5dRow[];
   out.push("", `n (sim / real) at run ${head[head.length - 1]}: ${lastRows.map((r) => `\`${r.id}\` ${r.n}`).join("; ")}.`, "");
@@ -355,7 +359,9 @@ export function step5dSection(inp: Step5dInputs | undefined): string[] {
       const ev = r5.map(([k]) => evaluate(inp.sim5c?.runs[`5d.${k}`] as NonNullable<NonNullable<Step5dInputs["sim5c"]>["runs"][string]>, real5c));
       // Exact run H values from the 5c run file when present (the spec's rounded values otherwise).
       const runHRows = inp.sim5c.runs["H"] === undefined ? [] : evaluate(inp.sim5c.runs["H"], real5c);
-      const runHOf = (id: string): number | undefined => (STEP5C_AT_OR_BETTER[id] === undefined ? undefined : (runHRows.find((x) => x.id === id)?.sim ?? STEP5C_AT_OR_BETTER[id]));
+      // Joseph's accepted value (step5c-accepted.json) is the reference where it exists; else run H's.
+      const runHOf = (id: string): number | undefined =>
+        STEP5C_AT_OR_BETTER[id] === undefined ? undefined : (inp.accepted5c?.[id] ?? runHRows.find((x) => x.id === id)?.sim ?? STEP5C_AT_OR_BETTER[id]);
       out.push("No regression of the step 5c checks (data/game/step5c-checks.json, sha256 `2c9f4591…`): the 14 that pass at 5c run H must pass; `c.kneel.ballBack`, `c.fg.63` and `c.fg.50to59` must stay at or better than their run H values (|sim - real| no larger).", "",
         `| Check | ${r5.map(([k]) => k).join(" | ")} | Real | Rule | ${r5.map(([k]) => k).join(" / ")} |`, `|---|${r5.map(() => "---|").join("")}---|---|---|`);
       (ev[0] as CheckRow[]).forEach((r, i) => {
@@ -364,9 +370,9 @@ export function step5dSection(inp: Step5dInputs | undefined): string[] {
         const st = (c: CheckRow): string => {
           if (c.pass) return "pass";
           if (runH === undefined || c.real === null) return "fail";
-          return Math.abs(c.sim - c.real) <= Math.abs(runH - c.real) + 1e-9 ? "accepted, at or better" : "worse than run H";
+          return Math.abs(c.sim - c.real) <= Math.abs(runH - c.real) + 1e-9 ? "accepted, at or better" : "worse than accepted";
         };
-        const rule = runH === undefined ? r.rule : `${r.rule}; accepted, run H ${fmt(r.unit, runH)}`;
+        const rule = runH === undefined ? r.rule : `${r.rule}; accepted at ${fmt(r.unit, runH)}`;
         out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c.unit, c.sim)).join(" | ")} | ${fmt(r.unit, r.real)} | ${rule} | ${cells.map(st).join(" / ")} |`);
       });
       out.push("");
@@ -425,7 +431,8 @@ export function renderReport(summaries: Readonly<Record<string, Summary>>, coach
     lines.push("- 2026-11-12, step 5b run 7, after a change to this report's layout only (the gated-failure line lists accepted misses separately) and to the in-sample F1 stages: 0 gated failures, every metric identical to run 6 (post hoc).");
     lines.push("- 2026-11-12, step 5c, counted as step 5b run 8 in docs/DECISIONS.md, after every step 5c change (docs/specs/m1-step5c-playtest-fixes.md, revision 1 and milestones A-G) and Joseph's step 5c approvals: 2 gated failures (homeWin.rate, fieldGoalAttempts.perGame), and 3 accepted misses wider (post hoc).");
     lines.push("- 2026-11-12, step 5c, counted as step 5b run 9 in docs/DECISIONS.md, approvals and timing only, metrics must match run 8: after Joseph accepted run 8's five misses (scoped known deviations), on an idle machine: 0 gated failures, every metric identical to run 8 (post hoc).");
-    lines.push(`- 2026-11-12, step 5c, counted as step 5b run 10 in docs/DECISIONS.md (the run in section 2), pins only, metrics must match run 9: after the code review fixes (text, a config move, C7 run 6), on an idle machine: ${n} gated failures (post hoc).`);
+    lines.push("- 2026-11-12, step 5c, counted as step 5b run 10 in docs/DECISIONS.md, pins only, metrics must match run 9: after the code review fixes (text, a config move, C7 run 6), on an idle machine: 0 gated failures (post hoc).");
+    lines.push(`- 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md (the run in section 2), after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: ${n} gated failures (post hoc).`);
   }
   lines.push("");
   if (summaries["holdout"] !== undefined) lines.push(...section("2. Validation, 2024-2025 (holdout)", summaries["holdout"]));

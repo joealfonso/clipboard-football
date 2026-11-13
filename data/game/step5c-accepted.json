@@ -3,6 +3,6 @@
   "accepted": [
     { "check": "c.kneel.ballBack", "observed": 8.97, "real": 2.92, "unit": "pp", "scope": "insample", "date": "2026-11-12", "approved_by": "Joseph" },
     { "check": "c.fg.63", "observed": 0.0254, "real": 0.0086, "unit": "perGame", "scope": "insample", "date": "2026-11-12", "approved_by": "Joseph" },
-    { "check": "c.fg.50to59", "observed": 0.764, "real": 0.642, "unit": "perGame", "scope": "insample", "date": "2026-11-12", "approved_by": "Joseph" }
+    { "check": "c.fg.50to59", "observed": 0.765, "real": 0.642, "unit": "perGame", "scope": "insample", "date": "2026-11-13", "approved_by": "Joseph", "reason": "Updated by Joseph, 2026-11-13 (step 5d run H, '5d misses accepted'): 0.7650 vs 0.6415 a game; accepted before step 5d at 0.764 (5c run H, 0.7641)." }
   ]
 }

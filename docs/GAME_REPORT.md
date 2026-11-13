@@ -421,14 +421,14 @@ Sim: the in-sample run's games (`scripts/game/checks5d.ts`); d.try.otDown2 adds 
 
 | Check | baseline | res3 | B | C | D | E | H | Real | Rule | baseline / res3 / B / C / D / E / H |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `d.spike.trail0TO` | 0.0078 | 0.0078 | 0.0081 | 0.0499 | 0.0502 | 0.0502 | 0.0502 | 0.0749 | abs(sim - real) <= 0.015 | fail / fail / fail / fail / fail / fail / fail |
+| `d.spike.trail0TO` | 0.0078 | 0.0078 | 0.0081 | 0.0499 | 0.0502 | 0.0502 | 0.0502 | 0.0749 | abs(sim - real) <= 0.015 | fail / fail / fail / fail / fail / fail / accepted |
 | `d.spike.running0TO` | 4.13% | 4.13% | 4.16% | 29.03% | 30.02% | 30.02% | 30.02% | 33.55% | abs(sim - real) <= 6 pp | fail / fail / fail / pass / pass / pass / pass |
 | `d.spike.stopped0TO` | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.07% | sim <= real + 1 pp | pass / pass / pass / pass / pass / pass / pass |
-| `d.gap.trail0TO` | 35.41% | 35.42% | 38.19% | 31.30% | 31.72% | 31.72% | 31.72% | 22.53% | abs(sim - real) <= 4 pp | fail / fail / fail / fail / fail / fail / fail |
+| `d.gap.trail0TO` | 35.41% | 35.42% | 38.19% | 31.30% | 31.72% | 31.72% | 31.72% | 22.53% | abs(sim - real) <= 4 pp | fail / fail / fail / fail / fail / fail / accepted |
 | `d.kneel.notLeading` | 0.0465 | 0.0465 | 0.0462 | 0.0470 | 0.0149 | 0.0149 | 0.0149 | 0.0153 | abs(sim - real) <= 0.005 | fail / fail / fail / fail / pass / pass / pass |
-| `d.kneel.thenPlay.lead1to8` | 0.0199 | 0.0199 | 0.0212 | 0.0204 | 0.0171 | 0.0171 | 0.0171 | 0.0029 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / fail / fail / fail |
+| `d.kneel.thenPlay.lead1to8` | 0.0199 | 0.0199 | 0.0212 | 0.0204 | 0.0171 | 0.0171 | 0.0171 | 0.0029 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / fail / fail / accepted |
 | `d.kneel.thenPlay.lead9` | 0.0725 | 0.0724 | 0.0740 | 0.0727 | 0.0730 | 0.0730 | 0.0730 | 0.0019 | reported only (Resolved 1; table rule abs(sim - real) <= 0.004) | reported / reported / reported / reported / reported / reported / reported |
-| `d.kneel.thenPlay.notLeading` | 0.0478 | 0.0478 | 0.0481 | 0.0499 | 0.0207 | 0.0207 | 0.0207 | 0.0000 | sim <= real + 0.002 | fail / fail / fail / fail / fail / fail / fail |
+| `d.kneel.thenPlay.notLeading` | 0.0478 | 0.0478 | 0.0481 | 0.0499 | 0.0207 | 0.0207 | 0.0207 | 0.0000 | sim <= real + 0.002 | fail / fail / fail / fail / fail / fail / accepted |
 | `d.kneel.4thLate` | 0.0123 | 0.0123 | 0.0127 | 0.0125 | 0.0067 | 0.0067 | 0.0067 | 0.0076 | abs(sim - real) <= 0.004 | fail / fail / fail / fail / pass / pass / pass |
 | `d.try.otDown2` | 1 | 1 | 2 | 3 | 2 | 0 | 0 | 0 | every such sim try is a two-point try (kicks shown) | fail / fail / fail / fail / fail / pass / pass |
 
@@ -460,13 +460,13 @@ No regression of the step 5c checks (data/game/step5c-checks.json, sha256 `2c9f4
 | `c.trail.lastSnap` | 0.00% | 0.00% | 0.00% | 0.02% | 0.02% | 0.02% | 0.02% | 0.05% | abs(sim - real) <= 0.6 pp | pass / pass / pass / pass / pass / pass / pass |
 | `c.trail.longGap` | 6.24% | 6.23% | 6.16% | 6.18% | 6.51% | 6.51% | 6.51% | 7.38% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass / pass / pass |
 | `c.spike.stopped` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0029 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass / pass / pass |
-| `c.kneel.ballBack` | 8.97% | 8.98% | 9.34% | 9.38% | 7.94% | 7.94% | 7.94% | 2.92% | abs(sim - real) <= 2 pp; accepted, run H 8.97% | accepted, at or better / worse than run H / worse than run H / worse than run H / accepted, at or better / accepted, at or better / accepted, at or better |
+| `c.kneel.ballBack` | 8.97% | 8.98% | 9.34% | 9.38% | 7.94% | 7.94% | 7.94% | 2.92% | abs(sim - real) <= 2 pp; accepted at 8.97% | accepted, at or better / worse than accepted / worse than accepted / worse than accepted / accepted, at or better / accepted, at or better / accepted, at or better |
 | `c.kneel.shortGap0TO` | 6.83% | 6.83% | 6.82% | 6.65% | 5.93% | 5.93% | 5.93% | 5.69% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass / pass / pass |
 | `c.kneel.early` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | sim <= real + 0.001 | pass / pass / pass / pass / pass / pass / pass |
 | `c.fg.60` | 0.0360 | 0.0360 | 0.0365 | 0.0336 | 0.0366 | 0.0366 | 0.0366 | 0.0291 | abs(sim - real) <= 0.015 | pass / pass / pass / pass / pass / pass / pass |
-| `c.fg.63` | 0.0254 | 0.0254 | 0.0251 | 0.0228 | 0.0243 | 0.0243 | 0.0243 | 0.0086 | abs(sim - real) <= 0.008; accepted, run H 0.0254 | accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better |
+| `c.fg.63` | 0.0254 | 0.0254 | 0.0251 | 0.0228 | 0.0243 | 0.0243 | 0.0243 | 0.0086 | abs(sim - real) <= 0.008; accepted at 0.0254 | accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better |
 | `c.fg.70` | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0005 | sim <= 0.002 | pass / pass / pass / pass / pass / pass / pass |
-| `c.fg.50to59` | 0.7641 | 0.7646 | 0.7634 | 0.7640 | 0.7650 | 0.7650 | 0.7650 | 0.6415 | abs(sim - real) <= 0.05; accepted, run H 0.7641 | accepted, at or better / worse than run H / accepted, at or better / accepted, at or better / worse than run H / worse than run H / worse than run H |
+| `c.fg.50to59` | 0.7641 | 0.7646 | 0.7634 | 0.7640 | 0.7650 | 0.7650 | 0.7650 | 0.6415 | abs(sim - real) <= 0.05; accepted at 0.7650 | accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better / accepted, at or better |
 | `c.try.down2GF` | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 15 pp | pass / pass / pass / pass / pass / pass / pass |
 | `c.try.tiedG5` | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 10 pp | pass / pass / pass / pass / pass / pass / pass |
 | `c.to.kickoffQ13` | 0.0079 | 0.0079 | 0.0077 | 0.0077 | 0.0077 | 0.0077 | 0.0077 | 0.0076 | abs(sim - real) <= 0.02 | pass / pass / pass / pass / pass / pass / pass |
@@ -505,7 +505,8 @@ Every 2024-2025 game-level run so far, with its gated failures:
 - 2026-11-12, step 5b run 7, after a change to this report's layout only (the gated-failure line lists accepted misses separately) and to the in-sample F1 stages: 0 gated failures, every metric identical to run 6 (post hoc).
 - 2026-11-12, step 5c, counted as step 5b run 8 in docs/DECISIONS.md, after every step 5c change (docs/specs/m1-step5c-playtest-fixes.md, revision 1 and milestones A-G) and Joseph's step 5c approvals: 2 gated failures (homeWin.rate, fieldGoalAttempts.perGame), and 3 accepted misses wider (post hoc).
 - 2026-11-12, step 5c, counted as step 5b run 9 in docs/DECISIONS.md, approvals and timing only, metrics must match run 8: after Joseph accepted run 8's five misses (scoped known deviations), on an idle machine: 0 gated failures, every metric identical to run 8 (post hoc).
-- 2026-11-12, step 5c, counted as step 5b run 10 in docs/DECISIONS.md (the run in section 2), pins only, metrics must match run 9: after the code review fixes (text, a config move, C7 run 6), on an idle machine: 0 gated failures (post hoc).
+- 2026-11-12, step 5c, counted as step 5b run 10 in docs/DECISIONS.md, pins only, metrics must match run 9: after the code review fixes (text, a config move, C7 run 6), on an idle machine: 0 gated failures (post hoc).
+- 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md (the run in section 2), after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: 0 gated failures (post hoc).
 
 ## 2. Validation, 2024-2025 (holdout)
 
