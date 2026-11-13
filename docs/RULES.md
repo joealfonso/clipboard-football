@@ -73,7 +73,46 @@ Three per half, one per team per dead-ball period, no carry-over (Rule 4-5-1). T
 
 ## Challenges and replay review
 
-Not modeled. The CLAUDE.md open issue "challenges as a second interruption" is still open.
+Not modeled yet: challenges are deferred to M2 (docs/DECISIONS.md, "Challenges deferred to M2"), and the rule set file has no challenge or replay values. The rules below were read so M2 can build from them.
+
+Source for every item in this section: 2026 Official Playing Rules of the National Football League, Rule 15 (Instant Replay) and Rule 16, https://operations.nfl.com/rules-officiating/2026-nfl-rulebook (PDF at https://static.www.nfl.com/image/upload/fl_attachment/league/tqivdkzt9mu6wdgsh1ku.pdf), season 2026, checked 2026-11-12. The 2026 rule-change list on that page has no replay or challenge change (its only officiating item, 19-2, lets League personnel consult on disqualifications for flagrant acts). The last replay change was the 2025 expansion of replay assist, listed under 2025 Rules Changes on https://operations.nfl.com/rules-officiating/featured-rules (checked 2026-11-12).
+
+**Coach's challenges (Rule 15, Section 1, Article 1).**
+
+- Each team gets a "minimum of two challenges", started by the head coach (or a pregame designee) throwing the red flag before the next legal snap or kick (15-1-1 (a)).
+- A third challenge is allowed only if at least one of the team's challenges succeeded. There is never a fourth (15-1-1 (f)).
+- Each challenge needs an available timeout. A team out of timeouts or out of challenges may not challenge (15-1-1 (d)).
+- An unsuccessful challenge costs a timeout (15-1-1 (e); 15-6-1). A team that takes a timeout and then loses a challenge is charged a second timeout (15-6-1). A challenge succeeds if any reviewable aspect of the play is changed (15-6-1); for a line-to-gain review it succeeds only if the first-down ruling changes, not just the spot (15-3-7, Notes 2 and 3).
+- A team that commits a foul preventing the next snap loses the right to challenge the previous play; the other team keeps it (15-1-1 (b)).
+- Coaches may challenge the rulings listed in Section 3 except plays only the Replay Official can review (15-1-1 (c)). Challenging when not permitted (which covers a play reserved to the Replay Official) charges a team timeout (15-1-1 (d)).
+- Challenging with no timeouts left: loss of 15 yards, enforced as a foul between downs (15-1-1 (d), Penalty). It is never part of a multiple foul and is enforced in addition to any other foul (Rule 14, Section 1, Article 3, Exception 1; also 14-1-2, Item 4, Exception).
+- Overtime: no coach's challenges in any overtime period; the Replay Official initiates every review (Rule 16, Section 1, Article 5 (d)).
+
+**Reviews the Replay Official starts (Rule 15, Section 1, Article 2).** Only the Replay Official or the Senior Vice President of Officiating (or designee) may start a review of: (a) any play that begins after the two-minute warning of each half; (b) any play in overtime; (c) any scoring play; (d) every try, good or not; (e) on-field rulings of an interception, a fumble or backward pass recovered by the opponent or out of bounds through the opponent's end zone, a failure to reach the line to gain on fourth down, kicking-team possession at the end of a free or scrimmage kick, or a player's disqualification. These can be reviewed even when an accepted foul would wipe out the ruling. The review must start before the next legal snap or kick. A ball touching a foreign object (scoreboard, guide wire) can be reviewed by the Replay Official at any time (15-3-11, Item 5, Note 1).
+
+**Standard for reversal (Rule 15, Section 2, Article 1).** A ruling changes only when the League office reviewer finds "clear and obvious video evidence" that warrants it. Once a review starts, every reviewable aspect of the play can change, not only the one challenged (15-2-2). Reviews are run by the Senior Vice President of Officiating or designee with the Replay Official and Referee; an expedited review can skip the Referee (15-2).
+
+**What can be reviewed (Rule 15, Section 3).** Possession (catch, recovery, pass or fumble, fumble before down), touching of the ball or ground, goal-line plays, boundary-line plays, line-of-scrimmage plays (illegal pass, illegal kick), the dead-ball spot against the line to gain, players on the field, game administration (penalty enforcement, proper down, spot of a foul, game clock), disqualification, and others (pass direction, illegal forward pass or handoff, field goals that cross below the top of the uprights or touch something, ball hitting a foreign object). The game clock can be reviewed to restore time, never to take it off (15-3-9).
+
+**Not reviewable (Rule 15, Section 4).** An erroneous whistle; illegal batting or kicking; intentional grounding; ineligible receiver downfield; illegal contact on a receiver; illegal blocks; anything not listed in Section 3.
+
+**After a review.** A changed ruling resets the game clock to when the ball should have been dead (15-5-1). After the two-minute warning, a changed ruling that leaves the clock running brings a 10-second run-off (play clock 30) that neither team may decline but either may avoid with a timeout (15-5-2). A timeout a team took after the two-minute warning is given back if the review changes the ruling (15-6-2). Pre-snap fouls (other than personal fouls and unsportsmanlike conduct) committed before the review are ignored if the ruling changes, and a coach may change an accept-or-decline choice made before the review (15-7-3, Items 2 and 3).
+
+**Replay assist (Rule 15, Section 9; added 2025).** The Replay Official or the officiating department may advise the on-field crew on objective aspects of a play when there is clear and obvious video evidence, and on game administration: penalty enforcement, proper down, timing or spot of a foul, the game clock, possession, whether a pass was complete, intercepted or its direction, touching of a loose ball or a line, ball or player position against a line or the pocket, down by contact (only when not ruled down on the field). It can also remove certain called fouls when video shows the needed contact did not happen: roughing the passer for a hit to the head or neck, intentional grounding with the passer out of the pocket, unnecessary roughness on a runner out of bounds or a hit to a defenseless player's head or neck, facemask, horse-collar, tripping, and roughing or running into the kicker when the defender touched the kick. Assist does not replace a challenge or a Replay Official review.
+
+## Jersey numbers
+
+Source: 2026 Official Playing Rules of the National Football League, Rule 5, Section 1, Article 2 (Players Numbered by Position), https://operations.nfl.com/rules-officiating/2026-nfl-rulebook (PDF at https://static.www.nfl.com/image/upload/fl_attachment/league/tqivdkzt9mu6wdgsh1ku.pdf), season 2026, checked 2026-11-12. No 2026 rule change touches numbering. Not yet in the rule set file.
+
+- Quarterbacks: 0-19.
+- Punters and placekickers: 0-49 and 90-99.
+- Defensive backs: 0-49.
+- Running backs, fullbacks, tight ends, H-backs and wide receivers: 0-49 and 80-89.
+- Offensive linemen: 50-79.
+- Defensive linemen: 50-79 and 90-99.
+- Linebackers: 0-59 and 90-99.
+
+Eligibility: eligible pass receivers and a T-formation quarterback must wear 0-49 or 80-89. Every other number is worn by an ineligible player unless he reports a change of position (Rule 5, Section 3, Article 1). A player who moves between an eligible and an ineligible position during his career must get a new number; a move within the eligible group or within the ineligible group needs no change if he has played at least one season at his position. Duplicates and other deviations are allowed only in the preseason; the scheme applies to every player in the regular season and postseason, and clubs must put a retired number back in circulation if needed to comply. Requests for a position not listed go to the Commissioner. The rule cross-references Rule 5, Section 4, Article 3, Item 3 for how numerals are worn.
 
 ## Penalties
 
