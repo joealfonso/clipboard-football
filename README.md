@@ -59,7 +59,7 @@ uv run --project pipeline pytest pipeline
 
 ## Data and licensing
 
-The code is under the MIT license (LICENSE). The data files under `data/` are derived from nflverse and keep the license and credit of their source: play-by-play is CC-BY 4.0, participation and FTN charting are CC-BY-SA 4.0 (credit "FTN Data via nflverse"), and the combine percentiles are credited "courtesy of PFR via nflverse". DATA_LICENSE.md lists every file with its source, license and credit.
+The code is under the MIT license (LICENSE). The data files under `data/` that are built from nflverse keep the license and credit of their source: play-by-play is CC-BY 4.0, participation and FTN charting are CC-BY-SA 4.0 (credit "FTN Data via nflverse" and "NFL NextGenStats via nflverse"), and the combine percentiles are credited "courtesy of PFR via nflverse". Designed files hold no nflverse data and are under MIT with the code. DATA_LICENSE.md lists every file with its source, license and credit.
 
 No real player names, ids or rosters ship in this repo. Teams and players in the game are fictional.
 
