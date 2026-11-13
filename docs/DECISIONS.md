@@ -1378,6 +1378,7 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
   - `fieldGoalAttempts.perGame` 3.7309 vs 4.0496 (before: 3.7386, |diff| 0.3110 -> 0.3187).
 - The calibration status and the holdout at-or-better comparisons read these entries as before. New tolerances sha256 `4b53dccd61a36efe2c77ecd3ca28b16d1f2bcff7b3e1bad9c04c3787dfe0f61b` (see "Game-level and component tolerances pre-registered"). The step 5c test that pins the 5c values of these entries is left for the test-writer.
 - Pins-only reruns, in this order so no pin went stale: C7 run 8 (every metric identical to run 7), the in-sample summary (every metric, diagnostic and slice digest identical to run H), game holdout run 12 ("approvals and pins only, metrics must match run 11": every metric, diagnostic and slice digest identical to run 11; 0 gated failures). The machine was not quiet: load average 32 at the start and 22-48 during the runs (other work on the host), so the recorded speeds (23.9 ms per game in-sample, 49.7 ms per game holdout) are not usable readings; run 11's 8.3 ms per game (85.6 s) is the last clean one. The metrics do not depend on load.
+- Open when step 5d paused (2026-11-13): the game holdout speed reading needs a timing-only rerun on a quiet machine (run 12's 49.7 ms per game fails the 25 ms gate); the four step5c state-pin tests go to the test-writer; the code review, the spec check and the playtest (H3) of step 5d have not run.
 
 ## Publishing
 
