@@ -156,8 +156,10 @@ def test_fourth_down_chain_drops_fine_zone_last() -> None:
     assert all(("zone6" in d) or late_zone(d) for d in levels[:-1]) and levels[-1] == []
     assert levels[-2] == ["zone6"]
     kick = [lv["dims"] for lv in CFG["factors"]["o4Kick"]["levels"]]
-    assert kick[-3:] == [["zone6", "time2"], ["zone6"], []]
-    assert all("scoreLateOnly" in d or "score3LateOnly" in d for d in kick[:-3])
+    # Amended by step 5c milestone B (2026-11-12): the designed edge zone (zoneFG) comes before each
+    # zone6 level, so the chain outside the late windows is zoneFG x time2, then zone6 x time2.
+    assert kick[-4:] == [["zoneFG", "time2"], ["zone6", "time2"], ["zone6"], []]
+    assert all("scoreLateOnly" in d or "score3LateOnly" in d for d in kick[:-4])
 
 
 @pytest.mark.parametrize("name", ["offense.table.json", "defense.table.json"])

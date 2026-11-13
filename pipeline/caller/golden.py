@@ -48,7 +48,7 @@ def grid() -> list[dict[str, Any]]:
         (1, 2, 3, 4), (1, 3, 7, 10, 15), (2, 8, 20, 30, 37, 45, 60, 80, 95), (-20, -12, -6, -2, 0, 2, 6, 12, 20), (290, 150, 100, 30), [(0, 0), (3, 3), (1, 0)],
     ):
         out.append(_sit("scrimmage", down, min(ytg, yl), yl, sd, 4, secs, secs, ot, dt))
-    for sd, (q, g) in itertools.product(list(range(-21, 22)) + [-30, 30], [(1, 3000), (4, 600), (4, 100), (5, 300)]):
+    for sd, (q, g) in itertools.product(list(range(-21, 22)) + [-30, 30], [(1, 3000), (4, 600), (4, 200), (4, 100), (5, 300)]):
         out.append(_sit("try", 1, 2, 2, sd, q, g, g, 2, 2))
     return out
 

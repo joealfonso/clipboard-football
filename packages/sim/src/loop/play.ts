@@ -260,7 +260,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     const roles = s.phase === "kickoff" ? (["kickKicker", "kickReceiver"] as const) : (["tryOffense", "tryDefense"] as const);
     for (const [i, role] of roles.entries()) {
       const t = i === 0 ? s.possession : other(s.possession);
-      if (team(t).coach.specialTimeout(role, s.timeouts[t], s.timeoutsThisDeadBall[t], rng)) {
+      if (team(t).coach.specialTimeout(role, s.timeouts[t], s.timeoutsThisDeadBall[t], rng, kickView(s, rules))) {
         input();
         const before = snapshot(s);
         advance(callTimeout(s, rules, t), (next) => ({ t: "timeout", before, team: t, side: i === 0 ? "offense" : "defense", left: next.timeouts[t] }));

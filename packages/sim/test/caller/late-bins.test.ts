@@ -67,6 +67,14 @@ describe("outside the late windows nothing moves (B1)", () => {
   // Amended by step 5b: overtime is now a late window too (5b spec, "Overtime bucket"), so the
   // late test is the 5a window (scoreLateOnly applies) or overtime.
   const late = (s: Situation): boolean => s.phase === "scrimmage" && (binSituation(s, dims)["scoreLateOnly"] !== null || binSituation(s, dims)["lateTime"] === "OT");
+  // Step 5c's changed cells: o4Kick at the opp 36-50 (milestone B) and tries in a cell of the designed late chart (milestone C).
+  const b5c = (s: Situation): boolean =>
+    (s.phase === "scrimmage" && s.down === 4 && s.yardLine100 >= 36 && s.yardLine100 <= 50) || (s.phase === "try" && charted(s));
+  const charted = (s: Situation): boolean => {
+    const c = data.config.tryChart;
+    const l = binSituation(s, dims);
+    return c !== undefined && c.cells[`${l[c.window]}|${l[c.score]}`] !== undefined;
+  };
 
   it("every pre-5a golden situation outside the late windows has the same offense and defense shares", () => {
     let checked = 0;
@@ -74,8 +82,19 @@ describe("outside the late windows nothing moves (B1)", () => {
       const d = defenseShares(g.situation, data);
       g.defense.presets.forEach((p, i) => expect(d.presets[i]?.p, `defense ${JSON.stringify(g.situation)}`).toBeCloseTo(p.p, 12));
       if (late(g.situation)) continue;
+      // Amended 2026-11-12 (M1 step 5c milestones B and C): late tries follow the designed chart and
+      // o4Kick's 4th-down kick cells at the opp 36-50 were split at the opp 41 (zoneFG), on purpose.
+      // Late tries are skipped; in the kick cells every leaf but punt and field goal is compared,
+      // and so is their sum.
+      if (g.situation.phase === "try" && b5c(g.situation)) continue;
       const o = offenseShares(g.situation, data);
-      g.offense.leaves.forEach((lf, i) => expect(o.leaves[i]?.p, `offense ${JSON.stringify(g.situation)}`).toBeCloseTo(lf.p, 12));
+      const kick = (c: string): boolean => b5c(g.situation) && (c === "punt" || c === "fieldGoal");
+      g.offense.leaves.forEach((lf, i) => {
+        if (!kick(lf.call)) expect(o.leaves[i]?.p, `offense ${JSON.stringify(g.situation)}`).toBeCloseTo(lf.p, 12);
+      });
+      // In o4Kick's changed cells only the punt / field goal split moved: the kick share is o4Top's.
+      const sum = (ls: readonly { call: string; p: number }[]): number => ls.filter((l) => kick(l.call)).reduce((a, l) => a + l.p, 0);
+      expect(sum(o.leaves), `kick share ${JSON.stringify(g.situation)}`).toBeCloseTo(sum(g.offense.leaves), 12);
       checked++;
     }
     expect(checked).toBeGreaterThan(150);

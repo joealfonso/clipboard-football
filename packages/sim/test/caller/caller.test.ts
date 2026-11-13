@@ -3,6 +3,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import type { CallerData, CallerTables, FactorTable, Situation } from "../../../shared/src/types";
 import { chooseDefenseCall, chooseOffenseCall, defenseShares, formationShares, offenseShares } from "../../src/caller/index";
+import type { CallerMasks } from "../../src/caller/offense";
 import { sampleIndex } from "../../src/caller/sample";
 import { Rng } from "../../src/rng";
 import { loadCallerData } from "./load-data";
@@ -75,7 +76,8 @@ describe("shares (D2)", () => {
   });
 
   it("share functions take no RNG", () => {
-    expectTypeOf(offenseShares).parameters.toEqualTypeOf<[Situation, CallerData]>();
+    // Amended 2026-11-12 (M1 step 5c milestones B, E, F): an optional set of designed masks, data only.
+    expectTypeOf(offenseShares).parameters.toEqualTypeOf<[Situation, CallerData, (CallerMasks | undefined)?]>();
     expectTypeOf(defenseShares).parameters.toEqualTypeOf<[Situation, CallerData]>();
   });
 });

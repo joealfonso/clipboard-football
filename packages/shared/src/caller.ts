@@ -177,6 +177,17 @@ export interface CallerConfig {
   readonly factors: Readonly<Record<FactorId, FactorConfig>>;
   readonly offenseMapping: Readonly<Record<string, unknown>>;
   readonly defenseMapping: DefenseMapping;
+  /** Step 5c milestone C: the designed late try chart. A charted cell decides the try outright. */
+  readonly tryChart?: TryChart;
+}
+
+export interface TryChart {
+  readonly note: string;
+  /** Dimension giving the late window label, and dimension giving the score after the touchdown. */
+  readonly window: string;
+  readonly score: string;
+  /** "window|score" -> the call. Cells not listed keep the fitted oTry backoff. */
+  readonly cells: Readonly<Record<string, "extraPoint" | "goForTwo">>;
 }
 
 /** One fitted factor, as baked by the pipeline. */

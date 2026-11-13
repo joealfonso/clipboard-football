@@ -59,7 +59,7 @@ def golden(db: dec.DeadBalls, tables: dict[str, Any], cfg: dict[str, Any]) -> di
     # Add the rare clock states the even sample misses: final 2:00, kneels, no timeouts.
     rare = [x for x in train if x["base"]["secondsLeftInGame"] <= 120 or x["prevKneel"] == 1 or x["offenseTimeouts"] == 0]
     picked += rare[:: max(1, len(rare) // 60)][:60]
-    out: dict[str, Any] = {"tempo": [], "timeouts": [], "onside": []}
+    out: dict[str, Any] = {"tempo": [], "timeouts": [], "onside": [], "specialTimeouts": []}
     for x in picked:
         v = dec.tempo_view(x)
         lvl, key, w = dec.tempo_lookup(v, tables["tempo"], dims)
@@ -68,6 +68,13 @@ def golden(db: dec.DeadBalls, tables: dict[str, Any], cfg: dict[str, Any]) -> di
             sv = dec.side_view(x, side)
             lvl, key, p = dec.timeout_rate(sv, side, tables["timeouts"], dims)
             out["timeouts"].append({"view": sv, "side": side, "level": lvl, "key": key, "p": p})
+    # Step 5c milestone D: every role in every time bin, from real dead balls before kicks and tries.
+    sp = [(x, v) for x, v in zip(db.special, db.special_views) if cfg["seasons"]["from"] <= x[0] <= cfg["seasons"]["to"]]
+    early = [p for p in sp if p[1]["quarter"] <= 3]
+    late_sp = [p for p in sp if p[1]["quarter"] >= 4]
+    for (_, role, _, _), v in early[:: max(1, len(early) // 40)][:40] + late_sp[:: max(1, len(late_sp) // 80)][:80]:
+        lvl, key, p = dec.special_timeout_rate(v, role, tables["timeouts"], dims)
+        out["specialTimeouts"].append({"view": v, "role": role, "level": lvl, "key": key, "p": p})
     ko = [k for k in db.kickoffs if cfg["seasons"]["from"] <= k["season"] <= cfg["seasons"]["to"]]
     late = [k for k in ko if k["quarter"] >= 4]
     for k in ko[:: max(1, len(ko) // 100)][:100] + late[:: max(1, len(late) // 60)][:60]:

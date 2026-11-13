@@ -106,6 +106,8 @@ class DeadBalls:
     team_games: int = 0
     # Step 5c: (season, quarter, "kickoff" or "try", timeouts called in the dead ball before it).
     special_timeouts: list[tuple[int, int, str, int]] = field(default_factory=list)
+    # Step 5c milestone D: the kick view (kick_view fields) of each `special` entry, same order.
+    special_views: list[dict[str, Any]] = field(default_factory=list)
 
 
 ROW_COLS = ["season", "game_id", "qtr", "down", "ydstogo", "yardline_100", "game_seconds_remaining", "half_seconds_remaining",
@@ -208,6 +210,8 @@ def dead_balls(rows: pl.DataFrame, max_seconds: int) -> DeadBalls:
             for role, team_, left in ((roles[0], r["posteam"], r["posteam_timeouts_remaining"]), (roles[1], r["defteam"], r["defteam_timeouts_remaining"])):
                 called = sum(1 for t in legit if t == team_)
                 out.special.append((r["season"], role, 1 if called else 0, int(left or 0) + called))
+                out.special_views.append({"quarter": int(r["qtr"]), "secondsLeftInGame": r["game_seconds_remaining"],
+                                          "secondsLeftInHalf": r["half_seconds_remaining"], "scoreDiff": 0})
         if r["play_type"] == "kickoff" or r["is_try"]:
             out.special_timeouts.append((r["season"], int(r["qtr"]), "kickoff" if r["play_type"] == "kickoff" else "try", len(legit)))
         if r["play_type"] == "kickoff":
@@ -325,16 +329,24 @@ def build_tables(db: DeadBalls, cfg: dict[str, Any], weights: dict[int, float], 
                 continue
             to_obs.append((labels_of(v, dims, cfg["timeouts"]["levels"]), {"side": side}, x[f"{side}Timeout"], weights[x["season"]]))
     special: dict[str, list[float]] = {}
-    for season, role, called, left in db.special:
+    sp_cfg = cfg.get("specialTimeouts")
+    sp_obs: list[tuple[dict[str, str], dict[str, str], int, float]] = []
+    views = db.special_views if len(db.special_views) == len(db.special) else [None] * len(db.special)
+    for (season, role, called, left), kv in zip(db.special, views):
         if not (s["from"] <= season <= s["to"]) or left <= 0:
             continue
         a = special.setdefault(role, [0.0, 0.0, 0.0])
         a[0] += weights[season] * called
         a[1] += weights[season]
         a[2] += 1
+        if sp_cfg is not None and kv is not None:
+            sp_obs.append((labels_of(kv, dims, sp_cfg["levels"]), {"role": role}, called, weights[season]))
     timeouts = {"generated": True, "seasons": sorted(weights), "levels": cfg["timeouts"]["levels"], "minN": cfg["timeouts"]["minN"],
                 "deadBalls": len(train), "cells": fit_rate(to_obs, cfg["timeouts"]["levels"], cfg["timeouts"]["minN"]),
                 "beforeKickoffOrTry": {k: [int(round(PER_MILLION * a[0] / a[1])), int(a[2])] for k, a in sorted(special.items())}}
+    if sp_cfg is not None:
+        # Step 5c milestone D: fitted rates in designed time bins, backing off to the role's rate.
+        timeouts["special"] = {"levels": sp_cfg["levels"], "minN": sp_cfg["minN"], "cells": fit_rate(sp_obs, sp_cfg["levels"], sp_cfg["minN"])}
     ko = [k for k in db.kickoffs if s["from"] <= k["season"] <= s["to"]]
     check_holdout({k["season"] for k in ko}, s["neverTrainFrom"])
     on_obs = [(labels_of(kick_view(k), dims, cfg["onside"]["levels"]), {}, 1 if k["onside"] else 0, weights[k["season"]]) for k in ko]
@@ -370,6 +382,19 @@ def timeout_rate(view: dict[str, float], side: str, table: dict[str, Any], dims:
         if k in table["cells"][i]:
             return i, k, table["cells"][i][k][0] / PER_MILLION
     raise ValueError("no timeout cell")
+
+
+def special_timeout_rate(view: dict[str, float] | None, role: str, table: dict[str, Any], dims: dict[str, Any]) -> tuple[int, str, float]:
+    """Step 5c milestone D: the rate before a kickoff or a try from the time-binned cells, else the
+    role's pooled rate (also used when no view is given)."""
+    sp = table.get("special")
+    if sp is not None and view is not None:
+        labels = labels_of(view, dims, sp["levels"])
+        for i, lv in enumerate(sp["levels"]):
+            k = level_key(lv, labels, {"role": role})
+            if k is not None and k in sp["cells"][i]:
+                return i, k, sp["cells"][i][k][0] / PER_MILLION
+    return -1, role, table["beforeKickoffOrTry"][role][0] / PER_MILLION
 
 
 def onside_rate(view: dict[str, float], table: dict[str, Any], dims: dict[str, Any]) -> tuple[int, str, float]:

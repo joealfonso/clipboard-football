@@ -122,9 +122,18 @@ export function timeoutShare(view: CoachView, side: Side, tables: CoachTables, d
   return { level: f.level, key: f.key, value: (f.value[0] ?? 0) / PER_MILLION };
 }
 
-/** Probability of a timeout before a kickoff or a try (fitted per role); 0 with none left or one taken. */
-export function specialTimeoutShare(role: SpecialTimeoutRole, ownTimeouts: number, taken: number, tables: CoachTables, perDeadBall: number): number {
+/**
+ * Probability of a timeout before a kickoff or a try; 0 with none left or one taken. Step 5c
+ * milestone D: fitted per role in designed time bins read from the kick view, backing off to the
+ * role's pooled rate (also used when no view is given).
+ */
+export function specialTimeoutShare(role: SpecialTimeoutRole, ownTimeouts: number, taken: number, tables: CoachTables, perDeadBall: number, view?: KickView, dims?: GameConfig["dimensions"]): number {
   if (ownTimeouts <= 0 || taken >= perDeadBall) return 0;
+  const sp = tables.timeouts.special;
+  if (sp !== undefined && view !== undefined && dims !== undefined) {
+    const f = backoff(sp.levels, sp.cells, kickFields(view), dims, { role });
+    if (f !== null) return (f.value[0] ?? 0) / PER_MILLION;
+  }
   return (tables.timeouts.beforeKickoffOrTry[role][0] ?? 0) / PER_MILLION;
 }
 
@@ -199,8 +208,8 @@ export interface CoachPolicies {
   defenseCall(view: Situation, rng: Rng): string;
   /** Whether this team calls a timeout now, as the offense or the defense of the next snap. */
   timeout(view: CoachView, side: Side, rng: Rng): boolean;
-  /** Whether this team calls a timeout in the dead ball before a kickoff or a try. */
-  specialTimeout(role: SpecialTimeoutRole, ownTimeouts: number, takenThisDeadBall: number, rng: Rng): boolean;
+  /** Whether this team calls a timeout in the dead ball before a kickoff or a try; `view` is the clock and score as before a kickoff (step 5c D). */
+  specialTimeout(role: SpecialTimeoutRole, ownTimeouts: number, takenThisDeadBall: number, rng: Rng, view?: KickView): boolean;
   /** Seconds to let run before the snap; only asked when the clock is running. The loop clips a draw above the play clock to it. */
   tempo(view: CoachView, rng: Rng): number;
   onside(view: KickView, rng: Rng): boolean;
@@ -224,14 +233,14 @@ export function averageCoach(d: CoachData): CoachPolicies {
   const dims = d.config.dimensions;
   const final = d.config.runoffTimeout.finalSeconds;
   return {
-    offenseCall: (view, rng) => chooseOffenseCall(view, d.caller, rng, d.fieldGoals),
+    offenseCall: (view, rng) => chooseOffenseCall(view, d.caller, rng, d.fieldGoals === undefined ? {} : { fieldGoals: d.fieldGoals }),
     defenseCall: (view, rng) => chooseDefenseCall(view, d.caller, rng),
     timeout(view, side, rng) {
       const p = timeoutShare(view, side, d.tables, dims, d.perDeadBall).value;
       return p > 0 && rng.nextFloat() < p;
     },
-    specialTimeout(role, own, taken, rng) {
-      const p = specialTimeoutShare(role, own, taken, d.tables, d.perDeadBall);
+    specialTimeout(role, own, taken, rng, view) {
+      const p = specialTimeoutShare(role, own, taken, d.tables, d.perDeadBall, view, dims);
       return p > 0 && rng.nextFloat() < p;
     },
     tempo(view, rng) {

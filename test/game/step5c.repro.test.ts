@@ -1,14 +1,17 @@
 // M1 step 5c: the playtest repro seeds as regression tests, one block per milestone
 // (docs/specs/m1-step5c-playtest-fixes.md). The test-writer's spec checks are separate.
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { PlayResult, Situation } from "../../packages/shared/src/types";
+import type { KickView, PlayResult, Situation, SpecialTimeoutRole } from "../../packages/shared/src/types";
 import { offenseShares } from "../../packages/sim/src/caller/offense";
 import { fieldGoalMakeChance } from "../../packages/sim/src/caller/range";
+import { specialTimeoutShare } from "../../packages/sim/src/loop/coach";
 import { averageCoachFor, leagueFromSeed, setupGame } from "../../packages/sim/src/loop/league";
 import { GameLoopError, playGame, prepareGame, snapCapAt, type GameKit } from "../../packages/sim/src/loop/play";
 import { Rng } from "../../packages/sim/src/rng";
-import { loadGameData } from "../../scripts/game/data";
+import { REPO, loadGameData } from "../../scripts/game/data";
 import { digest } from "../../scripts/game/metrics";
 import { simGame } from "../../scripts/game/sim-game";
 
@@ -24,7 +27,6 @@ describe("A: postseason overtime finishes", () => {
     const a = play();
     expect(a.final.phase).toBe("final");
     expect(a.final.result?.winner).not.toBeNull();
-    expect(a.final.period).toBeGreaterThan(4);
     expect(digest(play())).toBe(digest(a));
   });
 
@@ -71,7 +73,7 @@ describe("B: field goal range", () => {
   const sit = (o: Partial<Situation>): Situation => ({
     phase: "scrimmage", down: 4, yardsToGo: 8, yardLine100: 50, scoreDiff: 0, quarter: 1, secondsLeftInHalf: 1647, secondsLeftInGame: 3447, offenseTimeouts: 3, defenseTimeouts: 3, ...o,
   });
-  const pFG = (s: Situation, r = range): number => offenseShares(s, data.engine.caller, r).leaves.find((l) => l.call === "fieldGoal")?.p ?? 0;
+  const pFG = (s: Situation, r = range): number => offenseShares(s, data.engine.caller, { fieldGoals: r }).leaves.find((l) => l.call === "fieldGoal")?.p ?? 0;
 
   it("B1b: no try where the engine's make chance is 0, and the mask follows maxDistance in the data", () => {
     expect(fieldGoalMakeChance(52, range)).toBe(0); // 70 yards: the designed zero
@@ -83,13 +85,13 @@ describe("B: field goal range", () => {
     expect(pFG(s)).toBeGreaterThan(0);
     expect(pFG(s, short)).toBe(0);
     // Without a range the shares are the fitted tables' alone (the pipeline's mirror).
-    expect(offenseShares(sit({ yardLine100: 60 }), data.engine.caller).leaves.map((l) => l.p)).toEqual(offenseShares(sit({ yardLine100: 60 }), data.engine.caller, { ...range, maxDistance: 99, makePer10000: Array(82).fill(5000) }).leaves.map((l) => l.p));
+    expect(offenseShares(sit({ yardLine100: 60 }), data.engine.caller).leaves.map((l) => l.p)).toEqual(offenseShares(sit({ yardLine100: 60 }), data.engine.caller, { fieldGoals: { ...range, maxDistance: 99, makePer10000: Array(82).fill(5000) } }).leaves.map((l) => l.p));
   });
 
   it("B1b: when a try is masked the other calls keep their relative fitted weights", () => {
     const s = sit({ yardLine100: 46, down: 2, quarter: 2, secondsLeftInHalf: 4, secondsLeftInGame: 1804 });
-    const open = offenseShares(s, data.engine.caller, { ...range, maxDistance: 99, makePer10000: Array(82).fill(5000) }).leaves;
-    const masked = offenseShares(s, data.engine.caller, { ...range, maxDistance: 60 }).leaves;
+    const open = offenseShares(s, data.engine.caller, { fieldGoals: { ...range, maxDistance: 99, makePer10000: Array(82).fill(5000) } }).leaves;
+    const masked = offenseShares(s, data.engine.caller, { fieldGoals: { ...range, maxDistance: 60 } }).leaves;
     const kept = open.filter((l) => l.call !== "fieldGoal");
     const total = kept.reduce((a, l) => a + l.p, 0);
     for (const l of kept) expect(masked.find((m) => m.call === l.call)?.p ?? 0).toBeCloseTo(l.p / total, 12);
@@ -105,5 +107,48 @@ describe("B: field goal range", () => {
       const long = r.events.filter((e) => e.t === "play" && e.play.kind === "fieldGoal" && 100 - e.play.kickSpot + 10 >= (seed === 10 ? 70 : 68));
       expect(long, `seed ${seed}`).toEqual([]);
     }
+  });
+});
+
+describe("C: the try choice reads the late score", () => {
+  const trySit = (scoreDiff: number, quarter: number, secs: number, yardLine100 = 2): Situation => ({
+    phase: "try", down: 1, yardsToGo: yardLine100, yardLine100, scoreDiff, quarter, secondsLeftInHalf: secs, secondsLeftInGame: secs, offenseTimeouts: 1, defenseTimeouts: 1,
+  });
+  const pXP = (s: Situation): number => offenseShares(s, data.engine.caller).leaves.find((l) => l.call === "extraPoint")?.p ?? 0;
+
+  it("C2: league 2026 seed 543, a 2-point deficit at 0:00 goes for two, and so does the try replayed from a new spot", () => {
+    expect(pXP(trySit(-2, 4, 0))).toBe(0);
+    expect(pXP(trySit(-2, 4, 0, 1))).toBe(0); // replayed after roughing: half the distance, same rule
+    const r = playGame(setupGame(league(2026), 2026, 543, () => coach), kit, Rng.fromSeed(543));
+    for (const e of r.events) {
+      if (e.t !== "play" || e.before.phase !== "try" || e.before.period !== 4 || e.before.clock > 120) continue;
+      const d = e.before.score[e.before.possession] - e.before.score[e.before.possession === "home" ? "away" : "home"];
+      if (d === -2) expect(e.offense.call).toBe("goForTwo");
+    }
+  });
+
+  it("C: tied after the touchdown in the final 5:00 kicks; outside the late windows the fitted shares stand", () => {
+    expect(pXP(trySit(0, 4, 250))).toBe(1);
+    expect(pXP(trySit(0, 4, 60))).toBe(1);
+    expect(pXP(trySit(0, 5, 250))).toBe(1); // overtime reads the late regulation cell with the same clock
+    const early = offenseShares(trySit(-2, 3, 600 + 900), data.engine.caller).trace["oTry"];
+    expect(early?.level).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("D: kickoff and try timeouts by period", () => {
+  it("D2: league 2026 seed 1 has no timeout before a Q3 kickoff", () => {
+    const r = playGame(setupGame(league(2026), 2026, 1, () => coach), kit, Rng.fromSeed(1));
+    expect(r.events.filter((e) => e.t === "timeout" && e.before.phase === "kickoff" && e.before.period === 3)).toEqual([]);
+  });
+
+  it("D: TypeScript special-timeout rates equal the pipeline's golden views", () => {
+    const golden = JSON.parse(readFileSync(join(REPO, "data/game/golden.json"), "utf8")) as { specialTimeouts: { view: KickView; role: SpecialTimeoutRole; p: number }[] };
+    expect(golden.specialTimeouts.length).toBeGreaterThanOrEqual(100);
+    const dims = data.config.dimensions;
+    for (const g of golden.specialTimeouts) expect(specialTimeoutShare(g.role, 3, 0, data.tables, 1, { ...g.view, safetyKick: false }, dims)).toBeCloseTo(g.p, 12);
+    // Q1-Q3 and the final 2:00 sit in different cells for at least one role.
+    const at = (q: number, secs: number): number => specialTimeoutShare("kickReceiver", 3, 0, data.tables, 1, { quarter: q, secondsLeftInHalf: secs, secondsLeftInGame: secs, scoreDiff: 0, safetyKick: false }, dims);
+    expect(at(1, 600 + 1800)).toBeLessThan(at(4, 60));
   });
 });

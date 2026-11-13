@@ -89,6 +89,15 @@ describe("outside the late windows nothing moves (B4)", () => {
   const frozen = readJson("test/fixtures/caller-golden-pre5b.json") as { situations: Frozen[] };
   const late = (s: Situation): boolean => s.phase === "scrimmage" && binSituation(s, dims)["lateTime"] !== "-";
   const LATE_FACTORS = new Set(["oTop", "o4Top"]);
+  const v2o4Kick = (readJson("test/fixtures/caller-v2/offense.table.json") as { factors: { o4Kick: { levels: { dims: string[] }[] } } }).factors.o4Kick;
+  // Step 5c's changed cells: o4Kick at the opp 36-50 (milestone B) and tries in a cell of the designed late chart (milestone C).
+  const b5c = (s: Situation): boolean =>
+    (s.phase === "scrimmage" && s.down === 4 && s.yardLine100 >= 36 && s.yardLine100 <= 50) || (s.phase === "try" && charted(s));
+  const charted = (s: Situation): boolean => {
+    const c = data.config.tryChart;
+    const l = binSituation(s, dims);
+    return c !== undefined && c.cells[`${l[c.window]}|${l[c.score]}`] !== undefined;
+  };
 
   it("defense table cells are byte-identical to the pre-5b build", () => {
     const pre5b = "ee2897e62bb658add49b2cfef58c68354522b21ea6e1d1bf6000eed1f21a3f4d";
@@ -101,7 +110,17 @@ describe("outside the late windows nothing moves (B4)", () => {
     expect(Object.keys(data.offense.factors).sort()).toEqual(Object.keys(v2.factors).sort());
     for (const [name, t] of Object.entries(v2.factors)) {
       if (LATE_FACTORS.has(name)) continue;
-      const mine = (data.offense.factors as Readonly<Record<string, FactorTable | undefined>>)[name] as unknown as { levels: unknown; cells: unknown };
+      const mine = (data.offense.factors as Readonly<Record<string, FactorTable | undefined>>)[name] as unknown as { levels: unknown[]; cells: unknown[] };
+      if (name === "o4Kick") {
+        // Amended 2026-11-12 (M1 step 5c milestone B): o4Kick gained zoneFG levels on purpose; every
+        // version-2 level is still there, in the same order, with identical cells.
+        const old = t as { levels: unknown[]; cells: unknown[] };
+        const at = old.levels.map((lv) => mine.levels.findIndex((m) => JSON.stringify(m) === JSON.stringify(lv)));
+        expect(at.every((i) => i >= 0), "every v2 o4Kick level kept").toBe(true);
+        expect([...at].sort((a, b) => a - b), "same order").toEqual(at);
+        at.forEach((i, j) => expect(mine.cells[i], `o4Kick level ${j}`).toEqual(old.cells[j]));
+        continue;
+      }
       expect([mine.levels, mine.cells], name).toEqual([t.levels, t.cells]);
     }
   });
@@ -115,9 +134,17 @@ describe("outside the late windows nothing moves (B4)", () => {
       expect(d.presets.map((p) => p.p), `defense ${tag}`).toEqual(g.defense.presets.map((p) => p.p));
       for (const [name, t] of Object.entries(g.defense.trace)) expect([d.trace[name]?.level, d.trace[name]?.key], `${name} ${tag}`).toEqual([t.level, t.key]);
       const o = offenseShares(g.situation, data);
+      // Amended 2026-11-12 (M1 step 5c milestones B and C): o4Kick's kick cells at the opp 36-50 were
+      // split at the opp 41 (zoneFG), and late tries follow the designed chart, on purpose; those
+      // situations are the changed cells (b5c) and are skipped.
+      if (b5c(g.situation)) continue;
       for (const [name, t] of Object.entries(g.offense.trace)) {
         if (LATE_FACTORS.has(name)) continue;
-        expect([o.trace[name]?.level, o.trace[name]?.key], `${name} ${tag}`).toEqual([t.level, t.key]);
+        // o4Kick's levels moved down when zoneFG levels were added before them (step 5c B): compare the level's dims.
+        // Outside the opp 36-50 zoneFG labels equal zone6's, so a zoneFG level there is the same cell.
+        const lv = name === "o4Kick" ? (i: number | undefined, tb: { levels: readonly { dims: readonly string[] }[] }): string => JSON.stringify(tb.levels[i ?? -1]?.dims.map((d) => (d === "zoneFG" ? "zone6" : d))) : null;
+        if (lv !== null) expect([lv(o.trace[name]?.level, data.offense.factors.o4Kick as FactorTable), o.trace[name]?.key], `${name} ${tag}`).toEqual([lv(t.level, v2o4Kick), t.key]);
+        else expect([o.trace[name]?.level, o.trace[name]?.key], `${name} ${tag}`).toEqual([t.level, t.key]);
         if (t.weights !== undefined) expect(o.trace[name]?.weights, `${name} ${tag}`).toEqual(t.weights);
       }
       for (const [play, t] of Object.entries(g.offense.formations)) {

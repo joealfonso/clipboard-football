@@ -123,7 +123,6 @@
       "phases": [
         "scrimmage"
       ],
-      "coarseOf": "zone6",
       "buckets": [
         {
           "label": "GL",
@@ -395,6 +394,38 @@
           "field": "secondsLeftInGame",
           "min": null,
           "max": 300
+        }
+      ]
+    },
+    "tryLate": {
+      "type": "rules",
+      "phases": [
+        "try"
+      ],
+      "buckets": [
+        {
+          "label": "GF",
+          "quarterMin": 4,
+          "quarterMax": 5,
+          "field": "secondsLeftInGame",
+          "min": null,
+          "max": 120
+        },
+        {
+          "label": "G5",
+          "quarterMin": 4,
+          "quarterMax": 5,
+          "field": "secondsLeftInGame",
+          "min": 121,
+          "max": 300
+        },
+        {
+          "label": "-",
+          "quarterMin": 1,
+          "quarterMax": 5,
+          "field": "secondsLeftInGame",
+          "min": null,
+          "max": null
         }
       ]
     },
@@ -2181,6 +2212,37 @@
         "manZone": "zone",
         "rush": "le4"
       }
+    }
+  },
+  "tryChart": {
+    "note": "Step 5c milestone C (designed, Resolved 2). In the final 5:00 of Q4 (G5: 5:00-2:01, GF: 2:00 or less; overtime reads the 4th-quarter cell with the same clock, the late regulation cell) no try cell has 150 real tries (2016-2023), so the choice in a charted cell is designed: extra point or two-point try outright. A cell is charted only where 2016-2023 shows one choice on at least 90% of 10 or more tries (score after the touchdown, the scoring team's view); every other late cell keeps the fitted oTry backoff. docs/GAME_REPORT.md shows the real counts next to each cell.",
+    "window": "tryLate",
+    "score": "diff",
+    "cells": {
+      "G5|-7": "extraPoint",
+      "G5|-6": "extraPoint",
+      "G5|-5": "goForTwo",
+      "G5|-4": "extraPoint",
+      "G5|-3": "extraPoint",
+      "G5|-2": "goForTwo",
+      "G5|0": "extraPoint",
+      "G5|1": "goForTwo",
+      "G5|2": "extraPoint",
+      "G5|3": "extraPoint",
+      "G5|5": "goForTwo",
+      "G5|6": "extraPoint",
+      "GF|-7": "extraPoint",
+      "GF|-6": "extraPoint",
+      "GF|-5": "goForTwo",
+      "GF|-4": "extraPoint",
+      "GF|-2": "goForTwo",
+      "GF|0": "extraPoint",
+      "GF|1": "goForTwo",
+      "GF|2": "extraPoint",
+      "GF|3": "extraPoint",
+      "GF|4": "goForTwo",
+      "GF|5": "goForTwo",
+      "GF|6": "extraPoint"
     }
   }
 }

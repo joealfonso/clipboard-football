@@ -28,6 +28,7 @@ export const STEP5C_RUNS: readonly (readonly [string, string])[] = [
   ["baseline", "before step 5c (commit 3de880d)"],
   ["rev1", "after revision 1 (timeouts in clock order, refit)"],
   ["B", "after B (field goal make-chance mask, o4Kick split at the opp 41)"],
+  ["CD", "after C and D (late try chart; kickoff and try timeouts by time bin)"],
 ];
 
 export interface ToleranceMetric {
@@ -240,7 +241,8 @@ function writeReport(tol: Tolerances): void {
   };
   const c5real = opt("data/game/checks5c.real.json") as Step5cInputs["real"] | undefined;
   const c5sim = opt("data/game/checks5c.sim.json") as Step5cInputs["sim"] | undefined;
-  const step5c: Step5cInputs | undefined = c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS } : undefined;
+  const chart = (opt("data/caller/config.json") as { tryChart?: { cells: Record<string, string> } } | undefined)?.tryChart?.cells;
+  const step5c: Step5cInputs | undefined = c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS, ...(chart === undefined ? {} : { chart }) } : undefined;
   writeFileSync(join(REPO, "docs/GAME_REPORT.md"), renderReport(summaries, coach, pre, step5b, step5c));
 }
 

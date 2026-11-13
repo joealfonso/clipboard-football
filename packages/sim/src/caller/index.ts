@@ -6,6 +6,6 @@ export { lookup } from "./lookup";
 export type { Lookup } from "./lookup";
 export { sampleIndex } from "./sample";
 export { chooseOffenseCall, formationShares, offenseShares, FORMATION_PLAYS } from "./offense";
-export type { OffenseCall, OffenseLeaf, OffenseShares } from "./offense";
+export type { CallerMasks, OffenseCall, OffenseLeaf, OffenseShares } from "./offense";
 export { chooseDefenseCall, defenseShares, presetFor } from "./defense";
 export type { DefenseShares } from "./defense";

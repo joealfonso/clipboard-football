@@ -44,15 +44,15 @@ Timeouts per team-game in the dead ball before a Q4 scrimmage snap with 5:00 or 
 
 | Row (per dead ball) | Side | Score | Window | Sim per team-game | Real per team-game | Real timeouts | Sim per dead ball | Real per dead ball | Real dead balls | Check |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `diag.timeoutRate.offense.T.G5` | offense | T | G5 | 0.044 | 0.047 | 174 | 1.83% | 1.93% | 10,196 | pass |
-| `diag.timeoutRate.offense.T.GF` | offense | T | GF | 0.145 | 0.138 | 591 | 6.08% | 5.98% | 9,681 | pass |
-| `diag.timeoutRate.offense.0.G5` | offense | 0 | G5 | 0.005 | 0.006 | 17 | 2.83% | 2.47% | 871 | pass |
-| `diag.timeoutRate.offense.0.GF` | offense | 0 | GF | 0.019 | 0.044 | 196 | 8.89% | 13.27% | 1,394 | accepted |
-| `diag.timeoutRate.offense.L.G5` | offense | L | G5 | 0.065 | 0.063 | 276 | 3.28% | 3.43% | 7,747 | pass |
-| `diag.timeoutRate.offense.L.GF` | offense | L | GF | 0.103 | 0.078 | 321 | 6.62% | 6.41% | 5,072 | pass |
-| `diag.timeoutRate.defense.T.G5` | defense | T | G5 | 0.342 | 0.407 | 1,833 | 17.13% | 22.27% | 7,747 | accepted |
-| `diag.timeoutRate.defense.T.GF` | defense | T | GF | 0.319 | 0.230 | 901 | 20.60% | 18.98% | 5,072 | pass |
-| `diag.timeoutRate.defense.0.G5` | defense | 0 | G5 | 0.007 | 0.011 | 46 | 3.90% | 4.88% | 871 | pass |
-| `diag.timeoutRate.defense.0.GF` | defense | 0 | GF | 0.027 | 0.047 | 220 | 12.88% | 14.33% | 1,394 | pass |
-| `diag.timeoutRate.defense.L.G5` | defense | L | G5 | 0.033 | 0.033 | 143 | 1.37% | 1.37% | 10,196 | pass |
-| `diag.timeoutRate.defense.L.GF` | defense | L | GF | 0.156 | 0.162 | 586 | 6.52% | 6.98% | 9,681 | pass |
+| `diag.timeoutRate.offense.T.G5` | offense | T | G5 | 0.031 | 0.047 | 174 | 1.29% | 1.16% | 10,196 | pass |
+| `diag.timeoutRate.offense.T.GF` | offense | T | GF | 0.162 | 0.138 | 591 | 6.62% | 6.98% | 9,681 | pass |
+| `diag.timeoutRate.offense.0.G5` | offense | 0 | G5 | 0.006 | 0.006 | 17 | 3.53% | 2.92% | 871 | pass |
+| `diag.timeoutRate.offense.0.GF` | offense | 0 | GF | 0.018 | 0.044 | 196 | 8.52% | 14.81% | 1,394 | accepted |
+| `diag.timeoutRate.offense.L.G5` | offense | L | G5 | 0.072 | 0.063 | 276 | 3.77% | 3.67% | 7,747 | pass |
+| `diag.timeoutRate.offense.L.GF` | offense | L | GF | 0.159 | 0.078 | 321 | 9.66% | 7.22% | 5,072 | fail |
+| `diag.timeoutRate.defense.T.G5` | defense | T | G5 | 0.399 | 0.407 | 1,833 | 20.79% | 25.28% | 7,747 | accepted |
+| `diag.timeoutRate.defense.T.GF` | defense | T | GF | 0.353 | 0.230 | 901 | 21.44% | 17.41% | 5,072 | fail |
+| `diag.timeoutRate.defense.0.G5` | defense | 0 | G5 | 0.007 | 0.011 | 46 | 4.11% | 5.33% | 871 | pass |
+| `diag.timeoutRate.defense.0.GF` | defense | 0 | GF | 0.032 | 0.047 | 220 | 15.00% | 16.74% | 1,394 | pass |
+| `diag.timeoutRate.defense.L.G5` | defense | L | G5 | 0.035 | 0.033 | 143 | 1.49% | 1.41% | 10,196 | pass |
+| `diag.timeoutRate.defense.L.GF` | defense | L | GF | 0.174 | 0.162 | 586 | 7.09% | 7.26% | 9,681 | pass |

@@ -71,6 +71,8 @@ export interface GameConfig {
   readonly dimensions: Readonly<Record<string, DecisionDim>>;
   readonly tempo: { readonly levels: readonly DecisionLevel[]; readonly minN: number; readonly maxSeconds: number; readonly cellTotal: number };
   readonly timeouts: { readonly levels: readonly DecisionLevel[]; readonly minN: number };
+  /** Step 5c milestone D: levels for timeouts before a kickoff or a try ("role" is a context dimension). */
+  readonly specialTimeouts?: { readonly levels: readonly DecisionLevel[]; readonly minN: number };
   readonly onside: { readonly levels: readonly DecisionLevel[]; readonly minN: number; readonly designedRule: OnsideRule };
   readonly expectedPoints: { readonly levels: readonly DecisionLevel[]; readonly minN: number };
   readonly runoffTimeout: { readonly finalSeconds: number };
@@ -117,6 +119,8 @@ export type SpecialTimeoutRole = "kickKicker" | "kickReceiver" | "tryOffense" | 
 export interface TimeoutTable extends RateTable {
   /** Fitted rate per dead ball before a kickoff or a try, by role: [rate per 1,000,000, observations]. */
   readonly beforeKickoffOrTry: Readonly<Record<SpecialTimeoutRole, readonly number[]>>;
+  /** Step 5c milestone D: the same rates in designed time bins; a missing cell backs off to the role's rate. */
+  readonly special?: { readonly levels: readonly DecisionLevel[]; readonly minN: number; readonly cells: readonly Readonly<Record<string, readonly number[]>>[] };
 }
 
 export interface OnsideTable extends RateTable {

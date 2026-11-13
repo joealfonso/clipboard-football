@@ -28,6 +28,8 @@ unweighted counts per game. Every measure is designed and computed the same way 
 - fg.*: field goal tries by kick distance, every period. Per game.
 - try.down2GF, try.tiedG5: tries in the 4th quarter (2:00 or less; 5:00 or less) with the
   scoring team trailing by 2 (tied) after the touchdown; the two-point (extra-point) count.
+  try.cell.<G5|GF>.<score>: every 4th-quarter try in the final 5:00 by score after the
+  touchdown, -8 to +8 (C4, reported, not gated).
 - to.*: timeouts (challenges excluded) in the dead ball before a kickoff or a try. Per game.
 - rough.scramble: accepted (enforced) roughing the passer by the defense on a QB scramble.
 - trail.endsOnRunoff (reported, not gated): real pbp has no run-off row, so it is sim only.
@@ -97,6 +99,11 @@ def measure(rows: pl.DataFrame) -> dict[str, int]:
                     if r["qtr"] == 4:
                         d = _f(r["score_differential"])
                         two = (r.get("two_point_attempt") or 0) == 1
+                        gs = _f(r["game_seconds_remaining"])
+                        if gs <= 300 and -8 <= d <= 8:
+                            cell = f"try.cell.{'GF' if gs <= 120 else 'G5'}.{int(d)}"
+                            c[f"{cell}.tries"] += 1
+                            c[f"{cell}.two"] += 1 if two else 0
                         if d == -2 and _f(r["game_seconds_remaining"]) <= 120:
                             c["try.down2GF.tries"] += 1
                             c["try.down2GF.two"] += 1 if two else 0

@@ -32,6 +32,7 @@ export const gameConfigSchema = z
     dimensions: z.record(z.string(), dim),
     tempo: z.looseObject({ levels: z.array(level).min(1), minN: posInt, maxSeconds: posInt, cellTotal: posInt }),
     timeouts: z.looseObject({ levels: z.array(level).min(1), minN: posInt }),
+    specialTimeouts: z.looseObject({ levels: z.array(level).min(1), minN: posInt }).optional(),
     onside: z.looseObject({ levels: z.array(level).min(1), minN: posInt, designedRule: rule }),
     expectedPoints: z.looseObject({ levels: z.array(level).min(1), minN: posInt }),
     runoffTimeout: z.looseObject({ finalSeconds: posInt }),
@@ -46,6 +47,9 @@ export const gameConfigSchema = z
           if (d !== "side" && !(d in c.dimensions)) ctx.addIssue({ code: "custom", message: `${name} level uses unknown dimension ${d}` });
         }
       }
+    }
+    for (const lv of c.specialTimeouts?.levels ?? []) {
+      for (const d of lv.dims) if (d !== "role" && !(d in c.dimensions)) ctx.addIssue({ code: "custom", message: `specialTimeouts level uses unknown dimension ${d}` });
     }
     if (c.seasons.to >= c.seasons.neverTrainFrom) ctx.addIssue({ code: "custom", message: "fitted seasons reach the holdout" });
   });
@@ -84,6 +88,10 @@ export const timeoutTableSchema = rateTableSchema.and(
     beforeKickoffOrTry: z.strictObject(
       Object.fromEntries(["kickKicker", "kickReceiver", "tryOffense", "tryDefense"].map((k) => [k, z.array(nonNeg).length(2)])) as Record<string, z.ZodArray<z.ZodNumber>>,
     ),
+    special: z
+      .looseObject({ levels: z.array(level).min(1), minN: posInt, cells: cells(2) })
+      .refine((t) => t.cells.length === t.levels.length, "one cell map per level")
+      .optional(),
   }),
 );
 

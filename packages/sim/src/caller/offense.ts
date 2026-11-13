@@ -67,16 +67,34 @@ function playLeaves(pRun: number, pPass: number, run: Lookup, passType: Lookup, 
 }
 
 /**
- * `range` (step 5c milestone B, Resolved 3): when given, a field goal try is masked wherever the
- * engine's make chance is 0 (designed, from the engine's data; see range.ts), and the remaining
- * calls keep their relative fitted weights. Without it the shares are the fitted tables' alone,
- * as the pipeline's mirror (pipeline/caller/shares.py) computes them.
+ * The average coach's designed masks (M1 step 5c). The fitted tables and their Python mirror
+ * (pipeline/caller/shares.py) are unmasked; only the game applies these. A masked call gets
+ * share 0 and every other call keeps its relative fitted weight.
  */
-export function offenseShares(situation: Situation, data: CallerData, range?: FieldGoalRange): OffenseShares {
+export interface CallerMasks {
+  /** Milestone B (Resolved 3): no field goal try where the engine's make chance is 0 (range.ts). */
+  readonly fieldGoals?: FieldGoalRange;
+  /** Milestone E: the game clock is stopped before this snap, so a spike would only lose a down. */
+  readonly clockStopped?: boolean;
+  /** Milestone F: no kneel in `quarters`, nor in `halfEndQuarter` with more than `secondsAbove` left in the half. */
+  readonly earlyKneel?: { readonly quarters: readonly number[]; readonly halfEndQuarter: number; readonly secondsAbove: number };
+}
+
+/** Top-level targets the masks remove in this situation. */
+export function maskedCalls(situation: Situation, masks: CallerMasks): ReadonlySet<string> {
+  const out = new Set<string>();
+  if (masks.fieldGoals !== undefined && fieldGoalMakeChance(situation.yardLine100, masks.fieldGoals) === 0) out.add("fieldGoal");
+  if (masks.clockStopped === true) out.add("spike");
+  const k = masks.earlyKneel;
+  if (k !== undefined && (k.quarters.includes(situation.quarter) || (situation.quarter === k.halfEndQuarter && situation.secondsLeftInHalf > k.secondsAbove))) out.add("kneel");
+  return out;
+}
+
+export function offenseShares(situation: Situation, data: CallerData, masks: CallerMasks = {}): OffenseShares {
   const labels = binSituation(situation, data.config.dimensions);
   const f = data.offense.factors;
   if (situation.phase === "try") {
-    const tryCell = requireLookup("oTry", f.oTry, labels);
+    const tryCell = tryChartLookup(data, labels) ?? requireLookup("oTry", f.oTry, labels);
     const top = requireLookup("tpTop", f.tpTop, labels);
     const run = requireLookup("tpRun", f.tpRun, labels);
     const passType = requireLookup("tpPassType", f.tpPassType, labels);
@@ -98,7 +116,7 @@ export function offenseShares(situation: Situation, data: CallerData, range?: Fi
   const trace: Record<string, Lookup> = {};
   // Top-level shares in oTop target order: run, pass, punt, fieldGoal, spike, kneel.
   let top: number[];
-  const noKick = range !== undefined && fieldGoalMakeChance(situation.yardLine100, range) === 0;
+  const blocked = maskedCalls(situation, masks);
   const fourth = f.o4Top;
   if (fourth !== undefined && fourth.downs?.includes(situation.down) === true) {
     // 4th down: go, kick or clock from o4Top, then punt or field goal given a kick.
@@ -108,13 +126,16 @@ export function offenseShares(situation: Situation, data: CallerData, range?: Fi
     trace["o4Kick"] = kick;
     const pKick = w(go, 2);
     top = [w(go, 0), w(go, 1), pKick * w(kick, 0), pKick * w(kick, 1), w(go, 3), w(go, 4)];
-    if (noKick && (top[3] ?? 0) > 0) {
-      const rest = 1 - (top[3] ?? 0);
-      // A cell of field goals only (none in the fitted tables) leaves the kick as a punt.
-      top = rest > 0 ? top.map((x, i) => (i === 3 ? 0 : x / rest)) : [0, 0, 1, 0, 0, 0];
+    // Top order: run, pass, punt, fieldGoal, spike, kneel (oTop's targets).
+    const gone = topTable.targets.map((t) => blocked.has(t));
+    const lost = top.reduce((a, x, i) => a + (gone[i] === true ? x : 0), 0);
+    if (lost > 0) {
+      const rest = 1 - lost;
+      // A cell of masked calls only (none in the fitted tables) leaves a punt.
+      top = rest > 0 ? top.map((x, i) => (gone[i] === true ? 0 : x / rest)) : [0, 0, 1, 0, 0, 0];
     }
   } else {
-    const t = maskedLookup(topTable, labels, topTable.targets.map((x) => avail.isAvailable(x, situation) && !(noKick && x === "fieldGoal")));
+    const t = maskedLookup(topTable, labels, topTable.targets.map((x) => avail.isAvailable(x, situation) && !blocked.has(x)));
     trace["oTop"] = t;
     top = topTable.targets.map((_, i) => w(t, i));
   }
@@ -131,6 +152,21 @@ export function offenseShares(situation: Situation, data: CallerData, range?: Fi
   trace["oPassType"] = passType;
   trace["oDepth"] = depth;
   return { leaves, trace };
+}
+
+/**
+ * Step 5c milestone C: the designed late try chart (config `tryChart`) decides a charted cell
+ * outright; level -2 marks it in the trace. Mirrors pipeline/caller/shares.py `_try_chart`.
+ */
+function tryChartLookup(data: CallerData, labels: BinLabels): Lookup | null {
+  const chart = data.config.tryChart;
+  if (chart === undefined) return null;
+  const w = labels[chart.window];
+  const sc = labels[chart.score];
+  if (w === undefined || w === null || sc === undefined || sc === null) return null;
+  const choice = chart.cells[`${w}|${sc}`];
+  if (choice === undefined) return null;
+  return { level: -2, key: `chart|${w}|${sc}`, weights: choice === "goForTwo" ? [0, 1] : [1, 0], total: 1 };
 }
 
 /**
@@ -156,8 +192,8 @@ export function formationShares(situation: Situation, play: string, data: Caller
 }
 
 /** Picks a leaf call, then (for a run or pass) a formation given that play. Two draws. */
-export function chooseOffenseCall(situation: Situation, data: CallerData, rng: Rng, range?: FieldGoalRange): OffenseCall {
-  const shares = offenseShares(situation, data, range);
+export function chooseOffenseCall(situation: Situation, data: CallerData, rng: Rng, masks: CallerMasks = {}): OffenseCall {
+  const shares = offenseShares(situation, data, masks);
   const leaf = shares.leaves[sampleIndex(shares.leaves.map((l) => l.p), rng)];
   if (leaf === undefined) throw new RangeError("sampled leaf out of range");
   const play = leaf.twoPointPlay ?? leaf.call;

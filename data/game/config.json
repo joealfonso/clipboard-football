@@ -881,6 +881,49 @@
           "if": []
         }
       ]
+    },
+    "kickTime": {
+      "buckets": [
+        {
+          "label": "Q1-3",
+          "if": [
+            {
+              "field": "quarter",
+              "max": 3
+            }
+          ]
+        },
+        {
+          "label": "Q4",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "min": 301
+            }
+          ]
+        },
+        {
+          "label": "G5",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "min": 121
+            }
+          ]
+        },
+        {
+          "label": "GF",
+          "if": []
+        }
+      ]
     }
   },
   "tempo": {
@@ -1025,6 +1068,23 @@
     "minN": 150,
     "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged."
   },
+  "specialTimeouts": {
+    "levels": [
+      {
+        "dims": [
+          "role",
+          "kickTime"
+        ]
+      },
+      {
+        "dims": [
+          "role"
+        ]
+      }
+    ],
+    "minN": 150,
+    "note": "Step 5c milestone D: timeouts in the dead ball before a kickoff or a try, fitted per role in designed time bins (`kickTime`: Q1-Q3, Q4 before 5:00, 5:00-2:01, the final 2:00; overtime reads its own clock), read from the kick view, backing off to the role's rate (`beforeKickoffOrTry`). A cell is stored with at least minN dead balls."
+  },
   "onside": {
     "levels": [
       {
@@ -1063,7 +1123,8 @@
   },
   "loop": {
     "maxInputsPerGame": 2500,
-    "maxScrimmageSnapsPerGame": 260
+    "maxScrimmageSnapsPerGame": 260,
+    "note": "Designed. Each cap covers regulation; every overtime period adds a regulation period's share (step 5c milestone A, packages/sim/src/loop/play.ts snapCapAt), so a legal postseason game that keeps playing periods never reaches it."
   },
   "league": {
     "teams": 32,

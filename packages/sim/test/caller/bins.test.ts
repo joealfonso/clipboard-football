@@ -69,6 +69,8 @@ describe("binning fixture", () => {
       "GL",
       "",
     ]);
-    expect(config.factors.o4Kick.levels.map((l) => levelKey(l, labels))).toEqual([null, null, null, "GL|F", "GL", ""]);
+    // Amended by step 5c milestone B (2026-11-12): a zoneFG level now comes before each zone6 level
+    // that has one; at the goal line zoneFG's key is zone6's, and the zone6 keys are unchanged.
+    expect(config.factors.o4Kick.levels.map((l) => levelKey(l, labels))).toEqual([null, null, null, null, null, "GL|F", "GL|F", "GL", ""]);
   });
 });

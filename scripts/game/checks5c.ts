@@ -91,6 +91,12 @@ export function measureChecks(record: GameRecord, data: GameData, c: Map<string,
         add("try.tiedG5.tries");
         if (e.play.kind === "extraPoint") add("try.tiedG5.kick");
       }
+      // C4 (reported, not gated): every late try by score after the touchdown.
+      if (e.before.clock <= 300 && d >= -8 && d <= 8) {
+        const cell = `try.cell.${e.before.clock <= 120 ? "GF" : "G5"}.${d}`;
+        add(`${cell}.tries`);
+        if (e.play.kind === "twoPoint") add(`${cell}.two`);
+      }
     }
     if (!isSnap(e)) {
       if (e.t !== "runoff" && prev !== null) prev.clean = false;

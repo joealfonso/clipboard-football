@@ -82,7 +82,7 @@ class Caller:
         lab = labels if labels is not None else self.labels(sit)
         f = self.off
         if sit["phase"] == "try":
-            tc = require("oTry", f["oTry"], lab)
+            tc = self._try_chart(lab) or require("oTry", f["oTry"], lab)
             top = require("tpTop", f["tpTop"], lab)
             run = require("tpRun", f["tpRun"], lab)
             pt = require("tpPassType", f["tpPassType"], lab)
@@ -116,6 +116,20 @@ class Caller:
             leaves.append({"call": table["targets"][i], "p": top[i]})
         trace.update({"oRun": run, "oPassType": pt, "oDepth": dp})
         return leaves, trace
+
+    def _try_chart(self, lab: Labels) -> Lookup | None:
+        """Step 5c milestone C: the designed late try chart (config `tryChart`) decides a charted
+        cell outright; level -2 marks it in the trace. Mirrors offense.ts tryChartLookup."""
+        chart = self.config.get("tryChart")
+        if chart is None:
+            return None
+        w, sc = lab.get(chart["window"]), lab.get(chart["score"])
+        if w is None or sc is None:
+            return None
+        choice = chart["cells"].get(f"{w}|{sc}")
+        if choice is None:
+            return None
+        return Lookup(-2, f"chart|{w}|{sc}", (0, 1) if choice == "goForTwo" else (1, 0), 1)
 
     def _masked(self, table: dict[str, Any], lab: Labels, sit: dict[str, Any]) -> Lookup:
         mask = [self.avail.is_available(t, sit) for t in table["targets"]]

@@ -230,6 +230,8 @@ export interface Step5cInputs {
   readonly sim: { readonly runs: Readonly<Record<string, { readonly label: string; readonly games: number; readonly counts: Readonly<Record<string, number>>; readonly byLeague: readonly Readonly<Record<string, number>>[]; readonly ot: OtSoakCounts | null }>> };
   /** Labels in order with what each stands for. */
   readonly order: readonly (readonly [string, string])[];
+  /** The designed late try chart's cells (data/caller/config.json `tryChart`), "window|score" -> call. */
+  readonly chart?: Readonly<Record<string, string>>;
 }
 
 const MARGIN_KEYS: readonly (readonly [string, string])[] = [["margin.1-3", "absMargin 1-3"], ["margin.8-14", "absMargin 8-14"], ["margin.exact3", "exact 3"]];
@@ -267,6 +269,22 @@ export function step5cSection(inp: Step5cInputs | undefined): string[] {
     return o === null || o.otGames === undefined || o.otGames === 0 ? "-" : f2((o.otPeriods ?? 0) / o.otGames);
   });
   out.push(`| Postseason periods played per OT game (soak) | ${otPer.join(" | ")} | - |`, "");
+  // C4: try choice by score after the touchdown in the final 5:00 of Q4, last run vs real, with n.
+  const [lastKey, lastWhat] = runs[runs.length - 1] as readonly [string, string];
+  const last = (inp.sim.runs[lastKey] as NonNullable<(typeof inp.sim.runs)[string]>).counts;
+  const rc = inp.real.counts;
+  if (Object.keys(last).some((k) => k.startsWith("try.cell."))) {
+    out.push(`C4: two-point share of 4th-quarter tries in the final 5:00 by the scoring team's score after the touchdown, sim (run ${lastKey}, ${lastWhat}) vs real 2016-2023 (two-point tries / tries). Not gated. The designed chart (data/caller/config.json \`tryChart\`) decides the cells marked "chart".`, "",
+      "| Window | Score | Sim | Real | Chart |", "|---|---|---|---|---|");
+    for (const w of ["G5", "GF"]) {
+      for (let d = -8; d <= 8; d++) {
+        const k = `try.cell.${w}.${d}`;
+        const cell = (c: Readonly<Record<string, number>>): string => `${c[`${k}.two`] ?? 0}/${c[`${k}.tries`] ?? 0}`;
+        out.push(`| ${w} | ${d > 0 ? `+${d}` : d} | ${cell(last)} | ${cell(rc)} | ${inp.chart?.[`${w}|${d}`] ?? "fitted"} |`);
+      }
+    }
+    out.push("");
+  }
   return out;
 }
 

@@ -237,6 +237,9 @@ export const callerConfigSchema = z
         }),
       ),
     }),
+    tryChart: z
+      .strictObject({ note: z.string(), window: z.string(), score: z.string(), cells: z.record(z.string(), z.enum(["extraPoint", "goForTwo"])) })
+      .optional(),
   })
   .superRefine((cfg, ctx) => {
     const known = new Set<string>([...Object.keys(cfg.dimensions), ...CONTEXT_DIMENSIONS]);

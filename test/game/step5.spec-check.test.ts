@@ -111,7 +111,9 @@ describe("A4: decision policies see only the views (type level)", () => {
     expectTypeOf<Parameters<CoachPolicies["tempo"]>[0]>().toEqualTypeOf<CoachView>();
     expectTypeOf<Parameters<CoachPolicies["runoffTimeout"]>[0]>().toEqualTypeOf<CoachView>();
     expectTypeOf<Parameters<CoachPolicies["onside"]>[0]>().toEqualTypeOf<KickView>();
-    expectTypeOf<Parameters<CoachPolicies["specialTimeout"]>>().toEqualTypeOf<[CoachSpecialRole, number, number, Rng]>();
+    // Amended 2026-11-12 (M1 step 5c milestone D): the policy also sees the kick view (clock and
+    // score, a shared view), optional, for the time-binned rates before kickoffs and tries.
+    expectTypeOf<Parameters<CoachPolicies["specialTimeout"]>>().toEqualTypeOf<[CoachSpecialRole, number, number, Rng, (KickView | undefined)?]>();
   });
 
   it("CoachView is Situation plus clock and dead-ball fields only: no call, formation, players or GameState", () => {
