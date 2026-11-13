@@ -646,6 +646,7 @@ Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved
 - Never edited after a run. Only Joseph adds known deviations.
 
 - 2026-11-12, after Joseph accepted the remaining step 5 misses: his scoped `known_deviations` entries were appended to the file (DECISIONS.md, Step 5 misses accepted). The current file's sha256 is `78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa`. The pre-registered bytes are unchanged: with `known_deviations` emptied back to `[]`, the file still hashes to `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`. No tolerance, minN or gate changed.
+- 2026-11-12, step 5c: Joseph accepted `absMargin.share.8-14` (insample) at the run H value, so that one entry's observed value and reason were updated (DECISIONS.md, 5c checks accepted). The current file's sha256 is `b4a000c17f4a50d84cf11b974ec648d0112810934f34e4963b573a314e110907`; with `known_deviations` emptied it still hashes to `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`.
 
 ### What nflverse `play_clock` holds (C1, resolved question 8)
 
@@ -1182,6 +1183,11 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 - What it tried (commit 56c67db, reverted in f55ba64): a designed kneel-again rule for leaders (real: 1,107 of 1,115 snaps after a leader's kneel in the final 2:00 were kneels), after-kneel timeout cells split by whether the kneels finish if the defense concedes, a kneel fit on first-kneel opportunities only, and a final-seconds bin for downs 1-3 field goals at the opp 42-50.
 - What it found: `c.fg.63`: the 4th-down cell that would need a final-seconds split (opp 42-50, 10 s or less left) has 51 real kicks, under N = 150, and the downs 1-3 tries already sit in the final seconds (a fitted bin moved 63+ from 0.0254 to 0.0252). `c.fg.50to59`: traced to the sim's drive progression, outside 5c: 4th downs at the opp 32-41 run 18% above real (1.61 vs 1.37 a game; 1st to 3rd downs there +8% to +12%; snaps from the opp 21 to the own 40, 66.4 vs 59.6), the same excess as the accepted drive misses; scaled to real visits the count would be about 0.67 vs 0.642. `c.kneel.ballBack`: the first-kneel-only fit reached 5.30% but broke the caller's own kneel checks (`b9.c.kneel.K0` 18.7% vs 25.1%, a new failure; `lateDowns.>=17.kneel` widened to 6.4 pp), so it was dropped; without it the pass gave 8.36%, and its final run had a new gated miss (`absMargin.share.22+` 10.77 vs 13.78, over tolerance by 0.01) and `absMargin.share.8-14` at |diff| 5.39.
 - Decision (Joseph, question dialog, "Undo the pass"): revert it and keep the milestone H results.
+
+### 5c checks accepted (Joseph, 2026-11-12)
+- Decision (Joseph, question dialog): the three pre-registered checks that fail at run H are accepted as in-sample misses, as they stand: `c.kneel.ballBack` 8.97% vs 2.92% real (tolerance 2 pp), `c.fg.63` 0.0254 vs 0.0086 per game (0.008), `c.fg.50to59` 0.764 vs 0.642 per game (0.05). Causes: milestone F (ballBack) and milestone B and the second pass above (fg.63, fg.50to59). data/game/step5c-checks.json is not edited (its hash stays `2c9f4591…`); the approvals live in data/game/step5c-accepted.json, which the report reads to show "accepted" in place of "fail" on the last run.
+- Also accepted: `absMargin.share.8-14` (insample) at the run H value, 27.92 vs 22.7053 (|diff| 5.21, 4.93 before 5c, league-seed spread 25.2 to 30.3); its known_deviation in data/game/tolerances.json was updated (observed, reason, date 2026-11-12, approved_by Joseph). Only that entry changed; no tolerance, threshold or other entry moved.
+- Check that run H reproduces after the revert: the in-sample 10k on f55ba64 gave identical metrics, slice digests and check counts (8-14 at |diff| 5.21 accepted, `absMargin.share.22+` 10.81 vs 13.78, passing).
 
 ## Publishing
 

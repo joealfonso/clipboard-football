@@ -245,7 +245,9 @@ function writeReport(tol: Tolerances): void {
   const c5real = opt("data/game/checks5c.real.json") as Step5cInputs["real"] | undefined;
   const c5sim = opt("data/game/checks5c.sim.json") as Step5cInputs["sim"] | undefined;
   const chart = (opt("data/caller/config.json") as { tryChart?: { cells: Record<string, string> } } | undefined)?.tryChart?.cells;
-  const step5c: Step5cInputs | undefined = c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS, ...(chart === undefined ? {} : { chart }) } : undefined;
+  const acc5c = (opt("data/game/step5c-accepted.json") as { accepted: { check: string; approved_by: string }[] } | undefined)?.accepted.filter((a) => a.approved_by === "Joseph").map((a) => a.check);
+  const step5c: Step5cInputs | undefined =
+    c5real !== undefined && c5sim !== undefined ? { real: c5real, sim: c5sim, order: STEP5C_RUNS, ...(chart === undefined ? {} : { chart }), ...(acc5c === undefined ? {} : { accepted: acc5c }) } : undefined;
   writeFileSync(join(REPO, "docs/GAME_REPORT.md"), renderReport(summaries, coach, pre, step5b, step5c));
 }
 

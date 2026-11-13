@@ -232,6 +232,8 @@ export interface Step5cInputs {
   readonly order: readonly (readonly [string, string])[];
   /** The designed late try chart's cells (data/caller/config.json `tryChart`), "window|score" -> call. */
   readonly chart?: Readonly<Record<string, string>>;
+  /** Checks Joseph accepted as misses (data/game/step5c-accepted.json); a failing one reads "accepted". */
+  readonly accepted?: readonly string[];
 }
 
 const MARGIN_KEYS: readonly (readonly [string, string])[] = [["margin.1-3", "absMargin 1-3"], ["margin.8-14", "absMargin 8-14"], ["margin.exact3", "exact 3"]];
@@ -248,7 +250,8 @@ export function step5cSection(inp: Step5cInputs | undefined): string[] {
   const first = evals[0] as CheckRow[];
   first.forEach((r, i) => {
     const cells = evals.map((e) => e[i] as CheckRow);
-    out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c, c.sim)).join(" | ")} | ${fmt(r, r.real)} | ${r.rule} | ${cells.map((c) => (c.pass ? "pass" : "fail")).join(" / ")} |`);
+    const st = (c: CheckRow, last: boolean): string => (c.pass ? "pass" : last && (inp.accepted ?? []).includes(c.id) ? "accepted" : "fail");
+    out.push(`| \`${r.id}\` | ${cells.map((c) => fmt(c, c.sim)).join(" | ")} | ${fmt(r, r.real)} | ${r.rule} | ${cells.map((c, j) => st(c, j === cells.length - 1)).join(" / ")} |`);
   });
   out.push("", "Reported, not gated: final margins (share of games, with the spread across the 10 league seeds), overtime games ending on 3, and Q4 ending on a run-off by a 1-8 trailer holding timeouts (sim only).", "",
     `| Measure | ${runs.map(([k]) => k).join(" | ")} | Real |`, `|---|${runs.map(() => "---|").join("")}---|`);

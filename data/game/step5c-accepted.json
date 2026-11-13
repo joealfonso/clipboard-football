@@ -1,0 +1,8 @@
+{
+  "note": "Step 5c pre-registered checks that fail in the final in-sample run (H) and that Joseph accepted as misses (question dialog, 2026-11-12). The checks file data/game/step5c-checks.json stays frozen; this list only changes the report's status from fail to accepted. Values are sim vs real at run H; docs/DECISIONS.md, '5c checks accepted (Joseph, 2026-11-12)'.",
+  "accepted": [
+    { "check": "c.kneel.ballBack", "observed": 8.97, "real": 2.92, "unit": "pp", "scope": "insample", "date": "2026-11-12", "approved_by": "Joseph" },
+    { "check": "c.fg.63", "observed": 0.0254, "real": 0.0086, "unit": "perGame", "scope": "insample", "date": "2026-11-12", "approved_by": "Joseph" },
+    { "check": "c.fg.50to59", "observed": 0.764, "real": 0.642, "unit": "perGame", "scope": "insample", "date": "2026-11-12", "approved_by": "Joseph" }
+  ]
+}

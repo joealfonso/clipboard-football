@@ -495,9 +495,9 @@
     },
     {
       "metric": "absMargin.share.8-14",
-      "observed": 27.64,
+      "observed": 27.92,
       "target": 22.7053,
-      "reason": "Step 5 in-sample miss after step 5b and the o4Top fix; no tuning made (spec F2). Joseph accepted it as it stands: 'Accept them'.",
+      "reason": "Step 5c in-sample run H (after milestones A-G): 27.92 vs 22.7053, |diff| 5.21, up from 4.93 (27.64) before step 5c and inside the league-seed spread (25.2 to 30.3). No tuning made. Joseph accepted it at this value (question dialog, 'Accept').",
       "scope": "insample",
       "date": "2026-11-12",
       "approved_by": "Joseph"

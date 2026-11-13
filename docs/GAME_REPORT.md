@@ -6,9 +6,9 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 ## 1. In-sample check, 2016-2023 (run first)
 
-Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa`; code hash `e51e513b39a476d6dddcbcfd5e09b3a3af158198d98031c6225e82c611aece2e`.
+Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b4a000c17f4a50d84cf11b974ec648d0112810934f34e4963b573a314e110907`; code hash `f759dd55eeb284ac78b7d9685de07f02f1e3c37f4d7d0c9f68a48fc748219535`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 8.18 ms per game, 85.7 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 6.594 ms per game, 68.2 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 
@@ -351,13 +351,13 @@ Sim: the in-sample run's games (`scripts/game/checks5c.ts`), plus the c.ot.compl
 | `c.trail.lastSnap` | 3.67% | 2.86% | 2.98% | 2.27% | 0.00% | 0.00% | 0.00% | 0.05% | abs(sim - real) <= 0.6 pp | fail / fail / fail / fail / pass / pass / pass |
 | `c.trail.longGap` | 5.61% | 6.11% | 6.37% | 6.60% | 6.74% | 6.32% | 6.24% | 7.38% | abs(sim - real) <= 3 pp | pass / pass / pass / pass / pass / pass / pass |
 | `c.spike.stopped` | 0.1303 | 0.1311 | 0.1368 | 0.1315 | 0.0000 | 0.0000 | 0.0000 | 0.0029 | abs(sim - real) <= 0.02 | fail / fail / fail / fail / pass / pass / pass |
-| `c.kneel.ballBack` | 36.03% | 41.39% | 41.83% | 40.57% | 34.89% | 8.95% | 8.97% | 2.92% | abs(sim - real) <= 2 pp | fail / fail / fail / fail / fail / fail / fail |
+| `c.kneel.ballBack` | 36.03% | 41.39% | 41.83% | 40.57% | 34.89% | 8.95% | 8.97% | 2.92% | abs(sim - real) <= 2 pp | fail / fail / fail / fail / fail / fail / accepted |
 | `c.kneel.shortGap0TO` | 23.86% | 10.81% | 10.90% | 10.34% | 10.81% | 6.89% | 6.83% | 5.69% | abs(sim - real) <= 3 pp | fail / fail / fail / fail / fail / pass / pass |
 | `c.kneel.early` | 0.0082 | 0.0072 | 0.0075 | 0.0075 | 0.0075 | 0.0000 | 0.0000 | 0.0000 | sim <= real + 0.001 | fail / fail / fail / fail / fail / pass / pass |
 | `c.fg.60` | 0.2569 | 0.2549 | 0.0394 | 0.0387 | 0.0380 | 0.0367 | 0.0360 | 0.0291 | abs(sim - real) <= 0.015 | fail / fail / pass / pass / pass / pass / pass |
-| `c.fg.63` | 0.1946 | 0.1895 | 0.0284 | 0.0279 | 0.0265 | 0.0253 | 0.0254 | 0.0086 | abs(sim - real) <= 0.008 | fail / fail / fail / fail / fail / fail / fail |
+| `c.fg.63` | 0.1946 | 0.1895 | 0.0284 | 0.0279 | 0.0265 | 0.0253 | 0.0254 | 0.0086 | abs(sim - real) <= 0.008 | fail / fail / fail / fail / fail / fail / accepted |
 | `c.fg.70` | 0.0646 | 0.0562 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0005 | sim <= 0.002 | fail / fail / pass / pass / pass / pass / pass |
-| `c.fg.50to59` | 0.5856 | 0.5976 | 0.7918 | 0.7857 | 0.7813 | 0.7651 | 0.7641 | 0.6415 | abs(sim - real) <= 0.05 | fail / pass / fail / fail / fail / fail / fail |
+| `c.fg.50to59` | 0.5856 | 0.5976 | 0.7918 | 0.7857 | 0.7813 | 0.7651 | 0.7641 | 0.6415 | abs(sim - real) <= 0.05 | fail / pass / fail / fail / fail / fail / accepted |
 | `c.try.down2GF` | 30.67% | 43.48% | 35.71% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 15 pp | fail / fail / fail / pass / pass / pass / pass |
 | `c.try.tiedG5` | 74.14% | 73.66% | 70.12% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% | sim >= real - 10 pp | fail / fail / fail / pass / pass / pass / pass |
 | `c.to.kickoffQ13` | 0.2688 | 0.0440 | 0.0462 | 0.0074 | 0.0077 | 0.0080 | 0.0079 | 0.0076 | abs(sim - real) <= 0.02 | fail / fail / fail / pass / pass / pass / pass |

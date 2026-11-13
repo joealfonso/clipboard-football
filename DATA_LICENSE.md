@@ -61,7 +61,7 @@ Credit: "Combine data courtesy of PFR via nflverse".
 
 Hand-written settings, menus and rules. `data/players/names.json` and `data/teams/names.json` are fictional; the pipeline checks them against real names locally but holds none.
 
-`data/calls/catalog.json`, `data/caller/config.json`, `data/caller/latechecks.json`, `data/engine/config.json`, `data/engine/matchup.json`, `data/engine/personnel.json`, `data/engine/why.json`, `data/game/config.json`, `data/game/league.json`, `data/game/step5c-checks.json` (pre-registered thresholds only), `data/players/ratings.json`, `data/players/names.json`, `data/teams/names.json`, `data/rules/nfl-2026.json`.
+`data/calls/catalog.json`, `data/caller/config.json`, `data/caller/latechecks.json`, `data/engine/config.json`, `data/engine/matchup.json`, `data/engine/personnel.json`, `data/engine/why.json`, `data/game/config.json`, `data/game/league.json`, `data/game/step5c-checks.json` (pre-registered thresholds only), `data/game/step5c-accepted.json` (Joseph's accepted check misses), `data/players/ratings.json`, `data/players/names.json`, `data/teams/names.json`, `data/rules/nfl-2026.json`.
 
 ## Test fixtures
 
