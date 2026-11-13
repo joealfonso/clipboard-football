@@ -898,6 +898,107 @@
         }
       ]
     },
+    "clockRun": {
+      "type": "exact",
+      "field": "clockRunning",
+      "phases": [
+        "scrimmage"
+      ]
+    },
+    "ownTO2": {
+      "type": "range",
+      "field": "offenseTimeouts",
+      "phases": [
+        "scrimmage"
+      ],
+      "buckets": [
+        {
+          "label": "o0",
+          "min": null,
+          "max": 0
+        },
+        {
+          "label": "o1+",
+          "min": 1,
+          "max": null
+        }
+      ]
+    },
+    "downs23": {
+      "type": "group",
+      "of": "down",
+      "phases": [
+        "scrimmage"
+      ],
+      "groups": [
+        {
+          "label": "2-3",
+          "members": [
+            "2",
+            "3"
+          ]
+        }
+      ]
+    },
+    "timeGF": {
+      "type": "group",
+      "of": "lateClockAll",
+      "phases": [
+        "scrimmage"
+      ],
+      "groups": [
+        {
+          "label": "GF",
+          "members": [
+            "GF"
+          ]
+        }
+      ]
+    },
+    "scoreTrail": {
+      "type": "group",
+      "of": "scoreLate5Only",
+      "phases": [
+        "scrimmage"
+      ],
+      "groups": [
+        {
+          "label": "<=-9",
+          "members": [
+            "<=-9"
+          ]
+        },
+        {
+          "label": "-8..-1",
+          "members": [
+            "-8..-1"
+          ]
+        }
+      ]
+    },
+    "fgRange": {
+      "type": "group",
+      "of": "zoneK",
+      "phases": [
+        "scrimmage"
+      ],
+      "groups": [
+        {
+          "label": "in",
+          "members": [
+            "K37"
+          ]
+        },
+        {
+          "label": "out",
+          "members": [
+            "K50",
+            "K75",
+            "K99"
+          ]
+        }
+      ]
+    },
     "time5x": {
       "type": "rules",
       "phases": [
@@ -1158,6 +1259,44 @@
             "scoreLateOnly",
             "lateTime",
             "end"
+          ]
+        },
+        {
+          "dims": [
+            "down",
+            "clockRun",
+            "ownTO2",
+            "scoreTrail",
+            "timeGF",
+            "fgRange"
+          ]
+        },
+        {
+          "dims": [
+            "downs23",
+            "clockRun",
+            "ownTO2",
+            "scoreTrail",
+            "timeGF",
+            "fgRange"
+          ]
+        },
+        {
+          "dims": [
+            "down",
+            "clockRun",
+            "ownTO2",
+            "scoreTrail",
+            "timeGF"
+          ]
+        },
+        {
+          "dims": [
+            "downs23",
+            "clockRun",
+            "ownTO2",
+            "scoreTrail",
+            "timeGF"
           ]
         },
         {

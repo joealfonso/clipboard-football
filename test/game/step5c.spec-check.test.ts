@@ -604,9 +604,14 @@ describe("B1b, E: the game's average coach applies the make-chance and stopped-c
   });
 
   it("E: no spike with the clock stopped, though the fitted tables alone would spike (and the coach does with it running)", () => {
-    const s = sit({ down: 1, yardLine100: 60, quarter: 4, secondsLeftInHalf: 71, secondsLeftInGame: 71, scoreDiff: -4, offenseTimeouts: 0 });
-    expect(fitted(s, "spike"), "the fitted share alone spikes here").toBeGreaterThan(0.01);
+    // Amended 2026-11-13 (M1 step 5d milestones A and C): the Situation now carries the clock state, and
+    // the fitted spike level reads it, so the stopped-clock cell's own spike share is small (0.26%), not 0.
+    // The mask must still remove it; with the clock running the fitted share and the coach both spike.
+    const s = sit({ down: 1, yardLine100: 60, quarter: 4, secondsLeftInHalf: 71, secondsLeftInGame: 71, scoreDiff: -4, offenseTimeouts: 0, clockRunning: 0 });
+    const running: Situation = { ...s, clockRunning: 1 };
+    expect(fitted(running, "spike"), "the fitted share alone spikes here").toBeGreaterThan(0.01);
+    expect(fitted(s, "spike"), "the stopped-clock cell still holds some spike share").toBeGreaterThan(0);
     expect(draws(s, false, "spike")).toBe(0);
-    expect(draws(s, true, "spike")).toBeGreaterThan(0);
+    expect(draws(running, true, "spike")).toBeGreaterThan(0);
   });
 });

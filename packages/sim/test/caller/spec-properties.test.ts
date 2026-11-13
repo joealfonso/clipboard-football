@@ -167,7 +167,9 @@ describe("overtime is binned as the second half", () => {
   // only (lateTime and the dimensions windowed on it, and the regulation-only copies time5R, time2R and scoreLateOnlyR). Every other label,
   // every other factor's lookup and the defense stay exactly as the 4th quarter with the same clock.
   // Amended 2026-11-12 (M1 step 5c milestone F): kneelGap is kneelOut with K0 split, windowed on lateTime the same way.
-  const OT_AWARE = new Set(["lateTime", "scoreLate5Only", "kneelOut", "kneelGap", "lateClockAll", "lateClock", "time5x", "time5R", "time2R", "scoreLateOnlyR"]);
+  // Amended 2026-11-13 (M1 step 5d milestone C): scoreTrail is scoreLate5Only's trailing buckets and
+  // timeGF is lateClockAll's GF, both read the same way.
+  const OT_AWARE = new Set(["lateTime", "scoreLate5Only", "kneelOut", "kneelGap", "lateClockAll", "lateClock", "time5x", "time5R", "time2R", "scoreLateOnlyR", "scoreTrail", "timeGF"]);
   it("an overtime situation gets the same labels and shares as the 4th quarter with the same clock", () => {
     for (const s of sweep(500, 808, 0.1)) {
       const secs = Math.min(s.secondsLeftInHalf, 600);

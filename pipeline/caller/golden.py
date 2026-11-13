@@ -17,10 +17,11 @@ from pipeline.caller.shares import Caller, Lookup, lookup
 TARGET_SIZE = 260
 
 
-def _sit(phase: str, down: int, ytg: int, yl: int, sd: int, q: int, h: int, g: int, ot: int, dt: int) -> dict[str, Any]:
+def _sit(phase: str, down: int, ytg: int, yl: int, sd: int, q: int, h: int, g: int, ot: int, dt: int, cr: int = 0, otb: int = 0) -> dict[str, Any]:
     return {
         "phase": phase, "down": down, "yardsToGo": ytg, "yardLine100": yl, "scoreDiff": sd, "quarter": q,
         "secondsLeftInHalf": h, "secondsLeftInGame": g, "offenseTimeouts": ot, "defenseTimeouts": dt,
+        "clockRunning": cr if phase == "scrimmage" else 0, "otBothPossessed": otb,
     }
 
 
@@ -50,6 +51,14 @@ def grid() -> list[dict[str, Any]]:
         out.append(_sit("scrimmage", down, min(ytg, yl), yl, sd, 4, secs, secs, ot, dt))
     for sd, (q, g) in itertools.product(list(range(-21, 22)) + [-30, 30], [(1, 3000), (4, 600), (4, 200), (4, 100), (5, 300)]):
         out.append(_sit("try", 1, 2, 2, sd, q, g, g, 2, 2))
+    # Step 5d: the final 2:00 of Q4 and overtime with the clock running and stopped, every late score
+    # bucket and both own-timeout states; overtime tries with and without both teams having possessed.
+    for down, yl, sd, (q, secs), (ot, dt), cr in itertools.product(
+        (1, 2, 3), (25, 60), (-12, -6, -2, 0, 2, 6, 12), [(4, 100), (4, 30), (5, 90), (5, 400)], [(0, 2), (1, 0), (2, 3)], (0, 1),
+    ):
+        out.append(_sit("scrimmage", down, 10, yl, sd, q, secs, secs, ot, dt, cr, 1 if q == 5 else 0))
+    for sd, secs, otb in itertools.product((-2, -1, 0, 6), (100, 400), (0, 1)):
+        out.append(_sit("try", 1, 2, 2, sd, 5, secs, secs, 2, 2, 0, otb))
     return out
 
 

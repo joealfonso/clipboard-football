@@ -32,6 +32,10 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
         label: str | None
         if sit["phase"] not in d["phases"]:
             label = None
+        elif "field" in d and d["field"] not in sit:
+            # Step 5d: a field the situation lacks (a frozen fixture made before the field existed)
+            # makes the dimension not apply, as in packages/sim/src/caller/bins.ts.
+            label = None
         elif d["type"] == "exact":
             label = _int_str(sit[d["field"]])
         elif d["type"] == "range":

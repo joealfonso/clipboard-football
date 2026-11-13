@@ -15,6 +15,8 @@ export interface Stage5d {
   readonly metrics: readonly { readonly id: string; readonly predicted: number; readonly actual: number; readonly tolerance: number | null; readonly status: string; readonly spread: readonly [number, number] }[];
   readonly invariants: unknown;
   readonly msPerGame: number;
+  /** The summary's diagnostics (predicted and actual), so accepted C3 rows can be compared too. */
+  readonly diagnostics?: Readonly<Record<string, { readonly predicted: number; readonly actual: number | null }>>;
 }
 
 if (import.meta.main) {
@@ -26,6 +28,7 @@ if (import.meta.main) {
     metrics: { id: string; predicted: number; actual: number; tolerance: number | null; status: string; spread: [number, number] }[];
     invariants: unknown;
     perf: { msPerGame: number };
+    diagnostics: Record<string, { predicted: number; actual: number | null }>;
   };
   const path = join(REPO, STAGES_FILE);
   const prev = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as { stages: Record<string, Stage5d> }) : { stages: {} };
@@ -34,6 +37,7 @@ if (import.meta.main) {
     metrics: s.metrics.map((m) => ({ id: m.id, predicted: m.predicted, actual: m.actual, tolerance: m.tolerance, status: m.status, spread: m.spread })),
     invariants: s.invariants,
     msPerGame: s.perf.msPerGame,
+    diagnostics: Object.fromEntries(Object.entries(s.diagnostics).map(([k, v]) => [k, { predicted: v.predicted, actual: v.actual }])),
   };
   writeFileSync(path, JSON.stringify({ generated: true, stages: { ...prev.stages, [label]: stage } }, null, 1) + "\n");
   process.stdout.write(`wrote ${STAGES_FILE} (${label}: ${stage.metrics.filter((m) => m.status === "fail").length} gated failures)\n`);

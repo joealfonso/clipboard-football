@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import { checkCallerTables, parseCallerConfig, parseCallerTables } from "../../../shared/src/schema";
-import type { Situation } from "../../../shared/src/types";
+import type { FactorTable, Situation } from "../../../shared/src/types";
 import { binSituation } from "../../src/caller/bins";
 import { offenseShares } from "../../src/caller/offense";
 import { defenseShares } from "../../src/caller/defense";
@@ -62,6 +62,15 @@ describe("tables built from another config are refused (A4)", () => {
   });
 });
 
+/** The oTop cells step 5d resolution 3's refit changed, as "dims#key" (pre-res3 a947d0b vs add4d19). */
+const RES3_CELLS = new Set([
+  "down,kneelOut,scoreLate5Only,lateTime#3|K0|1..8|GF", "down,kneelOut,lateTime#3|K0|GF", "down,scoreLateOnly,time5R,end#2|4..8|GF|c120.o1+.d0",
+  "down,dist3,zone3,score3,time5R,end#1|7+|OPP|L|H1F|c40.o1+.d2+", "down,dist3,zone3,score3,time5R,end#1|7+|OWN|L|H1F|c40.o1+.d2+",
+  "down,dist3,zone3,score3,time5R,end#2|7+|OPP|L|GF|c120.o1+.d0", "down,score3,time5R,end#1|L|H1F|c40.o0.d2+", "down,score3,time5R,end#1|L|H1F|c40.o1+.d2+",
+  "down,score3,time5R,end#1|T|H1F|c120.o1+.d1", "down,score3,time5R,end#2|L|GF|c120.o1+.d0", "down,score3,time5R,end#2|L|GF|c120.o1+.d1",
+  "down,score3,time5R,end#3|L|GF|c120.o1+.d1", "down,score3,time5R,end#3|L|GF|c120.o1+.d2+",
+]);
+
 describe("outside the late windows nothing moves (B1)", () => {
   const frozen = readJson("test/fixtures/caller-golden-v1.json") as { situations: { situation: Situation; offense: { leaves: { call: string; twoPointPlay?: string; p: number }[] }; defense: { presets: { call: string; p: number }[] } }[] };
   // Amended by step 5b: overtime is now a late window too (5b spec, "Overtime bucket"), so the
@@ -88,6 +97,11 @@ describe("outside the late windows nothing moves (B1)", () => {
       // and so is their sum.
       if (g.situation.phase === "try" && b5c(g.situation)) continue;
       const o = offenseShares(g.situation, data);
+      // Amended 2026-11-13 (M1 step 5d resolution 3): the caller reads timeouts at the snap in clock
+      // order, which moved 13 oTop cells (by at most 0.4 pp; docs/DECISIONS.md). A situation served
+      // by one of them is skipped; every other offense share must still match.
+      const top = o.trace["oTop"];
+      if (top !== undefined && RES3_CELLS.has(`${(data.offense.factors["oTop"] as FactorTable).levels[top.level]?.dims.join(",")}#${top.key}`)) continue;
       const kick = (c: string): boolean => b5c(g.situation) && (c === "punt" || c === "fieldGoal");
       g.offense.leaves.forEach((lf, i) => {
         if (!kick(lf.call)) expect(o.leaves[i]?.p, `offense ${JSON.stringify(g.situation)}`).toBeCloseTo(lf.p, 12);

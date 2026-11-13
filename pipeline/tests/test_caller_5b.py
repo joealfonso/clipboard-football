@@ -72,8 +72,9 @@ def test_v2_tables_and_v3_config_are_refused_both_ways() -> None:
 TOP = CFG["factors"]["oTop"]
 FOUR = CFG["factors"]["o4Top"]
 # Amended 2026-11-12 (M1 step 5c milestone F): kneelGap, oTop's new first level.
+# Amended 2026-11-13 (M1 step 5d milestone C): the spike level's dimensions.
 LATE_DIMS = ["down", "kneelOut", "kneelGap", "scoreLate5Only", "lateTime", "lateClock", "zoneK", "fieldHalf", "time5R", "time2R", "scoreLateOnlyR", "dist5", "dist3", "zone6",
-             "zone3", "scoreLate", "scoreLateOnly", "score3", "time5", "time2", "end", "clock"]
+             "zone3", "scoreLate", "scoreLateOnly", "score3", "time5", "time2", "end", "clock", "clockRun", "ownTO2", "downs23", "scoreTrail", "timeGF", "fgRange"]
 
 
 def _rows(situations: list[tuple[dict, int, str, bool]]) -> pl.DataFrame:
@@ -140,12 +141,14 @@ def _key(level: dict, sit: dict) -> str | None:
         ("oTop", _sit(1, 4, 4, 90), 1, 2, _sit(1, 12, 4, 90)),
         # [down,kneelOut,lateTime] -> the first regulation level.
         ("oTop", _sit(1, 4, 4, 90), 2, 3, None),
+        # Amended 2026-11-13 (M1 step 5d milestone C): oTop gained four spike levels ahead of
+        # [down,zoneK,scoreLate5,lateTime] (trailers in the final 2:00 only), so the indices below moved up by four.
         # Overtime, tied, 3rd down at the 30: [down,zoneK,scoreLate5,lateTime] -> [zoneK,scoreLate5,lateTime].
-        ("oTop", _sit(3, 0, 5, 400, 30, 2), 6, 7, _sit(1, 0, 5, 400, 30, 2)),
+        ("oTop", _sit(3, 0, 5, 400, 30, 2), 10, 11, _sit(1, 0, 5, 400, 30, 2)),
         # [zoneK,scoreLate5,lateTime] -> [fieldHalf,scoreLate5,lateTime].
-        ("oTop", _sit(3, 0, 5, 400, 30, 2), 7, 8, _sit(3, 0, 5, 400, 45, 2)),
+        ("oTop", _sit(3, 0, 5, 400, 30, 2), 11, 12, _sit(3, 0, 5, 400, 45, 2)),
         # Overtime with no overtime cell -> the G5 cell (resolved question 2), fitted on regulation only.
-        ("oTop", _sit(1, -3, 5, 400, 60, 2), 8, 9, None),
+        ("oTop", _sit(1, -3, 5, 400, 60, 2), 12, 13, None),
     ],
 )
 def test_otop_backoff_at_n_minus_1_and_n(factor: str, sit: dict, level: int, parent: int, spill: dict | None) -> None:

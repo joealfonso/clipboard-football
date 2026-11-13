@@ -170,7 +170,9 @@ describe("Resolved 2: overtime without its own cell backs off to the G5/GF cells
         if (hit === undefined) continue;
         const d = t.levels[hit.level]?.dims ?? [];
         const lateG = hit.key.split("|").some((x) => x === "G5" || x === "GF");
-        if (!d.includes("scoreLate5Only") || !lateG) bad.push(`${name} ${JSON.stringify(s)} -> level ${hit.level} [${d.join(",")}] ${hit.key}`);
+        // Amended 2026-11-13 (M1 step 5d milestone C): the spike level keys the late score as scoreTrail,
+        // scoreLate5Only's trailing buckets, with the G5/GF clock mapping (timeGF).
+        if (!(d.includes("scoreLate5Only") || d.includes("scoreTrail")) || !lateG) bad.push(`${name} ${JSON.stringify(s)} -> level ${hit.level} [${d.join(",")}] ${hit.key}`);
       }
     }
     expect(bad).toEqual([]);
@@ -178,7 +180,9 @@ describe("Resolved 2: overtime without its own cell backs off to the G5/GF cells
 
   it("OT time maps to GF at 2:00 or less and G5 above it on the G5/GF fallback", () => {
     const at = (secs: number) => offenseShares(sit({ quarter: 5, scoreDiff: -7, down: 1, yardLine100: 60, secondsLeftInGame: secs, secondsLeftInHalf: secs }), data).trace["oTop"]?.key ?? "";
-    expect(at(500).endsWith("|G5")).toBe(true);
-    expect(at(100).endsWith("|GF")).toBe(true);
+    // Amended 2026-11-13 (M1 step 5d milestone C): a trailer's spike-level key carries the field goal
+    // range after the clock label, so the clock label is read as a key part, not the last one.
+    expect(at(500).split("|")).toContain("G5");
+    expect(at(100).split("|")).toContain("GF");
   });
 });

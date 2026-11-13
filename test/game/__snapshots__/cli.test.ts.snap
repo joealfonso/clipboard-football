@@ -4,7 +4,7 @@ exports[`CLI (E) > E1: header, one line per event and a box score; snapshot on a
 "Clipboard Football headless game (M1)
 seed 3  league seed 2026  regularSeason
 rule set nfl-2026 sha256 5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895
-data rules/nfl-2026.json:5c8cca4e8320 calls/catalog.json:01b3b9e15378 caller/config.json:8d43788a703a caller/offense.table.json:9f5e0ea1707b caller/defense.table.json:e96a47e129d9 engine/config.json:855f02993766 engine/baseline.scrimmage.json:76ea8a62423e engine/baseline.special.json:bf9851d50c71 engine/baseline.penalties.json:2393518bb843 engine/kickoff.json:7a0e531091f6 engine/matchup.centered.json:c6db10affc12 engine/personnel.json:a3816cc3941c players/ratings.json:c71a112781d3 players/distributions.json:059f2a7f4d02 players/names.json:b11ced1100e5 engine/why.json:778bc80beaa1 game/config.json:684616869473 game/tempo.json:a67eb41b6b1f game/timeouts.json:3fd8e02c1c88 game/onside.json:18fa01c09452 game/ep.json:07a8bab26d5e game/league.json:436c5d0f28db teams/names.json:af71a0998e9e
+data rules/nfl-2026.json:5c8cca4e8320 calls/catalog.json:01b3b9e15378 caller/config.json:b1067cd3f6f5 caller/offense.table.json:cc4ab3a74623 caller/defense.table.json:c93a2fe9b653 engine/config.json:855f02993766 engine/baseline.scrimmage.json:76ea8a62423e engine/baseline.special.json:bf9851d50c71 engine/baseline.penalties.json:2393518bb843 engine/kickoff.json:7a0e531091f6 engine/matchup.centered.json:c6db10affc12 engine/personnel.json:a3816cc3941c players/ratings.json:c71a112781d3 players/distributions.json:059f2a7f4d02 players/names.json:b11ced1100e5 engine/why.json:778bc80beaa1 game/config.json:683da3dacc00 game/tempo.json:91efa82884b8 game/timeouts.json:6cbf98a225a7 game/onside.json:e40ef4ecc2c6 game/ep.json:ae41092aca5f game/league.json:436c5d0f28db teams/names.json:af71a0998e9e
 away Fox Hollow Foxes (FOXES)  at  home Cinder Hill Embers (EMBERS)
 
 Q1 15:00  FOXES kickoff  Kickoff: A return, EMBERS ball at own 32.  [FOXES 0 - EMBERS 0]  Why: Kickoff: a return.
@@ -129,20 +129,21 @@ Q2 1:18  Timeout EMBERS (offense), 2 left.
 Q2 1:18  EMBERS 3rd & 13 at own 24  Short (Shotgun) vs Dime Cover 0 Blitz: Incomplete.  [FOXES 7 - EMBERS 10]  Why: A short pass for an incompletion: the catch against the coverage decided it (x0.94).
 Q2 1:12  EMBERS 4th & 13 at own 24  Punt: Punt 52 yards, FOXES ball at own 39.  [FOXES 7 - EMBERS 10]  Why: Punt: a long punt returned, 52 yards gross.
 Q2 1:00  FOXES 1st & 10 at own 39  Short (Shotgun) vs Nickel Cover 2: Complete for 4 yards.  [FOXES 7 - EMBERS 10]  Why: A short pass for a short completion, a common result in this situation (51%).
-Q2 0:54  Timeout EMBERS (defense), 1 left.
-Q2 0:54  FOXES 2nd & 6 at own 43  Screen (Shotgun) vs Nickel Cover 1 Blitz: Complete for -1 yard.  [FOXES 7 - EMBERS 10]  Why: A screen pass for a catch for no gain: the defense sniffing out the screen decided it (x0.94).
-Q2 0:50  FOXES lets 15 s run before the snap.
-Q2 0:35  FOXES 3rd & 7 at own 42  Inside run (Shotgun) vs Nickel Cover 3: Run for 11 yards.  [FOXES 7 - EMBERS 10]  Why: An inside run for a 10-yard-plus run (19% of plays in this situation).
-Q2 0:29  FOXES lets 1 s run before the snap.
-Q2 0:28  Timeout FOXES (offense), 2 left.
-Q2 0:28  FOXES 1st & 10 at opp 47  Intermediate (Empty) vs Nickel Cover 4: Incomplete.  [FOXES 7 - EMBERS 10]  Why: An intermediate pass for an incompletion, a common result in this situation (37%).
-Q2 0:23  FOXES 2nd & 10 at opp 47  Intermediate (Shotgun) vs Nickel Cover 4: Sacked for -7 yards.  [FOXES 7 - EMBERS 10]  Why: An intermediate pass for a sack: the pass rush against the protection decided it (x0.89).
-Q2 0:18  FOXES lets 3 s run before the snap.
-Q2 0:15  Timeout FOXES (offense), 1 left.
-Q2 0:15  FOXES 3rd & 17 at own 46  Inside run (Shotgun) vs Nickel Cover 1 Blitz: Run for 5 yards.  [FOXES 7 - EMBERS 10]  Why: An inside run for a solid gain, a common result in this situation (40%).
-Q2 0:09  FOXES lets 2 s run before the snap.
-Q2 0:07  Timeout FOXES (offense), 0 left.
-Q2 0:07  FOXES 4th & 12 at opp 49  Punt: Punt 34 yards.  [FOXES 7 - EMBERS 10]  Why: Punt: a fair catch, 34 yards gross.
+Q2 0:54  FOXES lets 1 s run before the snap.
+Q2 0:53  Timeout EMBERS (defense), 1 left.
+Q2 0:53  FOXES 2nd & 6 at own 43  Screen (Shotgun) vs Nickel Cover 1 Blitz: Complete for -1 yard.  [FOXES 7 - EMBERS 10]  Why: A screen pass for a catch for no gain: the defense sniffing out the screen decided it (x0.94).
+Q2 0:49  FOXES lets 15 s run before the snap.
+Q2 0:34  FOXES 3rd & 7 at own 42  Inside run (Shotgun) vs Nickel Cover 3: Run for 11 yards.  [FOXES 7 - EMBERS 10]  Why: An inside run for a 10-yard-plus run (19% of plays in this situation).
+Q2 0:28  FOXES lets 1 s run before the snap.
+Q2 0:27  Timeout FOXES (offense), 2 left.
+Q2 0:27  FOXES 1st & 10 at opp 47  Intermediate (Empty) vs Nickel Cover 4: Incomplete.  [FOXES 7 - EMBERS 10]  Why: An intermediate pass for an incompletion, a common result in this situation (37%).
+Q2 0:22  FOXES 2nd & 10 at opp 47  Intermediate (Shotgun) vs Nickel Cover 4: Sacked for -7 yards.  [FOXES 7 - EMBERS 10]  Why: An intermediate pass for a sack: the pass rush against the protection decided it (x0.89).
+Q2 0:17  FOXES lets 3 s run before the snap.
+Q2 0:14  Timeout FOXES (offense), 1 left.
+Q2 0:14  FOXES 3rd & 17 at own 46  Inside run (Shotgun) vs Nickel Cover 1 Blitz: Run for 5 yards.  [FOXES 7 - EMBERS 10]  Why: An inside run for a solid gain, a common result in this situation (40%).
+Q2 0:08  FOXES lets 2 s run before the snap.
+Q2 0:06  Timeout FOXES (offense), 0 left.
+Q2 0:06  FOXES 4th & 12 at opp 49  Punt: Punt 34 yards.  [FOXES 7 - EMBERS 10]  Why: Punt: a fair catch, 34 yards gross.
 End of Q2: FOXES 7 - EMBERS 10.
 Q3 15:00  EMBERS kickoff  Kickoff: A return, FOXES ball at own 32.  [FOXES 7 - EMBERS 10]  Why: Kickoff: a return.
 Q3 14:52  FOXES 1st & 10 at own 32  Inside run (Heavy) vs Base Cover 3: Run for -2 yards.  [FOXES 7 - EMBERS 10]  Why: An inside run from Heavy against Base: no gain or a loss (x0.85).
@@ -259,22 +260,24 @@ Q4 2:27  EMBERS 2nd & 10 at opp 37  Deep (Shotgun) vs Nickel 2-Man: Incomplete. 
 Q4 2:23  EMBERS 3rd & 10 at opp 37  Intermediate (Shotgun) vs Nickel Cover 1: Scramble for 28 yards.  [FOXES 21 - EMBERS 10]  Why: An intermediate pass for a scramble: the quarterback's legs decided it (x0.92).
 Q4 2:12  EMBERS lets 20 s run before the snap.
 Q4 2:00  Two-minute warning.
-Q4 2:00  EMBERS 1st & goal at opp 9  Deep (Shotgun) vs Nickel Cover 2: Complete for 45 yards, TOUCHDOWN.  [FOXES 21 - EMBERS 16]  Why: A deep pass against Nickel Cover 2: a 20-yard-plus completion happened despite the matchup (x0.9).
-Q4 1:53  EMBERS try  Go for two: Short (Shotgun) vs Nickel Cover 1: Two-point try succeeds.  [FOXES 21 - EMBERS 18]  Why: A short pass for a short completion, a common result in this situation (43%).
-Q4 1:53  EMBERS kickoff  Onside kick: An onside kick the receivers recovered, FOXES ball at opp 45.  [FOXES 21 - EMBERS 18]  Why: Onside kick: an onside kick the receivers recovered (87% chance).
-Q4 1:50  FOXES 1st & 10 at opp 45  Inside run (Shotgun) vs Nickel Cover 1: Run for 0 yards.  [FOXES 21 - EMBERS 18]  Why: An inside run for no gain or a loss: the run blocking against the run defense decided it (x1.12).
-Q4 1:45  Timeout EMBERS (defense), 0 left.
-Q4 1:45  FOXES 2nd & 10 at opp 45  Outside run (Shotgun) vs Nickel Cover 4: Run for 4 yards.  [FOXES 21 - EMBERS 18]  Why: An outside run for a solid gain, a common result in this situation (33%).
-Q4 1:41  FOXES lets 40 s run before the snap.
-Q4 1:01  FOXES 3rd & 6 at opp 41  Short (Empty) vs Run Stuff: Incomplete.  [FOXES 21 - EMBERS 18]  Why: A short pass against Run Stuff: the matchup made an incompletion more likely (x1.11).
-Q4 0:58  FOXES 4th & 6 at opp 41  Punt: Punt 34 yards, EMBERS ball at own 7.  [FOXES 21 - EMBERS 18]  Why: Punt: a fair catch, 34 yards gross.
-Q4 0:52  EMBERS 1st & 10 at own 7  Intermediate (Shotgun) vs Dime Cover 4: Complete for 19 yards.  [FOXES 21 - EMBERS 18]  Why: An intermediate pass against Dime Cover 4: a 10-yard-plus completion happened despite the matchup (x0.89).
-Q4 0:48  EMBERS lets 13 s run before the snap.
-Q4 0:35  EMBERS 1st & 10 at own 26  Short (Shotgun) vs Nickel 2-Man: Complete for 0 yards.  [FOXES 21 - EMBERS 18]  Why: A short pass for a catch for no gain: a fluke, only 1.4% of plays like this end in a result that rare.
-Q4 0:31  EMBERS lets 19 s run before the snap.
-Q4 0:12  EMBERS 2nd & 10 at own 26  Short (Shotgun) vs Dime Cover 4: Incomplete.  [FOXES 21 - EMBERS 18]  Why: A short pass against Dime Cover 4: an incompletion happened despite the matchup (x0.87).
-Q4 0:08  EMBERS 3rd & 10 at own 26  Intermediate (Shotgun) vs Nickel Cover 1 Blitz: Incomplete.  [FOXES 21 - EMBERS 18]  Why: An intermediate pass for an incompletion: the catch against the coverage decided it (x0.87).
-Q4 0:03  EMBERS 4th & 10 at own 26  Deep (Shotgun) vs Nickel Cover 1: Sacked for -5 yards.  [FOXES 21 - EMBERS 18]  Why: A deep pass for a sack: the pass rush against the protection decided it (x1.11).
+Q4 2:00  EMBERS 1st & goal at opp 9  Intermediate (Shotgun) vs Nickel Cover 2: Complete for 18 yards, TOUCHDOWN.  [FOXES 21 - EMBERS 16]  Why: An intermediate pass against Nickel Cover 2: the matchup made a 10-yard-plus completion more likely (x1.16).
+Q4 1:54  EMBERS try  Go for two: Short (Shotgun) vs Nickel Cover 1: Two-point try succeeds.  [FOXES 21 - EMBERS 18]  Why: A short pass for a short completion, a common result in this situation (43%).
+Q4 1:54  EMBERS kickoff  Onside kick: An onside kick the receivers recovered, FOXES ball at opp 45.  [FOXES 21 - EMBERS 18]  Why: Onside kick: an onside kick the receivers recovered (87% chance).
+Q4 1:51  FOXES 1st & 10 at opp 45  Inside run (Shotgun) vs Nickel Cover 1: Run for 0 yards.  [FOXES 21 - EMBERS 18]  Why: An inside run for no gain or a loss: the run blocking against the run defense decided it (x1.12).
+Q4 1:46  Timeout EMBERS (defense), 0 left.
+Q4 1:46  FOXES 2nd & 10 at opp 45  Outside run (Shotgun) vs Nickel Cover 4: Run for 4 yards.  [FOXES 21 - EMBERS 18]  Why: An outside run for a solid gain, a common result in this situation (33%).
+Q4 1:42  FOXES lets 40 s run before the snap.
+Q4 1:02  FOXES 3rd & 6 at opp 41  Short (Empty) vs Run Stuff: Incomplete.  [FOXES 21 - EMBERS 18]  Why: A short pass against Run Stuff: the matchup made an incompletion more likely (x1.11).
+Q4 0:59  FOXES 4th & 6 at opp 41  Punt: Punt 34 yards, EMBERS ball at own 7.  [FOXES 21 - EMBERS 18]  Why: Punt: a fair catch, 34 yards gross.
+Q4 0:53  EMBERS 1st & 10 at own 7  Intermediate (Shotgun) vs Dime Cover 4: Complete for 19 yards.  [FOXES 21 - EMBERS 18]  Why: An intermediate pass against Dime Cover 4: a 10-yard-plus completion happened despite the matchup (x0.89).
+Q4 0:49  EMBERS lets 13 s run before the snap.
+Q4 0:36  EMBERS 1st & 10 at own 26  Short (Shotgun) vs Nickel 2-Man: Complete for 0 yards.  [FOXES 21 - EMBERS 18]  Why: A short pass for a catch for no gain: a fluke, only 1.4% of plays like this end in a result that rare.
+Q4 0:32  EMBERS lets 17 s run before the snap.
+Q4 0:15  EMBERS 2nd & 10 at own 26  Short (Shotgun) vs Dime Cover 4: Incomplete.  [FOXES 21 - EMBERS 18]  Why: A short pass against Dime Cover 4: an incompletion happened despite the matchup (x0.87).
+Q4 0:11  EMBERS 3rd & 10 at own 26  Intermediate (Shotgun) vs Nickel Cover 1 Blitz: Incomplete.  [FOXES 21 - EMBERS 18]  Why: An intermediate pass for an incompletion: the catch against the coverage decided it (x0.87).
+Q4 0:06  EMBERS 4th & 10 at own 26  Deep (Shotgun) vs Nickel Cover 1: Sacked for -5 yards.  [FOXES 21 - EMBERS 18]  Why: A deep pass for a sack: the pass rush against the protection decided it (x1.11).
+Q4 0:02  FOXES 1st & 10 at opp 21  Kneel: Kneel, -1 yard.  [FOXES 21 - EMBERS 18]  Why: The quarterback takes a knee.
+Q4 0:01  FOXES lets 40 s run before the snap.
 End of Q4: FOXES 21 - EMBERS 18.
 
 FINAL: FOXES 21 - EMBERS 18 (FOXES wins, regulation)
@@ -287,15 +290,15 @@ EMBERS        3    7    0    8     18
 
                                    FOXES        EMBERS
 First downs                           16            19
-Total yards                          255           286
-Rushing (att-yds)                  26-94        26-138
+Total yards                          254           286
+Rushing (att-yds)                  27-93        26-138
 Passing (comp-att, yds)       19-29, 197    24-37, 175
 Sacks-yards lost                    4-36          5-27
 Turnovers (int, fum)            0 (0, 0)      0 (0, 0)
 Penalties-yards                     2-15          1-10
 3rd down                            4-13          4-14
 4th down                             0-0           0-1
-Time of possession                 27:33         32:27
+Time of possession                 27:35         32:25
 Punts                                  9             7
 Field goals (made-att)               0-0           1-2
 Timeouts used                          4             5
@@ -323,8 +326,9 @@ DRIVES
  19. FOXES      Q3   start own 14    10 plays   86 yds  5:15  Touchdown
  20. EMBERS     Q4   start own 32     3 plays    4 yds  2:09  Punt
  21. FOXES      Q4   start own 26     7 plays   34 yds  4:41  Punt
- 22. EMBERS     Q4   start own 20     7 plays   80 yds  1:42  Touchdown
+ 22. EMBERS     Q4   start own 20     7 plays   80 yds  1:41  Touchdown
  23. FOXES      Q4   start opp 45     3 plays    4 yds  0:58  Punt
- 24. EMBERS     Q4   start own 7      5 plays   19 yds  0:52  End of half
+ 24. EMBERS     Q4   start own 7      5 plays   19 yds  0:51  Downs
+ 25. FOXES      Q4   start opp 21     1 plays    0 yds  0:02  End of half
 "
 `;

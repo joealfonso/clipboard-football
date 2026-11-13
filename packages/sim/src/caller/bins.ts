@@ -29,15 +29,22 @@ export function binSituation(situation: Situation, dimensions: Readonly<Record<s
     if (!dim.phases.includes(situation.phase)) {
       label = null;
     } else {
+      // Step 5d: a field the situation lacks (a frozen fixture made before the field existed)
+      // makes the dimension not apply, as in pipeline/caller/bins.py.
+      const value = "field" in dim ? (situation[dim.field] as number | undefined) : 0;
+      if (value === undefined) {
+        out[name] = null;
+        return null;
+      }
       switch (dim.type) {
         case "exact":
-          label = String(situation[dim.field]);
+          label = String(value);
           break;
         case "range":
-          label = rangeLabel(situation[dim.field], dim.buckets, name);
+          label = rangeLabel(value, dim.buckets, name);
           break;
         case "clip":
-          label = String(Math.min(dim.max, Math.max(dim.min, situation[dim.field])));
+          label = String(Math.min(dim.max, Math.max(dim.min, value)));
           break;
         case "rules": {
           const b = dim.buckets.find(
