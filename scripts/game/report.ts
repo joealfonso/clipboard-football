@@ -351,6 +351,28 @@ export function step5dSection(inp: Step5dInputs | undefined): string[] {
     out.push(`| ${lab} | ${cells.join(" | ")} | ${f2(pc(rc, k, "games"))}% |`);
   }
   out.push("");
+  // E4 (reported): overtime tries by otBothPossessed and score after the touchdown, last run vs real.
+  {
+    const [lastK] = runs[runs.length - 1] as readonly [string, string];
+    const lr = run(lastK);
+    const simCells: Record<string, number> = {};
+    for (const src of [lr.counts, lr.ot?.cells ?? {}]) for (const [k, v] of Object.entries(src)) if (k.startsWith("ottry.")) simCells[k] = (simCells[k] ?? 0) + v;
+    const keys = new Set([...Object.keys(simCells), ...Object.keys(rc).filter((k) => k.startsWith("ottry."))].map((k) => k.split(".").slice(1, 3).join(".")));
+    const sorted = [...keys].sort((a, b) => {
+      const [fa, sa] = a.split(".").map(Number) as [number, number];
+      const [fb, sb] = b.split(".").map(Number) as [number, number];
+      return fa - fb || sa - sb;
+    });
+    out.push(`E4: overtime tries by \`otBothPossessed\` (the flag) and the scoring team's score after the touchdown; sim = run ${lastK}'s in-sample overtime plus the league 4242 postseason soak (seeds 1-10,000), real = 2016-2023 regular season (no regular-season overtime try then). Two-point tries / tries.`, "",
+      "| Overtime try | Flag | Score | Sim | Real |", "|---|---|---|---|---|");
+    for (const k of sorted) {
+      const [f, sc] = k.split(".") as [string, string];
+      const cell = (c: Readonly<Record<string, number>>): string => `${c[`ottry.${k}.two`] ?? 0}/${c[`ottry.${k}.tries`] ?? 0}`;
+      out.push(`| otBothPossessed | ${f} | ${Number(sc) > 0 ? `+${sc}` : sc} | ${cell(simCells)} | ${cell(rc)} |`);
+    }
+    if (sorted.length === 0) out.push("| otBothPossessed | - | - | 0/0 | 0/0 |");
+    out.push("");
+  }
   // No regression of the 5c checks.
   if (inp.sim5c !== undefined && inp.real5c !== undefined) {
     const r5 = runs.filter(([k]) => inp.sim5c?.runs[`5d.${k}`] !== undefined);

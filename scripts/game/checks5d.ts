@@ -66,6 +66,12 @@ export function measure5d(record: GameRecord, c: Map<string, number>): void {
   for (let i = 0; i < ev.length; i++) {
     const e = ev[i] as GameEvent;
     if (e.t === "play" && e.before.phase === "try" && (e.play.kind === "extraPoint" || e.play.kind === "twoPoint")) {
+      // E4 (reported): every overtime try by otBothPossessed and score after the touchdown.
+      if (e.before.period >= 5) {
+        const cell = `ottry.${flags[i] ?? 0}.${lead(e, e.before.possession)}`;
+        add(`${cell}.tries`);
+        if (e.play.kind === "twoPoint") add(`${cell}.two`);
+      }
       if (e.before.period >= 5 && lead(e, e.before.possession) === -2 && flags[i] === 1) {
         add("try.otDown2.tries");
         if (e.play.kind === "twoPoint") add("try.otDown2.two");
@@ -131,6 +137,8 @@ export interface OtTries {
   readonly games: number;
   readonly tries: number;
   readonly two: number;
+  /** E4: every overtime try of the soak by flag and score ("ottry.<flag>.<score>.tries" / ".two"). */
+  readonly cells?: Readonly<Record<string, number>>;
 }
 
 /** d.try.otDown2's postseason part: league 4242, seeds 1-10,000. */
@@ -141,7 +149,8 @@ export function otTrySoak(data: GameData, kit: GameKit, leagueSeed = 4242, games
   for (let seed = 1; seed <= games; seed++) {
     measure5d(playGame(setupGame(teams, leagueSeed, seed, () => coach, "postseason"), kit, Rng.fromSeed(seed)), c);
   }
-  return { games, tries: c.get("try.otDown2.tries") ?? 0, two: c.get("try.otDown2.two") ?? 0 };
+  const cells = Object.fromEntries([...c.entries()].filter(([k]) => k.startsWith("ottry.")).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+  return { games, tries: c.get("try.otDown2.tries") ?? 0, two: c.get("try.otDown2.two") ?? 0, cells };
 }
 
 export interface Sim5d {

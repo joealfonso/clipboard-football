@@ -16,7 +16,7 @@ export interface Check5dRow {
 
 export interface Sim5dCounts {
   readonly counts: Readonly<Record<string, number>>;
-  readonly ot: { readonly games: number; readonly tries: number; readonly two: number } | null;
+  readonly ot: { readonly games: number; readonly tries: number; readonly two: number; readonly cells?: Readonly<Record<string, number>> } | null;
 }
 
 export function evaluate5d(sim: Sim5dCounts, real: Readonly<Record<string, number>>): Check5dRow[] {

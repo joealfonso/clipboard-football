@@ -421,7 +421,10 @@ describe("B: tempo", () => {
   });
 
   it("B3: at least 200 frozen views that reach L0 or that the new level does not cover keep their pre-B run-off weights byte for byte", () => {
-    const fx = json<{ commit: string; views: { view: Record<string, unknown>; levelBefore: number; weights: number[] }[] }>("test/fixtures/step5d-tempo-preB.json");
+    // Amended 2026-11-13 (engineer, code review fix 1): the lost-challenge reading moved the fitted tempo
+    // cells, so the pre-B weights were re-frozen from tables rebuilt with the eb45a43^ config and the
+    // corrected reading (test/fixtures/step5d-tempo-preB-review.json, same views).
+    const fx = json<{ commit: string; views: { view: Record<string, unknown>; levelBefore: number; weights: number[] }[] }>("test/fixtures/step5d-tempo-preB-review.json");
     expect(fx.views.length).toBeGreaterThanOrEqual(200);
     expect(fx.views.filter((v) => v.levelBefore === 0).length).toBeGreaterThan(50);
     const out: string[] = [];
@@ -641,10 +644,14 @@ describe("D: late kneels only by teams that can kneel out", () => {
       expect(s.scoreDiff).toBe(diff);
       return s;
     };
-    it(`D2: league 2026 seed ${seed} ev ${ev} (down ${-diff}): the call comes from a not-leading late level`, () => {
-      // Spec D2. FLAG if this fails: the trace names the level that served the call.
+    it(`D2: league 2026 seed ${seed} ev ${ev} (down ${-diff}): the call comes from C's spike level, ahead of the not-leading levels`, () => {
+      // Spec D2 as amended by the lead (2026-11-13): these trailers in the final 2:00 are served by the spike
+      // level [down, clockRun, ownTO2, scoreTrail, timeGF, fgRange], which the lead keeps ahead of the
+      // not-leading levels; the mask makes their kneel share 0 (next test).
       const t = offenseShares(sitOf(), caller).trace["oTop"];
-      expect(NL_LEVELS, `served by level ${t?.level} [${oTop.levels[t?.level as number]?.dims.join(", ")}] ${t?.key}`).toContain(t?.level);
+      const spike = levelIndex(oTop, ["down", "clockRun", "ownTO2", "scoreTrail", "timeGF", "fgRange"]);
+      expect(spike, `served by level ${t?.level} [${oTop.levels[t?.level as number]?.dims.join(", ")}] ${t?.key}`).toContain(t?.level);
+      for (const i of NL_LEVELS) expect(i).toBeGreaterThan(t?.level as number);
     });
 
     it(`D2: league 2026 seed ${seed} ev ${ev}: the fitted kneel share is its cell's, and the coach never kneels in a state with 0 real kneels`, () => {
