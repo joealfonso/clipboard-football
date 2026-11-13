@@ -1,8 +1,9 @@
 {
   "version": 1,
   "designed": true,
-  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used.",
+  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used. Step 5c (G1, designed): a template with a `variant` serves only that case: the matchup lines by the dominant multiplier's direction (up: above 1, down: below 1); the fluke line only for a class under the engine's rare-class threshold (config.fluke.classProbabilityBelow), a long gain past the yards percentile gets its own line; the baseline says \"common\" only at commonAtLeastPct or more.",
   "minLogEffect": 0.05,
+  "commonAtLeastPct": 20,
   "order": [
     "matchup",
     "rating",
@@ -113,6 +114,18 @@
         "fluke",
         "call",
         "class"
+      ],
+      "variant": "classRare"
+    },
+    {
+      "id": "longGain",
+      "when": "fluke",
+      "variant": "yardsLong",
+      "text": "{call.label} for {class.label}: {fluke.what} beats {fluke.pctile}% of plays like this.",
+      "factors": [
+        "fluke",
+        "call",
+        "class"
       ]
     },
     {
@@ -126,9 +139,21 @@
       ]
     },
     {
-      "id": "matchup",
+      "id": "matchupUp",
       "when": "matchup",
-      "text": "{call.label} against {matchup.presetLabel}: the matchup made {class.label} more or less likely (x{matchup.multiplier}).",
+      "variant": "up",
+      "text": "{call.label} against {matchup.presetLabel}: the matchup made {class.label} more likely (x{matchup.multiplier}).",
+      "factors": [
+        "matchup",
+        "call",
+        "class"
+      ]
+    },
+    {
+      "id": "matchupDown",
+      "when": "matchup",
+      "variant": "down",
+      "text": "{call.label} against {matchup.presetLabel}: {class.label} happened despite the matchup (x{matchup.multiplier}).",
       "factors": [
         "matchup",
         "call",
@@ -159,6 +184,17 @@
       "id": "baseline",
       "when": "baseline",
       "text": "{call.label} for {class.label}, a common result in this situation ({class.pct}%).",
+      "factors": [
+        "call",
+        "class"
+      ],
+      "variant": "common"
+    },
+    {
+      "id": "baselinePlain",
+      "when": "baseline",
+      "variant": "plain",
+      "text": "{call.label} for {class.label} ({class.pct}% of plays in this situation).",
       "factors": [
         "call",
         "class"

@@ -299,7 +299,10 @@ describe("E1, E4: CLI header, event lines and box score", () => {
     expect(text).toMatch(/lets \d+ s run before the snap/);
     expect(text).toMatch(/Two-minute warning\./);
     expect(text).toMatch(/PENALTY: .*accepted/);
-    expect(text).toMatch(/PENALTY: .*declined/);
+    // Amended 2026-11-12 (M1 step 5c): seed 3's game no longer has a declined foul after the step 5c
+    // table changes, so the declined clause is checked on the first of seeds 3-6 that has one.
+    const declined = [3, 4, 5, 6].map((sd) => simGame(["--seed", String(sd), "--league-seed", "2026"])).find((t) => /PENALTY: .*declined/.test(t));
+    expect(declined).toMatch(/PENALTY: .*declined/);
     expect(text).toMatch(/End of Q1:/);
   });
 

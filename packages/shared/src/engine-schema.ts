@@ -188,6 +188,7 @@ export const whySchema = z
     designed: z.literal(true),
     note: z.string().optional(),
     minLogEffect: z.number().nonnegative(),
+    commonAtLeastPct: z.number().min(0).max(100).optional(),
     order: z.array(z.string()),
     labels: z.record(z.string(), z.string()),
     templates: z.array(
@@ -197,6 +198,7 @@ export const whySchema = z
         kinds: z.array(z.string()).optional(),
         text: z.string().min(1),
         factors: z.array(z.string()),
+        variant: z.string().min(1).optional(),
       }),
     ),
   })

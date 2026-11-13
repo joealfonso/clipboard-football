@@ -136,10 +136,12 @@ export function boxScore(record: GameRecord, rules: RuleSet): BoxScore {
   const periods = record.final.period;
   const box = { home: emptyBox(periods), away: emptyBox(periods) };
   const drives: Drive[] = [];
-  let cur: { team: Team; period: number; start: number; plays: number; yards: number; seconds: number; half: number } | null = null;
+  let cur: { team: Team; period: number; start: number; plays: number; seconds: number; half: number; last: number } | null = null;
   const halfOf = (period: number): number => (period <= rules.game.regulationPeriods ? Math.ceil(period / rules.game.periodsPerHalf) : period);
   const close = (result: DriveResult): void => {
-    if (cur !== null) drives.push({ team: cur.team, period: cur.period, start: cur.start, plays: cur.plays, yards: cur.yards, seconds: cur.seconds, result });
+    // Step 5c G1: drive yards are net, start spot to end spot, penalties included: the goal line
+    // for a touchdown, else the line of scrimmage of the drive's last snap.
+    if (cur !== null) drives.push({ team: cur.team, period: cur.period, start: cur.start, plays: cur.plays, yards: (result === "touchdown" ? 100 : cur.last) - cur.start, seconds: cur.seconds, result });
     cur = null;
   };
   let lastScore = { home: 0, away: 0 };
@@ -190,9 +192,10 @@ export function boxScore(record: GameRecord, rules: RuleSet): BoxScore {
     box[off].possessionSeconds += secs;
     if (cur === null || cur.team !== off) {
       if (cur !== null) close("turnover");
-      cur = { team: off, period: before.period, start: before.spot, plays: 0, yards: 0, seconds: 0, half: halfOf(before.period) };
+      cur = { team: off, period: before.period, start: before.spot, plays: 0, seconds: 0, half: halfOf(before.period), last: before.spot };
     }
     const d = cur;
+    d.last = before.spot;
     d.seconds += secs;
     const stands = playStands(ev, rules);
     if (SCRIMMAGE_KINDS.has(play.kind) && stands) {
@@ -203,18 +206,15 @@ export function boxScore(record: GameRecord, rules: RuleSet): BoxScore {
       if (play.kind === "run" || play.kind === "scramble" || play.kind === "kneel") {
         b.rushAttempts++;
         b.rushYards += y;
-        d.yards += y;
       } else if (play.kind === "sack") {
         b.sacks++;
         b.sackYards += -y;
-        d.yards += y;
       } else {
         b.passAttempts++;
         const complete = play.kind === "pass" && play.incomplete !== true && play.turnover !== "interception";
         if (complete) {
           b.completions++;
           b.passYards += y;
-          d.yards += y;
         }
       }
       if ("turnover" in play && play.turnover !== undefined && play.end.possession === "defense") {

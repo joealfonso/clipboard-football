@@ -67,10 +67,12 @@ export function resultText(ev: PlayEvent, codes: Record<Team, string>, whyLabels
     return "end" in play && play.end !== undefined ? play.end.spot - before.spot : 0;
   };
   const lost = "turnover" in play && play.turnover !== undefined && "end" in play && play.end?.possession === "defense";
+  // Step 5c G1: a fumble the offense keeps (the engine's fumble class, possession not lost).
+  const kept = !lost && (detail["class"] === "fumble" || detail["class"] === "fumbleCatch") ? `, FUMBLE, recovered by ${codes[off]}` : "";
   let text: string;
   switch (play.kind) {
     case "run":
-      text = lost ? `Run, FUMBLE lost to ${codes[def]}` : `Run for ${yardsText(gain())}`;
+      text = lost ? `Run, FUMBLE lost to ${codes[def]}` : `Run for ${yardsText(gain())}${kept}`;
       break;
     case "scramble":
       text = lost ? `Scramble, FUMBLE lost to ${codes[def]}` : `Scramble for ${yardsText(gain())}`;
@@ -87,7 +89,7 @@ export function resultText(ev: PlayEvent, codes: Record<Team, string>, whyLabels
     case "pass":
       if (play.turnover === "interception") text = `INTERCEPTED by ${codes[def]}`;
       else if (play.incomplete === true) text = "Incomplete";
-      else text = lost ? `Complete, FUMBLE lost to ${codes[def]}` : `Complete for ${yardsText(gain())}`;
+      else text = lost ? `Complete, FUMBLE lost to ${codes[def]}` : `Complete for ${yardsText(gain())}${kept}`;
       break;
     case "punt": {
       const g = detail["gross"];

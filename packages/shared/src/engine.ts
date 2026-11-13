@@ -235,7 +235,7 @@ export interface EngineConfig {
   readonly fieldGoals: { readonly blockedEndBehindLine: number };
   readonly durations: { readonly minSeconds: number; readonly maxSeconds: number };
   readonly fluke: { readonly classProbabilityBelow: number; readonly yardsPercentile: number };
-  readonly penalties: { readonly pairing: Readonly<Record<string, PairingRule | string>> };
+  readonly penalties: { readonly pairing: Readonly<Record<string, PairingRule | string>>; readonly notOnScrambles?: readonly string[] };
 }
 
 // ---------------------------------------------------------------- designed: kickoffs
@@ -299,7 +299,7 @@ export const TRACE_FIELDS = {
   formation: ["formation", "formationLabel", "package", "packageLabel", "class", "multiplier"],
   rating: ["effect", "label", "class", "multiplier"],
   penalty: ["id", "label", "side"],
-  fluke: ["reason", "what"],
+  fluke: ["reason", "what", "pctile"],
   special: ["event", "gross"],
   fieldGoal: ["distance", "pct"],
 } as const satisfies Readonly<Record<string, readonly string[]>>;
@@ -314,6 +314,8 @@ export interface WhyTemplate {
   readonly text: string;
   /** Fixed factor phrases in the text, by the factor they name (E2). */
   readonly factors: readonly string[];
+  /** Step 5c G1: only for this case of `when` (matchup: up or down; fluke: its reason; baseline: common or plain). */
+  readonly variant?: string;
 }
 
 export interface WhyTemplates {
@@ -321,6 +323,8 @@ export interface WhyTemplates {
   readonly designed: true;
   /** Below this absolute log multiplier no factor is dominant (the baseline template). */
   readonly minLogEffect: number;
+  /** Step 5c G1 (designed): the baseline line says "common" only at this class share or more, in percent. */
+  readonly commonAtLeastPct?: number;
   /** Tie order for the dominant factor. */
   readonly order: readonly string[];
   readonly labels: Readonly<Record<string, string>>;

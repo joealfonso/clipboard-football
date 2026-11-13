@@ -1,7 +1,7 @@
 {
   "generated": true,
   "matchupHash": "ffe2456c4533c65d5a71cea83f1bfd87b4d86d194395d64eaf3aa2f109e6e004",
-  "configHash": "334e266c747b10731d7204c4f338be9cb309055046a9cc15e7126adb38d734d9",
+  "configHash": "17903bea6bbe38c3ef840486fb8c2875647a1d2153837f6bad5616351676059e",
   "method": "Per leaf: an iterative per-class correction (proportional fitting) of the formation layer alone, then of the matchup table with the centered formation layer applied, over the training plays (season weight x frac), presets weighted by the step 2 defense caller's shares.",
   "matchup": {
     "insideRun": {

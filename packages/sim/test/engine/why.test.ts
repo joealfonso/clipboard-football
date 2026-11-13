@@ -65,9 +65,18 @@ describe("why sentences over 10,000 plays (E1, E2)", () => {
   });
 
   it("a fluke sentence says so (E4)", () => {
+    // Amended 2026-11-12 (M1 step 5c G1, docs/specs/m1-step5c-playtest-fixes.md): "fluke" is used only
+    // for a class under the designed rare-class threshold; a long gain past the yards percentile (the
+    // other fluke flag) says so in its own words. Every flagged play still has a sentence that says why.
     const flukes = plays.filter((p) => (p.detail as unknown as Detail).fluke === true);
     expect(flukes.length).toBeGreaterThan(0);
-    for (const p of flukes) expect((p.detail as unknown as Detail).why).toMatch(/fluke/);
+    const reason = (d: Detail): unknown => d.trace.find((e) => e.factor === "fluke")?.["reason"];
+    expect(flukes.some((p) => reason(p.detail as unknown as Detail) === "classRare")).toBe(true);
+    for (const p of flukes) {
+      const d = p.detail as unknown as Detail;
+      expect(d.why).toMatch(reason(d) === "classRare" ? /fluke/ : /beats [\d.]+% of plays like this/);
+      if (reason(d) !== "classRare") expect(d.why).not.toMatch(/fluke/);
+    }
   });
 });
 

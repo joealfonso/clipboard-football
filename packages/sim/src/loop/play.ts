@@ -211,7 +211,9 @@ export function snapCapAt(period: number, perGame: number, regulationPeriods: nu
 /** Loop events the machine's state change implies: two-minute warning, end of a period. */
 function stateEvents(prev: GameState, next: GameState, out: GameEvent[]): void {
   if (!prev.twoMinuteWarningDone && next.twoMinuteWarningDone && next.period === prev.period) out.push({ t: "twoMinuteWarning", period: prev.period });
-  const ended = next.period !== prev.period || (prev.phase !== "overtimeToss" && next.phase === "overtimeToss") || (next.phase === "final" && prev.phase !== "final");
+  // Step 5c G1: the toss that starts overtime moves to the next period but ends none (the end of
+  // the last period was already logged when the game reached the toss).
+  const ended = (next.period !== prev.period && prev.phase !== "overtimeToss") || (prev.phase !== "overtimeToss" && next.phase === "overtimeToss") || (next.phase === "final" && prev.phase !== "final");
   if (ended) out.push({ t: "endPeriod", period: prev.period, score: next.score });
 }
 

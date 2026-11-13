@@ -758,7 +758,11 @@
         ],
         "note": "Only on a punt the receivers keep in the field of play (returned, fair caught, downed or out of bounds; post-validation revision 9); spot of the foul 5 yards behind where they have the ball. Receiving-team holding on punts maps here too."
       }
-    }
+    },
+    "notOnScrambles": [
+      "roughingThePasser"
+    ],
+    "notOnScramblesNote": "Step 5c G2 (designed, docs/RULES.md): the passer's protection covers a player in a passing posture (Rule 12-2-11) and passes thrown from behind the line (8-1-2 Note 2); a quarterback who scrambles and runs without throwing is a runner, so these fouls are not drawn on a scramble. Real 2016-2023: 1 accepted roughing the passer on a scramble in 2,095 games."
   },
   "binsNote": "Post-validation revision 8 (M1 step 5): class cells use zone7 (zone6 with the red zone split at the 10 and the 15 and the own 10 at the 5) then zoneR, then zone3; pools use ydlP (bands 1-2, 3-5, 6-10, 11-15, 16-20, then 10 yards, then 81-85, 86-90, 91-95 and 96-99 at the own end). A pooled play's touchdown flag counts only when it was drawn from this spot's own band. Before, a pool band 1-10 and a red-zone cell 6-20 let a play that scored from the 2 score from the 9, and a 10-yard-plus class always score from the 6-10."
 }

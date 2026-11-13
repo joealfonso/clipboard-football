@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import type { CoachView, KickView, PlayResult, Situation, SpecialTimeoutRole } from "../../packages/shared/src/types";
 import { offenseShares, type CallerMasks } from "../../packages/sim/src/caller/offense";
 import { fieldGoalMakeChance } from "../../packages/sim/src/caller/range";
+import { boxScore } from "../../packages/sim/src/loop/box";
 import { drainsClock, specialTimeoutShare } from "../../packages/sim/src/loop/coach";
 import { averageCoachFor, leagueFromSeed, setupGame } from "../../packages/sim/src/loop/league";
 import { GameLoopError, playGame, prepareGame, snapCapAt, type GameKit, type GameRecord } from "../../packages/sim/src/loop/play";
@@ -229,4 +230,63 @@ describe("F: the leader kneels only when it can", () => {
     });
     expect(bad.map((e) => (e.t === "play" ? `${e.before.clock}` : ""))).toEqual([]);
   });
+});
+
+describe("G: text, display and roughing on scrambles", () => {
+  const text = (seed: number): string => simGame(["--seed", String(seed)]);
+
+  it("G1: league 2026 seed 1, Q1 7:41: a fumble the offense keeps prints the catch, the fumble and the recovery", () => {
+    const line = text(1).split("\n").find((l) => l.startsWith("Q1 7:41"));
+    expect(line).toMatch(/Complete for \d+ yards, FUMBLE, recovered by [A-Z]+\./);
+  });
+
+  it("G1: matchup lines state the direction, fluke and common sit on the sides of their designed thresholds", () => {
+    const fluke = data.engine.config.fluke.classProbabilityBelow * 100;
+    const common = data.engine.why.commonAtLeastPct ?? 0;
+    for (const seed of [1, 14]) {
+      for (const l of text(seed).split("\n")) {
+        const up = l.match(/made .* more likely \(x([\d.]+)\)/);
+        if (up !== null) expect(Number(up[1])).toBeGreaterThanOrEqual(1);
+        const down = l.match(/happened despite the matchup \(x([\d.]+)\)/);
+        if (down !== null) expect(Number(down[1])).toBeLessThan(1);
+        expect(l).not.toMatch(/more or less likely/);
+        const f = l.match(/a fluke, only ([\d.]+)%/);
+        if (f !== null) expect(Number(f[1])).toBeLessThan(fluke);
+        const c = l.match(/a common result in this situation \(([\d.]+)%\)/);
+        if (c !== null) expect(Number(c[1])).toBeGreaterThanOrEqual(common);
+      }
+    }
+  });
+
+  it("G1: drive yards are net (a touchdown drive shows the distance to the goal), and End of Q4 prints once", () => {
+    const r = playGame(setupGame(league(2026), 2026, 1, () => coach), kit, Rng.fromSeed(1));
+    const drives = boxScore(r, data.engine.rules).drives;
+    for (const d of drives.filter((x) => x.result === "touchdown")) expect(d.yards).toBe(100 - d.start);
+    for (const seed of [12, 14]) {
+      const t = text(seed);
+      expect(t.split("\n").filter((l) => l.startsWith("End of Q4")).length, `seed ${seed}`).toBe(1);
+    }
+    // A game that reaches overtime logs each period's end once.
+    let ot: GameRecord | undefined;
+    for (let seed = 1; ot === undefined && seed <= 400; seed++) {
+      const g = playGame(setupGame(league(2026), 2026, seed, () => coach), kit, Rng.fromSeed(seed));
+      if (g.final.period > 4) ot = g;
+    }
+    expect(ot).toBeDefined();
+    const ends = (ot as GameRecord).events.flatMap((e) => (e.t === "endPeriod" ? [e.period] : []));
+    expect(new Set(ends).size).toBe(ends.length);
+  }, 60_000);
+
+  it("G2: no roughing the passer on a scramble", () => {
+    let scrambles = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const r = playGame(setupGame(league(2026), 2026, seed, () => coach), kit, Rng.fromSeed(seed));
+      for (const e of r.events) {
+        if (e.t !== "play" || e.play.kind !== "scramble") continue;
+        scrambles++;
+        expect((e.play.fouls ?? []).some((f) => f.penalty === "roughingThePasser")).toBe(false);
+      }
+    }
+    expect(scrambles).toBeGreaterThan(500);
+  }, 60_000);
 });

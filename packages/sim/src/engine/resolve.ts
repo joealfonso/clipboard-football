@@ -23,7 +23,7 @@ import { applyEffect, leagueMeans, type Field } from "./effects";
 import { fail } from "./errors";
 import { onField } from "./players";
 import { backoff, drawIndex, drawTuple, drawWeighted } from "./tables";
-import { dominant, isFluke, render, round2, templateFor, type TraceEntry } from "./why";
+import { dominant, isFluke, render, round2, templateFor, variantFor, type TraceEntry } from "./why";
 
 /** Both teams' player pools. The offense is the team in possession. */
 export interface Players {
@@ -278,7 +278,7 @@ export function createEngine(data: EngineData): ResolvePlay {
   }
 
   function finish(play: PlayResult, ctx: Ctx, when: string, detail: Record<string, unknown>): PlayResult {
-    const t: WhyTemplate = templateFor(why, when, play.kind);
+    const t: WhyTemplate = templateFor(why, when, play.kind, variantFor(why, when, ctx.trace));
     const r = render(t, ctx.trace);
     return { ...play, detail: { ...detail, why: r.text, whyTemplate: r.template, trace: ctx.trace } } as PlayResult;
   }
@@ -428,7 +428,9 @@ export function createEngine(data: EngineData): ResolvePlay {
     ctx: Ctx,
     onTry: boolean,
   ): { fouls: Foul[]; replace: "incompletePass" | null } {
-    const cands = c.fouls.filter((f) => allowed(f, family, true) && !(onTry && f.timing === "afterPlay"));
+    // Step 5c G2 (designed): a scrambling quarterback is a runner, not a passer (docs/RULES.md).
+    const noScramble = ph.play.kind === "scramble" ? (data.config.penalties.notOnScrambles ?? []) : [];
+    const cands = c.fouls.filter((f) => allowed(f, family, true) && !(onTry && f.timing === "afterPlay") && !noScramble.includes(f.id));
     const double = doubleRate(family, onTry);
     // The live draw only happens when no pre-snap foul was drawn, so scale the uniform to the
     // remaining mass: each live category is then emitted at exactly its fitted per-snap rate.
@@ -444,7 +446,7 @@ export function createEngine(data: EngineData): ResolvePlay {
       // Fouls by both teams: one each, in proportion to the sampled-pairing live rates.
       if (ph.turnover) return { fouls: [], replace: null };
       const pickSide = (side: PlaySide): Foul | null => {
-        const xs = doubleCands(family, side);
+        const xs = doubleCands(family, side).filter((f) => !noScramble.includes(f.id));
         if (xs.length === 0) return null;
         const f = xs[drawIndex(xs.map((x) => rates[x.idx] as number), ctx.rng)] as FoulDef;
         return { penalty: f.id, by: side };
@@ -549,7 +551,7 @@ export function createEngine(data: EngineData): ResolvePlay {
     }
     const yards = ph.turnover || clsEnf === "inc" ? null : yEnf;
     const fluke = isFluke(cd.baseOf(kEnf), yards, p975, data.config.fluke.classProbabilityBelow);
-    if (fluke !== null) ctx.trace.push({ factor: "fluke", reason: fluke, what: label(fluke) });
+    if (fluke !== null) ctx.trace.push({ factor: "fluke", reason: fluke, what: label(fluke), ...(fluke === "yardsLong" ? { pctile: Math.round(data.config.fluke.yardsPercentile * 1000) / 10 } : {}) });
     detail["yards"] = yEnf;
     detail["class"] = clsEnf;
     // The class and yards drawn before any foul pairing (independent of the foul draw), which

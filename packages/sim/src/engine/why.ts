@@ -65,10 +65,31 @@ export function slotsOf(t: WhyTemplate): [string, string][] {
   return [...t.text.matchAll(SLOT)].map((m) => [m[1] as string, m[2] as string]);
 }
 
-export function templateFor(why: WhyTemplates, when: string, kind: string): WhyTemplate {
-  const t = why.templates.find((x) => x.when === when && (x.kinds === undefined || x.kinds.includes(kind)));
+export function templateFor(why: WhyTemplates, when: string, kind: string, variant?: string): WhyTemplate {
+  const t = why.templates.find((x) => x.when === when && (x.kinds === undefined || x.kinds.includes(kind)) && (x.variant === undefined || x.variant === variant));
   if (t === undefined) fail("unboundSlot", `no why template for ${when} (${kind})`);
   return t;
+}
+
+/**
+ * Step 5c G1: which case of `when` the line describes, from the trace alone: the dominant matchup
+ * multiplier's direction, the fluke's reason, or whether the baseline class share is common.
+ */
+export function variantFor(why: WhyTemplates, when: string, trace: readonly TraceEntry[]): string | undefined {
+  if (when === "matchup") {
+    const d = dominant(trace, why.order, why.minLogEffect);
+    const m = d?.["multiplier"];
+    return typeof m === "number" ? (m >= 1 ? "up" : "down") : undefined;
+  }
+  if (when === "fluke") {
+    const r = trace.find((e) => e.factor === "fluke")?.["reason"];
+    return typeof r === "string" ? r : undefined;
+  }
+  if (when === "baseline") {
+    const pct = trace.find((e) => e.factor === "class")?.["pct"];
+    return typeof pct === "number" && pct >= (why.commonAtLeastPct ?? 0) ? "common" : "plain";
+  }
+  return undefined;
 }
 
 export function round2(x: number): number {
