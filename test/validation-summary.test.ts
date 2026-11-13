@@ -22,7 +22,7 @@ interface Summary {
   metrics: { id: string; status: string; n: number; minN: number; predicted: number; actual: number; tolerance: number }[];
 }
 interface Tolerances {
-  known_deviations: { metric: string; approved_by?: string | null }[];
+  known_deviations: { metric: string; approved_by?: string | null; scope?: string }[];
 }
 
 // Same as pipeline/caller/config.py: sha256 over each file's bytes followed by a NUL.
@@ -38,7 +38,8 @@ function sha(...parts: Buffer[]): string {
 describe("committed validation summary", () => {
   const summary = json<Summary>("data/caller/validation.json");
   const tolerances = json<Tolerances>("data/caller/tolerances.json");
-  const approved = new Set(tolerances.known_deviations.filter((d) => d.approved_by === "Joseph").map((d) => d.metric));
+  // Scoped (code review, 2026-11-12): the validation run is the holdout; an entry without a scope is a holdout entry.
+  const approved = new Set(tolerances.known_deviations.filter((d) => d.approved_by === "Joseph" && (d.scope ?? "holdout") === "holdout").map((d) => d.metric));
 
   it("was produced from the committed config, catalog and tolerances", () => {
     expect(summary.configHash).toBe(sha(bytes("data/calls/catalog.json"), bytes("data/caller/config.json")));

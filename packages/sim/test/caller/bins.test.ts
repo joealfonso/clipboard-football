@@ -41,16 +41,34 @@ describe("binning fixture", () => {
   it("gives 4th-down level keys for the 4th-and-goal edge case", () => {
     const c = fixture.cases.find((x) => x.name.startsWith("4th and goal")) as (typeof fixture.cases)[number];
     const labels = binSituation(c.situation, config.dimensions);
+    // Amended by step 5a: outside the last 5:00 the late-only levels do not apply (null) and every
+    // other level gives the same key, in the same order, as before. Amended by step 5b: the
+    // new late levels are null here; the regulation levels keep their keys. Amended again for
+    // the o4Top reorder (Joseph, 2026-11-12): the score3 levels now come before the late levels.
     expect(config.factors.o4Top.levels.map((l) => levelKey(l, labels))).toEqual([
       "1|GL|-8..-1|H1F|c40.o1+.d1",
+      null,
       "1|GL|-8..-1|H1F",
+      null,
+      null,
+      null,
+      null,
+      null,
       "1|GL|T|H1F",
       "1|GL|T|F",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
       "1|GL",
       "1-3|GL",
       "GL",
       "",
     ]);
-    expect(config.factors.o4Kick.levels.map((l) => levelKey(l, labels))).toEqual(["GL|F", "GL", ""]);
+    expect(config.factors.o4Kick.levels.map((l) => levelKey(l, labels))).toEqual([null, null, null, "GL|F", "GL", ""]);
   });
 });

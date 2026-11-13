@@ -1,0 +1,9 @@
+{
+  "designed": true,
+  "note": "M1 step 5a in-sample thresholds (resolved question 2, accepted as proposed). Not tolerances: tolerances.json is untouched. B5: 4th downs in Q4 with 5:00 or less left inside the opponent's 37, predicted field goal rate within fourthDownFieldGoalPp of actual on 2021-2023 where n >= minN (2016-2023 shown). B6: downs 1-3 in the last 5:00, pass and kneel rate by late score bucket, within lateDownsPp on 2016-2023 where n >= minN. D3 (step 5 game level, in-sample): the sim's late 4th-down field goal rate within gameFieldGoalRatePp of real per score row, and field goal attempts in the last 2:00 per game within gameFinalFieldGoalsPerGame.",
+  "fourthDownFieldGoalPp": 5,
+  "lateDownsPp": 5,
+  "minN": 100,
+  "gameFieldGoalRatePp": 10,
+  "gameFinalFieldGoalsPerGame": 0.02
+}

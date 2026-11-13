@@ -122,12 +122,21 @@ def fit_penalties(snaps: pl.DataFrame, cfg: dict[str, Any], rules: dict[str, Any
     for fam in SCRIMMAGE:
         live = rates_for(scrim.filter(pl.col("pfamily") == fam), fam, set(ids) - pre)
         merged: list[dict[str, list[int]]] = []
-        for lv, (lc, pcells) in enumerate(zip(live, pre_cells)):
+        # A cell is stored where either part has enough snaps: the live part from the family's
+        # own cell or its family-level cell, the pre-snap part from the scrimmage-group cell or
+        # its group-level cell. (Before post-validation revision 7, a pre-snap cell was dropped
+        # whenever the family's live cell was missing, which under-predicted pre-snap fouls in
+        # 3rd-and-long and 4th-down cells.)
+        live_top = live[-1][fam]
+        pre_top = pre_cells[-1]["scrimmage"]
+        for lc, pcells in zip(live, pre_cells):
             cells: dict[str, list[int]] = {}
-            for key, vals in lc.items():
+            keys = set(lc) | {fam + k[len("scrimmage"):] for k in pcells}
+            for key in sorted(keys):
                 pkey = "scrimmage" + key[len(fam):]
-                pv = pcells.get(pkey) or pre_cells[-1]["scrimmage"]
-                cells[key] = [a + b for a, b in zip(vals, pv)]
+                lv_vals = lc.get(key) or live_top
+                pv = pcells.get(pkey) or pre_top
+                cells[key] = [a + b for a, b in zip(lv_vals, pv)]
             merged.append(cells)
         by_family[fam] = merged
     for fam in KICK_FAMILIES:

@@ -1,0 +1,6289 @@
+{
+ "generated": true,
+ "target": "insample",
+ "actualSeasons": [
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023
+ ],
+ "tolerancesSha256": "78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa",
+ "codeHash": "e89fb35fd9254a383ac078f2e3325393a3bd73a4f641afd99361025e6d758c41",
+ "codeFiles": [
+  "packages/shared/src/caller.ts",
+  "packages/shared/src/catalog.ts",
+  "packages/shared/src/engine-schema.ts",
+  "packages/shared/src/engine.ts",
+  "packages/shared/src/game-schema.ts",
+  "packages/shared/src/game.ts",
+  "packages/shared/src/play.ts",
+  "packages/shared/src/rules-schema.ts",
+  "packages/shared/src/rules.ts",
+  "packages/shared/src/schema.ts",
+  "packages/shared/src/situation.ts",
+  "packages/shared/src/types.ts",
+  "packages/sim/src/caller/availability.ts",
+  "packages/sim/src/caller/bins.ts",
+  "packages/sim/src/caller/defense.ts",
+  "packages/sim/src/caller/lookup.ts",
+  "packages/sim/src/caller/offense.ts",
+  "packages/sim/src/caller/sample.ts",
+  "packages/sim/src/engine/effects.ts",
+  "packages/sim/src/engine/errors.ts",
+  "packages/sim/src/engine/players.ts",
+  "packages/sim/src/engine/resolve.ts",
+  "packages/sim/src/engine/tables.ts",
+  "packages/sim/src/engine/why.ts",
+  "packages/sim/src/game/draft.ts",
+  "packages/sim/src/game/enforce.ts",
+  "packages/sim/src/game/errors.ts",
+  "packages/sim/src/game/frame.ts",
+  "packages/sim/src/game/invariants.ts",
+  "packages/sim/src/game/machine.ts",
+  "packages/sim/src/game/periods.ts",
+  "packages/sim/src/game/progress.ts",
+  "packages/sim/src/game/resolve.ts",
+  "packages/sim/src/game/situation.ts",
+  "packages/sim/src/game/types.ts",
+  "packages/sim/src/loop/box.ts",
+  "packages/sim/src/loop/coach.ts",
+  "packages/sim/src/loop/league.ts",
+  "packages/sim/src/loop/play.ts",
+  "packages/sim/src/loop/views.ts",
+  "packages/sim/src/rng.ts",
+  "packages/sim/src/splitmix64.ts",
+  "scripts/game/calibrate.ts",
+  "scripts/game/data.ts",
+  "scripts/game/metrics.ts",
+  "scripts/game/report.ts"
+ ],
+ "fileHashes": {
+  "data/rules/nfl-2026.json": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895",
+  "data/calls/catalog.json": "01b3b9e15378e3a41db242d5ba30a4c02b096f7ae612c5491c12e82207ffe75f",
+  "data/caller/config.json": "889daf5410a78fbae316e40e4d493318e432ce07e36f6fe7dbcae35d44c68583",
+  "data/caller/offense.table.json": "ee5acd003b2324a676c1ac006b28e3d18cc3a60540be704e8f23d39219a6cd35",
+  "data/caller/defense.table.json": "21121ffb86d02a6e7c8d5baa2c68d21791e53fac9288779453ce2412d837a783",
+  "data/engine/config.json": "6b5b3a3c93e1c84a68e32a99a5445adff58a5e5f8e78e2509a0daf22fbe6fd84",
+  "data/engine/baseline.scrimmage.json": "b3f0f417ddf66fe5592fd8979d2a20f2f54835e2fe69a7373758ab90d1c3b707",
+  "data/engine/baseline.special.json": "196a41242b3233ed2cf9878920193122c0e231f7628e81d9cd03bb8877960c17",
+  "data/engine/baseline.penalties.json": "2a1ce37eb033127341e5b749001416c30df71e4aabdd837f3e29de0db962c364",
+  "data/engine/kickoff.json": "7a0e531091f656c38e66e7bae9103cfdbdc719bb42961cd499e635d63e20ff29",
+  "data/engine/matchup.centered.json": "1ed7e6d2d3f9fccad6882ab5edc445d60d1dd7476f7e1e3b15a00d861c493a39",
+  "data/engine/personnel.json": "a3816cc3941cd6bbee57970b7ce405f5504f63193e2c0b9df6341b83d03862ff",
+  "data/players/ratings.json": "c71a112781d3d04a1542267bf94d5a6f646186e8d2d34d416b83b714e998c7fd",
+  "data/players/distributions.json": "059f2a7f4d026f2b7b7e2e11796f029f6ae363ddbe7494262b94cde1a67720bf",
+  "data/players/names.json": "b11ced1100e534dcf523679b78ea7af176559aca0aab723a0ae31a31c479f098",
+  "data/engine/why.json": "d26c9f0d977cc706a86c266381300cb14815cd028400cf8cddc87cde8ac6d905",
+  "data/game/config.json": "49707b492a164a4a717447048153225b8f9b3e57f974c48a6dea452d5bce82eb",
+  "data/game/tempo.json": "eb032656fa65124048ab10cc65ad92bed2aa7b1b904b3112ab259eceef84ca79",
+  "data/game/timeouts.json": "8a365da48f075315784318a8d01579ffb8d758dbf1ee35189a889b95e6ad676b",
+  "data/game/onside.json": "ff38ca854f6a52e86dcfd89d7b75dfaffb29946d38fe649b146c9fc5170d7238",
+  "data/game/ep.json": "8021c1f81a1f61dea1a088a1db5914423a53c3a9d7c6b186567e3fe43bf3d797",
+  "data/game/league.json": "436c5d0f28db3649914c0faf2b829b23994545b4be49ebd019f148dafc79efa8",
+  "data/teams/names.json": "af71a0998e9e42dddb44ff13cdc8780aee5fc5298abd6f10e3f1894f7b7598c2",
+  "data/game/actuals.json": "743cf31b4a15db0a5c8d1b431dc25a255525b27b44c46d00ccab68b8df502f0f",
+  "data/game/tolerances.json": "78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa",
+  "data/game/coach.validation.json": "a75549a30983ca2aaf9e50e3571ad34fdb60150b569a45cb4e9ee20a344b9587"
+ },
+ "rulesHash": "5c8cca4e83203f117858ff22af1b6d44a8c2bce8509950172f7dffca86a13895",
+ "runSeed": 20261112,
+ "leagueSeeds": [
+  2492643012,
+  3529991501,
+  3168989003,
+  2927058960,
+  2767734404,
+  3298716412,
+  4121858310,
+  485205301,
+  514943085,
+  139309128
+ ],
+ "leagues": 10,
+ "gamesPerLeague": 1000,
+ "games": 10000,
+ "league": {
+  "schemaVersion": 1,
+  "designed": true,
+  "homeField": {
+   "ratingEdge": 0.69,
+   "crowdNoise": 0.031
+  },
+  "teamStrength": {
+   "sd": 1.2
+  },
+  "tuning": {
+   "status": "tuned",
+   "date": "2026-11-11",
+   "command": "node --import ./scripts/engine/register.mjs scripts/game/tune.ts",
+   "seasons": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+   ],
+   "homeFieldSeasons": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2021,
+    2022,
+    2023
+   ],
+   "note": "Training targets only (2016-2023; home field without 2020 and neutral sites). No 2024 or 2025 number was read.",
+   "targets": {
+    "marginSd": 14.13662330752994,
+    "homeMargin": 2.0942956266413377,
+    "homeWin": 0.5522929004900884
+   },
+   "crowdNoiseFrom": {
+    "homeOffensePreSnapRate": 0.017693651700842066,
+    "awayOffensePreSnapRate": 0.018826690800922207
+   },
+   "seed": 772026,
+   "gamesPerPoint": {
+    "sdGrid": 4000,
+    "edgeGrid": 8000
+   },
+   "sdGrid": [
+    {
+     "sd": 0,
+     "marginSd": 13.986153643872214,
+     "homeMargin": -0.2975,
+     "homeWin": 0.4905
+    },
+    {
+     "sd": 2,
+     "marginSd": 14.245230778667645,
+     "homeMargin": 0.01225,
+     "homeWin": 0.50575
+    },
+    {
+     "sd": 4,
+     "marginSd": 15.970122179792488,
+     "homeMargin": 0.15475,
+     "homeWin": 0.507375
+    },
+    {
+     "sd": 6,
+     "marginSd": 18.275064295372534,
+     "homeMargin": -0.255,
+     "homeWin": 0.493875
+    }
+   ],
+   "edgeGrid": [
+    {
+     "edge": 0,
+     "marginSd": 13.91200240574663,
+     "homeMargin": -0.37375,
+     "homeWin": 0.492875
+    },
+    {
+     "edge": 0.5,
+     "marginSd": 14.079410443534204,
+     "homeMargin": 1.44125,
+     "homeWin": 0.5475625
+    },
+    {
+     "edge": 1,
+     "marginSd": 14.062633398811725,
+     "homeMargin": 3.138625,
+     "homeWin": 0.591625
+    },
+    {
+     "edge": 1.5,
+     "marginSd": 14.11619855819459,
+     "homeMargin": 4.657125,
+     "homeWin": 0.635
+    }
+   ],
+   "check": {
+    "sd": 1.2,
+    "edge": 0.69,
+    "crowd": 0.031,
+    "marginSd": 14.097833873950282,
+    "homeMargin": 2.03975,
+    "homeWin": 0.5630625
+   }
+  },
+  "note": "Designed league settings (M1 step 5). homeField: centered and symmetric; every home player's ratings get +ratingEdge points and every away player's -ratingEdge for the game, and offensive pre-snap foul rates are x (1 - crowdNoise) for the home offense and x (1 + crowdNoise) for the away offense. teamStrength: each generated team draws a strength shift, round(sd x a standard normal) rating points, for all its players. Tuned on 2016-2023 only (tuning record below); placeholders 0 until tuned."
+ },
+ "invariants": {
+  "violations": 0,
+  "examples": [],
+  "postseasonGames": 1000,
+  "postseasonTies": 0
+ },
+ "perf": {
+  "msPerGame": 16.853,
+  "wallSeconds": 175.6,
+  "machine": "darwin arm64, Apple M4, Node v25.6.0"
+ },
+ "metrics": [
+  {
+   "id": "points.mean",
+   "label": "Points per team-game, mean",
+   "unit": "pt",
+   "predicted": 22.14685,
+   "actual": 22.493743744084544,
+   "n": 2713.8474401519616,
+   "lo": 22.119109415965312,
+   "hi": 22.868378072203775,
+   "tolerance": 1,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    21.5765,
+    23.0785
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.sd",
+   "label": "Points per team-game, SD",
+   "unit": "pt",
+   "predicted": 9.26533243210949,
+   "actual": 9.95736010041889,
+   "n": 2713.8474401519616,
+   "lo": 9.69240480660648,
+   "hi": 10.222315394231302,
+   "tolerance": 1,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    8.928725986947976,
+    9.449151866702115
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.share.0-9",
+   "label": "Team-games scoring 0-9",
+   "unit": "pp",
+   "predicted": 7.39,
+   "actual": 8.553745505999396,
+   "n": 2713.8474401519616,
+   "lo": 7.5591817240195605,
+   "hi": 9.665482319118404,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    5.65,
+    8.1
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.share.10-16",
+   "label": "Team-games scoring 10-16",
+   "unit": "pp",
+   "predicted": 20.73,
+   "actual": 18.363446276768457,
+   "n": 2713.8474401519616,
+   "lo": 16.951766992363627,
+   "hi": 19.864565510326827,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    18.7,
+    22.55
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.share.17-23",
+   "label": "Team-games scoring 17-23",
+   "unit": "pp",
+   "predicted": 29.24,
+   "actual": 28.025802985183272,
+   "n": 2713.8474401519616,
+   "lo": 26.367991272278303,
+   "hi": 29.74573812281045,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    28.15,
+    30.7
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.share.24-30",
+   "label": "Team-games scoring 24-30",
+   "unit": "pp",
+   "predicted": 24.224999999999998,
+   "actual": 24.08771774154535,
+   "n": 2713.8474401519616,
+   "lo": 22.516210337085614,
+   "hi": 25.73248196240562,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    23.05,
+    26.1
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.share.31-37",
+   "label": "Team-games scoring 31-37",
+   "unit": "pp",
+   "predicted": 12.814999999999998,
+   "actual": 13.864485682964641,
+   "n": 2713.8474401519616,
+   "lo": 12.615292137040601,
+   "hi": 15.215838224821903,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    11.200000000000001,
+    13.950000000000001
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "points.share.38+",
+   "label": "Team-games scoring 38+",
+   "unit": "pp",
+   "predicted": 5.6000000000000005,
+   "actual": 7.104801807538884,
+   "n": 2713.8474401519616,
+   "lo": 6.197642631337293,
+   "hi": 8.133230334973497,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    4.25,
+    6.45
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "total.mean",
+   "label": "Total points per game, mean",
+   "unit": "pt",
+   "predicted": 44.2937,
+   "actual": 44.98748748816909,
+   "n": 1356.9237200759808,
+   "lo": 44.24762635100217,
+   "hi": 45.727348625336006,
+   "tolerance": 1.5,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    43.153,
+    46.157
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "total.sd",
+   "label": "Total points per game, SD",
+   "unit": "pt",
+   "predicted": 12.724631244558726,
+   "actual": 13.905027799469405,
+   "n": 1356.9237200759808,
+   "lo": 13.381674091036412,
+   "hi": 14.4283815079024,
+   "tolerance": 1.5,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    12.388203703523772,
+    13.081432796142778
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "homeMargin.mean",
+   "label": "Home margin, mean (non-neutral games)",
+   "unit": "pt",
+   "predicted": 1.9219,
+   "actual": 2.0942956266413377,
+   "n": 1133.557095560352,
+   "lo": 1.272396370539667,
+   "hi": 2.9161948827430084,
+   "tolerance": 1.5,
+   "minN": 0,
+   "gateN": 1808,
+   "spread": [
+    1.221,
+    2.692
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "margin.sd",
+   "label": "Margin SD",
+   "unit": "pt",
+   "predicted": 13.33325168104165,
+   "actual": 14.13662330752994,
+   "n": 1356.9237200759808,
+   "lo": 13.604552869454412,
+   "hi": 14.668693745605468,
+   "tolerance": 1.5,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    12.677206277409862,
+    14.099721947613011
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.0",
+   "label": "Games by absolute margin 0",
+   "unit": "pp",
+   "predicted": 0.8200000000000001,
+   "actual": 0.3569125651165628,
+   "n": 1356.9237200759808,
+   "lo": 0.15058931058585623,
+   "hi": 0.843532329083885,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    0.4,
+    1.2
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.1-3",
+   "label": "Games by absolute margin 1-3",
+   "unit": "pp",
+   "predicted": 19.03,
+   "actual": 24.21672131608963,
+   "n": 1356.9237200759808,
+   "lo": 22.012155353911695,
+   "hi": 26.56686571406512,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    17.299999999999997,
+    22
+   ],
+   "status": "accepted"
+  },
+  {
+   "id": "absMargin.share.4-7",
+   "label": "Games by absolute margin 4-7",
+   "unit": "pp",
+   "predicted": 25.580000000000002,
+   "actual": 23.960489896024324,
+   "n": 1356.9237200759808,
+   "lo": 21.764869318833995,
+   "hi": 26.303135651677984,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    23.599999999999998,
+    27.200000000000003
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.8-14",
+   "label": "Games by absolute margin 8-14",
+   "unit": "pp",
+   "predicted": 27.639999999999997,
+   "actual": 22.70528547258396,
+   "n": 1356.9237200759808,
+   "lo": 20.55512269062443,
+   "hi": 25.009560611437877,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    26.1,
+    29.299999999999997
+   ],
+   "status": "accepted"
+  },
+  {
+   "id": "absMargin.share.15-21",
+   "label": "Games by absolute margin 15-21",
+   "unit": "pp",
+   "predicted": 15.98,
+   "actual": 14.981009257111861,
+   "n": 1356.9237200759808,
+   "lo": 13.181058040188177,
+   "hi": 16.97868590523682,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    14.099999999999998,
+    18
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.22+",
+   "label": "Games by absolute margin 22+",
+   "unit": "pp",
+   "predicted": 10.95,
+   "actual": 13.779581493073664,
+   "n": 1356.9237200759808,
+   "lo": 12.04756536130477,
+   "hi": 15.7161065988491,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    9.1,
+    12.4
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "homeWin.rate",
+   "label": "Home win rate, ties as half (non-neutral games)",
+   "unit": "pp",
+   "predicted": 56.11000000000001,
+   "actual": 55.22929004900884,
+   "n": 1133.557095560352,
+   "lo": 52.32168320521231,
+   "hi": 58.10157270836471,
+   "tolerance": 4,
+   "minN": 0,
+   "gateN": 1808,
+   "spread": [
+    53.449999999999996,
+    59.199999999999996
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "drives.perTeamGame",
+   "label": "Drives per team-game",
+   "unit": "drives",
+   "predicted": 11.42555,
+   "actual": 11.011930539076266,
+   "n": 2713.8474401519616,
+   "lo": 10.949751495448625,
+   "hi": 11.074109582703906,
+   "tolerance": 0.4,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    11.2935,
+    11.5455
+   ],
+   "status": "accepted"
+  },
+  {
+   "id": "driveStart.mean",
+   "label": "Mean drive start, yards from own goal",
+   "unit": "yd",
+   "predicted": 30.53725203600702,
+   "actual": 28.678141738787307,
+   "n": 29932.97264626088,
+   "lo": 28.49698615447427,
+   "hi": 28.859297323100343,
+   "tolerance": 1.5,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    30.21353297620093,
+    30.747292576419213
+   ],
+   "status": "accepted"
+  },
+  {
+   "id": "driveResult.share.touchdown",
+   "label": "Drive outcome share, touchdown",
+   "unit": "pp",
+   "predicted": 20.52811462030274,
+   "actual": 21.60088025525542,
+   "n": 29932.97264626088,
+   "lo": 21.138339991535528,
+   "hi": 22.070709073964093,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    19.65938864628821,
+    21.806976134277473
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.fieldGoal",
+   "label": "Drive outcome share, fieldGoal",
+   "unit": "pp",
+   "predicted": 13.963441584868999,
+   "actual": 14.882725916442594,
+   "n": 29932.97264626088,
+   "lo": 14.484023028787746,
+   "hi": 15.290441554686712,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    13.647141477123034,
+    14.295833886749016
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.missedFieldGoal",
+   "label": "Drive outcome share, missedFieldGoal",
+   "unit": "pp",
+   "predicted": 2.891326894547746,
+   "actual": 2.611995891044811,
+   "n": 29932.97264626088,
+   "lo": 2.437301999189203,
+   "hi": 2.79885178217579,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    2.682959224332581,
+    2.9965004374453192
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.punt",
+   "label": "Drive outcome share, punt",
+   "unit": "pp",
+   "predicted": 36.537847193351745,
+   "actual": 36.87183896933621,
+   "n": 29932.97264626088,
+   "lo": 36.32699323791964,
+   "hi": 37.42005400671838,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    35.62811434565958,
+    37.44621059102485
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.turnover",
+   "label": "Drive outcome share, turnover",
+   "unit": "pp",
+   "predicted": 10.665569709992079,
+   "actual": 11.675215505871323,
+   "n": 29932.97264626088,
+   "lo": 11.316330115480863,
+   "hi": 12.043936845464764,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    10.200228330552385,
+    11.11111111111111
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.downs",
+   "label": "Drive outcome share, downs",
+   "unit": "pp",
+   "predicted": 6.8876334180849055,
+   "actual": 5.320438010862595,
+   "n": 29932.97264626088,
+   "lo": 5.071860250163042,
+   "hi": 5.580482656710684,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    6.462748525234869,
+    7.162963925338876
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.endOfHalf",
+   "label": "Drive outcome share, endOfHalf",
+   "unit": "pp",
+   "predicted": 8.006179133608446,
+   "actual": 6.780377174953671,
+   "n": 29932.97264626088,
+   "lo": 6.50107328101104,
+   "hi": 7.070773264724416,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    7.88618600158075,
+    8.110860229335458
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.safety",
+   "label": "Drive outcome share, safety",
+   "unit": "pp",
+   "predicted": 0.5198874452433362,
+   "actual": 0.25652827623339314,
+   "n": 29932.97264626088,
+   "lo": 0.20525596710333086,
+   "hi": 0.320567108842011,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    0.45601452162748485,
+    0.6452730501061019
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "scrimmagePlays.perGame",
+   "label": "Scrimmage plays per game (run, pass, sack, scramble, kneel, spike; no noPlay)",
+   "unit": "plays",
+   "predicted": 128.7275,
+   "actual": 126.59408723925847,
+   "n": 1356.9237200759808,
+   "lo": 126.14226846519263,
+   "hi": 127.04590601332431,
+   "tolerance": 3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    128.285,
+    129.271
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "penalties.supported.perGame",
+   "label": "Accepted penalties per game, supported ids",
+   "unit": "fouls",
+   "predicted": 9.619,
+   "actual": 9.63895930563843,
+   "n": 1356.9237200759808,
+   "lo": 9.451907417208696,
+   "hi": 9.826011194068164,
+   "tolerance": 0.8,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    9.398,
+    9.896
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "penaltyYards.supported.perGame",
+   "label": "Enforced penalty yards per game, supported ids",
+   "unit": "yd",
+   "predicted": 81.0008,
+   "actual": 80.44384841700303,
+   "n": 1356.9237200759808,
+   "lo": 78.57121093215036,
+   "hi": 82.31648590185569,
+   "tolerance": 7,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    79.419,
+    83.182
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "penalties.all.perGame",
+   "label": "Accepted penalties per game, all fouls (known gap)",
+   "unit": "fouls",
+   "predicted": 9.619,
+   "actual": 11.820535121293627,
+   "n": 1356.9237200759808,
+   "lo": 11.606293479208617,
+   "hi": 12.034776763378638,
+   "tolerance": null,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    9.398,
+    9.896
+   ],
+   "status": "not gated"
+  },
+  {
+   "id": "penaltyYards.all.perGame",
+   "label": "Enforced penalty yards per game, all fouls (known gap)",
+   "unit": "yd",
+   "predicted": 81.0008,
+   "actual": 99.5009405457323,
+   "n": 1356.9237200759808,
+   "lo": 97.37729249965919,
+   "hi": 101.62458859180542,
+   "tolerance": null,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    79.419,
+    83.182
+   ],
+   "status": "not gated"
+  },
+  {
+   "id": "turnovers.perTeamGame",
+   "label": "Turnovers per team-game (interceptions and lost fumbles on scrimmage plays)",
+   "unit": "turnovers",
+   "predicted": 1.211,
+   "actual": 1.2661003659259948,
+   "n": 2713.8474401519616,
+   "lo": 1.2227032453045823,
+   "hi": 1.3094974865474074,
+   "tolerance": 0.15,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    1.152,
+    1.2655
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "interceptions.perTeamGame",
+   "label": "Interceptions thrown per team-game",
+   "unit": "ints",
+   "predicted": 0.7969,
+   "actual": 0.7916841625939898,
+   "n": 2713.8474401519616,
+   "lo": 0.757139162375778,
+   "hi": 0.8262291628122015,
+   "tolerance": 0.1,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    0.757,
+    0.836
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "fumblesLost.perTeamGame",
+   "label": "Fumbles lost per team-game (scrimmage plays)",
+   "unit": "fumbles",
+   "predicted": 0.4141,
+   "actual": 0.4744162033320051,
+   "n": 2713.8474401519616,
+   "lo": 0.4486645284296368,
+   "hi": 0.5001678782343735,
+   "tolerance": 0.1,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    0.389,
+    0.4505
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "sacks.perTeamGame",
+   "label": "Sacks taken per team-game",
+   "unit": "sacks",
+   "predicted": 2.53665,
+   "actual": 2.4262781395127933,
+   "n": 2713.8474401519616,
+   "lo": 2.3603304224954664,
+   "hi": 2.49222585653012,
+   "tolerance": 0.25,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    2.4145,
+    2.7085
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "top.sd",
+   "label": "SD of team time of possession",
+   "unit": "s",
+   "predicted": 262.5973928906706,
+   "actual": 268.3033069144722,
+   "n": 2713.8474401519616,
+   "lo": 261.1640269449374,
+   "hi": 275.442586884007,
+   "tolerance": 45,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    250.90710711337059,
+    271.9334191373875
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "top.winnerMean",
+   "label": "Winning team's mean time of possession",
+   "unit": "s",
+   "predicted": 1919.6493244605767,
+   "actual": 1913.7511090491607,
+   "n": 1351.0646310094394,
+   "lo": 1900.6703496142206,
+   "hi": 1926.8318684841008,
+   "tolerance": 45,
+   "minN": 0,
+   "gateN": 2086,
+   "spread": [
+    1902.5236180904524,
+    1932.4828282828282
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "driveDuration.mean",
+   "label": "Mean drive duration",
+   "unit": "s",
+   "predicted": 156.3369772133508,
+   "actual": 164.4679144740742,
+   "n": 29932.97264626088,
+   "lo": 163.18308722224603,
+   "hi": 165.75274172590238,
+   "tolerance": 10,
+   "minN": 0,
+   "gateN": 46577,
+   "spread": [
+    154.6995799229137,
+    158.09930490990394
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "overtime.rate",
+   "label": "Overtime rate",
+   "unit": "pp",
+   "predicted": 4.58,
+   "actual": 5.735052036092559,
+   "n": 1356.9237200759808,
+   "lo": 4.618311067003171,
+   "hi": 7.101723278373583,
+   "tolerance": 2,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    4.1000000000000005,
+    5.4
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "tie.rate",
+   "label": "Tie rate",
+   "unit": "pp",
+   "predicted": 0.8200000000000001,
+   "actual": 0.3569125651165628,
+   "n": 1356.9237200759808,
+   "lo": 0.15058931058585623,
+   "hi": 0.843532329083885,
+   "tolerance": 0.75,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    0.4,
+    1.2
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "timeouts.perTeamGame",
+   "label": "Timeouts used per team-game",
+   "unit": "timeouts",
+   "predicted": 3.49735,
+   "actual": 3.6647958861762304,
+   "n": 2713.8474401519616,
+   "lo": 3.6070847888825317,
+   "hi": 3.722506983469929,
+   "tolerance": 0.3,
+   "minN": 0,
+   "gateN": 4190,
+   "spread": [
+    3.4315,
+    3.536
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "fourthDownGo.perGame",
+   "label": "4th-down go attempts per game",
+   "unit": "plays",
+   "predicted": 3.0805,
+   "actual": 2.6766568297406645,
+   "n": 1356.9237200759808,
+   "lo": 2.5879744572987744,
+   "hi": 2.7653392021825547,
+   "tolerance": 0.4,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    2.961,
+    3.179
+   ],
+   "status": "accepted"
+  },
+  {
+   "id": "punts.perGame",
+   "label": "Punts per game",
+   "unit": "punts",
+   "predicted": 8.3862,
+   "actual": 8.164653999531708,
+   "n": 1356.9237200759808,
+   "lo": 7.990867117011926,
+   "hi": 8.33844088205149,
+   "tolerance": 0.4,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    8.185,
+    8.568
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "fieldGoalAttempts.perGame",
+   "label": "Field goal attempts per game",
+   "unit": "kicks",
+   "predicted": 3.8546,
+   "actual": 3.8575285368108165,
+   "n": 1356.9237200759808,
+   "lo": 3.76410238547291,
+   "hi": 3.950954688148723,
+   "tolerance": 0.3,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    3.753,
+    3.926
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "twoPointTries.perGame",
+   "label": "Two-point tries per game",
+   "unit": "tries",
+   "predicted": 0.3777,
+   "actual": 0.4643019109037174,
+   "n": 1356.9237200759808,
+   "lo": 0.4262339697345967,
+   "hi": 0.5023698520728381,
+   "tolerance": 0.1,
+   "minN": 0,
+   "gateN": 2095,
+   "spread": [
+    0.334,
+    0.412
+   ],
+   "status": "pass"
+  },
+  {
+   "id": "onside.perGame",
+   "label": "Onside attempts per game (gated only with at least 30 real attempts)",
+   "unit": "kicks",
+   "predicted": 0.2179,
+   "actual": 0.1989425198005662,
+   "n": 1356.9237200759808,
+   "lo": 0.17523862544367672,
+   "hi": 0.2226464141574557,
+   "tolerance": 0.05,
+   "minN": 30,
+   "gateN": 416.7845789821862,
+   "spread": [
+    0.199,
+    0.243
+   ],
+   "status": "pass"
+  }
+ ],
+ "diagnostics": {
+  "diag.final2FieldGoalAttempts.leading1-3": {
+   "predicted": 0.0263,
+   "actual": 0.013642071523213978,
+   "n": 2095
+  },
+  "diag.final2FieldGoalAttempts.leading4-8": {
+   "predicted": 0.0428,
+   "actual": 0.03554562879463523,
+   "n": 2095
+  },
+  "diag.final2FieldGoalAttempts.tied": {
+   "predicted": 0.027,
+   "actual": 0.06235820304104928,
+   "n": 2095
+  },
+  "diag.final2FieldGoalAttempts.trailing1-3": {
+   "predicted": 0.0433,
+   "actual": 0.09337633523778152,
+   "n": 2095
+  },
+  "diag.final2FieldGoalAttempts.trailing4-8": {
+   "predicted": 0.0127,
+   "actual": 0,
+   "n": 2095
+  },
+  "diag.late4thFieldGoal.leading1-3": {
+   "predicted": 0.7970049916805324,
+   "actual": 0.792537386697894,
+   "n": 103
+  },
+  "diag.late4thFieldGoal.leading4-8": {
+   "predicted": 0.817989417989418,
+   "actual": 0.8219586442563703,
+   "n": 194
+  },
+  "diag.late4thFieldGoal.tied": {
+   "predicted": 0.7105263157894737,
+   "actual": 0.8913039553434564,
+   "n": 107
+  },
+  "diag.late4thFieldGoal.trailing1-3": {
+   "predicted": 0.9549114331723028,
+   "actual": 0.9497323638434633,
+   "n": 163
+  },
+  "diag.late4thFieldGoal.trailing4-8": {
+   "predicted": 0.027332704995287466,
+   "actual": 0.0736806024261109,
+   "n": 232
+  },
+  "diag.timeoutRate.defense.0.G5": {
+   "predicted": 0.03897254207263064,
+   "actual": 0.048789074379923046,
+   "n": 871
+  },
+  "diag.timeoutRate.defense.0.GF": {
+   "predicted": 0.12879330943847073,
+   "actual": 0.14332868821231393,
+   "n": 1394
+  },
+  "diag.timeoutRate.defense.L.G5": {
+   "predicted": 0.013740868737454214,
+   "actual": 0.013675901593704031,
+   "n": 10196
+  },
+  "diag.timeoutRate.defense.L.GF": {
+   "predicted": 0.06519510409038602,
+   "actual": 0.06980237464836662,
+   "n": 9681
+  },
+  "diag.timeoutRate.defense.T.G5": {
+   "predicted": 0.17132980988402674,
+   "actual": 0.22274688374320709,
+   "n": 7747
+  },
+  "diag.timeoutRate.defense.T.GF": {
+   "predicted": 0.20602950195280978,
+   "actual": 0.18979824400275142,
+   "n": 5072
+  },
+  "diag.timeoutRate.offense.0.G5": {
+   "predicted": 0.0283436669619132,
+   "actual": 0.024721421573359454,
+   "n": 871
+  },
+  "diag.timeoutRate.offense.0.GF": {
+   "predicted": 0.08888888888888889,
+   "actual": 0.13266950788738946,
+   "n": 1394
+  },
+  "diag.timeoutRate.offense.L.G5": {
+   "predicted": 0.032788117125466525,
+   "actual": 0.034325087654519734,
+   "n": 7747
+  },
+  "diag.timeoutRate.offense.L.GF": {
+   "predicted": 0.06620186565959782,
+   "actual": 0.06408383844893524,
+   "n": 5072
+  },
+  "diag.timeoutRate.offense.T.G5": {
+   "predicted": 0.018293566210707116,
+   "actual": 0.019304904254779858,
+   "n": 10196
+  },
+  "diag.timeoutRate.offense.T.GF": {
+   "predicted": 0.060843184433518153,
+   "actual": 0.05978576392833245,
+   "n": 9681
+  },
+  "diag.timeoutsPerTeamGame.defense.0.G5": {
+   "predicted": 0.0066,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.defense.0.GF": {
+   "predicted": 0.02695,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.defense.L.G5": {
+   "predicted": 0.0332,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.defense.L.GF": {
+   "predicted": 0.1558,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.defense.T.G5": {
+   "predicted": 0.342,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.defense.T.GF": {
+   "predicted": 0.31915,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.offense.0.G5": {
+   "predicted": 0.0048,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.offense.0.GF": {
+   "predicted": 0.0186,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.offense.L.G5": {
+   "predicted": 0.06545,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.offense.L.GF": {
+   "predicted": 0.10255,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.offense.T.G5": {
+   "predicted": 0.0442,
+   "actual": null,
+   "n": 0
+  },
+  "diag.timeoutsPerTeamGame.offense.T.GF": {
+   "predicted": 0.1454,
+   "actual": null,
+   "n": 0
+  }
+ },
+ "slice": [
+  {
+   "league": 0,
+   "seed": 2712672459,
+   "digest": "bae150991c07d77f22328f2706e3ce35e3132e2ac54812be0795ed812cbdc219"
+  },
+  {
+   "league": 0,
+   "seed": 3847141112,
+   "digest": "2a53467530411abc0721d45461c18b3983dd8c13054fc3a4e0a19945c7f86cb9"
+  },
+  {
+   "league": 0,
+   "seed": 3407606099,
+   "digest": "6f6f6de29101b02a46a35cac752b31eae4382c804fa79ecb430d6607ee32a1e0"
+  },
+  {
+   "league": 0,
+   "seed": 2670789213,
+   "digest": "3e768f586f7d4c66c44457f9657b4edf3b2dbd14e0ae845b92d39a18a98cf3f7"
+  },
+  {
+   "league": 0,
+   "seed": 4224352585,
+   "digest": "f029a288cd4632e907630640d75a5da22e82bced19c61169f8c220c741c60dde"
+  },
+  {
+   "league": 0,
+   "seed": 724044511,
+   "digest": "e917f11cbd37626e68851ace1b7cd657cdd3109fd19fd40f5b0255af5485663c"
+  },
+  {
+   "league": 0,
+   "seed": 598961040,
+   "digest": "73da9a8a736e8f16363b72198d1edb34ea5ce73017f005f4e41fc22241565e7b"
+  },
+  {
+   "league": 0,
+   "seed": 1627898064,
+   "digest": "499310543fd4c6504c11b253c9d2db16d491a0a993c84c8f8a0d8e2478965c63"
+  },
+  {
+   "league": 0,
+   "seed": 1477912108,
+   "digest": "50628e0c67560688c50b9ece2d8d319e4cb0f47790cde191252ce7ecaab0403c"
+  },
+  {
+   "league": 0,
+   "seed": 1408970948,
+   "digest": "5d562949a1f53a3b769195d7900572fd3bf9dbf7943b60ff7d1599e9814bec87"
+  },
+  {
+   "league": 0,
+   "seed": 1022805977,
+   "digest": "802c8d001ec2dc9d10e5eb1ac762425dead84b23737c90e48bb538697ee6ec13"
+  },
+  {
+   "league": 0,
+   "seed": 3078140367,
+   "digest": "38b48b8315af4a6004ae0a20dd64abf698f10caf408f1e67a5fca803b06407b2"
+  },
+  {
+   "league": 0,
+   "seed": 3281814147,
+   "digest": "465ae711494cf7896267a6b02373185a146275bc22bd6a9dda3e4b20f11b7ed7"
+  },
+  {
+   "league": 0,
+   "seed": 3592981725,
+   "digest": "2df0b4e6fdd84906baf23f45d194d78a09b2c3872e7ae8708aed65ddb37dd060"
+  },
+  {
+   "league": 0,
+   "seed": 2831352325,
+   "digest": "a6031918482f31f6afb5971bd7b6264161a29fe79bea6c2a7c586b8d11834277"
+  },
+  {
+   "league": 0,
+   "seed": 4066709420,
+   "digest": "86905e4927f6e3dcdf568e367b46c422cf672b3fab1d28d0d24f78c4490b416f"
+  },
+  {
+   "league": 0,
+   "seed": 152149727,
+   "digest": "b5767372acf900c2ddcdfecf8a677f7d41c3b0205aaca41e6557123ab819847f"
+  },
+  {
+   "league": 0,
+   "seed": 2187255297,
+   "digest": "0ea8006f6432b2ba7a8ff79b23682c8ae39f083a45f9ee1af15fa1a803c4052d"
+  },
+  {
+   "league": 0,
+   "seed": 1610276544,
+   "digest": "adaf58de8e6faf435404bf485d47b9e73494d57770f3ccd1734099ff910ca20f"
+  },
+  {
+   "league": 0,
+   "seed": 1130808176,
+   "digest": "0cc043a2891e5bd165fa40a04e538e53eb7a969a5cbc4bdf7c2261f82154eb27"
+  },
+  {
+   "league": 0,
+   "seed": 3643249893,
+   "digest": "bbba618a62af61710809439357662b8a018a4549020c4b30696dde0f5146ee65"
+  },
+  {
+   "league": 0,
+   "seed": 3274031038,
+   "digest": "26a11cb8b24aa8229daef978a6ba654ca6fec34638f18f78d786f2ab5115a0ee"
+  },
+  {
+   "league": 0,
+   "seed": 576545838,
+   "digest": "2837bdfc15de4d77d5e171c18f7524df93a069d3034a5d8be72302a76bfd66e4"
+  },
+  {
+   "league": 0,
+   "seed": 3382927940,
+   "digest": "7f8b5363c1f35431ddec7b5f50e18dd513c40bd0e2d894dafa987aa414f40e13"
+  },
+  {
+   "league": 0,
+   "seed": 1953512714,
+   "digest": "4f8153c58273baf66eaaeea08a44bc3a601a74a4836b10eda2468b2346daea2c"
+  },
+  {
+   "league": 0,
+   "seed": 286070046,
+   "digest": "597f2a6820befa602f2a0cf0b4448fabcfc794a876cada0f9b4de1b110fcc67c"
+  },
+  {
+   "league": 0,
+   "seed": 1064318269,
+   "digest": "76f53d5920f09db59c86c0ce999fd44c7e00c148b17993400aa1127ede00e526"
+  },
+  {
+   "league": 0,
+   "seed": 292841647,
+   "digest": "7224b3296c0662db8e702519d5530d364c850b31298fd1bb1801619e9ae5adcf"
+  },
+  {
+   "league": 0,
+   "seed": 1027216863,
+   "digest": "ac487328abbdca02d73c7ee60ebf8dccdc51106c62246005f2d81d2982293618"
+  },
+  {
+   "league": 0,
+   "seed": 787080275,
+   "digest": "16708a8c607c7840def2fed849264029c636425dd56b5ec62fe7d7c9ccbecb98"
+  },
+  {
+   "league": 0,
+   "seed": 2676338457,
+   "digest": "a87a2ceb0d95cf475dc666538ba279841faeb092adb634b200c36cd0bb86c4d7"
+  },
+  {
+   "league": 0,
+   "seed": 4019604361,
+   "digest": "89d8ad0d9d5ab696e99d246d443015f8f853c4428eba26761267053d125ac063"
+  },
+  {
+   "league": 0,
+   "seed": 649863814,
+   "digest": "4faddab17ebbca586334afad83f3fec7a8d866cdf55a28144fe442997ff8cd5f"
+  },
+  {
+   "league": 0,
+   "seed": 3576637935,
+   "digest": "07134ef9ca771192f3727a3da935d4c03c262b3e4ffeca4bf28fc1bba231fbab"
+  },
+  {
+   "league": 0,
+   "seed": 487678350,
+   "digest": "28448ad6c1b137020633a29a7d91a34de263a62624daaa9161970642b4d2ce4c"
+  },
+  {
+   "league": 0,
+   "seed": 1789845758,
+   "digest": "e6d348b868e22a1d7a9696f1cde950c193a6dd2e0e9a1634bbed18efc61edd60"
+  },
+  {
+   "league": 0,
+   "seed": 353380341,
+   "digest": "8768c115210ace912187961c2392d17080b65fdf9599053f7077c61b017fef28"
+  },
+  {
+   "league": 0,
+   "seed": 2545415452,
+   "digest": "5c514d074bbde1d33013de999f7498f9e64b01b650b407c516df22973f8b93c6"
+  },
+  {
+   "league": 0,
+   "seed": 1191601076,
+   "digest": "1fa7efbdd459caff23563a51744efbbf578be10c1a3d64e4c53eeb8174122971"
+  },
+  {
+   "league": 0,
+   "seed": 1970881139,
+   "digest": "0e4dad6146fb2598c3253a04b6e08919f83b1fff32a8152a08d3c9fb9872a25f"
+  },
+  {
+   "league": 0,
+   "seed": 2776347315,
+   "digest": "8c06619cbc871490ed99159d0bb9fe8b498d45c3b90447ec98b6a321b4093fff"
+  },
+  {
+   "league": 0,
+   "seed": 1754848490,
+   "digest": "ebda0a4777258afdd63c93392aad3d334bd0e116ad40eeae2651ac0a0564dda7"
+  },
+  {
+   "league": 0,
+   "seed": 1801003150,
+   "digest": "74ac8ee61322f837548c991b469ffa07dc1fa1f54e3003dfc6b274560db3c547"
+  },
+  {
+   "league": 0,
+   "seed": 1854881354,
+   "digest": "2a602f329a48a018e3d64c6da3085dc0ad8421b368877cae98eb790f8ebdf5d4"
+  },
+  {
+   "league": 0,
+   "seed": 2527968324,
+   "digest": "0eaa7a8c9e3cdbc5043bdf1ca57d87fe7a4b8c75e5c0c436199eb92dd73d753d"
+  },
+  {
+   "league": 0,
+   "seed": 147723687,
+   "digest": "c24499633c9f43511ad2babdfb5511b117a3bd8612cba9e6daf2dc7b4130ec8f"
+  },
+  {
+   "league": 0,
+   "seed": 1273520479,
+   "digest": "6b9da71a7e524939a4975f68adc7604c5930b49022e6e5b65d403490cb2ab2af"
+  },
+  {
+   "league": 0,
+   "seed": 1910127695,
+   "digest": "c418369775c26f0af2fabbd499843bfe6fb329b39f6882b92cb5b17df4eb0db6"
+  },
+  {
+   "league": 0,
+   "seed": 936932260,
+   "digest": "3a63976dd2c263b7de06ceac195547b06e1cc30fd1a1e9595d7edbd10912583e"
+  },
+  {
+   "league": 0,
+   "seed": 447936078,
+   "digest": "340fd3dd97fbca962efb4ee4a62cd740cf149d1b0748ae1888eda5d91ea5ae2c"
+  },
+  {
+   "league": 0,
+   "seed": 741426671,
+   "digest": "092174d313cf10b0a62339ee241b59870405ee30a21a92869eeec6606e3a6d12"
+  },
+  {
+   "league": 0,
+   "seed": 391438501,
+   "digest": "a8a3988f06073970746c9cc26db902daca53c1ef658b36935175a507a8afbc2c"
+  },
+  {
+   "league": 0,
+   "seed": 2826644324,
+   "digest": "ffb8505da29fb2297f4f053b523f8d27b163a56c73c3f3734a615f89f020897e"
+  },
+  {
+   "league": 0,
+   "seed": 2992705166,
+   "digest": "0a327e8f46eaf2898a8a627caca6bba2d60229367946738b17ba7c3abfda96ad"
+  },
+  {
+   "league": 0,
+   "seed": 3420847842,
+   "digest": "27e6f250493901edc40121cb581609f917363db13091b281b377c5aa60ff1aa8"
+  },
+  {
+   "league": 0,
+   "seed": 1089188264,
+   "digest": "ba5cebb6757dd44a2727c766b2c6210596fe4591281371c0a41f83ad6a5e9b27"
+  },
+  {
+   "league": 0,
+   "seed": 1407068336,
+   "digest": "0fea481e0829d1cab5a05b9a7d4c5b9c8f7a07d215d6c22da6339a46942f8cdf"
+  },
+  {
+   "league": 0,
+   "seed": 2052693945,
+   "digest": "5b569e8f9091dbbc88a0e12fcfd83cca8ae739304f1303446baf93f3e97e2579"
+  },
+  {
+   "league": 0,
+   "seed": 3085240318,
+   "digest": "b894672174e1a7df4a2917df2228a9013bd79508901f5874cce624fc652fe52f"
+  },
+  {
+   "league": 0,
+   "seed": 1855725337,
+   "digest": "29595ef42ea1d2b395e184ffcb80406c81037126460fc51c665bba9a57e1eb3a"
+  },
+  {
+   "league": 0,
+   "seed": 4005189698,
+   "digest": "d5aeed73fd7424eba02cfd1c68c0656851647d900db9d38aefe7b85c9c8fa031"
+  },
+  {
+   "league": 0,
+   "seed": 1997282292,
+   "digest": "6a26d28798b2341cf34b38fb0398fb7c9c4b1d1b65dd8e58fa00794d5d975454"
+  },
+  {
+   "league": 0,
+   "seed": 2894785797,
+   "digest": "2885d621e45a407c8fe62fc37d2a65523a48fb9c8893fcf9e032fe59aebf4585"
+  },
+  {
+   "league": 0,
+   "seed": 36787160,
+   "digest": "58de460e8a42a671e8998aea5ac17910736cc66b912ba2490466814c67550163"
+  },
+  {
+   "league": 0,
+   "seed": 3792451561,
+   "digest": "f67680401cda9eb80e44c07047858aad1a086c86f0d227f094cdb4e6d9c96885"
+  },
+  {
+   "league": 0,
+   "seed": 1081014364,
+   "digest": "a4ffdc95811bbbf9f87f7bacf108cba65cb3c2b677ee41a1bc426fda42c8acda"
+  },
+  {
+   "league": 0,
+   "seed": 333759779,
+   "digest": "891d2e13afb91317d6c34c38eab8587ec6e7bc49b1170410a18227443cb35bd3"
+  },
+  {
+   "league": 0,
+   "seed": 2829943582,
+   "digest": "8ebf83859313bf5ba8a88e705518dcf9fc32b1c722d03af928e491731bd7f863"
+  },
+  {
+   "league": 0,
+   "seed": 4280090098,
+   "digest": "d7eaab52e5ed6ba07fd7d18a43ded3325fdd97d74b0cb0cfd6a11999df7a4a56"
+  },
+  {
+   "league": 0,
+   "seed": 958451780,
+   "digest": "2a329935e5c4718aec2b78e33e72c8cefc5d04aff2f2b9d1455fc3a339b3c1bb"
+  },
+  {
+   "league": 0,
+   "seed": 2000086597,
+   "digest": "a081f5e56f67afb2afe13eea6665e2d96c9f890d5c0e51a6396a710d8e89eba5"
+  },
+  {
+   "league": 0,
+   "seed": 1486908495,
+   "digest": "209cbb2035773b133d9f17134b87ce73c16c56c5fff7b1362d647c689bb4bac7"
+  },
+  {
+   "league": 0,
+   "seed": 1831153992,
+   "digest": "57e6d4042e5d1596e047b7aa528e72c6aa198f061b6c95b37fcda63824cd6e99"
+  },
+  {
+   "league": 0,
+   "seed": 238049812,
+   "digest": "7f2dac0adc2c87e19b87a948aa90cc9a7a9aa4d8e8b21c608e6da2621f79aeb6"
+  },
+  {
+   "league": 0,
+   "seed": 4024165539,
+   "digest": "4c2e8e695ce29c53989bc55abfaace9b8f2a8b6826c963290a37453f073b06cf"
+  },
+  {
+   "league": 0,
+   "seed": 2510156772,
+   "digest": "7dd835a836282a12ed99658c5d4c58907dfb39482697e0c296022ceac61d7d58"
+  },
+  {
+   "league": 0,
+   "seed": 3805406666,
+   "digest": "16bba4c8930c4ea76dcdcfc07c3819dac84aad520534c1b4dd3138d40f5d3a29"
+  },
+  {
+   "league": 0,
+   "seed": 1884307168,
+   "digest": "85ad2b0af04c03c4633bc5d06a382921fe4b983f81627980af7c5c77b8e39ac7"
+  },
+  {
+   "league": 0,
+   "seed": 1179408871,
+   "digest": "7926d5f4152ec59ee03642836f1a750e266964c98a50ece610a1d41410df1c4a"
+  },
+  {
+   "league": 0,
+   "seed": 3663338130,
+   "digest": "903559afc1f41bec2a2c6fc010be5e729c1d682afdef50788ab8e5e51af5d6e9"
+  },
+  {
+   "league": 0,
+   "seed": 3714554975,
+   "digest": "eed40c5205ce237f92e6d69a2525f6158e49e6b010e873fd5367a7f096e21c89"
+  },
+  {
+   "league": 0,
+   "seed": 1754566289,
+   "digest": "0d3aaa0be028ba836a9a684bbd4cefb5da0a9ee7e89090516213f205a39537dc"
+  },
+  {
+   "league": 0,
+   "seed": 159378357,
+   "digest": "7c399a03d41c48ea364d1d9ed98bbdaa11dab8af2b37659fd38d139b6f0ebcb3"
+  },
+  {
+   "league": 0,
+   "seed": 3105490119,
+   "digest": "ee60c1a84598af2548916aa3e2929b6ef0d3f01d9e1ebc4240e0eb4b7cdfcfc4"
+  },
+  {
+   "league": 0,
+   "seed": 1102213185,
+   "digest": "677118e9050bcb42cee8fa2890b39332bf1f6da08ef9ec17df23fa92bac5a1fe"
+  },
+  {
+   "league": 0,
+   "seed": 3515860326,
+   "digest": "1a9eed7c3320150da084e2d83877e772d3a22e95a65c64c7282cbc6014db9a47"
+  },
+  {
+   "league": 0,
+   "seed": 3146288538,
+   "digest": "1dc05ae55654bc54f616d21182f64a4ef66b081fc3c4fdb93eb45ad0a13c845e"
+  },
+  {
+   "league": 0,
+   "seed": 1105948743,
+   "digest": "4ef2815ea607761c8376185fe9c281d06aa53cb62286acacd8627d0a278e1e52"
+  },
+  {
+   "league": 0,
+   "seed": 1723080200,
+   "digest": "ac58ce313b628582583db6c77cdba6a97154a86699ba4aabed863f93d5594b49"
+  },
+  {
+   "league": 0,
+   "seed": 2502615488,
+   "digest": "df33994b6132ffebb7ea2c382d80857600281cc64e6ca35014b7ceefd2157a22"
+  },
+  {
+   "league": 0,
+   "seed": 2597167039,
+   "digest": "dd1f5aa6e0f337319c152fd2cf30dc1073f13a641c986b781139c97c66959004"
+  },
+  {
+   "league": 0,
+   "seed": 879006724,
+   "digest": "6051e6479c68d0bd776b91874a9eb3de99cc9afeada23cff201aa604a2050aa9"
+  },
+  {
+   "league": 0,
+   "seed": 2970262992,
+   "digest": "d3d4d845f3d7b9e2217b39e5160ff959bf2e42816011bc80d839cf49e834d4a7"
+  },
+  {
+   "league": 0,
+   "seed": 3862600457,
+   "digest": "2dd6b21c2dcf521c8148dc9f17a5acb63092d964a29d7a790bf73ef1af789e4d"
+  },
+  {
+   "league": 0,
+   "seed": 4131670962,
+   "digest": "620cc55b2c423144c3c62d02b31679b456c2b507356c4e280c10a5f472708423"
+  },
+  {
+   "league": 0,
+   "seed": 3674647182,
+   "digest": "ad4a5a8cc8795fcdb2295025faeaafe282c5f90224e2b82bfa1033c068397359"
+  },
+  {
+   "league": 0,
+   "seed": 3848441993,
+   "digest": "746b24af103cd7ed4104c9efe64baeedae20fe71ebda7eade1b6b800da0b1d44"
+  },
+  {
+   "league": 0,
+   "seed": 4239452871,
+   "digest": "43866e462158c8290f0a13ffc3df847e464a9d24ee3b5f0b321ac16646bd3cf4"
+  },
+  {
+   "league": 0,
+   "seed": 3324515945,
+   "digest": "94c02164c1de407fc75aa8d86d45d80e6fd2888aad36c42e6764013cccc9f65e"
+  },
+  {
+   "league": 0,
+   "seed": 3314826078,
+   "digest": "25d184768da65622cee17665626c6196482500b9593253e5cfa861bc82ac7340"
+  },
+  {
+   "league": 0,
+   "seed": 2091479954,
+   "digest": "941ad214beb77afff1b350fce420dd43f68a7784080818ec1564d0f6d4acc5cd"
+  },
+  {
+   "league": 0,
+   "seed": 48114231,
+   "digest": "c569ecaf752205c700c09d90f13d34cc2ae94a1ea073947f71e96b79688145b1"
+  },
+  {
+   "league": 0,
+   "seed": 3804989358,
+   "digest": "986fd5082607acec54e113f762d6c838efe553b9434667a00d50f328a7312d34"
+  },
+  {
+   "league": 0,
+   "seed": 3829265243,
+   "digest": "5b645e02389537f309f395bb6e9a845469b5bd43a1f179c798dc1584091ab8f8"
+  },
+  {
+   "league": 0,
+   "seed": 2199645768,
+   "digest": "831bf8f873af7da4d199513719421e6eb536092f5b82c7b24f1bb9a1bea1786f"
+  },
+  {
+   "league": 0,
+   "seed": 2995474225,
+   "digest": "b16fd0d754eedc04b90a5dc9b9646f104442b123fd786bb123663ef2a552ffc0"
+  },
+  {
+   "league": 0,
+   "seed": 1023209274,
+   "digest": "91485e0db4b02ccfe85b2b58d3138adfd8b03e90dd7d4e7c38ced79a06f09ddf"
+  },
+  {
+   "league": 0,
+   "seed": 3524086831,
+   "digest": "69e4823a913bfaa0274bef85ebe609f09f7c341e2c0ce4309dc0692455e1bcf9"
+  },
+  {
+   "league": 0,
+   "seed": 1888114946,
+   "digest": "7f5d8fe9451285b4f9532f18219ab681b792b2cd308745db59dccdd2d8f7581c"
+  },
+  {
+   "league": 0,
+   "seed": 2076503902,
+   "digest": "384082829b92db7f031de307376573f07e5cb4f4bf78f86e18f6944252bc9c47"
+  },
+  {
+   "league": 0,
+   "seed": 1981810077,
+   "digest": "d6ccaf1f2724387d562261fbd7a457a6725f47b7bb67bde7117684e2e7db3424"
+  },
+  {
+   "league": 0,
+   "seed": 181365880,
+   "digest": "ee767918162c614d9221fd3e65c800f9f56597610ddeacc0866eaec8ec7118cf"
+  },
+  {
+   "league": 0,
+   "seed": 1181636622,
+   "digest": "b2ed733a37a04dee3412201da6ad5e76dc2aecc1a864162b6db7fde53465d79c"
+  },
+  {
+   "league": 0,
+   "seed": 243252175,
+   "digest": "cc827b9b7280ad2543373b63fbc60094893f2bb86ba4aba821d6e04e130d53da"
+  },
+  {
+   "league": 0,
+   "seed": 28127728,
+   "digest": "8a3147d66aae153662c82c6eb5f48c7c82b7b468ca4f94ea5d393e6e9710a0bb"
+  },
+  {
+   "league": 0,
+   "seed": 3446277527,
+   "digest": "bd1db46d829bda709d37b91c5b12786219b3596eae6f6fdb97dc7f12fb3feb5f"
+  },
+  {
+   "league": 0,
+   "seed": 4040501194,
+   "digest": "fd9548816d9ac2ab6ab70726ba536e3e6250e0dedbcdbc5d4503b91738785a2a"
+  },
+  {
+   "league": 0,
+   "seed": 3903837577,
+   "digest": "1bc872a8223e46b32add8cbf4bbc2bb12cd629f98b83c619ebccca5eb3bf2e4c"
+  },
+  {
+   "league": 0,
+   "seed": 976295095,
+   "digest": "e63c1b7fc513f7e26714d3defc9de6aaea3bc3e6cad2357a254ab835722eac09"
+  },
+  {
+   "league": 0,
+   "seed": 3564642432,
+   "digest": "9d772816f9ae146f525fb8a14e7440131bf6e001e46a11ef022d127efe204e47"
+  },
+  {
+   "league": 0,
+   "seed": 1122635706,
+   "digest": "00ddb1a77dc2bf463dda620a2f2463d4927b15387b17ecb7efe8e225efe78d56"
+  },
+  {
+   "league": 0,
+   "seed": 3416898544,
+   "digest": "c56c12b6b7f61e7a7483b55b2a26b85d9cbe6577a891a91868663c2553638623"
+  },
+  {
+   "league": 0,
+   "seed": 822544165,
+   "digest": "9de05ed27bbe9d363c85a1872c5871baa0ca3e6ecb081d45a63fc52238550c0d"
+  },
+  {
+   "league": 0,
+   "seed": 219035323,
+   "digest": "3cd9c66debd3c488ef08a9ff2ae1224be7a8e01a507342ae12ff4a4f80001459"
+  },
+  {
+   "league": 0,
+   "seed": 2348985796,
+   "digest": "389fb6ac6fd2957aa82cd9852680dcc514e4251bbe9bf2cf614217ff58a0890d"
+  },
+  {
+   "league": 0,
+   "seed": 2302665691,
+   "digest": "7a891d0efaa01f9aa9b9965b7d742d7ddf0c8e86d6efcb675c6c64738bb42768"
+  },
+  {
+   "league": 0,
+   "seed": 2180804831,
+   "digest": "3a2699fdaa268991979286ed07bf21599f4d0a3503e5904616bfccaf5b60f003"
+  },
+  {
+   "league": 0,
+   "seed": 1030128286,
+   "digest": "9e9a5c1538646790f64fcf84109887fc54c5a38e449dfa612b341b1c0394bbf9"
+  },
+  {
+   "league": 0,
+   "seed": 2044694848,
+   "digest": "eb4faecdc0559042bf874557105e922fd71700150d0296cdd0968b1bd8a16a79"
+  },
+  {
+   "league": 0,
+   "seed": 874129410,
+   "digest": "9e19c0bcf4db5b0d5a6e63241c50e511b6a1357a9828571264aa71d9d7938333"
+  },
+  {
+   "league": 0,
+   "seed": 433270168,
+   "digest": "2b334cb3b44cdd562f4409e2b7cb74da6ef4b521cd7d2aac3c536150837cafaa"
+  },
+  {
+   "league": 0,
+   "seed": 4273416067,
+   "digest": "9d16d77badbe849a7b2dede7d8cf2ab65b4198699394d1a282db3fae40141c9c"
+  },
+  {
+   "league": 0,
+   "seed": 155440011,
+   "digest": "db14db406fa8d5202f844809f0d11a626d39328df0c4ec3faf24c71b18f647d8"
+  },
+  {
+   "league": 0,
+   "seed": 2472534087,
+   "digest": "a18504e444512ce3bb2672343b42abe284f6e81f5f2f35c55de7804d636a0c75"
+  },
+  {
+   "league": 0,
+   "seed": 1837300553,
+   "digest": "71951835901bad6fcaae6b7b3c11ddc8615fa13a166fad8e24987f12adecc012"
+  },
+  {
+   "league": 0,
+   "seed": 4033864252,
+   "digest": "bc4801f40d2c8776efcae09e4e275f0d022add20ac056cd1a151ffcedabbee81"
+  },
+  {
+   "league": 0,
+   "seed": 3303935376,
+   "digest": "0ed7961c532112ee3d5498af4cb3bc1ccba2cb975be2082e5689b72cc8ed180a"
+  },
+  {
+   "league": 0,
+   "seed": 333113564,
+   "digest": "bd334757bd4be6ca486b67fae0ca17c8b583bf22714fc53af718ea4dc4b8a252"
+  },
+  {
+   "league": 0,
+   "seed": 3543800576,
+   "digest": "d81948725ccd3fc43ab96159b47a4ac02842936dfa3811eea9087dc6afc77783"
+  },
+  {
+   "league": 0,
+   "seed": 676648077,
+   "digest": "244659c8897e78868c574394b549c1c1f51343cdb7c01083f5d409db521598fc"
+  },
+  {
+   "league": 0,
+   "seed": 2319608273,
+   "digest": "3d07c6a9cb8272d480c4cc850325e068a350fc87cf8cb511851464fcf15eb0e0"
+  },
+  {
+   "league": 0,
+   "seed": 208194744,
+   "digest": "69f3f4a09dee7f1b84db9fcc950f3a5b8062831876b5239e790d230ae2ac253c"
+  },
+  {
+   "league": 0,
+   "seed": 3345638877,
+   "digest": "cfe48f5693a7ff4ccfd72a587e4e01cd84e4dc6abe4cfb6d9fa34c29170b71d3"
+  },
+  {
+   "league": 0,
+   "seed": 3999715564,
+   "digest": "3e35e6f901a86eba0543d15d0af71003a6738b45fcc5f809255e987ee94219b8"
+  },
+  {
+   "league": 0,
+   "seed": 1815460392,
+   "digest": "8d93ecc6c25528e4362322a5ee39c358854aed50156ed960dad1cb3cb5895c0e"
+  },
+  {
+   "league": 0,
+   "seed": 1716631895,
+   "digest": "e69eeccef53ff1d77a9499f96e4135eceefef26d27b023975c956451f0801fe6"
+  },
+  {
+   "league": 0,
+   "seed": 1677610106,
+   "digest": "2c938636678a1cd166496bc0080c508032607688f4fc69074590f3a2cc526477"
+  },
+  {
+   "league": 0,
+   "seed": 2188927985,
+   "digest": "c187edd8c383cb4e833a89eef8e48f890636b9dfe0929f51ec4c431a382b113f"
+  },
+  {
+   "league": 0,
+   "seed": 3489089392,
+   "digest": "99deca366a392e23778fea469ee6d169e91a13c9d8a92e8a19e59034afdd958d"
+  },
+  {
+   "league": 0,
+   "seed": 2328704711,
+   "digest": "6cf152ca9a1f132ec84160b6bce26e60cbe7956f2be1c9b56ec3adb8d6f0cd44"
+  },
+  {
+   "league": 0,
+   "seed": 525340749,
+   "digest": "52a4aec57a2abb4ee2f6fa80c44e0adb791359f39e60f353c280d671d0983d6d"
+  },
+  {
+   "league": 0,
+   "seed": 754586803,
+   "digest": "13406d5f46ff4b13e5dd1c087117da6514b654591eef571cbe71e6831f72d596"
+  },
+  {
+   "league": 0,
+   "seed": 2823026092,
+   "digest": "1b3818cc5d18deaa841b9cbe529c9db482ff077d92041a72da01d55143eccadf"
+  },
+  {
+   "league": 0,
+   "seed": 254864608,
+   "digest": "3d6e4ad897a021ab9e6ab3a3c41a9f4a9c08e6656b4604b05cdf942f29d4038c"
+  },
+  {
+   "league": 0,
+   "seed": 634677975,
+   "digest": "f6c9f21702057511f3a2f9305ebe6d7adfb5a557f091f9aa0b824e2ac2f6b8cc"
+  },
+  {
+   "league": 0,
+   "seed": 2510953976,
+   "digest": "af5b3db15d37e6ce1507a8397e4a16c973d5c7580fed98e87950d3b17dd33459"
+  },
+  {
+   "league": 0,
+   "seed": 3023290201,
+   "digest": "db254e4955d74aa150fbb268c15fb09f6680a90ca93b2d60cbd3c3a6f54f7d7c"
+  },
+  {
+   "league": 0,
+   "seed": 4257050821,
+   "digest": "3f3c83c9e1f63ce795ea239756b4679d26706022c768d64147b50362a4554e25"
+  },
+  {
+   "league": 0,
+   "seed": 4218499488,
+   "digest": "d0ddc78d331c3a78b7b9d1995564359e89145f243140739bff3844f06b1a5a70"
+  },
+  {
+   "league": 0,
+   "seed": 2616088679,
+   "digest": "93b3d12a69ec9ebddd72d0cf1b709ca5b3fd7ea0cd5b5cd16aa02116fe4ccd80"
+  },
+  {
+   "league": 0,
+   "seed": 2964234257,
+   "digest": "bea91d6c75da095f02802d521ffaab3df0b9a37cc9eccbff4fb5ea1f4a82a79f"
+  },
+  {
+   "league": 0,
+   "seed": 1420482076,
+   "digest": "10f029a1fbc299a9cabc99390dd0bda4e34df9bcbaf3fdb7aa782824836a9339"
+  },
+  {
+   "league": 0,
+   "seed": 992999212,
+   "digest": "28bf532fb58b4d3decc3f040e248a384950c13b6bce2c8caf600512bfbd4e9e4"
+  },
+  {
+   "league": 0,
+   "seed": 2551724295,
+   "digest": "0f62ac71cb12f18f817f092fe12c5fd11afdee0adae8feaa0243097cd7330c7e"
+  },
+  {
+   "league": 0,
+   "seed": 4045967881,
+   "digest": "26ad63e1bb5400fb1ca5d572902aa0dc09e5143a52a781f8e9f40c7345c68eb8"
+  },
+  {
+   "league": 0,
+   "seed": 3233473802,
+   "digest": "825be1293899abca1197e8a452a5c34b6378e295a44f1fb63311b4d089d61191"
+  },
+  {
+   "league": 0,
+   "seed": 1677702874,
+   "digest": "5e4d22caf58fc914bbb2d0389976efe7ccc4ad13dfae60251b78a2f339557a1f"
+  },
+  {
+   "league": 0,
+   "seed": 3295289587,
+   "digest": "9c2731abbd4f712d143368e8bd3e6f46a29a658ab8066f3e8d8142fa5913ebbc"
+  },
+  {
+   "league": 0,
+   "seed": 3387260141,
+   "digest": "8a450754da00e4cb1283ac409e6c6d615275cc5ebbd1b7f6b31679f6b65af29f"
+  },
+  {
+   "league": 0,
+   "seed": 4258200102,
+   "digest": "3ec9f3929043f439ee08b8b53d4ccd972904cdda5750d2c501f9cc13d2d596b7"
+  },
+  {
+   "league": 0,
+   "seed": 2688339992,
+   "digest": "ba1ce2f3d61767926d504037085ec5b8d9b8578ed0b5e8eb9e4452026342e1c6"
+  },
+  {
+   "league": 0,
+   "seed": 1678085923,
+   "digest": "ae4b183d7f1f7a828e5fcb95bd4dc643871dc24edf35a369e0328556458e3d6c"
+  },
+  {
+   "league": 0,
+   "seed": 576499078,
+   "digest": "91d6317f36f68ded0b4ccb0ebb9aeeda560866d235ca2e5a188b66a5308bc7df"
+  },
+  {
+   "league": 0,
+   "seed": 1329311585,
+   "digest": "0532a2ff3762102f072b9648d87a3607472fece2da7adf2333bed11d01890500"
+  },
+  {
+   "league": 0,
+   "seed": 360295898,
+   "digest": "837f8597f5a7cd75d087935582169fa0952f80bed5ef24a0db393dcbddecb90d"
+  },
+  {
+   "league": 0,
+   "seed": 636500820,
+   "digest": "b83512c155c2c82db7bb39e66c3235bb220cce8cb8b4093c4913370daecb0dcd"
+  },
+  {
+   "league": 0,
+   "seed": 4131265216,
+   "digest": "8812e301a8f1acf6ef47f3dd31fddd3b785c5a482aa6e44b6b89ad900155729e"
+  },
+  {
+   "league": 0,
+   "seed": 436373294,
+   "digest": "ae1e228301a071d0d81edcb7a0440f9e728d56044feee384b344e527c558f82a"
+  },
+  {
+   "league": 0,
+   "seed": 2550433265,
+   "digest": "1c9db67cd2f10d5a8239cff9cf3b3f014474f15b1194b0443e44b1d75133b3a3"
+  },
+  {
+   "league": 0,
+   "seed": 965749368,
+   "digest": "d558520159b442afe42066ac9325d21954d0458b05ed292a0161c0b956eaea86"
+  },
+  {
+   "league": 0,
+   "seed": 2201433485,
+   "digest": "ba49d3fa660def0209ba7467ed386ec251a57bbc8e3e7f6713fa0d32432f866d"
+  },
+  {
+   "league": 0,
+   "seed": 2046552377,
+   "digest": "337edaabfbbe1f0c50e2793b2ceacfe29f2966387b0e69e774d1050c20477c2d"
+  },
+  {
+   "league": 0,
+   "seed": 3560577851,
+   "digest": "0446856843db2ae82440fb65fedfb32691d06577e2da3edfebb2295f9e949e94"
+  },
+  {
+   "league": 0,
+   "seed": 1415289915,
+   "digest": "96d881674c225367e0f1e86decac3520a568f352b4d00325f76f2282c989356a"
+  },
+  {
+   "league": 0,
+   "seed": 2257143,
+   "digest": "0ff7bf6996ebbbb9057587dc8a68949b08a5cdd792126672998daf03d67dc31c"
+  },
+  {
+   "league": 0,
+   "seed": 2458719605,
+   "digest": "e87c8e8cb7069f1ba43d65deeebb5fbe9cc7c00b2a7daefea682ac586705de5c"
+  },
+  {
+   "league": 0,
+   "seed": 4246139139,
+   "digest": "74bcb2354864912df62d29f884ec3af6a1594845969055b2a7cdc4af8a409650"
+  },
+  {
+   "league": 0,
+   "seed": 1841918139,
+   "digest": "f43a807cd6eff16062533f343709235b8b6f4883653992b4f706b6ab3cfcfd7f"
+  },
+  {
+   "league": 0,
+   "seed": 3358702597,
+   "digest": "dda384f175eac0670f4adee315fd23603b73312ebd5642e8bf05d7d7f8ca1036"
+  },
+  {
+   "league": 0,
+   "seed": 588700835,
+   "digest": "2705da2477e508ad07b5635ef342dc4521222d17b8941b92eb041232e13aa4c1"
+  },
+  {
+   "league": 0,
+   "seed": 1672281422,
+   "digest": "578878bc2ac7be30752c707d1aa82a75948dab205f20e5879d8656f467af4c28"
+  },
+  {
+   "league": 0,
+   "seed": 2879563962,
+   "digest": "bfe48873f2ff7960ee0e5ae81c29b86282eadf73fec7fbdb6c909a1f008bac7f"
+  },
+  {
+   "league": 0,
+   "seed": 3879734566,
+   "digest": "a1a53b4c840e7bcf88add0a069355168d867cc9126d649317b5b42d0f24ff9be"
+  },
+  {
+   "league": 0,
+   "seed": 318264995,
+   "digest": "cccb2724da8efcb03d67f9cf898f1953869beda312b5000836876211262c80f0"
+  },
+  {
+   "league": 0,
+   "seed": 3595656644,
+   "digest": "9ccbe3d121571fc037cab0b3db60e825cd07b2c872f37e20c8edf8995b20c374"
+  },
+  {
+   "league": 0,
+   "seed": 4260983675,
+   "digest": "a4ad94a41f34c4bc8f73f537282d60c463ee3e511ec709fb29b669495cbf1e7d"
+  },
+  {
+   "league": 0,
+   "seed": 1790524884,
+   "digest": "6a1ac35b43b153c6d361faaae11909fb6f261b51bd56dc7f5e41df4be9fc1e74"
+  },
+  {
+   "league": 0,
+   "seed": 2396169546,
+   "digest": "cb8056417535c53c35a82a544d8a42d38f86aed64a260c13cc1086c9bb9b482f"
+  },
+  {
+   "league": 0,
+   "seed": 4241259562,
+   "digest": "e1a0d4829297f2ce00b7841713444ad9eb06d1e5886dcada81bde70df3c5329d"
+  },
+  {
+   "league": 0,
+   "seed": 2738860138,
+   "digest": "6c33be659d0f6955dc0a82346e74ef48f8f2e97301f90b85e6f60b2c5ce283d8"
+  },
+  {
+   "league": 0,
+   "seed": 4272616466,
+   "digest": "c43579e2990e459152219fbdce157e9277fe156d7820cd3427dc9518271e1400"
+  },
+  {
+   "league": 0,
+   "seed": 4018087590,
+   "digest": "94fd132d4a6b43e1b498976a69ec013012b25f9198595cb36aa491ceb8ac3721"
+  },
+  {
+   "league": 0,
+   "seed": 893101840,
+   "digest": "c3980ba762283ef340ed07e99bf9966888770ebeba826e7bcc83fb05c6be726d"
+  },
+  {
+   "league": 0,
+   "seed": 4198499883,
+   "digest": "42c51c983034454f6ea7c3c142555f612b69241cfb82b617a76a539f285325e2"
+  },
+  {
+   "league": 0,
+   "seed": 711563548,
+   "digest": "a18bf5935545d7ffcb716149fc4cd2a863c50481fae11c09a37670f1e2c0b57d"
+  },
+  {
+   "league": 0,
+   "seed": 3509947316,
+   "digest": "73efe54991ac4e6c57a21cabc84aa38e14ee219b0dbd0c83bfdce741dec891bb"
+  },
+  {
+   "league": 0,
+   "seed": 676515260,
+   "digest": "dbb8997eedb5d8fbdf4487f6645bef313bbcce1a97d36be67104f48cff56e54d"
+  },
+  {
+   "league": 0,
+   "seed": 312466236,
+   "digest": "0714314fe238ddbdb64fd0dccca8592b06e948f72ed55603550d3e194d1367d7"
+  },
+  {
+   "league": 0,
+   "seed": 1311641432,
+   "digest": "1684524ead58e0f25c1e0dc6f95addac5b01bbf89b1e21a01e30f533892289fc"
+  },
+  {
+   "league": 0,
+   "seed": 3705829508,
+   "digest": "77eaf73bbbaf777b45d18f0d805ced0ddd14b7883758c9d195f25ef9bc0b6804"
+  },
+  {
+   "league": 0,
+   "seed": 520585065,
+   "digest": "6e692d2eee02e925ae9d9a194bcb508fe66a4f88d05b73117b3c5a1a38851957"
+  },
+  {
+   "league": 0,
+   "seed": 438239958,
+   "digest": "c2a55d292bdf61e5dc64d3af5a71717f1100abf4dccdc345e554b22d608aacfe"
+  },
+  {
+   "league": 0,
+   "seed": 2447158114,
+   "digest": "5cd2c8046e071cf47db6c44b1bb7f965567565638b42b652bcebb1651d4c7c43"
+  },
+  {
+   "league": 0,
+   "seed": 2902784656,
+   "digest": "5daec723c9e41caad5846cbd355ebc328701364854bc10974b6b7e2434beb8cf"
+  },
+  {
+   "league": 0,
+   "seed": 3472376071,
+   "digest": "57a690a0530b75931d83b8efb7b0e89ac8dae131802951530f60562ca19e4d78"
+  },
+  {
+   "league": 0,
+   "seed": 3882591965,
+   "digest": "1088337b0fdc8019f0fc853b50b9cafaa17a7c840e2a64e3e955debb7415abb5"
+  },
+  {
+   "league": 0,
+   "seed": 639781619,
+   "digest": "acda250a1df2383a1971767dd3e5cb20024d9e74c475233fe1076133ced5ab4d"
+  },
+  {
+   "league": 0,
+   "seed": 2481710273,
+   "digest": "c5c078e361e0683a1d85551f43eafe53c8a9f8eccd93354796e04e75ba075467"
+  },
+  {
+   "league": 0,
+   "seed": 1645118974,
+   "digest": "3daeaa7c4860e3819af7490c9ce5c22b47b4e1e7744fa76770ff90d091354ba3"
+  },
+  {
+   "league": 0,
+   "seed": 73825945,
+   "digest": "5c230d03f842d099c55d33584d6dbf104bee9c5d6a8fbc1fa98566b47dcfc743"
+  },
+  {
+   "league": 0,
+   "seed": 2629882221,
+   "digest": "9070d44789375f5dc91f481d0a8c856648231fb709f597f4befb5bc2d7047183"
+  },
+  {
+   "league": 0,
+   "seed": 3379502607,
+   "digest": "fb77c7f5093141be5fdb7a388f774aa94a0ab42e393661a2e4546ffc1a8f41fd"
+  },
+  {
+   "league": 0,
+   "seed": 2338310236,
+   "digest": "d6bf25bda974166455cd5206639416bf1dd447afebb41797690f1827659c56a5"
+  },
+  {
+   "league": 0,
+   "seed": 3258179111,
+   "digest": "4d1c66acae1a43cd791d406feb3555d7e54cfef5b4ed5d52dddffd63dd49983b"
+  },
+  {
+   "league": 0,
+   "seed": 3130637404,
+   "digest": "d2b0641f64f6f85bfd9f18954e1e853ef7aaa49ee009d760b3bfbf12f93f659f"
+  },
+  {
+   "league": 0,
+   "seed": 2976264581,
+   "digest": "791dc7f02209305a18f9675e1ba1696e35ddcdc7b34bda781f66d0bc97b7a5f6"
+  },
+  {
+   "league": 0,
+   "seed": 2164052049,
+   "digest": "ea03dc01efd1767cb52b49a9f62b57ba0420a0b99986e956409489853a6e6c3f"
+  },
+  {
+   "league": 0,
+   "seed": 1219848421,
+   "digest": "9ce0760d3fd4e5de4a490b31e664c8be2ba5b9702a8c8440ac06c5f2c78467cc"
+  },
+  {
+   "league": 0,
+   "seed": 111399163,
+   "digest": "7e93d18ee48a04ccf083ba917f9b103b2f9de53d63705da05c1e097e152da570"
+  },
+  {
+   "league": 0,
+   "seed": 1307420119,
+   "digest": "ac156353ea7b4002b056efe215b81c45b932d6d4e2f6622acc1b525caadd102e"
+  },
+  {
+   "league": 0,
+   "seed": 1187734219,
+   "digest": "4e4ca93d72130c34e0843a02eb67aab4a0d158645da305858abd29ce41ba6b0b"
+  },
+  {
+   "league": 0,
+   "seed": 3714198728,
+   "digest": "291aba3ace5fbcd517cdff15ed82ccca15c40976a6982d31abbf99e91af971da"
+  },
+  {
+   "league": 0,
+   "seed": 360922805,
+   "digest": "81c28d3ab75011c75505b978a11583955cbe85e19c89255a55545787f074ff31"
+  },
+  {
+   "league": 0,
+   "seed": 3972350677,
+   "digest": "5ff3abe9a1ae42de8e0c582440cbe69cfbd276f311970424b0a000aca688b5fc"
+  },
+  {
+   "league": 0,
+   "seed": 1019809859,
+   "digest": "165a895d682c476d945fc41ecad831f6fa2917313863b198f31d3d283cf8f37c"
+  },
+  {
+   "league": 0,
+   "seed": 3280402692,
+   "digest": "bcb36fe82fb16f62dc8f1c7bafa3779f8384fbfb01574141b98c4af78e880cf8"
+  },
+  {
+   "league": 0,
+   "seed": 2570400599,
+   "digest": "f578dd99095d1b43c2d6dd2fcf6e667246b64dc7c86c90d9d037e2cdd31dd67d"
+  },
+  {
+   "league": 0,
+   "seed": 517502110,
+   "digest": "c19d7af115f7ae3f1d1eb456aecbf1a2add1a7dcbfa56f22f81e826c6a0b357c"
+  },
+  {
+   "league": 0,
+   "seed": 3569114228,
+   "digest": "c534225f57f262682bc0a5f159f1fe3b450db75149dc05a09e3821fa46d98c8b"
+  },
+  {
+   "league": 0,
+   "seed": 1327094868,
+   "digest": "5f6f443b9606d912bc77c21663ff977cb01d7f3d11db9a8f6211122df7aa0535"
+  },
+  {
+   "league": 0,
+   "seed": 4071451519,
+   "digest": "2eae7dc5944312bbe9975f09c363422c787a975310636ab1cbe93dbcf0e8d6e8"
+  },
+  {
+   "league": 0,
+   "seed": 1625147054,
+   "digest": "a0df7a3690c53c866eabaf38882e3a2b2dde8fe81d2cffcc2712f35d649fecb6"
+  },
+  {
+   "league": 0,
+   "seed": 2229177978,
+   "digest": "1c196de766d394a26104766d58731fb8dcb39318576015b1cac11a85f8e9db64"
+  },
+  {
+   "league": 0,
+   "seed": 62646005,
+   "digest": "1eedcd2d89e50f631922d2b2ea7a06f9a764ae0845d2f011877db3e3051cbc87"
+  },
+  {
+   "league": 0,
+   "seed": 2394029791,
+   "digest": "14286dd12b819aaa785d2150348c25b8c4ef430d96880a5412462e64d4f82039"
+  },
+  {
+   "league": 0,
+   "seed": 775510261,
+   "digest": "498eda03142dc6cc78226e392848a4d761503c27c53a0babc4f8158ef8ec47e7"
+  },
+  {
+   "league": 0,
+   "seed": 3153055213,
+   "digest": "bcb8c5b1152e1282ace81d4fa6ce233ec6a453117f8e42ae6a99b93dca97afe6"
+  },
+  {
+   "league": 0,
+   "seed": 3685359074,
+   "digest": "6124c7c8373723d8eea43fa49fe7b0e9e764b11a746c3e9f2677ac6753e47ee5"
+  },
+  {
+   "league": 0,
+   "seed": 131851998,
+   "digest": "1cf5edce205be1572425b83f57a2478150b1f3ecf4db6fc1995e7eefd2d44327"
+  },
+  {
+   "league": 0,
+   "seed": 3891436857,
+   "digest": "76fcd2289c11186d258edece11d54481143c13826ddb220e140320b668f76588"
+  },
+  {
+   "league": 0,
+   "seed": 4056599915,
+   "digest": "d2b6b61e8fa7c56ba699c40488dc017040fa46c0a915735e840f42975e0c0a53"
+  },
+  {
+   "league": 0,
+   "seed": 2756676058,
+   "digest": "30e1410665410e2692edaf936a33ad983f0f723bbaf98927ef71e2c4cdcb530b"
+  },
+  {
+   "league": 0,
+   "seed": 1602203730,
+   "digest": "b20944a2614047a01b9fe887218df27b0e1d4cc84f4908209e5cf9677d32be34"
+  },
+  {
+   "league": 0,
+   "seed": 1828090402,
+   "digest": "ba3d7153f6263856c2d762c87742c0dccef1aefb390215579e980cd4999324b3"
+  },
+  {
+   "league": 0,
+   "seed": 3964838799,
+   "digest": "ce06bff27648ca9e0a02726c3bb458c1ad9b767136f63a6a19783281141bd4ce"
+  },
+  {
+   "league": 0,
+   "seed": 2256654981,
+   "digest": "ef61d923cd7a3f10ddd296f11b3f3e0269f8dc0c85c4a5e712876808f365ef36"
+  },
+  {
+   "league": 0,
+   "seed": 3181431524,
+   "digest": "8f649541bab35b2a38a7ae0ba96abf0ed3870c9908c9f8aef978f1e848c3f8cf"
+  },
+  {
+   "league": 0,
+   "seed": 84206566,
+   "digest": "d122585081daf16b819e421230bdced58a054234f4d045e100e603611d8afa26"
+  },
+  {
+   "league": 0,
+   "seed": 104416859,
+   "digest": "8b95044d3e289655a212a2b3b38d1ce04e4ab8e3d96dd0a82026dcf710855a2e"
+  },
+  {
+   "league": 0,
+   "seed": 2776366895,
+   "digest": "45b21be91df6d9ecab2a04ae3a7ee76e7240bca0fee7b45be5e338d6f693e8d4"
+  },
+  {
+   "league": 0,
+   "seed": 2792015169,
+   "digest": "cba51d0cc1ba4c197f43a49ac5fef16c925fae856951651be3f937491206081b"
+  },
+  {
+   "league": 0,
+   "seed": 2581655037,
+   "digest": "f794c60987e65d4f02f651b9ed7760142be3649a6de37d60a1878405e7971c2f"
+  },
+  {
+   "league": 0,
+   "seed": 2399876953,
+   "digest": "98d6e662726e01da4c73d7db4a0d6a28502f0aa9b1ad86e4a5d4772565bea2c5"
+  },
+  {
+   "league": 0,
+   "seed": 3589682648,
+   "digest": "19472d36196095a24fa50efe3ce338ce170b36621dcb2a80a43865bb200e1452"
+  },
+  {
+   "league": 0,
+   "seed": 386588041,
+   "digest": "f89f12841c53a0f69489745af8b4561bbe2c2b9c0157c4f24723435e512ca974"
+  },
+  {
+   "league": 0,
+   "seed": 4169708197,
+   "digest": "8e839890bbff1fb55dde83361f07732a8170728445331f354481cd9c527cb020"
+  },
+  {
+   "league": 0,
+   "seed": 3703090931,
+   "digest": "c265f3bd9c26de7c7a0331b8c70fd698d58c2cbd9b362c65d9616195a7d8ee95"
+  },
+  {
+   "league": 0,
+   "seed": 1217407745,
+   "digest": "a0dffda6232bb10a26f77773be7369f9f2dc65d17d0245f42366ff8a560367a9"
+  },
+  {
+   "league": 0,
+   "seed": 657167898,
+   "digest": "af45b9ef97ed095a5be473b58ce3ba1676efba9c252e0fecc1b6aac607f94460"
+  },
+  {
+   "league": 0,
+   "seed": 1451491275,
+   "digest": "c77ed22d6ea7dae99607d4375610b1536f7bcfef6bad5e337206ceee82e193ed"
+  },
+  {
+   "league": 0,
+   "seed": 2663099174,
+   "digest": "f9593d6a6102d38f6b0e581980e7e498dc99aea7cb6f95a5043a19d17384446e"
+  },
+  {
+   "league": 0,
+   "seed": 1100445299,
+   "digest": "e8ddc63d84be173ac7803be7e107df0e8f379fcd2b70b2257d09b151fdbbcf66"
+  },
+  {
+   "league": 0,
+   "seed": 2073484812,
+   "digest": "5bf176f04d5aeae35949bc645b02761f9c36c4b9a1a8a771c8f2bdc6a65f92b6"
+  },
+  {
+   "league": 0,
+   "seed": 4009019020,
+   "digest": "c887f0a1b886a5f1c1bbd19b1a0b6f342ab596482a350cdc48f25e3894a3367b"
+  },
+  {
+   "league": 0,
+   "seed": 2100909578,
+   "digest": "723b54e666219838cc60fcbce0e5893f684d955d8eff246150b6f4dfafd8f5b2"
+  },
+  {
+   "league": 0,
+   "seed": 4098218006,
+   "digest": "a7a211647b8195a944bc28743c115dd6bede64fe39bd5b001ab74da8c66ea7bb"
+  },
+  {
+   "league": 0,
+   "seed": 4061634009,
+   "digest": "4c6ef5492f30648bfe89c72a04d0f4b82fcfb099c2b6731c814dd831a9a45bfc"
+  },
+  {
+   "league": 0,
+   "seed": 2610081197,
+   "digest": "c5ee8a616f66d2c4b924efd3aa9f3b40448a7bc237c2475f820b320087b7497c"
+  },
+  {
+   "league": 0,
+   "seed": 3655812090,
+   "digest": "62d58a97f1eb6e100b7b3a41e6fed82d60df7b177ac35309b28033fcf36efc1f"
+  },
+  {
+   "league": 0,
+   "seed": 1075236399,
+   "digest": "260236badf131697a3ba26f3f5182d632ba7140effe9324a7ad9c2bad3a481af"
+  },
+  {
+   "league": 0,
+   "seed": 1582618789,
+   "digest": "4b876dfc4ab73d1793fb78b71f0946decbd960cca70a9380b4e39315482cc67f"
+  },
+  {
+   "league": 0,
+   "seed": 3697838856,
+   "digest": "bf2723c7202b00c3b9c99be97788694d33f772a9195fcdb9d6dbe0ee5bd189f1"
+  },
+  {
+   "league": 0,
+   "seed": 973361019,
+   "digest": "74ed1366335292b699010bf201277e4c4d0c4b68929e4ad92d67dda670fc1b15"
+  },
+  {
+   "league": 0,
+   "seed": 1841920940,
+   "digest": "1ed801c132c28059011dc6a613bcdc2191a2a787bce208c538498d917e8d3232"
+  },
+  {
+   "league": 0,
+   "seed": 1541245223,
+   "digest": "46172ce9047ca0159574c2490f90bbd6874118e8c07b35a7ed5d18da9044cb3e"
+  },
+  {
+   "league": 0,
+   "seed": 3073961837,
+   "digest": "224ab1536a83b22e03ba2eaf6088bdd039bd0ec7701f1f9999cde9664083356f"
+  },
+  {
+   "league": 0,
+   "seed": 1113773911,
+   "digest": "2592a1b8fe750fc2c1e708a68ebd956c945fe00a9c6eea9f059c25702a4a1ac9"
+  },
+  {
+   "league": 0,
+   "seed": 166879416,
+   "digest": "835b840ae0744a7e5dfe76d9dd74a321c9e14c44968e0f82870d3f7d0a655e97"
+  },
+  {
+   "league": 0,
+   "seed": 1596593549,
+   "digest": "3032c28cd7490c397f3911c11214482211a4c419693ddce105a9c9d0a96f643e"
+  },
+  {
+   "league": 0,
+   "seed": 3090956008,
+   "digest": "8c10ad98861709f5085ccbaa67aadbe2aa3f1798d3c343910a542ef645b843f8"
+  },
+  {
+   "league": 0,
+   "seed": 1919609686,
+   "digest": "9dfab9968ba63244b0c68bb6dcca9997c65b7c124047af2eaf2235906d2bda00"
+  },
+  {
+   "league": 0,
+   "seed": 4152057483,
+   "digest": "be25db0b5ed8602d0fb5484b75e06f1a72839278c75905aba8d59a5c8952ab40"
+  },
+  {
+   "league": 0,
+   "seed": 3566229192,
+   "digest": "07d982669045b8aad5fdc0a9f40de59905e4282b4febb046a9dd9628d3d54544"
+  },
+  {
+   "league": 0,
+   "seed": 2772397510,
+   "digest": "0842d3a98dc33b4c58a251bf4c154e67f21c2c5e121df3be7f8a6a59f2e755ee"
+  },
+  {
+   "league": 0,
+   "seed": 79132848,
+   "digest": "a3c50d163b0810a43d4025748542726e4cf58bc0c288fe73132c8a36596cd54e"
+  },
+  {
+   "league": 0,
+   "seed": 1807843327,
+   "digest": "242f0ded8d1262d44298a4527be8166bf296b08f6c8fc66e6dd78115fd5f7b2a"
+  },
+  {
+   "league": 0,
+   "seed": 4159418657,
+   "digest": "dc290c570f3ebc20710dff7d14b9bb35c6e7abcb5c91fa59889f3194b4e248f6"
+  },
+  {
+   "league": 0,
+   "seed": 2250983227,
+   "digest": "3435f1f00f29a32371dfaa8b43aa5e16f7408f18373472f176f5347a4b1b9d47"
+  },
+  {
+   "league": 0,
+   "seed": 180401206,
+   "digest": "52a6ce4ac8010a01d440c2a4cca57bce2cbedcc5fed176e207eb096042522e33"
+  },
+  {
+   "league": 0,
+   "seed": 3581067938,
+   "digest": "56ef49dc7293805d4cccfd9c94990159b8f3a2c7aeff1a76139e9a9e0da3d1af"
+  },
+  {
+   "league": 0,
+   "seed": 4046531480,
+   "digest": "1ca8b7b47db28162311f7b31615720ab2230161fb6be85dc6516d0e0385c01d1"
+  },
+  {
+   "league": 0,
+   "seed": 1256318110,
+   "digest": "da2b9e8f71de1ceb69505937fd2b124294865acfa7b679e064639cbf8a35443d"
+  },
+  {
+   "league": 0,
+   "seed": 737111017,
+   "digest": "2c8b123e1d628ff4c8c188add766e063dd155c1efd00763c9ae0edbdda42a433"
+  },
+  {
+   "league": 0,
+   "seed": 4173096555,
+   "digest": "8398a27baa41ee8ca73c6c330d2dcf35798ac66da90879c41314fbf89411d642"
+  },
+  {
+   "league": 0,
+   "seed": 3372975109,
+   "digest": "a9692247455ea806319baa83425352f03c8c13e61b7fae5d9e2a51e4e4238527"
+  },
+  {
+   "league": 0,
+   "seed": 1839401854,
+   "digest": "2a781ce97dd5205a5dce911c8db0093d111e7c48fb9f4a92a2ca575a12c8a52b"
+  },
+  {
+   "league": 0,
+   "seed": 80000381,
+   "digest": "24f887d139dbce92673fecead1d8ea4bd2193ed6efe13e9ad8baca41b09a97a0"
+  },
+  {
+   "league": 0,
+   "seed": 2576681102,
+   "digest": "8e7cfc38910a7f5f39e02e045bb430c07264b2e50a1babbc821e8484a3d0d227"
+  },
+  {
+   "league": 0,
+   "seed": 2950921602,
+   "digest": "bbec881d444104d3c5bb6ce814d1fee8268f65367b9ebbe3268caf452c0a6fa2"
+  },
+  {
+   "league": 0,
+   "seed": 2981456499,
+   "digest": "aaf3975c082034c0c42485619b64afd42f7f78f42b4cd724d0733241bda8b49e"
+  },
+  {
+   "league": 0,
+   "seed": 1691727061,
+   "digest": "ecbabe7a2f756eb16128646f5b4980299ec987204ab08b14b7b2367a43163df0"
+  },
+  {
+   "league": 0,
+   "seed": 1970085706,
+   "digest": "026b7ea0eece2193945529a654acc4300ba0996930ec5e193cd65ee08dfbe69e"
+  },
+  {
+   "league": 0,
+   "seed": 3158161105,
+   "digest": "735fadc8bd924b00c2452c37e2e31c075fdc61bfa8211db10ebc6baef724cdbb"
+  },
+  {
+   "league": 0,
+   "seed": 2928264132,
+   "digest": "8eff5437aea1f0a883596dc885bc3c17a4a405b79f9be221ce0526b354b387a5"
+  },
+  {
+   "league": 0,
+   "seed": 1510816861,
+   "digest": "3ffedd69888462c2d4af08a09a7eb438ffdd8a8cbe1e51d1f6a03a585bb351ce"
+  },
+  {
+   "league": 0,
+   "seed": 1669914773,
+   "digest": "cf9897878030a789d46f4aa57a808041694b82631f9baa566ae89fc6546c9e81"
+  },
+  {
+   "league": 0,
+   "seed": 4230646932,
+   "digest": "a1884e975e8c92cff3bd4a68db4971a910a12375b92e33f430e268b227658bea"
+  },
+  {
+   "league": 0,
+   "seed": 3111294601,
+   "digest": "40791f1526f69d5841e8dd40afb1aca2282ce8e204af502145117ddf7647a476"
+  },
+  {
+   "league": 0,
+   "seed": 3767792390,
+   "digest": "05d55b336e948c0751a0d30ad974987bb1715104457ad6b05b4ab750905d2216"
+  },
+  {
+   "league": 0,
+   "seed": 2853078613,
+   "digest": "043312dc859ef902e4bc77497b780e5020b1deef4c07b65d56f7b485ca43e11b"
+  },
+  {
+   "league": 0,
+   "seed": 390053740,
+   "digest": "1ecc3f07d0436bede9fecd47d709b3923582842f566949ca43826b73b5bedba1"
+  },
+  {
+   "league": 0,
+   "seed": 2781097440,
+   "digest": "beaa05e7c33ad38d1b07770fe07253e04cf6e5bb0659fc23b0f3a079ea0b44c7"
+  },
+  {
+   "league": 0,
+   "seed": 3351509825,
+   "digest": "8625bf23420db754ac97f3748f578bb06b66ea6527e64a7522e5c5140df29ca5"
+  },
+  {
+   "league": 0,
+   "seed": 1003684407,
+   "digest": "a7001976fe89fb6563f73b7821aaa3486d7fb9c5a5189269fe074f6784a3891d"
+  },
+  {
+   "league": 0,
+   "seed": 2147216027,
+   "digest": "bcb0b3820c7e1054a676533f015b7ac452a613da31470b575913c0a2b12c4a1b"
+  },
+  {
+   "league": 0,
+   "seed": 2042799019,
+   "digest": "6dfcd8282ccce03e93372a0adcb3afc9b64ac90855f435d817fe993d817ebec2"
+  },
+  {
+   "league": 0,
+   "seed": 496757806,
+   "digest": "2eebe07f858a1505156d9042a6ebf3f5e2d67141bc56c64396ebecde459fc6a5"
+  },
+  {
+   "league": 0,
+   "seed": 782133834,
+   "digest": "3fb4ff21e9b2522c9408ecda65864a7c34dea0146425e5bef1f172d1f280385d"
+  },
+  {
+   "league": 0,
+   "seed": 1164792119,
+   "digest": "0d981cdaa347593dcda9a19984016f8e4a6074cbbcf4aa250c5fa602823101c1"
+  },
+  {
+   "league": 0,
+   "seed": 2857189086,
+   "digest": "878c34e6a8aa245c86d806fa5f3bd20b9c713ac9a81663bf2bdeadef3d41b6ba"
+  },
+  {
+   "league": 0,
+   "seed": 1879803716,
+   "digest": "70107589a9631b23da03a4dbc7f1b2c69c5f5661e6134c2bebae097fdef36381"
+  },
+  {
+   "league": 0,
+   "seed": 1302653811,
+   "digest": "5d3a488826800e92328ede36d93c44fb920a582abe982b7d48e67b939dc25c75"
+  },
+  {
+   "league": 0,
+   "seed": 3060020193,
+   "digest": "a33e1a46e72c9f4296af2400d9365c30be4a1be73cfadfc41fa339cf56c72839"
+  },
+  {
+   "league": 0,
+   "seed": 1067337511,
+   "digest": "2d7889128176625bd6cc657e7df78ca2b018628363a43959fc79b908a2626e75"
+  },
+  {
+   "league": 0,
+   "seed": 1579718040,
+   "digest": "b7ee9141e0c500320d0d6a4072854951a40695d10cd90cef49fd379b0b37684e"
+  },
+  {
+   "league": 0,
+   "seed": 2414462509,
+   "digest": "a028eb8cc7cb229eb14904c69ac420c1f7b35219a36fae11522d3d9968c25167"
+  },
+  {
+   "league": 0,
+   "seed": 3764493422,
+   "digest": "fbd1f698781379f35619801789a7cd8a755f116fb95d35edd87e8b25ca6d0f24"
+  },
+  {
+   "league": 0,
+   "seed": 4081876053,
+   "digest": "c6980a03efd04be555ee9a830c4a4a4f40ea8daad96b1c660dad5fadd4c86c1d"
+  },
+  {
+   "league": 0,
+   "seed": 1175942894,
+   "digest": "5fa445cbc56f4cf9fd4f80304867ebf2edae7813f605e6a1f5eefd42e26fa755"
+  },
+  {
+   "league": 0,
+   "seed": 835960500,
+   "digest": "f65a3708ccabfcb01c772cd4e05cf388df03f0bb2916a9b07ef2a163d9a8de08"
+  },
+  {
+   "league": 0,
+   "seed": 797847954,
+   "digest": "c39eecd4cd93d2701d5634dd60cf183115c9145437d46292dd2d183b1604ff4c"
+  },
+  {
+   "league": 0,
+   "seed": 3755593019,
+   "digest": "e45bab97fedf675169730721c977331fd22a0386fc365439d359579bbae665bb"
+  },
+  {
+   "league": 0,
+   "seed": 2966614152,
+   "digest": "2fe0aa4bd9ec034011215b043c1589f75c53e3cc53d99afc831489906520048a"
+  },
+  {
+   "league": 0,
+   "seed": 2695415908,
+   "digest": "ea03c18b7d0ca867b108c63993cc022e1d84542c3d85b58fadec360a24d44b74"
+  },
+  {
+   "league": 0,
+   "seed": 2901958678,
+   "digest": "af78988b631d33a113654b1fcea446cc1993b36c22663a8847c5891ea35f9736"
+  },
+  {
+   "league": 0,
+   "seed": 2783308744,
+   "digest": "13bea029801ced1b37e326c6dc795d9321dcf429ad572b3494ccc86cbc5dd023"
+  },
+  {
+   "league": 0,
+   "seed": 1651658171,
+   "digest": "a772bbeb099cab9dd2473181e96a6521be07950a694c4dff086a6a4e1dc0ccf9"
+  },
+  {
+   "league": 0,
+   "seed": 2688149397,
+   "digest": "5ad62d8fa7fe6056bdb88a108d16802e1b1912d0a555f2752ecffc3e3ac58243"
+  },
+  {
+   "league": 0,
+   "seed": 2737424771,
+   "digest": "b1580b808665ac93f1826a860dda356c6712233406af95689118f864ef5da3de"
+  },
+  {
+   "league": 0,
+   "seed": 1972300386,
+   "digest": "735c40d0b660cb638aa534c6743ca151bc5eb90ab235125263b195660727a0b5"
+  },
+  {
+   "league": 0,
+   "seed": 2397853591,
+   "digest": "8100c9699b02c6ad2d6579f8158ad94a16956059d3428d3304d3f74f9aaeaf1d"
+  },
+  {
+   "league": 0,
+   "seed": 1101699299,
+   "digest": "45800506815e8d4787e163c5372ee6a1fbc26dd9de84b0979431721213c64a90"
+  },
+  {
+   "league": 0,
+   "seed": 2990372512,
+   "digest": "ce1dd43e9bda2376b8fdbf4531ecea193f844995acf1e006d7c210dd68c51ee1"
+  },
+  {
+   "league": 0,
+   "seed": 3592220464,
+   "digest": "434bc87941c1217585968ed765bc11eb7d7c4eddb780f6a4ebcea5f1cea82c32"
+  },
+  {
+   "league": 0,
+   "seed": 2181662945,
+   "digest": "46a6a9d5d51cbf06c3e546e4f086d391e2eede941340225be7b6b5982b96508f"
+  },
+  {
+   "league": 0,
+   "seed": 3086489993,
+   "digest": "36009ed593ebaad651e60dba8bd72c5a34a26999cd3faa633cb2b39cb9a06d38"
+  },
+  {
+   "league": 0,
+   "seed": 436293623,
+   "digest": "71d2fbe83fcede7e298a830c2e22e48f7e009bd0f02bdc73aa089cbe458b741a"
+  },
+  {
+   "league": 0,
+   "seed": 3734655353,
+   "digest": "60fa000f124bc9ef6872de95fbf2b0531b153c0c3d36b1416945e24760e57d7c"
+  },
+  {
+   "league": 0,
+   "seed": 3794927078,
+   "digest": "e982c8a8e7ce44e3817cd09b98107cc0d5641f201117a7f6b69d66b986233863"
+  },
+  {
+   "league": 0,
+   "seed": 2824178117,
+   "digest": "fd077f4d0ce9515ca01f0c081fc0efc027c1fe57f371c42602622c4bae9eeac6"
+  },
+  {
+   "league": 0,
+   "seed": 3415068547,
+   "digest": "faa7c4701ea0c746158cebb71c6e06a7e6e9436a330b8bbe2edbe8bcbee2d4c3"
+  },
+  {
+   "league": 0,
+   "seed": 1699531959,
+   "digest": "c441fd79fb6ee98fc6c6d9da7e2819c3af0fea4819f60dc0c6bc6b7e2bf49c8e"
+  },
+  {
+   "league": 0,
+   "seed": 1405257741,
+   "digest": "4c66644eab9de1be0e1b65ec844b759c2d9a5265caa093dd753badb85368fbed"
+  },
+  {
+   "league": 0,
+   "seed": 88981980,
+   "digest": "ea99792fdd1c59c125be92baef9cfdab6e620ee161194cbb80144fe6e2786f1d"
+  },
+  {
+   "league": 0,
+   "seed": 3094503333,
+   "digest": "702c991945810fb3a5a5ec208ac4126dfb4e02978f699f1d190ab8a7c8dcd75e"
+  },
+  {
+   "league": 0,
+   "seed": 2050731037,
+   "digest": "76cc8fe9a2424e7991ec57255b51ccfbe4ec43fd11d7f7f7004a1bb80bac0fc0"
+  },
+  {
+   "league": 0,
+   "seed": 3568579754,
+   "digest": "4a9c880e2d20db5f2f5fa15b424b8d537bcb1ee9d30f8a37c14b6d71689eb964"
+  },
+  {
+   "league": 0,
+   "seed": 768304847,
+   "digest": "6955d9aa3d34c5c813e06d8d6b2f273a8475acf65e89f3f9c1734888b49f15c9"
+  },
+  {
+   "league": 0,
+   "seed": 620522421,
+   "digest": "eb792bb56b337f77fb0538c9288d656e3e11e8c968c87b9969a40174985dc742"
+  },
+  {
+   "league": 0,
+   "seed": 2326373078,
+   "digest": "8d6e7314891b5ecd5ca0a8a7d20f3fafe7ee169e767e7e39e49b95878c925d1f"
+  },
+  {
+   "league": 0,
+   "seed": 995199480,
+   "digest": "46f73fc1ab1f6ddebba31ac6d27c20d30023887bb0bf4a7f9a91ce5080cc2ce9"
+  },
+  {
+   "league": 0,
+   "seed": 1352715232,
+   "digest": "47471fb397d5796b94d6a3545198ad67cf2159447db68d8bc4d7940baec191f9"
+  },
+  {
+   "league": 0,
+   "seed": 3831516058,
+   "digest": "b82ef9e7ff09bc0f5bf4bc061ad9ea5c3e304958debd8d644a5f65f97e77a2e6"
+  },
+  {
+   "league": 0,
+   "seed": 1188142520,
+   "digest": "ed7747c6370616afc0d5ce7b3a7d79202c8e7600056370631e4677120fe32801"
+  },
+  {
+   "league": 0,
+   "seed": 709044680,
+   "digest": "98a0ba5d996e21829b654b3c018589d6c6f84203ff090167ab99c775e4255b73"
+  },
+  {
+   "league": 0,
+   "seed": 192796794,
+   "digest": "892e821bcc3cef78079f585bd503c239bc72be4ed23f33515fffad6c1f3fe97b"
+  },
+  {
+   "league": 0,
+   "seed": 1678866471,
+   "digest": "1ec95ded0c3f4ded997e3be8a4975840111ae329581d4dea7deabae95ab7bf1d"
+  },
+  {
+   "league": 0,
+   "seed": 298368353,
+   "digest": "b34c1a67d2599727957ab7b29880b734e402f9e87aa10e43089573e4d757fc2d"
+  },
+  {
+   "league": 0,
+   "seed": 3409709525,
+   "digest": "f0b6d0e0f160d17c0c3bdf2d697ca4287bdd022a8be8d8bdc419c626b7a8a569"
+  },
+  {
+   "league": 0,
+   "seed": 4273035375,
+   "digest": "a9d4750dadae7e7014d8e77284603a3e69376c8857c593dc754845748d3a2cdf"
+  },
+  {
+   "league": 0,
+   "seed": 3060103943,
+   "digest": "33a9f860f8163db52676dec87c174e8e2e015e63a0037d8e52ef21f634fc3d4e"
+  },
+  {
+   "league": 0,
+   "seed": 3684288912,
+   "digest": "8172a0334d2816809563985ebc82b94b6243d49776b18cab20118b7c3985d0be"
+  },
+  {
+   "league": 0,
+   "seed": 912836289,
+   "digest": "e0e8d8c7f28362a8d16e808b67296ec0604c9818d2ac5c543e5b5af42ec0c43a"
+  },
+  {
+   "league": 0,
+   "seed": 1115365999,
+   "digest": "39233d74e7e55ae9498f489f1a559f61b3d17f4716cd5b47eff43b68fc8c6833"
+  },
+  {
+   "league": 0,
+   "seed": 2679571773,
+   "digest": "2b095c3217b49f98b76af8f4a272b2e07f15b242edf1a7dc8fca0978cf4bf3f7"
+  },
+  {
+   "league": 0,
+   "seed": 3078157259,
+   "digest": "97235e2be1f068faf1b45cbcb9d068c38a744dc8f1a800c9e43b9deb2f07ce70"
+  },
+  {
+   "league": 0,
+   "seed": 2563616588,
+   "digest": "b8b122abd20aec1cec37bf7ab848190dcfbb346650105aca4a4e6acf427ad278"
+  },
+  {
+   "league": 0,
+   "seed": 2732295046,
+   "digest": "9aeb8119f535fd9fe2711b6bd8d23d696f23bbdb11ef54f43291acf113865043"
+  },
+  {
+   "league": 0,
+   "seed": 2124052122,
+   "digest": "8f99a4cda303123230f87b32e09b191a5b766ab02fb3652ab0865035c607382e"
+  },
+  {
+   "league": 0,
+   "seed": 1108008213,
+   "digest": "ff107de869c4b6b89fc3b9e9fa90a7d8ceb9d9b79b9b82e2f2d77eaec5b0c225"
+  },
+  {
+   "league": 0,
+   "seed": 2332607849,
+   "digest": "6d5fedd7892a294e5fd17c57d28fe80df4e0337670a9f919dcdb036279fd60a5"
+  },
+  {
+   "league": 0,
+   "seed": 980446228,
+   "digest": "0b79276a8159a854d60fb55af9d35dd2262e6ae8f0a03b801bc67b389bea68e5"
+  },
+  {
+   "league": 0,
+   "seed": 3121184699,
+   "digest": "67f4525d832197a01eee04f44f4c0e23791320a96c72d8327df24ec96ba92404"
+  },
+  {
+   "league": 0,
+   "seed": 87910529,
+   "digest": "b2cdbe6e1983da7f995c08df870f7544c164eccf7601f5cc792b2baeba71c526"
+  },
+  {
+   "league": 0,
+   "seed": 123819873,
+   "digest": "3195aa536ebe411fdf944c044b40c54ce4810c4f2faa6215474ed5ef0996e5de"
+  },
+  {
+   "league": 0,
+   "seed": 1045896707,
+   "digest": "defc42f6ea3b446cb4b13b274165d792bb6befaa8e77def42ee0755e040a568f"
+  },
+  {
+   "league": 0,
+   "seed": 2017939308,
+   "digest": "ad9dc5277d3f5db54684548756fb57b1af8db6bc9ba0b9e3f6870506ce713ac6"
+  },
+  {
+   "league": 0,
+   "seed": 4273054294,
+   "digest": "09056c7bcad2bf9fe15317975e35b9dfe011cfa9332e00e1721d047e7413f0af"
+  },
+  {
+   "league": 0,
+   "seed": 4136972161,
+   "digest": "9518b764031a6c7053bc73db7e638dfb26fe28a63c27c08a78915d0040ded981"
+  },
+  {
+   "league": 0,
+   "seed": 2251832285,
+   "digest": "1852c9a18feebdbead821d7136967969e76a2eb46e01e9c5abe9104d5a697ddf"
+  },
+  {
+   "league": 0,
+   "seed": 595191642,
+   "digest": "5b9d6daa1412173933795ece61f5c75358c98e79c7842e4ec6588d65c5e78625"
+  },
+  {
+   "league": 0,
+   "seed": 3317781248,
+   "digest": "6936f9a6a1f3394ea462f33cf6a3dea6aa83095a507a911e5877c9769d1bef85"
+  },
+  {
+   "league": 0,
+   "seed": 320553835,
+   "digest": "357f45a6867b080aed9278879fbd887d9b4c20e7787c9f9820ec33fd4b98580e"
+  },
+  {
+   "league": 0,
+   "seed": 2879115616,
+   "digest": "2427c8e467bf47a81355a3318c409b2cf5e7d40cc07b705572acd40629179f9b"
+  },
+  {
+   "league": 0,
+   "seed": 1583690686,
+   "digest": "721d89e9598f5f75e3966b2b1e8037220b6207321b99b7cf947f508826714126"
+  },
+  {
+   "league": 0,
+   "seed": 1859494051,
+   "digest": "890f824f0f0c1b9af40a7c59feb81e5284db17122a32e55e1634e05fbd62a9ad"
+  },
+  {
+   "league": 0,
+   "seed": 2124432739,
+   "digest": "77f3fe97434354e0140a760650c0183484cafba4812d019ed4fe84615de041a2"
+  },
+  {
+   "league": 0,
+   "seed": 323181602,
+   "digest": "a7499db22424bb80c74a0342467fcfc532180ceb3576292df0b0dd4018114281"
+  },
+  {
+   "league": 0,
+   "seed": 2919682120,
+   "digest": "8731f6f38614248aa52bd7e290920a4699da9a7b90785a7a524e70f2600f0ee5"
+  },
+  {
+   "league": 0,
+   "seed": 3313075670,
+   "digest": "7c58dd6617b92f55f5eab55e47382777f282d9d46291859ff538858795c1fd9b"
+  },
+  {
+   "league": 0,
+   "seed": 4292320479,
+   "digest": "d1e94c7f5a626dd660e5d0a854e240c7b52be7d60df66a49bff601c0cc39d4c1"
+  },
+  {
+   "league": 0,
+   "seed": 1442133570,
+   "digest": "0efb12c58ef338423ad538f45e771adae1dbc449be88f829596289003eee4b8e"
+  },
+  {
+   "league": 0,
+   "seed": 3893984968,
+   "digest": "4b1c93f768f622bd6088f703d2cfc6a2ecd0d821578c9828415ddcdb424e060c"
+  },
+  {
+   "league": 0,
+   "seed": 3922700410,
+   "digest": "96d52ea6fd38fcdb6f7fdaa5ee6b79e07a49432a47cdcd4a28217dcdbeccf0b1"
+  },
+  {
+   "league": 0,
+   "seed": 4289079245,
+   "digest": "3813015a7dccd45eb7ee62145772e773163781aaa0db72d31da74af108d450cd"
+  },
+  {
+   "league": 0,
+   "seed": 3857179076,
+   "digest": "01d7c3203103e758d0f7567df7230bdcae3dfbc0fa7c104096ebd0d0650ace05"
+  },
+  {
+   "league": 0,
+   "seed": 520221104,
+   "digest": "165464f53dd7209e394bc00c6866c24eab8c30fbc44d5276c9525cb5c295a7a7"
+  },
+  {
+   "league": 0,
+   "seed": 2415658375,
+   "digest": "6da01171d9dbdc158dc74b02764dad5662250ea99b53ecb18569219749b523b9"
+  },
+  {
+   "league": 0,
+   "seed": 3163508049,
+   "digest": "29a6c25dbcf067841b89da2afeb999af89a8f7241d8b89bc2de0475179c3b9aa"
+  },
+  {
+   "league": 0,
+   "seed": 591820218,
+   "digest": "d59d3b4620bf44a37c7ac979324c7859957087876e65088fa906ae17c574f324"
+  },
+  {
+   "league": 0,
+   "seed": 1542774773,
+   "digest": "0d75110ff6f5890cb9da1aa1873987d8b4d30176a83f77eebe626625bd888a25"
+  },
+  {
+   "league": 0,
+   "seed": 2638154304,
+   "digest": "01010e79f0eb502d3eca513f7445d31d0fb646790b7921b42099151ef0131cd4"
+  },
+  {
+   "league": 0,
+   "seed": 977108477,
+   "digest": "36330d71b5610a74a28cc409a15d5d3b1d23162ce98dc7870c373b3ece46e285"
+  },
+  {
+   "league": 0,
+   "seed": 782752545,
+   "digest": "a0daf025095526d1cacc99b9522b0a49d84b907c8ed26fdd62831f8e5797dbec"
+  },
+  {
+   "league": 0,
+   "seed": 1584868308,
+   "digest": "48f07c3e5247159fb99b66074abc271be372c4b2825d7480360d0710562bad5c"
+  },
+  {
+   "league": 0,
+   "seed": 2544037733,
+   "digest": "dd4351fc1a903ef92c2e9f3982b426648cd4a8f0e7dd3ec767c0da0dbef1d34d"
+  },
+  {
+   "league": 0,
+   "seed": 2726248553,
+   "digest": "44a96d1e9823dd280c005b299d7b822b183ce81a46ea4e1b9b76a32da0f2804c"
+  },
+  {
+   "league": 0,
+   "seed": 502093086,
+   "digest": "0c4f2cc9bb33991db290bea2b8f122dc93a211479919b3c3ec9481cd1e33f438"
+  },
+  {
+   "league": 0,
+   "seed": 3302641116,
+   "digest": "0687317cc5b702f93acd1868fe83291f8aba0bb5b018b632e0a08bca08cc6d98"
+  },
+  {
+   "league": 0,
+   "seed": 660384058,
+   "digest": "f43805303031721003ea155b24e22bda1be8f4a6bb8642f27c2b43151b392cd2"
+  },
+  {
+   "league": 0,
+   "seed": 708601084,
+   "digest": "eab4b57579e477fa8d99d02d0d6b0a852e66c04c479ed9dc80df52e5e9fa3965"
+  },
+  {
+   "league": 0,
+   "seed": 3199544041,
+   "digest": "7a25f4c73ff4b5f00160ee0522c79f7505ac744ff8057b4da2cfa6972a0044b2"
+  },
+  {
+   "league": 0,
+   "seed": 3290016744,
+   "digest": "f8703e88d8f9ded87fc5a96067579abd2f107b67f60670307216a2aacb419842"
+  },
+  {
+   "league": 0,
+   "seed": 1200540591,
+   "digest": "f9e70edd58ab65d4c346ed826d333dafa9c93e0816f9509495907b8726d5f1db"
+  },
+  {
+   "league": 0,
+   "seed": 3169579880,
+   "digest": "5f668561b6a7f6ed3cbe4b99b358ef97681206caeee2365c65e4902c473ee2b3"
+  },
+  {
+   "league": 0,
+   "seed": 593952525,
+   "digest": "0506e8a3f6050f779a2010b9e584fd534c4ee9ed53ba34a0e4a2104c0db7a97e"
+  },
+  {
+   "league": 0,
+   "seed": 926772178,
+   "digest": "b90d096b118a1fc951dc269098dcb29a25f3556ca0e782b50cc5630bad0f5160"
+  },
+  {
+   "league": 0,
+   "seed": 1550371817,
+   "digest": "390406ba72066b734c4433be3c9d03aec2299c46f8717cc7cd3ceeb5b507f27f"
+  },
+  {
+   "league": 0,
+   "seed": 4069674421,
+   "digest": "ba5b3b09e7388001675530b5df9bbd3d8cb92b59e1f86e58a3a6f00f95e86f18"
+  },
+  {
+   "league": 0,
+   "seed": 2150876252,
+   "digest": "a4231188a90bbd42570d1bb46b541ca91c3dfdbf7bde3c949bd1b075d79c88f8"
+  },
+  {
+   "league": 0,
+   "seed": 787219349,
+   "digest": "aef5f7e19aea95a3ad49d948b482b58a94c60c1e90b5ba11d99a1251670126e8"
+  },
+  {
+   "league": 0,
+   "seed": 1535867400,
+   "digest": "315cffa1a011e3d1056a42b699cafcd31aa23220a5a85a6359b050648921b6e1"
+  },
+  {
+   "league": 0,
+   "seed": 3120944201,
+   "digest": "0cbf582155daee1108d931cc115acb80df9829d8915ef8ac22fc1caeac4b8e26"
+  },
+  {
+   "league": 0,
+   "seed": 3476578445,
+   "digest": "1e984cb922b736d65528b4c24b1e092fea94b2c53edbcc2ed801a289c99eedb2"
+  },
+  {
+   "league": 0,
+   "seed": 2028209739,
+   "digest": "b794e37edc2775f43800f05387282d0114e7330beb8e540c84c7b69c4473cc38"
+  },
+  {
+   "league": 0,
+   "seed": 423537309,
+   "digest": "344d8c610abda24230cd9147b139fc65ecfeb3e51d8a0bf4f58b5a2e55616b5d"
+  },
+  {
+   "league": 0,
+   "seed": 3426579060,
+   "digest": "6a71d526c0f0af7aa433df59d51fcd4b41a9276bc8db6f5a394dfc717c947953"
+  },
+  {
+   "league": 0,
+   "seed": 134601547,
+   "digest": "bb755b42394d4adac6d1b31de98dc054c547eb8464396523a8fa22cb3fbedd62"
+  },
+  {
+   "league": 0,
+   "seed": 4073185534,
+   "digest": "37906b0f41d8a0a776aacb7c6fafa45b49170bd70162459041e3944e78e14148"
+  },
+  {
+   "league": 0,
+   "seed": 3783182099,
+   "digest": "5e627d2a4f7a81463bb925eb74a00f663ae58ace73091efb702b11684d348682"
+  },
+  {
+   "league": 0,
+   "seed": 1569578988,
+   "digest": "9fcd0ea9bbc54d329fc42ee60242bb849e6a07a5b25978bdc39035bb13854c28"
+  },
+  {
+   "league": 0,
+   "seed": 3501299195,
+   "digest": "8c4995a64f2df3dc267f30f1f959cc2adb758ef0fb36c1c8510f0a2bf980e43d"
+  },
+  {
+   "league": 0,
+   "seed": 2951767984,
+   "digest": "906ce7d7c39ab18622d47fbcdf22da83361950f1f0d025d31f79dfe24a0e623f"
+  },
+  {
+   "league": 0,
+   "seed": 194394515,
+   "digest": "899b13e33dbcfe99ce3adaab050cb67d319bf87c8807b92ed6d17578adb8dea4"
+  },
+  {
+   "league": 0,
+   "seed": 1865612156,
+   "digest": "e1afbefe61c460e7eeb0f8316d2c3f86c1897c01ff9f13b0ae47b3790ce8c08c"
+  },
+  {
+   "league": 0,
+   "seed": 3332063644,
+   "digest": "ce0dba76f82fd6528e885d8e0402ad80562213c9445f16fe95ef359ee1673572"
+  },
+  {
+   "league": 0,
+   "seed": 501060559,
+   "digest": "34fca2f02ddb88e55a351c488a977056ca502cd199e6b9dec680d7ce826d03f3"
+  },
+  {
+   "league": 0,
+   "seed": 2068730828,
+   "digest": "97b56852b6932501f3a69002f90130b4bceb360ef6ec7a67bcfd1bc041f21e53"
+  },
+  {
+   "league": 0,
+   "seed": 3006212526,
+   "digest": "4919250611e686c93a7a1f16097e3bbc9241ecdf94c9534a5a51c1583e1d755f"
+  },
+  {
+   "league": 0,
+   "seed": 1017603701,
+   "digest": "e98dffe454313295a8be780b68d8697d08846e6c6ee875dae45fc4e0e2c0789b"
+  },
+  {
+   "league": 0,
+   "seed": 2412387216,
+   "digest": "dea323569dd6de8b56c97cf21a40a34c55ea499ebd2ba07195c142006c355c5e"
+  },
+  {
+   "league": 0,
+   "seed": 1462223927,
+   "digest": "031d0d7cf90e50f78026de189278f0533d640ee21d17f3b62dd99b3ec2525123"
+  },
+  {
+   "league": 0,
+   "seed": 3330738565,
+   "digest": "0323984676eadf01b63bb7a01101a8b2b3ff146627d583141ae19cc1638f73de"
+  },
+  {
+   "league": 0,
+   "seed": 3941417923,
+   "digest": "c1e04e782d854384faccad28364ab8ce6865d252f7d35013c45abfab89927765"
+  },
+  {
+   "league": 0,
+   "seed": 3708012932,
+   "digest": "62b2f39e7fa22d44d7265dca1dea3d23ffc386a18c3d372627b4030a44f8ea1b"
+  },
+  {
+   "league": 0,
+   "seed": 234198501,
+   "digest": "974fd066c3ecf37567a1dcb5361738aef2974249bf9ebad108544f00f903069a"
+  },
+  {
+   "league": 0,
+   "seed": 1125800917,
+   "digest": "16b82d02dbbbc6681a51d56eab502729c37370e231d6bb01631a58822301b7db"
+  },
+  {
+   "league": 0,
+   "seed": 2783049741,
+   "digest": "7ae453d54487e80bbcfd59f73effc6c4491090c0167221903e145fedc0db51bb"
+  },
+  {
+   "league": 0,
+   "seed": 1853462140,
+   "digest": "41d6c6488640b012a9d22cee3071acaabf93402a749b220e95baebf3906af6ce"
+  },
+  {
+   "league": 0,
+   "seed": 4016761800,
+   "digest": "09058b25c85d64f159f3fd4c37f2abedf73acbba3dc76c3dcab4f157973afb3f"
+  },
+  {
+   "league": 0,
+   "seed": 2305695288,
+   "digest": "311d42aec86910bcc7393e415142515674e7b3cf461a96173ee2a74928f74045"
+  },
+  {
+   "league": 0,
+   "seed": 704398399,
+   "digest": "06446291018fd3beb190e716a84dd006cea9ec9fc2c729368bd647d769414715"
+  },
+  {
+   "league": 0,
+   "seed": 7726204,
+   "digest": "a7253bae14ed20da9022d05e3489f83b49a7afc7803d66b4c09c5f8e2c9e8216"
+  },
+  {
+   "league": 0,
+   "seed": 3076445808,
+   "digest": "8f084dee7be6867a9d25c21ffabc1449150f54c5fcae36c1654c421d1f255acc"
+  },
+  {
+   "league": 0,
+   "seed": 1981583844,
+   "digest": "77e65ce9ca809a59323609c508245de932303e03ad9976865f4a95f4347049e2"
+  },
+  {
+   "league": 0,
+   "seed": 1706373275,
+   "digest": "2661530b2abcc58063071280e6602a9d2614346c0235c953929ab29e5f76fc93"
+  },
+  {
+   "league": 0,
+   "seed": 3383221665,
+   "digest": "2930b2903a519e330bc43d1f5c5c4dcb22669fd5889dca448909ee61124e25c1"
+  },
+  {
+   "league": 0,
+   "seed": 2950363030,
+   "digest": "de3345c533f4a94507f147bde8ec4c4302bac0fcdb56e92353e8f93cc4d23793"
+  },
+  {
+   "league": 0,
+   "seed": 4235880667,
+   "digest": "3fa3c5db5f24b3b9c3a9895f5a86093e04869df7ab3d6b3b083617aac76f70c2"
+  },
+  {
+   "league": 0,
+   "seed": 1154053825,
+   "digest": "9df420e2fc6b0b7adaa61d260755f5e25ddfcc02d0fd9b86a709bd5839b4df71"
+  },
+  {
+   "league": 0,
+   "seed": 1191096533,
+   "digest": "2445f16ce78a4c6e8c7ba33bbbc0a1669d3f1a58c2cf0cefcad2b65a531822b7"
+  },
+  {
+   "league": 0,
+   "seed": 4212494725,
+   "digest": "980f5253c3cc6a654d298defbb33e9b81937346e074f0e9c0c02d6fb697dc930"
+  },
+  {
+   "league": 0,
+   "seed": 930498580,
+   "digest": "3616994836226c82470ba51ec8fd2f896ec073ef2e3fc5395ba75a1931599969"
+  },
+  {
+   "league": 0,
+   "seed": 3091937686,
+   "digest": "20bbea4ff61cb1d592588ec65e615cb82c7d8576229a30dcb3c1fb91b7f7c9cb"
+  },
+  {
+   "league": 0,
+   "seed": 3219447833,
+   "digest": "9ab89ecd7b177e44fed0a6bd15d1c86bd445e4d5c1429f2bca76be93174e06d1"
+  },
+  {
+   "league": 0,
+   "seed": 2061939424,
+   "digest": "7b18a492e156c41a17d327afd91111587152298e642775c20973f8fc6c82138a"
+  },
+  {
+   "league": 0,
+   "seed": 1723427548,
+   "digest": "e559473101aa9d7b621c1ebd49bae4575f002730ce3acdadc90b7c0117efa991"
+  },
+  {
+   "league": 0,
+   "seed": 1625947988,
+   "digest": "8fe4204e1c2bbc98d70039ce099e2b7b32a363cb4e46a6d3f92615d4ebe4928b"
+  },
+  {
+   "league": 0,
+   "seed": 839940194,
+   "digest": "b5800991d3e1bec1e2144bea2555f794ae290bba4edb69f3b212eb400fcb1ba5"
+  },
+  {
+   "league": 0,
+   "seed": 2269302449,
+   "digest": "ce97737ac175703c602b4332d9ada06a2e7873cbe5b1f3fabaae4fd020076f45"
+  },
+  {
+   "league": 0,
+   "seed": 3107882896,
+   "digest": "104e01d87cddd7837517bbb4c53739a57938ecb9c1e988e771eaceed992075e8"
+  },
+  {
+   "league": 0,
+   "seed": 930945576,
+   "digest": "328d0c1afc565941f505b2a4ed7571357be21b872c9f25630f1456a3af83a680"
+  },
+  {
+   "league": 0,
+   "seed": 2963942765,
+   "digest": "ab67a1b9985485aa967e9d3f6ecb02f0901bf12aa40bb2f5d9e4abb415465ba6"
+  },
+  {
+   "league": 0,
+   "seed": 2521769896,
+   "digest": "04f889533bfe9e31319464d10b0cb6bc1b1d8aed9d7cad9c7a4955bb1cf14b58"
+  },
+  {
+   "league": 0,
+   "seed": 2824456583,
+   "digest": "b9b3076e43830573dba572aace08692b9e5e3c69ec1a770dd171c8be55d80a02"
+  },
+  {
+   "league": 0,
+   "seed": 2772907572,
+   "digest": "0996093f1cd72b2052fe649271b234dedcc9719726fdc1e80636e9c887a57b02"
+  },
+  {
+   "league": 0,
+   "seed": 2396275593,
+   "digest": "a849cc16ded519eb8c44ad93e5b4ab8d0fb0900f712e4687052301642a5747e2"
+  },
+  {
+   "league": 0,
+   "seed": 1539254670,
+   "digest": "feb9f6a9b5f58ed57342e7c2c88486fcb66f0778654060d9768c2878dde1f5b3"
+  },
+  {
+   "league": 0,
+   "seed": 3692202444,
+   "digest": "2bc26d2edfd8031d595f0cd42f88109adc030d353ab0b5406e16fb4264763b1c"
+  },
+  {
+   "league": 0,
+   "seed": 1295079081,
+   "digest": "7468abe5090173fa8d78127dbc0d7f38b359f16cc79cb668ba798cfa8d8173f1"
+  },
+  {
+   "league": 0,
+   "seed": 1518794366,
+   "digest": "1133542bdb5ee613b999f54a1edf7dfab9887562733b65c1ff205751cebc682a"
+  },
+  {
+   "league": 0,
+   "seed": 209908044,
+   "digest": "2fa24b3a28f186d1978b2032afe6860c7d02b327dbbe08fefd08ca1dec07ca1d"
+  },
+  {
+   "league": 0,
+   "seed": 3346288138,
+   "digest": "c5f9a05fe6cf13839702d9e417512fe5d60f713eb7f859b2387e23d948f7e8b3"
+  },
+  {
+   "league": 0,
+   "seed": 2420113896,
+   "digest": "296b38f604d866f7bc7f3e0adaf6b68598d8cb3eca9fa7fbc24138dfe4fe5c44"
+  },
+  {
+   "league": 0,
+   "seed": 1071191721,
+   "digest": "c4ce01e5076c9fda47a89924b01ef3567ca95feee4772b07aadedcbb8302f7f1"
+  },
+  {
+   "league": 0,
+   "seed": 1877345331,
+   "digest": "f783aff6d04fe0d999e3593a6c54311f5b425d68acce8226374ecf7a924b0bae"
+  },
+  {
+   "league": 0,
+   "seed": 56536371,
+   "digest": "c444eb5395c82e81148a857332ff1aa6d531b428074411c7f56e36a9d3be2a87"
+  },
+  {
+   "league": 0,
+   "seed": 4179421024,
+   "digest": "18a61e94b22a86b9ff6b95f7035f64f53b57b0eea3872082b52e4d555074d6da"
+  },
+  {
+   "league": 0,
+   "seed": 1026504859,
+   "digest": "1ca84ddb07055b6d8e56805544c3b057aa5d16a22f4c79388876a3f5d3d969a5"
+  },
+  {
+   "league": 0,
+   "seed": 2574769395,
+   "digest": "fbf2990e35cf7946e6253ec73976207cb90d9376c2cc6f1349346dd049112b33"
+  },
+  {
+   "league": 0,
+   "seed": 4096685913,
+   "digest": "faad222e08d3c9dc1c546a8a731d05c194141132be2a55c5ca1ccf2f8ac01308"
+  },
+  {
+   "league": 0,
+   "seed": 181815647,
+   "digest": "c6cb19f245273fe542a0a7be81bf1e0128c7166967710df642fd4dcc8f6bee21"
+  },
+  {
+   "league": 0,
+   "seed": 703619600,
+   "digest": "f7ad540717eaa02c9c3d0fb0e42f8bf99d1c90b52228d93d2504fcfb6e48999d"
+  },
+  {
+   "league": 0,
+   "seed": 2697347626,
+   "digest": "a57517438497686f3b39ec858306c5258d9e79abda38cd98e2a57b1ec0cd35cf"
+  },
+  {
+   "league": 0,
+   "seed": 2900155810,
+   "digest": "ac35063befacb716bd896e5418c3addc6516fa0202eb3396adb6ac0271071671"
+  },
+  {
+   "league": 0,
+   "seed": 2745173074,
+   "digest": "bc7b90ea1156578a67b6e7cbfb15bea0b1508047ba3250db93cabc5b557e8dbb"
+  },
+  {
+   "league": 0,
+   "seed": 1326325521,
+   "digest": "f91150427652c26b45af3a053ffc80fff2548cc6610283e5f4fab5b8e9428b1f"
+  },
+  {
+   "league": 0,
+   "seed": 430903748,
+   "digest": "44352bbc1ee45a86ba8de57e729a25003af82e5639eb181b14b271df6f9d91e4"
+  },
+  {
+   "league": 0,
+   "seed": 1017393952,
+   "digest": "a3e5b047a36f9dcb41ef9925a7bec95e8111a4d230ded3d28db549f99a2efaaa"
+  },
+  {
+   "league": 0,
+   "seed": 1558017713,
+   "digest": "ead5aa4ca0066f3f45d2aefacb2bf2a827c577e9b85910e7b4ac31b6d2154e70"
+  },
+  {
+   "league": 0,
+   "seed": 1931266025,
+   "digest": "d1d02e2dff18e25d7aa1920c216eace27156a4ebeeec1ee3667efcf5f43b3dbc"
+  },
+  {
+   "league": 0,
+   "seed": 3544510415,
+   "digest": "1c466e33a3e094565058265f740113a257dd3233f1b9e40af205c5f5105ea22b"
+  },
+  {
+   "league": 0,
+   "seed": 573506281,
+   "digest": "357e36128c06346a4a6f088eb49e1735c1f3c8b6f6845680a22a780b9d9c3017"
+  },
+  {
+   "league": 0,
+   "seed": 1000521758,
+   "digest": "12e5dda2142a5cacf6743500e44e616f745e0e3a1a49b292d0d4af0d2421ba54"
+  },
+  {
+   "league": 0,
+   "seed": 2353585643,
+   "digest": "461526ae763c40184610c60f96e2fe0905f19f89d8e3bd5a7243fc73231413c0"
+  },
+  {
+   "league": 0,
+   "seed": 2672790965,
+   "digest": "d399f6a46f71abc3447aef00e501c9ae64dc14e24ec082f27a7a6dff42f22fbd"
+  },
+  {
+   "league": 0,
+   "seed": 93610691,
+   "digest": "7498d22d69205eb6485f4a15f6bc6c82daba24444b596548295f3fdc933e1e56"
+  },
+  {
+   "league": 0,
+   "seed": 2065656038,
+   "digest": "254755a60030854d3c987c507858b76d0fce89f586d713d19bc0a0e8205698ce"
+  },
+  {
+   "league": 0,
+   "seed": 1934175877,
+   "digest": "6010b53ad2aa48bdbb48005741848bb7a96011361687815eb2c3f35ada8f5eeb"
+  },
+  {
+   "league": 0,
+   "seed": 3394563657,
+   "digest": "160644809a2af3d21393473f2e9358d125027e8327731970040d3870d72d7943"
+  },
+  {
+   "league": 0,
+   "seed": 2874726221,
+   "digest": "dedb01b540ac96ac9ecbb1b717f6bbc96b0f1e988253373efbd1039ba26b64ce"
+  },
+  {
+   "league": 0,
+   "seed": 1312398404,
+   "digest": "808009cf6ea0932d2c45925726ced1a9abe5d5bf0e1e787c4670185cd260e4dc"
+  },
+  {
+   "league": 0,
+   "seed": 2796336540,
+   "digest": "6f6e8e43b5f565474dbc93b8cae968e138a9bfb3eda37caffb3398756eb56843"
+  },
+  {
+   "league": 0,
+   "seed": 2612859654,
+   "digest": "549d8682ad9e72c8aa5a2f0aadbe4aa4b177ed3cbf2e06c4296df19ccd9a7b98"
+  },
+  {
+   "league": 0,
+   "seed": 2287592901,
+   "digest": "04bd02e8665a3d47e5a6e6c9b365bb9002c64cdab09a0163a59d8aa4ab931857"
+  },
+  {
+   "league": 0,
+   "seed": 2093677683,
+   "digest": "0d1d17840052a8237a58414b7cc3b42b324ca1c2e14b3f618a5d03acc2e51722"
+  },
+  {
+   "league": 0,
+   "seed": 3314183059,
+   "digest": "0a7e87b9b70264b55fe861b235c81847f863d856df257bc4da80fba12521cdf9"
+  },
+  {
+   "league": 0,
+   "seed": 2347913824,
+   "digest": "3c9892ac0899633ee75d2abb87b92d477a79856f8b455bd8e71ea80ca80e8534"
+  },
+  {
+   "league": 0,
+   "seed": 2171810328,
+   "digest": "681bcb9ead531de66916ee54b15c1423123f899a1000a2d3539486c86cda0a37"
+  },
+  {
+   "league": 0,
+   "seed": 3202409541,
+   "digest": "f295952a2c52ba75fa1f6f40ee5aa9e07c56c195fd29611313e4a1afa13ca296"
+  },
+  {
+   "league": 0,
+   "seed": 2647347229,
+   "digest": "061ed7a7a162606bf6f78ac0280db9c7fd2810304b84a68f92401602f1fe225b"
+  },
+  {
+   "league": 0,
+   "seed": 399961483,
+   "digest": "e52c8c2866b41cbc39add870877a0f0a26f0909152adffaeb1505af11dc3e839"
+  },
+  {
+   "league": 0,
+   "seed": 2356399444,
+   "digest": "0cb7b4e782027350da9f245cd3be833ed7c0cefaefd130c07ddbb2969814cb4e"
+  },
+  {
+   "league": 0,
+   "seed": 1954309643,
+   "digest": "2717bcde757819f0cdcccd665a03de67d2800296b06c3acbce5591547bd02204"
+  },
+  {
+   "league": 0,
+   "seed": 390296195,
+   "digest": "0f671b99df799169530f275a249310196c20c329332631dc3abd2760a720b3b8"
+  },
+  {
+   "league": 0,
+   "seed": 1874734669,
+   "digest": "4a1bce7387ea5d7327badfe47a672ae6bc95ffb9ad0fc044ac27f25a67d142aa"
+  },
+  {
+   "league": 0,
+   "seed": 1081896564,
+   "digest": "dc0cd7550726023399896e2548df8db9312ddf6e97485e7b207d708b161d7d66"
+  },
+  {
+   "league": 0,
+   "seed": 758611993,
+   "digest": "97373c8e231e371b62856fefd98c0763b19382d90c57f59683ad1c6f7609d1fa"
+  },
+  {
+   "league": 0,
+   "seed": 241650326,
+   "digest": "3ab2109ea5c6b0fd1a3e88fd3211ab8a408808f170504741ee4b35f7fa9622bd"
+  },
+  {
+   "league": 0,
+   "seed": 3202618742,
+   "digest": "4116c1f15ee45ba8305e3ed7ae540f42d8c97c9c05d8f8ee38d18411d0b21185"
+  },
+  {
+   "league": 0,
+   "seed": 2464651422,
+   "digest": "d3b4de43ad78faa32072d60345014ce71df00d521c801de8eb90984c509324f8"
+  },
+  {
+   "league": 0,
+   "seed": 3980668994,
+   "digest": "a6e166babb1ad62fb948deef9db1dc7a0d56532fd95eea84ddc03f09c283a059"
+  },
+  {
+   "league": 0,
+   "seed": 1622583513,
+   "digest": "1afa5b2b82ec6e2229424c21f61b3c6a94803a255d84d4973eedf9dd5dc8000b"
+  },
+  {
+   "league": 0,
+   "seed": 3848988686,
+   "digest": "c6f0bb3fdd10052adb6f1681d44cd7dd4f1aa3b068f7b40fce13bb8f815b9c20"
+  },
+  {
+   "league": 0,
+   "seed": 774824182,
+   "digest": "f83239f4a91ed2d9fa30282cc4dfce1ed55cd86abd64106f11216fa7ed4fef57"
+  },
+  {
+   "league": 0,
+   "seed": 2498235292,
+   "digest": "3567b31c7723b980d6c2b0a56d212859da6bfd242fe74cdac1844c45127cbd0f"
+  },
+  {
+   "league": 0,
+   "seed": 1789409128,
+   "digest": "3d60befdfb64665cdff04e16cbbed6d1fece27415e16fca7d1ee9bc36eafce80"
+  },
+  {
+   "league": 0,
+   "seed": 3372822230,
+   "digest": "0d9601ec455dcac35009d83cac2e79b4ccebf3c337140476e11799e3eebe729e"
+  },
+  {
+   "league": 0,
+   "seed": 2087761998,
+   "digest": "d6c4cbbb90d1c6bbc1d0242455c69da0ea0639848e2d163cf8db38a0a2709ded"
+  },
+  {
+   "league": 0,
+   "seed": 3994340681,
+   "digest": "a0a68bf5bc32da45470cd9e6b04c88f50fd82a2133eecddc9c5f44cb60c3529d"
+  },
+  {
+   "league": 0,
+   "seed": 1596791962,
+   "digest": "763f6390cd4140e329b7ece4d6ab5a0f9823edb7b7d285d9c5801901e5bf9e88"
+  },
+  {
+   "league": 0,
+   "seed": 3815045619,
+   "digest": "cb8ced8979b3f0b41a66c9d94192af829fce73ebb9ffab9ce63bbe9d07e35f67"
+  },
+  {
+   "league": 0,
+   "seed": 39981784,
+   "digest": "008b4a09e64ec019a473bc8c5c3b38767add5a2dd4fa485f6e7d1fe7768005d8"
+  },
+  {
+   "league": 0,
+   "seed": 1601075218,
+   "digest": "425dc9e4cfd9e9a95bcf286b66f5f3becc120bc1f3c1e8e2d53e1722eeb2b9ad"
+  },
+  {
+   "league": 0,
+   "seed": 3759919750,
+   "digest": "329237512792ec66cb6e75a1364d24e447a0a7935ed09e4d4cd0d09a974fdcdf"
+  },
+  {
+   "league": 0,
+   "seed": 3908074416,
+   "digest": "0e0f4fee9c05ebaeebe1e4cdecfca0e4581c8ec80c24ca279cb8c4e7d5c54154"
+  },
+  {
+   "league": 0,
+   "seed": 3886257682,
+   "digest": "c838d1a12ab0d3fae37434cb07a5551aca8a6446ebad0c5a5aa746db98e98996"
+  },
+  {
+   "league": 0,
+   "seed": 1294260474,
+   "digest": "bb36dfd1f5079058b839f9bfe521d06adc12819cb8e76678288763038a25dd81"
+  },
+  {
+   "league": 0,
+   "seed": 4226567493,
+   "digest": "e1928c09a3a5b45d963cdb29fc04495eae8ba2e4d5bc45366318ec688625062e"
+  },
+  {
+   "league": 0,
+   "seed": 1795333525,
+   "digest": "848064f8f16d2677cf39376abf90fb47c03893c7c140c15ce9c3e957bf6b134d"
+  },
+  {
+   "league": 0,
+   "seed": 2415874737,
+   "digest": "2bf16573b344d065b3c39c3d5610d8c0538e47c354262d87520a3235a0524e5c"
+  },
+  {
+   "league": 0,
+   "seed": 3896487943,
+   "digest": "be07ac2810555ffd661c8f54863a0a617f199e23d9007a42d4a34d3212412c7c"
+  },
+  {
+   "league": 0,
+   "seed": 4267717237,
+   "digest": "a46f140bf30771049a00599c215bbeb9cf1d841ac8b80a88df0b88982c2e3134"
+  },
+  {
+   "league": 0,
+   "seed": 1901851628,
+   "digest": "93a9d8493b79ccda20d389f1050677b0414d542abb9e2aa56fd8fd1927977cf7"
+  },
+  {
+   "league": 0,
+   "seed": 939015957,
+   "digest": "81d7c319d6cde3aae3df01067c14bb54795b522f5555ea453e99c546341aed12"
+  },
+  {
+   "league": 0,
+   "seed": 3063813713,
+   "digest": "701036a8eec6ee5eeb9a9b4549f5fd3e76a78cf9b1f753d55aae32d1022f1368"
+  },
+  {
+   "league": 0,
+   "seed": 397332927,
+   "digest": "2ee21d0e4497a25b664c43bd1609f245eab956ce9d84bb97799bf46b674475f5"
+  },
+  {
+   "league": 0,
+   "seed": 2708249137,
+   "digest": "73719653c111e94881d95f77999226c3cc0da5a3dd5e9235e27517b9c00b1d0c"
+  },
+  {
+   "league": 0,
+   "seed": 3553718370,
+   "digest": "d7e1a0d105a2f04620e11493e04a5d019b92097374524a9bbf42fa624a9ff258"
+  },
+  {
+   "league": 0,
+   "seed": 3835548809,
+   "digest": "342dccaad0a6b0d52468c1ce594a087124d8111be7c77eca01d70e5125933961"
+  },
+  {
+   "league": 0,
+   "seed": 3200509564,
+   "digest": "8bc4e5f56e8578d3add5c4ed9e4556ae40fcdbec0e350473cc93fd75808d13a2"
+  },
+  {
+   "league": 0,
+   "seed": 2190993223,
+   "digest": "c0fbde07a118ffa37e3562fcd80eb3274c43dfdf529e7f25f5b10639f7c80d3b"
+  },
+  {
+   "league": 0,
+   "seed": 2309023921,
+   "digest": "94496aef266cd08029bfc6950c1a5d0ae7dc2e57252c5153b4c680b95f2ab9f4"
+  },
+  {
+   "league": 0,
+   "seed": 908840843,
+   "digest": "cb7a84da79585985afff57a08ed214ad085055f9aba04987efad900c1c5df720"
+  },
+  {
+   "league": 0,
+   "seed": 294796843,
+   "digest": "3fa6197c57cf757c72eb8e40b26243d793808ec7f2f8900e058c743c6ac5ceb4"
+  },
+  {
+   "league": 0,
+   "seed": 2526903534,
+   "digest": "96c5727fb59ae1b953cbfca24487cdf7712b81c126175059ef01cb369099697d"
+  },
+  {
+   "league": 0,
+   "seed": 1830368996,
+   "digest": "f9fa0fcd46e5ea204251be428297bac4f30bd57d7c53c43bb0de8c8fbcfd54f9"
+  },
+  {
+   "league": 0,
+   "seed": 1394036708,
+   "digest": "750267de81e6a9d5e895b70bc99d2aa0c8f0a37650411a94795bb78dfe6e3b8b"
+  },
+  {
+   "league": 0,
+   "seed": 3129427705,
+   "digest": "4c4f321b946b58526b3a0d5ccd66d1c909a35dc3c93b8cf9c039fabfd1f4a778"
+  },
+  {
+   "league": 0,
+   "seed": 39335344,
+   "digest": "99ce9d7550f027c2ec48bad2a6f129e31118a9b6540560424456259eb65e1765"
+  },
+  {
+   "league": 0,
+   "seed": 3502619104,
+   "digest": "d0f23d42fb5aa3de5e8316a47d298fd95eefded09bcb613684c2f64814c08e81"
+  },
+  {
+   "league": 0,
+   "seed": 1245910738,
+   "digest": "038cc17daf3cf2b7e7493c2eab86f745f5b2bf695ee80ceb3287c9fe0bf1a7a3"
+  },
+  {
+   "league": 0,
+   "seed": 3838662130,
+   "digest": "40717a28367631a6015a72440c882c16dbb26d820b7aa46f676bccdd3797c633"
+  },
+  {
+   "league": 0,
+   "seed": 2294221015,
+   "digest": "06713fe99239879880c0099ceb90e740fef21704d821564ee4c38b0d9dd844b6"
+  },
+  {
+   "league": 0,
+   "seed": 1198067693,
+   "digest": "353649fe6488ab98f2d2c488fdb905d28fb1db0f99127c39b4849433c4c600c6"
+  },
+  {
+   "league": 0,
+   "seed": 3649905359,
+   "digest": "739c1d5f73eecc728c3291c8d4eaca1bceaa7bf5bc993bb6b974886285230bb9"
+  },
+  {
+   "league": 0,
+   "seed": 2178364300,
+   "digest": "4c8bb503f520ee4337c6f2207a9506caf50c2b1577dcf5af38c2b364538af646"
+  },
+  {
+   "league": 0,
+   "seed": 588600800,
+   "digest": "db4d3b02fbfd540c3b24223e016cd32b996ef745ddc32cb057dc4ead3af96c06"
+  },
+  {
+   "league": 0,
+   "seed": 1305513914,
+   "digest": "7149e2ec10b6817ba70a50f8430fde896653986f004d784d6334d45a257ea799"
+  },
+  {
+   "league": 0,
+   "seed": 3075792439,
+   "digest": "67870f805da1555d2c509f8dd78418961645bce9ff68cd049e757718e8aa42b3"
+  },
+  {
+   "league": 0,
+   "seed": 237433330,
+   "digest": "14fc8521a326f32eb53544dbd67643ffec4a6ef5ece2d58baff7aa1fa1c86af1"
+  },
+  {
+   "league": 0,
+   "seed": 3944685613,
+   "digest": "e42f94e0bb27544123f6a7841b260a41516db8e7caec5867121bf7ca3e699ba7"
+  },
+  {
+   "league": 0,
+   "seed": 599395273,
+   "digest": "bed3188aeb0ae0f364fd56e7983b1147ee551368f5ef9e0943edd5ac1d031006"
+  },
+  {
+   "league": 0,
+   "seed": 812602198,
+   "digest": "36947f390c5123f8b66fa28bc13715cd3815a934f45db00f46e3a814cbca9fb5"
+  },
+  {
+   "league": 0,
+   "seed": 529274216,
+   "digest": "9fa0988b6f7eee68063020c5c15e24f442175561256eb5db60224093370ae9f7"
+  },
+  {
+   "league": 0,
+   "seed": 158378394,
+   "digest": "433bea53c90658d336b197556b80869497cb1d91ea41aa9b16b959b8dd4329d4"
+  },
+  {
+   "league": 0,
+   "seed": 3933881818,
+   "digest": "c86ea1ab8370996d4dd5ab32d8391faa08ea1f3f1252e27d897ed7f26ccb4611"
+  },
+  {
+   "league": 0,
+   "seed": 3291448568,
+   "digest": "4e0656cfbbaed84c332249241ab51c55d6155493952e9cc6dfb7218cc6d5b64f"
+  },
+  {
+   "league": 0,
+   "seed": 4179979109,
+   "digest": "2ab3d952e56dc2c4e27b1899337170f292c3fb836e3f6b4b2be23ae95a7d8014"
+  },
+  {
+   "league": 0,
+   "seed": 1520146279,
+   "digest": "4d801e62d397fa405dd33a8dd2fd1248f891ea61b72c8af66828aa4118c3e91b"
+  },
+  {
+   "league": 0,
+   "seed": 3858975967,
+   "digest": "1962ec242ff8a75c94b3ebefc6d450a3a864bad30d5f4a421e311b338f150e3b"
+  },
+  {
+   "league": 0,
+   "seed": 2659010882,
+   "digest": "878d669d123086ecf0fe0ba61a2ea09cfe3a87c508b2baa4f3f40050ad784ccd"
+  },
+  {
+   "league": 0,
+   "seed": 111285348,
+   "digest": "02d8efd0008ecac94e2fe52b3e7087fe81d4745b56ba180941475f7a5edc849d"
+  },
+  {
+   "league": 0,
+   "seed": 2498093471,
+   "digest": "7f85d41ec9a6f6298642cce1c148af380c89bec57eb450cb60b9107ec5beb73b"
+  },
+  {
+   "league": 0,
+   "seed": 1673394833,
+   "digest": "f2bfd35b4e24a35022fb5d841171da30c973f5aa37a7f804cb4b6b0c722002f9"
+  },
+  {
+   "league": 0,
+   "seed": 1754708805,
+   "digest": "d63a7f6fe33c95276c73cb129f15563f30085f844fbb4b4d69cfbed66167e596"
+  },
+  {
+   "league": 0,
+   "seed": 3349727060,
+   "digest": "f0a88de4aa8b76b6258205102e11f214ef52618619cd9e63bb0f35138427e6b8"
+  },
+  {
+   "league": 0,
+   "seed": 3943558523,
+   "digest": "ef89c2d296fb7f710421557fd6c52138c86086cfa07f5c292c76d396f279ff4c"
+  },
+  {
+   "league": 0,
+   "seed": 3928234290,
+   "digest": "e2efd93846a09195865b8a6d09f7ad96385c899a97e77376136f8f4b1ec1e3fe"
+  },
+  {
+   "league": 0,
+   "seed": 969202924,
+   "digest": "2a962155be014d091b3d96935b677123c57477c99964a114d39153a0bc63d370"
+  },
+  {
+   "league": 0,
+   "seed": 749035825,
+   "digest": "d17fe6926cd1c83c8eb01ce92f88a04645f65b9ec31f5cfbdf661c8c24737087"
+  },
+  {
+   "league": 0,
+   "seed": 3999302397,
+   "digest": "133f17f29769aa3dc83441fa4477e1daa69b0a7ad53d2184823887fa199ec89d"
+  },
+  {
+   "league": 0,
+   "seed": 1719792759,
+   "digest": "8fb292c999061996faf5951eab0e180bf4332c69b72d0df8fde14c53b4cfa459"
+  },
+  {
+   "league": 0,
+   "seed": 465079847,
+   "digest": "bc2ba52f37e435c030824f1e19e1e1a6e4c8d83ebc5cc5bdbff3b7d860560ca8"
+  },
+  {
+   "league": 0,
+   "seed": 3164040537,
+   "digest": "793c0b719c9b2041a78f5e4ca8d15bc7ca1b69f1c8ed3c9cc317477f2f92444d"
+  },
+  {
+   "league": 0,
+   "seed": 1629378345,
+   "digest": "968801122117adc06a294f178324738c34b60a1a3c792363b23a73cbb960196c"
+  },
+  {
+   "league": 0,
+   "seed": 3698434396,
+   "digest": "0cb378477fde6c5c41f77ab1603337711a5b9597a58260f315b3e5089720dbfa"
+  },
+  {
+   "league": 0,
+   "seed": 1696363423,
+   "digest": "77baf009d048000cb89cee6d7cb5e62e893bd892780af7089d8d14d8e84f3b7d"
+  },
+  {
+   "league": 0,
+   "seed": 2976426633,
+   "digest": "654a920aaf5c57de0268db24e083917a6b86089763c1707e96183080f7ded129"
+  },
+  {
+   "league": 0,
+   "seed": 4193881959,
+   "digest": "b07a28d68bb4523e40116a3f12df580c5ecf839f36343008c9441cb62687cfa0"
+  },
+  {
+   "league": 0,
+   "seed": 3711574427,
+   "digest": "7e4da3bcc289cd27453cce2afd78e36a28b3338d7045bac1bf4b60022d2cf149"
+  },
+  {
+   "league": 0,
+   "seed": 1407941986,
+   "digest": "f6114fde3b75c46f25539d39fb2104ddfcb6cf87c5eb2b731a53cfbda81e0d93"
+  },
+  {
+   "league": 0,
+   "seed": 1373371228,
+   "digest": "cc5cbb527077d7163d0995536285441cfd4236dc145390acd42783069823f77b"
+  },
+  {
+   "league": 0,
+   "seed": 895701040,
+   "digest": "f69eb493ea7067b1b38c09bfac19316ab16ba743948e8ee2130258a09ca04e33"
+  },
+  {
+   "league": 0,
+   "seed": 2078739260,
+   "digest": "d83eb4d2ee714b5b9afcce1d4554cd4c5d1fa461aa71b1e95f2ab38a9aba388a"
+  },
+  {
+   "league": 0,
+   "seed": 3574317865,
+   "digest": "a04cb252f055e5b25e615c8047a5377b374c5586fd9ca217580872e04a4a5744"
+  },
+  {
+   "league": 0,
+   "seed": 229842779,
+   "digest": "c0c2b3b354f91e5c3cfec6ff5bf68a0d1854d72d9606f87758f2aa5586396c7b"
+  },
+  {
+   "league": 0,
+   "seed": 2220637996,
+   "digest": "65714791f66d02cf457b543fb034450516333979e147a78590441210c6795f79"
+  },
+  {
+   "league": 0,
+   "seed": 4169475579,
+   "digest": "cd48ebda7e1efd3b814b8c34b722fb47d3c8932d92526f1f2029e763e4ed4023"
+  },
+  {
+   "league": 0,
+   "seed": 4068672017,
+   "digest": "4a27c51d57948cd9ceaafdad4b3e30690370033b423915844f9db1fee1ff8063"
+  },
+  {
+   "league": 0,
+   "seed": 3783774026,
+   "digest": "84a370b3cde4021918f683256be6f1d025aca284aa0dc7a3392abe9b45b9a462"
+  },
+  {
+   "league": 0,
+   "seed": 2295596687,
+   "digest": "e780b077715726c3240667f286756b6a87878df2e236f5a16927703c9df493b0"
+  },
+  {
+   "league": 0,
+   "seed": 2519092383,
+   "digest": "bef7885728b65dab6c0b03cc90c31f760e0099482ce9c1d2f6dd12bea3ddfc45"
+  },
+  {
+   "league": 0,
+   "seed": 2701567830,
+   "digest": "692570567efd8a45f17dc5f15e05a65622af0d0fbbd0fe943037744f95e9ca6e"
+  },
+  {
+   "league": 0,
+   "seed": 1900723165,
+   "digest": "94a48db5867666e5c8ff0c9310ff08eb64dcb99478a6bfe84dc8bf33361ec9a6"
+  },
+  {
+   "league": 0,
+   "seed": 3762208950,
+   "digest": "d1a2a91df4c55b67cb7f38398b4d323ea270703aa80d0236d62c5da236bc27ca"
+  },
+  {
+   "league": 0,
+   "seed": 4228109069,
+   "digest": "237ed9d2062d9bc9aee421ac031d4b5406be0833b7106992cba37499a5b1083f"
+  },
+  {
+   "league": 0,
+   "seed": 1935312337,
+   "digest": "262a9560bb55b0d4a3ed5e1c63884be6947c4fa7b93ddb477071d67f2836e390"
+  },
+  {
+   "league": 0,
+   "seed": 3428525579,
+   "digest": "8f170c036567a3f66b3a0548952d20c40e280f7f1bb1b9bca2bed445310139f0"
+  },
+  {
+   "league": 0,
+   "seed": 3645452316,
+   "digest": "28fbce59e526a60eddf467d334ffbd0bd7bc41ddb14d217153eda40204c22f82"
+  },
+  {
+   "league": 0,
+   "seed": 598606435,
+   "digest": "875cb79b545efd41914b52fd1b8343c9dfc99cea4babdba6f2b0939b29c9c6bb"
+  },
+  {
+   "league": 0,
+   "seed": 2902531599,
+   "digest": "789ff0e8c3a337caf3ff6924d7a22a4c68191f1ee35c9468ac43cd6861d9339e"
+  },
+  {
+   "league": 0,
+   "seed": 3647560100,
+   "digest": "29904efa9ea4afda625a2cc7a2f6e62d74ec745abb3ff3ee29dcb84f412c43cf"
+  },
+  {
+   "league": 0,
+   "seed": 3240497900,
+   "digest": "eee728945e6f0672b34f831571c24feef054640f7b3d1a225820d0ba63873f05"
+  },
+  {
+   "league": 0,
+   "seed": 61533407,
+   "digest": "4836066a8d901942d796b40693e4e57e4acbe8f6bba052a71303ae8a41a80253"
+  },
+  {
+   "league": 0,
+   "seed": 2680136569,
+   "digest": "67df5c3d1b6b1384e09fac35153bee965be181b3d9124fe44ac4570e3dedceac"
+  },
+  {
+   "league": 0,
+   "seed": 3430008692,
+   "digest": "48ad2fab09c9e9c1e71d08cc7d65d6ae8777e90d4d1126aaca794f34c365f4bb"
+  },
+  {
+   "league": 0,
+   "seed": 1428619281,
+   "digest": "4755b01173f1be829d8f2ed8ba4572eb9b961b7035bbec91c0dec8026f8695aa"
+  },
+  {
+   "league": 0,
+   "seed": 817005170,
+   "digest": "c19aa77253a8d962db8072ca21a328f12a468af9f15063d5c44d30781d27e304"
+  },
+  {
+   "league": 0,
+   "seed": 652879359,
+   "digest": "4947492548c6dfdd1539848f5e4866e0d680fa6e4ea43829929a48db3cc99930"
+  },
+  {
+   "league": 0,
+   "seed": 2645706018,
+   "digest": "4f47b9c7d6c6e538faf12208f8f07112feb47d946d85c0dc6b85a255548b2015"
+  },
+  {
+   "league": 0,
+   "seed": 3478273383,
+   "digest": "409497fac021d6a8132eab37bbe0ec8d5a2f96322535b8bab6f094be942a38de"
+  },
+  {
+   "league": 0,
+   "seed": 2196334794,
+   "digest": "9d7d805b279b783a1247ab53b98bae427fc34a6505fc7fce035cc1c3ae0ebc77"
+  },
+  {
+   "league": 0,
+   "seed": 1120091721,
+   "digest": "49a78ac0d7dc67018297205ac2c067fef3bcc0449aa9f2d3820c8261ca630b0d"
+  },
+  {
+   "league": 0,
+   "seed": 4040455371,
+   "digest": "b84ea7fc0ac46a185b2afb3d61b81585e8aeca55aa03a8cdb6e00543fc69211a"
+  },
+  {
+   "league": 0,
+   "seed": 3360561207,
+   "digest": "2b51d9e0ab54787352334125441659c9bf93c16a3999d8db499d8f4b0f69961c"
+  },
+  {
+   "league": 0,
+   "seed": 3276809008,
+   "digest": "e0689357ef956583b74a5d04d2baaa82b230722b84a00305aa3b334da1f7b55e"
+  },
+  {
+   "league": 0,
+   "seed": 3677989511,
+   "digest": "353b6c3fd864b5b138ceb81fcb50e074f4e1b1fdc56f8f03a2106b2fe2b61e77"
+  },
+  {
+   "league": 0,
+   "seed": 4221566396,
+   "digest": "117e1dda24a7bc1da13e5534cad088ef426659b94a3b9fd11b616fd697378ecf"
+  },
+  {
+   "league": 0,
+   "seed": 4073230377,
+   "digest": "e79a18bafe03c802385667f0b851b9640a45090181e8b3aecf860fa73241f644"
+  },
+  {
+   "league": 0,
+   "seed": 1149814110,
+   "digest": "ae4c6af638d83ff359b0c61dbe71ab2831bb4b57acae7859322f6326b1ee281a"
+  },
+  {
+   "league": 0,
+   "seed": 1144060931,
+   "digest": "a495e02f755dd01227d51c1c1caf5ab20e1cd3f200626aea8c8e3c905a417cfe"
+  },
+  {
+   "league": 0,
+   "seed": 698591229,
+   "digest": "457805f82dc73e6af337b8e604f0ed2396ef15ef7f778e088a74f08fc36a6730"
+  },
+  {
+   "league": 0,
+   "seed": 1197616648,
+   "digest": "ee1c74e85548528baaae799ce7e51835c326a586f9cfa3216b9a3396e22dd792"
+  },
+  {
+   "league": 0,
+   "seed": 4060234355,
+   "digest": "3acc2aa7ebe9f1731021b925fb4afb39b308472d53127ba769487b71f6a9abb1"
+  },
+  {
+   "league": 0,
+   "seed": 1673675472,
+   "digest": "cb3e7f00e1adcc755690c5ca2257720d0e6b34b28ac83c39ab344ff80cb48836"
+  },
+  {
+   "league": 0,
+   "seed": 627498630,
+   "digest": "4ee510376734b9154b2486b01938879027933ee9796769e95257fd198b66a50b"
+  },
+  {
+   "league": 0,
+   "seed": 1899796294,
+   "digest": "7ccd324ae919d7ad57db8b98f4adc1d15ce8b04b3aea72d0fe216bb8aca4dd75"
+  },
+  {
+   "league": 0,
+   "seed": 996866009,
+   "digest": "c83ce0719400a96c674f3b14bfa750d6221cb67ac773fe4fb1142932a92d2f34"
+  },
+  {
+   "league": 0,
+   "seed": 4154603855,
+   "digest": "2cc759c9810d1e7f92b189280d03f08d7b05c49fa4009e388e389c9042712c95"
+  },
+  {
+   "league": 0,
+   "seed": 3068053080,
+   "digest": "5b68f255f4ca23fefe06e642a9a64c2686b2c284df3c75e07fc5795f33f2c32d"
+  },
+  {
+   "league": 0,
+   "seed": 1036092999,
+   "digest": "ce42919eec2ade3153d4f349f52d7edfcb7f1d2d86cb2a8d5e037324e72f5db7"
+  },
+  {
+   "league": 0,
+   "seed": 2492691145,
+   "digest": "8d79b773201737c920661859c3d8ea57647a55097266daae2ec8ae46ffe6948f"
+  },
+  {
+   "league": 0,
+   "seed": 388094925,
+   "digest": "12086737f33e80072530e4c2a3a3eebab7b00990ae6b63e4f40954a121d7a94e"
+  },
+  {
+   "league": 0,
+   "seed": 1140380281,
+   "digest": "f8eabc23aa8ecbf84bd4a3054f91a5f43ec98c464212c9de355dccb71c18189f"
+  },
+  {
+   "league": 0,
+   "seed": 626628939,
+   "digest": "834f46170244b5072aac331a2f3b3c208b23cb954cdb67768957addc2cbc9696"
+  },
+  {
+   "league": 0,
+   "seed": 3856120002,
+   "digest": "95cb3d5ba53e3ad4e612cfcdb8190c7775538510bd726267c7f12710e0c270c5"
+  },
+  {
+   "league": 0,
+   "seed": 2321395598,
+   "digest": "f3daf257fe5b2459ec976ddb3da0ff3a242fac652c13e0caba5372022213aac9"
+  },
+  {
+   "league": 0,
+   "seed": 3880027538,
+   "digest": "cc958e23e6f113df32e3a62b5b7f313a25e0559d548d93feecbf34099d6da717"
+  },
+  {
+   "league": 0,
+   "seed": 1329861918,
+   "digest": "865be172193e704a018342a3592e3478bd0b1162d1fec083cc2d658d0a13208a"
+  },
+  {
+   "league": 0,
+   "seed": 1724973695,
+   "digest": "ebf58fbda45dca1cb9fb930568d56792be4244afcb30e95851b779198c0d5841"
+  },
+  {
+   "league": 0,
+   "seed": 1134920426,
+   "digest": "edfe5f2e2720d81fa50e5f7d7cf5cc83ff3100b01971e90c6161c97821c19d3d"
+  },
+  {
+   "league": 0,
+   "seed": 904192013,
+   "digest": "9c16581e83de0e5f32f499c7e25b814a9cdf0f9a698f95ca4083aa1a329c5b1f"
+  },
+  {
+   "league": 0,
+   "seed": 1522251373,
+   "digest": "32b6d2c38ea8ca532e4e2a597df6c71141e77f96c9bec93aca9673051fafafb9"
+  },
+  {
+   "league": 0,
+   "seed": 9307891,
+   "digest": "8d7f56e231284f6cf55b5b85d30700cd8c6b1eeff15e293d881c8abfbb9c0db9"
+  },
+  {
+   "league": 0,
+   "seed": 1027860817,
+   "digest": "877f0b5460f1c8da0108bd1d142e139b5c3cf397e65c2187096d4536c8bc38ab"
+  },
+  {
+   "league": 0,
+   "seed": 3946762809,
+   "digest": "8f76e55251dd88b251eb3ecd62d5fd08808f616b8dd10e320968c989fdddee8e"
+  },
+  {
+   "league": 0,
+   "seed": 899804935,
+   "digest": "c6df204a483df05d085ea34e2f76f523a804f3ae70fa66645c0dbc71eb0c0135"
+  },
+  {
+   "league": 0,
+   "seed": 833623236,
+   "digest": "346b12529e1e54dfd9938900e4450c45f88344607abbd3bc3763e4695848deda"
+  },
+  {
+   "league": 0,
+   "seed": 833076913,
+   "digest": "10ecdfa6f3fd137431a9072d529826793ff50faac58e7220c96d9b884382f122"
+  },
+  {
+   "league": 0,
+   "seed": 3695783507,
+   "digest": "81eea8c79afa8192498f0c67ec54bd8b2490cbb8a6cc755506a347a05d513874"
+  },
+  {
+   "league": 0,
+   "seed": 2150410974,
+   "digest": "5ece5d65e29dd33454b25d2a3b7a7cd0f44e2c5cf86e3d3f485f317a5a11e497"
+  },
+  {
+   "league": 0,
+   "seed": 624314864,
+   "digest": "bea47e476fed8e4724b2118435b9d00c4440ee30d92c888d09e572d3a8d82d50"
+  },
+  {
+   "league": 0,
+   "seed": 3988570078,
+   "digest": "37f44bd03d8b705206430cf56330fb4bab9a1d746f8bc6ddb1f69222661d83d2"
+  },
+  {
+   "league": 0,
+   "seed": 3688901950,
+   "digest": "61540a744ac3a0b43a2fae9462ed6db8f60169532f54acd343e65258cfbdce19"
+  },
+  {
+   "league": 0,
+   "seed": 1737844737,
+   "digest": "ba301294e5f355b42a287de077038f2c3168823ea21092053cd47e55b4d22ace"
+  },
+  {
+   "league": 0,
+   "seed": 1434054275,
+   "digest": "cbb9a4e07cda9e8dcf6fbb4425e064559b24c9d40310fa75df5a35f2e333bf06"
+  },
+  {
+   "league": 0,
+   "seed": 69655848,
+   "digest": "90889a6aadf0f6443d4f24d3dfabe3e947c8c77b7f9d61e1a07c293c2cbc1f79"
+  },
+  {
+   "league": 0,
+   "seed": 3299047689,
+   "digest": "ace230be7d38b29e6f917a6a961220a57779767d066d716476b8a2dcd71fcc64"
+  },
+  {
+   "league": 0,
+   "seed": 96600033,
+   "digest": "f6f6398c2bc5d69212376056c80fbbf22a6769849502c573a85994f6ebc37bae"
+  },
+  {
+   "league": 0,
+   "seed": 3422309107,
+   "digest": "25f2bf88cc13677d75e1be52e838b1a24cb3981641accd29c175a872b6cc84c2"
+  },
+  {
+   "league": 0,
+   "seed": 1629505028,
+   "digest": "92475b7aa3bfe4bf46e2ca0eda094fcc39db1ac7a1184023d757ac453d73ba9c"
+  },
+  {
+   "league": 0,
+   "seed": 2908059901,
+   "digest": "7046bd53b630c7534004102101f20520ecc421595ca16d7556f57a0dcb183344"
+  },
+  {
+   "league": 0,
+   "seed": 3146657423,
+   "digest": "9246e019caae1e4d32b65912d070c643bfb3461afbaf6af07c94837af6395847"
+  },
+  {
+   "league": 0,
+   "seed": 174223770,
+   "digest": "08a0e8bcb35e84268f88b6a29e238e91e26b573ebd37950af39bca1641eb2e78"
+  },
+  {
+   "league": 0,
+   "seed": 2627390575,
+   "digest": "41b7c031f982e4a64e61ccdb06020b427b23cb4359ee9cd120ee049c7b760db5"
+  },
+  {
+   "league": 0,
+   "seed": 1101586519,
+   "digest": "c954c1236ba58ad4f41f0aa6a8ec93fecda45cc55d837073259f90153c865939"
+  },
+  {
+   "league": 0,
+   "seed": 643158861,
+   "digest": "485b8770eea39ae13efebf5e799638f50609ab6e2023874b503f7a25feadfbf1"
+  },
+  {
+   "league": 0,
+   "seed": 2156154529,
+   "digest": "2caad929e00fedf883da99b772f58a7c98e69a87809f1b445e847db4c84bb6e7"
+  },
+  {
+   "league": 0,
+   "seed": 3181271851,
+   "digest": "f8b2b7fd6afeedc58bbefcc78311ed3389d86bfb56f5beb013e0d7f92c1b6c19"
+  },
+  {
+   "league": 0,
+   "seed": 1614617650,
+   "digest": "334a392ef6b8fe1958c88645471a3cdb544935a9dfe751f6b29957f54e23f248"
+  },
+  {
+   "league": 0,
+   "seed": 2731468084,
+   "digest": "4fcdafcd6fe366d7a0445628aad665d430bd14d85b782b92219e25660f44fcdb"
+  },
+  {
+   "league": 0,
+   "seed": 2322341372,
+   "digest": "f2872cc8697a9e5e35ab810f0453475a2b9dfaf17e072706c65850316cf1aba2"
+  },
+  {
+   "league": 0,
+   "seed": 2143930967,
+   "digest": "4ac6205ecab32c0ae2e7dee199a434e6350fbfc2d99978c88250a7744a4181d3"
+  },
+  {
+   "league": 0,
+   "seed": 3846142172,
+   "digest": "ac5a24b423a62a5f3c471dc21514e61512e7180a4a4ae1825b9caf56738c2402"
+  },
+  {
+   "league": 0,
+   "seed": 2889069465,
+   "digest": "5e56e82a0d15168526dc54595e96d58ff53d2ff8ba4340fb6f0415b542ff9de0"
+  },
+  {
+   "league": 0,
+   "seed": 4283209328,
+   "digest": "7b42c53ffb5a159c527debd18f7bf0da8b097730a67bf303cc938910bcb26f71"
+  },
+  {
+   "league": 0,
+   "seed": 975708294,
+   "digest": "bfb2a5ce2994f4055f9f65a6cf5f8cdfcd9b455b85b3abb76e870f40939d8168"
+  },
+  {
+   "league": 0,
+   "seed": 3476081234,
+   "digest": "968009a67e7d413570ab2aab1ee9a9dd58fb1ddc18e2af45be98d6ff9b3a4fc7"
+  },
+  {
+   "league": 0,
+   "seed": 76407470,
+   "digest": "42d298458eb42db4110fd4082f91ca5c5d0e55b97469a9f34ab3239a2d76aeec"
+  },
+  {
+   "league": 0,
+   "seed": 2974536024,
+   "digest": "580b9df69634d93cc458f8910e42c2e59b1bde3607100e0842284b8769bb2007"
+  },
+  {
+   "league": 0,
+   "seed": 2063517843,
+   "digest": "376ed8873faebb9f8df858afacbfc9b1af5ecd25b5f1908cd51f271f1d57a6d5"
+  },
+  {
+   "league": 0,
+   "seed": 3592923210,
+   "digest": "6e302843e5773de885168bf72b0b4445cd9aaa7c91d40ef7f1f91fb08ff28044"
+  },
+  {
+   "league": 0,
+   "seed": 1067971365,
+   "digest": "3b0754e8b448f9c832f8508eca57e72267070963076715534f55c3e7c43ea9a1"
+  },
+  {
+   "league": 0,
+   "seed": 1507517443,
+   "digest": "04538e1a369aae4a20e524eeb2e767e8ac805b2a38f28425244bfaf1224a10fe"
+  },
+  {
+   "league": 0,
+   "seed": 2990117794,
+   "digest": "9e3349a28dadb74a76316152dd3f49c41bae71c25cdad0873208911384c85b26"
+  },
+  {
+   "league": 0,
+   "seed": 3896335851,
+   "digest": "143b3f4895aca58df3de5272ce6b1aaef93d7f4765f35664fb493282bd2b57ea"
+  },
+  {
+   "league": 0,
+   "seed": 779840060,
+   "digest": "95975210baf08de8ac0d815a118aad56d7fa30365eccc9cecced57f401d34241"
+  },
+  {
+   "league": 0,
+   "seed": 3009986633,
+   "digest": "ac728271145cd4a104fad7cfc98600e242475a09f7aaad0599395db36d5a7f2b"
+  },
+  {
+   "league": 0,
+   "seed": 3650442203,
+   "digest": "a0af85fa74db66b3aa623534fb33dc222e3bc741082b06e587fef7620064dad6"
+  },
+  {
+   "league": 0,
+   "seed": 4231026851,
+   "digest": "b09572ff543c7e816d54abeeb9eb412c628f4aee62051d59092e36c794a87dbf"
+  },
+  {
+   "league": 0,
+   "seed": 2023053881,
+   "digest": "3659c233004a7b97227d11b2b6a5b468279ade97568bc128ba21afc5b3297986"
+  },
+  {
+   "league": 0,
+   "seed": 3651433285,
+   "digest": "e015c5abf4c3671605b8a0be240642fc2abb1f3b38867f33c84663a58761a7d6"
+  },
+  {
+   "league": 0,
+   "seed": 2189865747,
+   "digest": "e2664bb08c67fc21cb87dd144c3a686c9fc5421a57195a38e8282211c573cf30"
+  },
+  {
+   "league": 0,
+   "seed": 4039807249,
+   "digest": "423e9f521ada4790e41cdaae18315fcbb84c7f7d882007d6b2fb94e3f7c61598"
+  },
+  {
+   "league": 0,
+   "seed": 1892800590,
+   "digest": "fea0480e9730ae95db546f17a4714dbf0b4900013f06576b522a37d6ff5eede0"
+  },
+  {
+   "league": 0,
+   "seed": 1554076341,
+   "digest": "74fb9f538e547bd6e825269eba6e9d9f1c06825c2878935495ac6fd8f3b68d41"
+  },
+  {
+   "league": 0,
+   "seed": 3017788989,
+   "digest": "de26d5fe4bd44eb59e72e22a3751c4b702931817dc81b3fb4bd31b0b55835f08"
+  },
+  {
+   "league": 0,
+   "seed": 2670646234,
+   "digest": "2b98aeb016ab6a88af22b9c52e15a34fb787e02eee9f44e2a7afe9f2ebc3d61a"
+  },
+  {
+   "league": 0,
+   "seed": 2004113992,
+   "digest": "997c5b0dc78c5902bf847c271beab9c85714266ef5520b36bc5a032427559e81"
+  },
+  {
+   "league": 0,
+   "seed": 3785750944,
+   "digest": "97f3d4ad5185f53e2b7b84b4f5488381a79e3867c84f5e505de5a2477b214096"
+  },
+  {
+   "league": 0,
+   "seed": 3508109437,
+   "digest": "c03127a872c056d509a0eb55ed51d7dfe8e7effebe76c19927f1457ddfd11f4c"
+  },
+  {
+   "league": 0,
+   "seed": 4103739433,
+   "digest": "40a3fd5abd9b4d4a6dc236ade2610f80c9fbd2244fd3e3e890eeab08353074bb"
+  },
+  {
+   "league": 0,
+   "seed": 2355609247,
+   "digest": "4b269fbebe2e38c926bc0e6d92f598f295d10b393a785bb4f6921c5b208b6256"
+  },
+  {
+   "league": 0,
+   "seed": 2464025133,
+   "digest": "0cc9914686511ca9c51fc48605a78c96336c7bcd2d1c4d4fdf673085cc223efd"
+  },
+  {
+   "league": 0,
+   "seed": 2134585375,
+   "digest": "8ab0105e89753b340b1d13ab4357995d9d5e0c1a2f16ce5f14bca7a59e9b76cc"
+  },
+  {
+   "league": 0,
+   "seed": 2181813669,
+   "digest": "a3ebed60d6c57ddb1fecd6b0802f4d3ee86868b6514dc699b251709908d7f24a"
+  },
+  {
+   "league": 0,
+   "seed": 1277274684,
+   "digest": "06bf33b6d11a4d51495be04f90fb707080f3ad2364ab9a3160cebc032c5d6b04"
+  },
+  {
+   "league": 0,
+   "seed": 1147654535,
+   "digest": "77c73c9a4446e683fd644d60763b6b9f7845e94fb55d5820bad11ee013d87385"
+  },
+  {
+   "league": 0,
+   "seed": 1573332666,
+   "digest": "d136b572dd545845423f3639b0383e96cb249b187d99254dbdced430309564bc"
+  },
+  {
+   "league": 0,
+   "seed": 838550522,
+   "digest": "5e23dc9674eafb22c69658e23da3bda291619c5c6151d0ec153c000962b0ff21"
+  },
+  {
+   "league": 0,
+   "seed": 3917199128,
+   "digest": "cb9b17e5bbb48d3f0d67da74f031865e0dc7d21a3974ff1b29d056db729921fa"
+  },
+  {
+   "league": 0,
+   "seed": 3470157602,
+   "digest": "aa993c7a77231966f639c63e6e86c869b2711fdcfc1c58cf0b8aef04dd5ec523"
+  },
+  {
+   "league": 0,
+   "seed": 1968282145,
+   "digest": "e8814baa4d5a4169d1c92c782a2b1d2d86f7b39e5be7a8e9ecb52570e0443e83"
+  },
+  {
+   "league": 0,
+   "seed": 2823398934,
+   "digest": "8ca2a5f825c32a9ce51f912d0a01f718918e7fac4195cd5ab4d47c306cf527d7"
+  },
+  {
+   "league": 0,
+   "seed": 3241570077,
+   "digest": "671cbef34c6eb3c0b5fa27880ed5713358dc876dbceb9645a6c4cf917b9a6fc5"
+  },
+  {
+   "league": 0,
+   "seed": 763570816,
+   "digest": "295a1313f1fe25069a5c0d0cbc6916f46d20d9c49a6880d524af44b3e79f04fd"
+  },
+  {
+   "league": 0,
+   "seed": 1145981440,
+   "digest": "e0742b42eb41c6f30df3a90a26294c84610efc8ae5a018835e153ed9eadd65f6"
+  },
+  {
+   "league": 0,
+   "seed": 1070651765,
+   "digest": "c4cd1b2ceedb4a4575c984cd76f5cb982b9fdc048ebc822adf78ef2b75b81284"
+  },
+  {
+   "league": 0,
+   "seed": 2002280119,
+   "digest": "8f44ccf484f5f6677b157f987ea2278d1be0145c364145c3b5cb9335b85bb9fc"
+  },
+  {
+   "league": 0,
+   "seed": 2880615373,
+   "digest": "1bb0fcc72b1114bcbe0ecdf39745a27511bca73d38e10bc84ed91ae17221b421"
+  },
+  {
+   "league": 0,
+   "seed": 2335781041,
+   "digest": "185f70ec8baed870e99b637d4a6d14f8ad0dcf178e47a9621544f54c312ee29f"
+  },
+  {
+   "league": 0,
+   "seed": 678320483,
+   "digest": "14ef85177f8e3ec840282b260bf6674f73d65b93052ebc8eac77975273d48184"
+  },
+  {
+   "league": 0,
+   "seed": 75239899,
+   "digest": "7f1b7cf31f2a8e4c1580464b970f90761f4013aa896857b924abeea7826e5709"
+  },
+  {
+   "league": 0,
+   "seed": 993419500,
+   "digest": "1fea38f75116199ee9c8343a419adc34b661f728ffbc1d2c7220dce5f4f1d809"
+  },
+  {
+   "league": 0,
+   "seed": 3088051608,
+   "digest": "805f22bdbdce48eee3335799162c504e025bd3fe3b0d582f2cb678d9f49d21ba"
+  },
+  {
+   "league": 0,
+   "seed": 2663381875,
+   "digest": "9c87c80a495a165b1f85dce7a8127487c9377d6de3395d9746bf17d24b6f689e"
+  },
+  {
+   "league": 0,
+   "seed": 288315879,
+   "digest": "0e10af278c6ea56e1e800339c1fb37d22966a97cca2d3d43ecf76a8f7c7d8999"
+  },
+  {
+   "league": 0,
+   "seed": 3924603858,
+   "digest": "97fa478663bd1993fb5aed4c8637df949fcef795024be280df885db0bbb4ec84"
+  },
+  {
+   "league": 0,
+   "seed": 3959344548,
+   "digest": "7e116755d7372353e08cf2f595aecec289e063d3c77fc6b291d01c6b0fa8c04f"
+  },
+  {
+   "league": 0,
+   "seed": 3043568098,
+   "digest": "23e63f91960dfc05b8e338d687faaaad841814f4a56fcf6a94dabe3237513c61"
+  },
+  {
+   "league": 0,
+   "seed": 92527517,
+   "digest": "d810d1d613b6dfcdba82826f86a178bed586edcad1c2cc207538845520d0f29a"
+  },
+  {
+   "league": 0,
+   "seed": 392678253,
+   "digest": "f9b366235dad37ae348e2c53431681c3e076925ea7711c4a3d3a7a0f58c162c5"
+  },
+  {
+   "league": 0,
+   "seed": 853792745,
+   "digest": "5bd349dfe26ef27e6d05a31fa0aeb4e32c9d7da95c63a068295ef7bc93b400f4"
+  },
+  {
+   "league": 0,
+   "seed": 1162760480,
+   "digest": "fd341b1941d7b0127dc789fbbb9bb05f070f9df408a16b78b07ecad07be4980a"
+  },
+  {
+   "league": 0,
+   "seed": 3109727000,
+   "digest": "5d5b8609830803d52e0d7012a85d11d14d6f1002dfb9ad52a7f0079b74fb5974"
+  },
+  {
+   "league": 0,
+   "seed": 3989417773,
+   "digest": "52e26efe22a5fd0e00fa04657d949f4e258f847f6ecba8b4dc2e073a0c1b352f"
+  },
+  {
+   "league": 0,
+   "seed": 2008173383,
+   "digest": "22949448e27863b2e84ed8e4f06c9d71e09b7675b8f2bc52af557f646cd246ea"
+  },
+  {
+   "league": 0,
+   "seed": 3263705912,
+   "digest": "8a63a33f5bc71ccad918d51085d5020deb3b164723232214f0dab57c10fda7cd"
+  },
+  {
+   "league": 0,
+   "seed": 2032764718,
+   "digest": "b8a46118c22828d22227b8ce0d7532653cd298435161039ca585abf93d209516"
+  },
+  {
+   "league": 0,
+   "seed": 225022168,
+   "digest": "651ffe4e8eca55abab920944cbafb5660cbdd109bcb648627031e2c073b8d782"
+  },
+  {
+   "league": 0,
+   "seed": 3429979795,
+   "digest": "85a7f2fdf1be6339dae4eeb8b0150a36a5a87cd70edebb9905d10f4551e2a89c"
+  },
+  {
+   "league": 0,
+   "seed": 1493693385,
+   "digest": "dc12f7a3f0521710fd4876bc9ac675060e9bd6388d4b128b7794160fb01ca1d3"
+  },
+  {
+   "league": 0,
+   "seed": 1504761987,
+   "digest": "cee2fb5c01d3d5f7c8e54337db6b346b3b4d4bef778af6e85afaa991048930ee"
+  },
+  {
+   "league": 0,
+   "seed": 3506723287,
+   "digest": "a9483bd3687a59771b4bbd6a7c9cea74b6581f8ed74ae14791d67574e613ee5a"
+  },
+  {
+   "league": 0,
+   "seed": 1132675463,
+   "digest": "5f2df1634b94e2e4c8b946f514acd9466e347847e5b1ffdbfcd4d87214aed9bf"
+  },
+  {
+   "league": 0,
+   "seed": 1376417798,
+   "digest": "7f6cf7aa114bedc9310559b8c6c5d343506c642728a9eaf48f291241e84ea8a1"
+  },
+  {
+   "league": 0,
+   "seed": 2939371192,
+   "digest": "2fd57935ad86883573d994fdc1d3d124b74947df7586f50445993fca21054693"
+  },
+  {
+   "league": 0,
+   "seed": 3980080289,
+   "digest": "9de412e6d89a72fa590613ebfa96d92498e18d439eb0ab5d0ee17f2c8196ba42"
+  },
+  {
+   "league": 0,
+   "seed": 3341468217,
+   "digest": "f2d20b555361336ed96c14fe167ca023f2123eabaf9a8fc6148b2cca5f85c435"
+  },
+  {
+   "league": 0,
+   "seed": 3894044640,
+   "digest": "115092a854f2bf9d8d003add43cd78eb67cf39cfe60183b70996cec9a41ce1f1"
+  },
+  {
+   "league": 0,
+   "seed": 3570728679,
+   "digest": "20a5e1ab264c8a92351f573167d3aea6345cc88c85eb137955fbb0cce732b9b0"
+  },
+  {
+   "league": 0,
+   "seed": 4152625445,
+   "digest": "60aa5ebe4395d830553f796d1a4a953c985299f44f2c2a4b7094a6ce7d1f139e"
+  },
+  {
+   "league": 0,
+   "seed": 4245978917,
+   "digest": "ba7f44f6c5167ab95a593911bff203d19d5e7c798b9a746d335a685c61bdbeab"
+  },
+  {
+   "league": 0,
+   "seed": 515108631,
+   "digest": "17e6988df7f1f03785eedefa2a4f87ee7c68d634239adceac8c81ad245bd542b"
+  },
+  {
+   "league": 0,
+   "seed": 3208069119,
+   "digest": "7c3804f4dad3ccacbb0b1d20e26b6fcb8a8f602b4094f13f346733867e86c5c7"
+  },
+  {
+   "league": 0,
+   "seed": 2722252752,
+   "digest": "cc0b77d444068f68912f95b7c601db972f1f8209efd8984c403251601d623120"
+  },
+  {
+   "league": 0,
+   "seed": 1242857389,
+   "digest": "12560d7a501a1ec6ee16e40d42bb05d6424259b97eb218febded6ac6fb8f6aab"
+  },
+  {
+   "league": 0,
+   "seed": 3739735998,
+   "digest": "f654ba0432f20ae84f555f7c58de04b928523860f51c12718efa0d54e4553d8c"
+  },
+  {
+   "league": 0,
+   "seed": 2115654404,
+   "digest": "9f300150dfff45adc9c8cba89ae6a5505845e257d138a840149408621926e031"
+  },
+  {
+   "league": 0,
+   "seed": 1290866575,
+   "digest": "2e0a285dd0a74dc3bc7dc90fbb62d8205c8ab6f4f46c0085288521455a25eb08"
+  },
+  {
+   "league": 0,
+   "seed": 2840100897,
+   "digest": "d00483f6c37be2548ba5c5507bef478561b8bbd8c45134091b59b0739ce9b341"
+  },
+  {
+   "league": 0,
+   "seed": 2531572475,
+   "digest": "54dea9af861482a45485b9b2e8a42ff78b0fa21bb0c01ff7c71be7c65c66f137"
+  },
+  {
+   "league": 0,
+   "seed": 532249241,
+   "digest": "6d3e65523758db8d6df6b52507f465d972b4e392af737e920da86125af839fc5"
+  },
+  {
+   "league": 0,
+   "seed": 4041539968,
+   "digest": "f52c7251ae1548379e22a16458033f50997bc7ba713e029bd12671e09618f9b8"
+  },
+  {
+   "league": 0,
+   "seed": 398156583,
+   "digest": "fc36b7451b0880fda976abb45173c1a521b96f75bb94e3343b6127e399b87ccd"
+  },
+  {
+   "league": 0,
+   "seed": 1346803772,
+   "digest": "2a2149d5fe485efda47ed40ede7951d1712cbf5a304e09ddab1db7df53aa47d2"
+  },
+  {
+   "league": 0,
+   "seed": 1967040439,
+   "digest": "6de5ef6e9ef0ae7f4715406f70fd7f6e7925eb9ea01e814a1a4915bbb688f25c"
+  },
+  {
+   "league": 0,
+   "seed": 3808665865,
+   "digest": "68eb051945f2ccc14af6fe559ec333e34b3f90c5cd6bf5abf0fdca940fd43a0f"
+  },
+  {
+   "league": 0,
+   "seed": 4241891884,
+   "digest": "8c393c8bc422b94b9ec9bc192e95f7601f42ce0561532af73b4aef005ac92337"
+  },
+  {
+   "league": 0,
+   "seed": 2376431121,
+   "digest": "fcd21bd00440b6c6e796ece245465f7344fc804892d53de12da6c9a540378853"
+  },
+  {
+   "league": 0,
+   "seed": 2642333757,
+   "digest": "3e367a6e87a95345f121d45bfa99f0db085a534f1995863f23d477c866fc3479"
+  },
+  {
+   "league": 0,
+   "seed": 2034206647,
+   "digest": "fdc7cc434f3017272f0e9ea1baa1419d2a6714046abd6c905d581e7b19bb8f6c"
+  },
+  {
+   "league": 0,
+   "seed": 1400405048,
+   "digest": "d1c84ff407fb78acdd963923c224fc4a7e79e5c20a96c389b2bc546c899e5440"
+  },
+  {
+   "league": 0,
+   "seed": 3241867037,
+   "digest": "cf45be1ee6b8787f77eecf38e2441453272a691b84431dff78981bc9310bf46a"
+  },
+  {
+   "league": 0,
+   "seed": 2331408417,
+   "digest": "393ef42ccaa40025aa944694c56147584fada7824830181502b7f5bb4271118a"
+  },
+  {
+   "league": 0,
+   "seed": 485702913,
+   "digest": "acaa14c022e1c335727ab407476a1ddda2a08d3287eba15d1d7e47d228c5c0bc"
+  },
+  {
+   "league": 0,
+   "seed": 1525612445,
+   "digest": "49a54431e8e3e3c13ea53ea396775aa417d801712a93500f451889e3cf10e7ce"
+  },
+  {
+   "league": 0,
+   "seed": 2962162995,
+   "digest": "3aeea205ea8da1fb0fc694adde2caa991af7b1914243b4cbb08c84f53ebe22de"
+  },
+  {
+   "league": 0,
+   "seed": 2749462756,
+   "digest": "7285f890035f27fa7f661a290c87fe99b54543d6df39330b8023e46edff0ba25"
+  },
+  {
+   "league": 0,
+   "seed": 3514244400,
+   "digest": "97a96a994e4681d5eb7286d75bca2d1cb7be4e9aca4061178dcdffbdff6cac9e"
+  },
+  {
+   "league": 0,
+   "seed": 1050388913,
+   "digest": "b2a0abb56ab3e34f02a99f5d805d3c85a568b109676345d57b9aa79fb324b9e2"
+  },
+  {
+   "league": 0,
+   "seed": 1970767985,
+   "digest": "450466defcd7715c5eea68b7bc7fd4d33c7a548ddb2922abb4777fc1adf4083e"
+  },
+  {
+   "league": 0,
+   "seed": 3432388562,
+   "digest": "ee85a9fe4593f9ae7af47ed8c635b454c52f1392b78b80ab8c6b31dbaaa98166"
+  },
+  {
+   "league": 0,
+   "seed": 1081746846,
+   "digest": "f99b48df7c8a64ef537bca6626117b4e5fd41d032bc138a70b371ffb870ea2a3"
+  },
+  {
+   "league": 0,
+   "seed": 4274523819,
+   "digest": "0909c782912c8007f155dac762fc936c6b7ba9721b8948d2e92020449189e6d2"
+  },
+  {
+   "league": 0,
+   "seed": 1482906851,
+   "digest": "6b6711486d3a93c36b68eaeeeb6025b1d997f2b254012de5b3878358f1954f49"
+  },
+  {
+   "league": 0,
+   "seed": 435298597,
+   "digest": "26f9403cf78e92dafab43d514250610707d2782aef75c03a9284a4e13e898570"
+  },
+  {
+   "league": 0,
+   "seed": 4289117479,
+   "digest": "221bf29eec710a7491c1a4f48136260a4baa8136ec5a256c7a532cc9ff5f8c05"
+  },
+  {
+   "league": 0,
+   "seed": 4199558656,
+   "digest": "12d1913b368b90dd5960975a757252ebd8c2f7f4295f6c93430188493c892bb1"
+  },
+  {
+   "league": 0,
+   "seed": 132985410,
+   "digest": "c1fde1f251a2dc9f3d7d95f77b4f52e4c2b4254478bcae4e874ae50b14e8a386"
+  },
+  {
+   "league": 0,
+   "seed": 1834676736,
+   "digest": "38631425c2149bef8b0fda550c268edde3b0dd82f5a582a3346bb79bed34c1e3"
+  },
+  {
+   "league": 0,
+   "seed": 4003731923,
+   "digest": "2c2895f18956121bae90c1c3ba6ca849c0e1dc473ac8ba709ec402aa101ab082"
+  },
+  {
+   "league": 0,
+   "seed": 1512172534,
+   "digest": "b5aa294d2d515d80dc66503d999a7fcc3b423fcc9aab0c5ccac5f0325822117b"
+  },
+  {
+   "league": 0,
+   "seed": 387819445,
+   "digest": "cea89517f330f1e89df68ba7584d74fb9275dfea4e56d8e3948eb2f395850711"
+  },
+  {
+   "league": 0,
+   "seed": 787423166,
+   "digest": "e3c7474096b920de9e516ba983a2e4b6fe4cb0a68174d794019f2c7787fc3241"
+  },
+  {
+   "league": 0,
+   "seed": 3249953670,
+   "digest": "d3adf3def8eaaff81c0cfc83d79aa2c7d4922c99bacfc3e45cddcf7df9bdbbaa"
+  },
+  {
+   "league": 0,
+   "seed": 944494845,
+   "digest": "fee65a791846c9cd1c7feda62647baed8000dd310077c1c38e08f6f2853fc5c8"
+  },
+  {
+   "league": 0,
+   "seed": 3958847196,
+   "digest": "a5cd9feb3ae40f443a2e604100b99404ff74c51f0dcb9c11baba21e9fecbbd68"
+  },
+  {
+   "league": 0,
+   "seed": 335644038,
+   "digest": "aa5e914e75888f247731ca52665b97dcb16fec355f574570a6cda832d6dc0ff6"
+  },
+  {
+   "league": 0,
+   "seed": 3724538527,
+   "digest": "5df12e8f017fd6b7c17c554a03f01d619823f10dd65e6ec9191bbf2ba546c619"
+  },
+  {
+   "league": 0,
+   "seed": 115096199,
+   "digest": "3984024a45bfd29d395708d53597154f104974d0d9dddb14eca2ea7bae575881"
+  },
+  {
+   "league": 0,
+   "seed": 1483334132,
+   "digest": "97da293f731fb2d567ee5ace88e49731bd7e978af99aa90562c69dd55a7a69f6"
+  },
+  {
+   "league": 0,
+   "seed": 1964918830,
+   "digest": "43a0a6492f90651883b0be5c6777d983316f6254351ee89bf3a14d8536406807"
+  },
+  {
+   "league": 0,
+   "seed": 3393348030,
+   "digest": "522308d118c22588ca4fb760b07e3567d19cd0020c0751b927a2c9724c5dcd93"
+  },
+  {
+   "league": 0,
+   "seed": 2269345197,
+   "digest": "5290a263e09948230e82f13de2984f61ff19a49c6efa5c5c5a3106f6cdbafe1c"
+  },
+  {
+   "league": 0,
+   "seed": 1744675845,
+   "digest": "2fd90c1cf4f8b3897a975892773a968c78ca455fd77ef30710c3e5e9f796c99f"
+  },
+  {
+   "league": 0,
+   "seed": 4015861416,
+   "digest": "ba5758f13ba73ff8dd68d2ae767703baf6d6193485e271131c5ef1a5157c3042"
+  },
+  {
+   "league": 0,
+   "seed": 1569129805,
+   "digest": "fdde5e38dc170816b1f0864bd264a90e28b44926239d097087fed91ca272d389"
+  },
+  {
+   "league": 0,
+   "seed": 1800961249,
+   "digest": "e394c89fc649a9eb5d0480406ee722f3ce29f15c6ddec2eef365ff0f2aaf5b35"
+  },
+  {
+   "league": 0,
+   "seed": 2170410926,
+   "digest": "c82c9aad7058a5c426db00285e5045e3c63629aedc4ae43998adbf5459463e62"
+  },
+  {
+   "league": 0,
+   "seed": 633542209,
+   "digest": "f2cf12383ffadca2efb2fe95285dde6d9a650fd8eef6962ba2d6fe8d86399a70"
+  },
+  {
+   "league": 0,
+   "seed": 715803463,
+   "digest": "587d66ecb378806ee57c5066117169ab8cfe287c0ab260df7c280c0074b34099"
+  },
+  {
+   "league": 0,
+   "seed": 2344197408,
+   "digest": "404a14299108af40fd1d9a889770dc14a7ea15d4be1e852dbfe4c3680d41e360"
+  },
+  {
+   "league": 0,
+   "seed": 2896963955,
+   "digest": "149ca7a1afcd2793c0b5cf614db5c399ff487dcd8a979baf5f5f40d97299efd4"
+  },
+  {
+   "league": 0,
+   "seed": 4078631829,
+   "digest": "9eab9f87efd9e17593ed2eca7ecf54153fd846e6d83b1b57b78a9f0990978ce1"
+  },
+  {
+   "league": 0,
+   "seed": 81536321,
+   "digest": "18a6a940d042b33e446de43ad50a169465cf1d4fd7adcdf2c255b55b7e94ee16"
+  },
+  {
+   "league": 0,
+   "seed": 1666882350,
+   "digest": "36e472ef3821246dd9728c177e5d508e745f78395ff41a375606d6742ec0697b"
+  },
+  {
+   "league": 0,
+   "seed": 3699207983,
+   "digest": "3379dd8f361401c045c62bb377de5578eedf6bf00e5423f3b5619c24c1878475"
+  },
+  {
+   "league": 0,
+   "seed": 2859136106,
+   "digest": "fceee44c5b4298c93aa9c6a1b59611833592899495a9447f53305a11fad9e327"
+  },
+  {
+   "league": 0,
+   "seed": 2634384160,
+   "digest": "7edc49b7eddd1f8daea9dbe027c619f74f90a52704dfb5cc62d3f793e57c6211"
+  },
+  {
+   "league": 0,
+   "seed": 173723665,
+   "digest": "35cf0bb6171b2d68eae8c6c047a44f03646c3d916135f9f764c2e7e6745a7d70"
+  },
+  {
+   "league": 0,
+   "seed": 874595535,
+   "digest": "f6b9d679db00a37c9b73c2a53944ce4777a71ffe2b221b27e4a582387705543f"
+  },
+  {
+   "league": 0,
+   "seed": 1968207321,
+   "digest": "fa47872aeac052ab5431f5390175c8eae2e9d138a466179fcab76b1551592451"
+  },
+  {
+   "league": 0,
+   "seed": 4080033635,
+   "digest": "f627b4edfe073948e48cb57132bf156cbff0b2e760c6360d2d3225f42ba01eca"
+  },
+  {
+   "league": 0,
+   "seed": 4058611604,
+   "digest": "a3f62f8aeb98c4e9096a2aa3e8f6caf62179d81e82ea266fc3892de5f0617433"
+  },
+  {
+   "league": 0,
+   "seed": 727146512,
+   "digest": "cdda8c01ec7cd8ddb7bea4a31b5f42672fbdce7af13a7c68161fd6d9f39d292d"
+  },
+  {
+   "league": 0,
+   "seed": 1504885885,
+   "digest": "dff6ea893fd9e41422b6b3bc67aab2d4ed667f0d02568933ceb5c9fad322fcf8"
+  },
+  {
+   "league": 0,
+   "seed": 116543645,
+   "digest": "c1bb7ac162c93434c5780f4fcbab2c1f388f5af8180751871486cb42a3030441"
+  },
+  {
+   "league": 0,
+   "seed": 348752602,
+   "digest": "07a38aa422194b0b4ad9f5f810c84c579cf9b49daf82826073c41ec40791a6b0"
+  },
+  {
+   "league": 0,
+   "seed": 3523572846,
+   "digest": "9c32c5823243abaf25b3c1114cd8fa20ee8bbedcdcd8cd605c9ef08937c6a49d"
+  },
+  {
+   "league": 0,
+   "seed": 2807880466,
+   "digest": "9e5f54c61fee6a8c3dddbf22251e6af8c587d5050465fcef8882d934a9e72b00"
+  },
+  {
+   "league": 0,
+   "seed": 3649224151,
+   "digest": "7f022e565d792f95a0c6df68a1b6e96820eed0560ef1ca96d1166a0f98b0cd33"
+  },
+  {
+   "league": 0,
+   "seed": 642045297,
+   "digest": "305e66ca1563c30954be4a51f1487f15eafc1e9522694cd78a7b19d8314a329d"
+  },
+  {
+   "league": 0,
+   "seed": 960296091,
+   "digest": "14a0bf9df3da0053a689ea653bb01b9832b16437984d1bc0dcb513ad32115ea0"
+  },
+  {
+   "league": 0,
+   "seed": 1577206275,
+   "digest": "09747d454560f6c88203f663b6edb201ee3ec82fa5b01baeaa80cf39fea262b9"
+  },
+  {
+   "league": 0,
+   "seed": 2824839496,
+   "digest": "dc829c325d4f6e213011687dd3db6f07de8ee922303ef922a925915f646db94c"
+  },
+  {
+   "league": 0,
+   "seed": 2774821071,
+   "digest": "8da8c9540a8fa2273a2d77c77ee5ed44d155a17c187fd46a5ca7af8dc4ce595c"
+  },
+  {
+   "league": 0,
+   "seed": 1135769286,
+   "digest": "343d7e90701933f6a1b656511a62dfedb46bd1346747d946b854165b2bd166ab"
+  },
+  {
+   "league": 0,
+   "seed": 2928380367,
+   "digest": "5d473a2b533525cd04abbcf3dc11663cfea83a60bcca04b68c07435bb4d3b2c1"
+  },
+  {
+   "league": 0,
+   "seed": 4122979188,
+   "digest": "f7fe7b98f98bf6449d3f97018acf76fc1e9028df1b9642bbf0a0c6c2b34dbed7"
+  },
+  {
+   "league": 0,
+   "seed": 1153429566,
+   "digest": "bc04835b4a4bb624cd6b388980c055d0eb727c4bd3542008fa1cb8b97d418ae8"
+  },
+  {
+   "league": 0,
+   "seed": 3531985554,
+   "digest": "d2062da06450013853cab94a2e5090dd4ef47c7af0a7b24bc2641e121568dfd1"
+  },
+  {
+   "league": 0,
+   "seed": 1539748266,
+   "digest": "06065a5c34c80f905643af0c2b77dcb1e81eb02f8f11a4d8f623085ab48f910b"
+  },
+  {
+   "league": 0,
+   "seed": 759446696,
+   "digest": "6837c6e747387b4c9dd6aaea7ba1b9962dbd2d01923db13e3c63c13fd8939b96"
+  },
+  {
+   "league": 0,
+   "seed": 3689127788,
+   "digest": "10344b529a38cce2e6b7a6179e704105780cc6937a3a1c9e42b4f10440e1201e"
+  },
+  {
+   "league": 0,
+   "seed": 1417016009,
+   "digest": "b266528a3cc815b3c5b0b3eae7d41a18c3e68ee81e31409f7a75d67f32513bfa"
+  },
+  {
+   "league": 0,
+   "seed": 2523667360,
+   "digest": "5600ea8cc36b4b2e0d9d689358c637158ba3269e7ba38d98cd85dda5cf91351e"
+  },
+  {
+   "league": 0,
+   "seed": 2736101313,
+   "digest": "911e9c4700289e0308ca15e0b8850f6906ffe4e3e189a85c2cdea01c9bde66e2"
+  },
+  {
+   "league": 0,
+   "seed": 913594941,
+   "digest": "76a04c0844b8b0022d21f9e32961878c60d0d3e50bb88fde760fc6ab0b3e4cea"
+  },
+  {
+   "league": 0,
+   "seed": 2687900711,
+   "digest": "9bd35a854c1ae4b9c5e46066ea9b4fee2d9a4f888f3ac9c520cb0ff1631e2503"
+  },
+  {
+   "league": 0,
+   "seed": 59247754,
+   "digest": "efdc237c6be42318e734361cbedbacd7a680ad2c4351e9b7caa8fed4e3b5b5f9"
+  },
+  {
+   "league": 0,
+   "seed": 1870610446,
+   "digest": "85b595820173956649396c969bd3e3c3c54e2c4fb496be5180360bd9c772a7d6"
+  },
+  {
+   "league": 0,
+   "seed": 4093387795,
+   "digest": "414aa7b2c58d5ac30b4e970947f2476fb62bdb89faf8d4e3508380051568b377"
+  },
+  {
+   "league": 0,
+   "seed": 2254721694,
+   "digest": "82f4ab376ccd3a5feaf93d1af47b73e43a68167bdc103a8dedee64a1d34d12bb"
+  },
+  {
+   "league": 0,
+   "seed": 492233798,
+   "digest": "bebc2c3e48cb50e3f64bb3b4d345a4d93c0d1bbd6ccf5d80266cc48236ed4598"
+  },
+  {
+   "league": 0,
+   "seed": 415747683,
+   "digest": "44c2ee679712eb34a76b8f56c52f8a3fb431c2e58f7f4073eee9f6375758ff0e"
+  },
+  {
+   "league": 0,
+   "seed": 3023947671,
+   "digest": "d44f0c4925cc7d3ba69ab7b895b1aaf87aa4cc6a39b64c046d41d1b3b9e0b3c5"
+  },
+  {
+   "league": 0,
+   "seed": 2500783503,
+   "digest": "706911d884cd26b3895bc743d6b09e8cd1f5f9e626ac3697c15110fc9c8a0137"
+  },
+  {
+   "league": 0,
+   "seed": 2763577860,
+   "digest": "7ac9730cb9b2f9aa97bd90a3aaf2acdf61d0ef7660964c830404ce6591dd8cd3"
+  },
+  {
+   "league": 0,
+   "seed": 2583900879,
+   "digest": "07b86566473f69d3f6564b9c1773c00291db0afd8ccd38a96e1a2cfbd5ae5349"
+  },
+  {
+   "league": 0,
+   "seed": 474789906,
+   "digest": "609eb0fed5134e1ad3e4165ec3bb987386a4146f59062cb05ef1f44bdfc310b7"
+  },
+  {
+   "league": 0,
+   "seed": 3516062048,
+   "digest": "2df49754d111ae41aaccb84489c74cc421aa632a795400f8519e1e7e606db5bb"
+  },
+  {
+   "league": 0,
+   "seed": 1245455321,
+   "digest": "4129ac24c8aaeaf18a33c372b6b19760654ae20ba5a44964e7d473ae48fba971"
+  },
+  {
+   "league": 0,
+   "seed": 665322032,
+   "digest": "546b454d0a55aec0a645542b6e14deefdac62025a27c01910af9f4f19bb0ef5e"
+  },
+  {
+   "league": 0,
+   "seed": 4131895062,
+   "digest": "147459be8238156f8580931f89df57ab6975e6fd706988af84750bb23e031daa"
+  },
+  {
+   "league": 0,
+   "seed": 2596138975,
+   "digest": "beae442319e37c3a07360fa3f648e4f0131aad9546e6f343ba76d60ead04b4a5"
+  },
+  {
+   "league": 0,
+   "seed": 114270813,
+   "digest": "7ad2cc67aee005b25a8c534febba5af7a62ac30defe2245fcb9b0c221b54671e"
+  },
+  {
+   "league": 0,
+   "seed": 2988186523,
+   "digest": "40e12c20f8898ab53e916bba99cec486298b45ad4123047cec04c4cdb1706625"
+  },
+  {
+   "league": 0,
+   "seed": 2967248512,
+   "digest": "1c196995cdbc000ab62b82d0b549e741a141939b74b849885182015f450e8c61"
+  },
+  {
+   "league": 0,
+   "seed": 1690339463,
+   "digest": "300305005e811d639da9cb3f87e7b88a6702a60d906cf6cf4469396199797dd9"
+  },
+  {
+   "league": 0,
+   "seed": 2368012078,
+   "digest": "ec10371371fbebf2fabf24b270774ef7819831b9e04f0cf97f883c93f087b80e"
+  },
+  {
+   "league": 0,
+   "seed": 1013130497,
+   "digest": "e7a2a882b058a67a773cdaff14407db0a5558782fd48caf88c7cc123a790ed97"
+  },
+  {
+   "league": 0,
+   "seed": 2524830683,
+   "digest": "4698d987707bd4955cc96c316265190fd2488b0d4958d6941897eca7afc5b8ff"
+  },
+  {
+   "league": 0,
+   "seed": 1328117356,
+   "digest": "efbb54e2a640466488c3efc183e20ea4c2b44f68b6a16ad11723efcd19f6765a"
+  },
+  {
+   "league": 0,
+   "seed": 3948362291,
+   "digest": "e00ccb723c48235f5199332237634b4ac1c409eefdd51a515b5b799352b7e998"
+  },
+  {
+   "league": 0,
+   "seed": 6712573,
+   "digest": "bd98a9a818422e16de4a0dc71168c5a06c567944c95893fab24bad9642384e0c"
+  },
+  {
+   "league": 0,
+   "seed": 252840570,
+   "digest": "dc41e000a2adca5ec0905efa04c957d0dc45cd6fddba3d4cb56dbb0085a99c63"
+  },
+  {
+   "league": 0,
+   "seed": 2942251911,
+   "digest": "6d176435f3da741c4bd6345f747afead86b37a33111d77256fc5645adc9571af"
+  },
+  {
+   "league": 0,
+   "seed": 2015336279,
+   "digest": "f538072cb015aa0d52fceeb5290eefc786a3e54996693f05782bb7940d9d46f9"
+  },
+  {
+   "league": 0,
+   "seed": 3567425532,
+   "digest": "8e568c90b5929933e13888d3bc8ac7220444e6bfa0c5587d4ad27e91cc7d9c99"
+  },
+  {
+   "league": 0,
+   "seed": 2580372427,
+   "digest": "0fcc84e0389a0eccf16275ca62b469d4d969ab1f5430a7d052bb380a02912c06"
+  },
+  {
+   "league": 0,
+   "seed": 3497910837,
+   "digest": "7dc14d4b5bd52767edcb614d53f7541714b9042b93dcd43c4c6e4583f3d40a2d"
+  },
+  {
+   "league": 0,
+   "seed": 1356083005,
+   "digest": "c899bede8ef53f46666b9799914e64c85fdcc80b6b8ecf1275ddd50197df7da9"
+  },
+  {
+   "league": 0,
+   "seed": 1961323811,
+   "digest": "5afef290d805f46830c85afa4d4b5fca554dc8182fb1ddd17699b046237960da"
+  },
+  {
+   "league": 0,
+   "seed": 1237330216,
+   "digest": "4091a93d97df231952fc6bfd05bd23f0c980d0b539d69aa2cca578619d5e0eec"
+  },
+  {
+   "league": 0,
+   "seed": 3967361629,
+   "digest": "436dd021c0aa9b261c38277af94d8add25f8bb3179469311e9170745db1f7cf7"
+  },
+  {
+   "league": 0,
+   "seed": 447624460,
+   "digest": "05a9b470baae336d4f46e995d3c79ded23e33cc1b60fc456c925ab73eb936405"
+  },
+  {
+   "league": 0,
+   "seed": 915964580,
+   "digest": "4089bc46b7f253642eb063097dc3976a0dd590d9de5e1a26795cedd691271a66"
+  },
+  {
+   "league": 0,
+   "seed": 635039917,
+   "digest": "e05dc933b3d9f1640d198cc33810a4945e61bcaaefdd4c81e8eb61cbe7cb0b42"
+  },
+  {
+   "league": 0,
+   "seed": 3480635160,
+   "digest": "40ba2e930e6c51ded994cb6f08600afebb9fd22273193b281ff6a99bf4aca208"
+  },
+  {
+   "league": 0,
+   "seed": 2354008601,
+   "digest": "2d93694a01a56dce0086580813d34d9ea8e14a2db6b5b8e4e2167879af9bb8fd"
+  },
+  {
+   "league": 0,
+   "seed": 2356425799,
+   "digest": "1f39f6ceed0d2e12a3c9603e39a7f1ac59bce635b85e96444d0f188af0d902ad"
+  },
+  {
+   "league": 0,
+   "seed": 1730292023,
+   "digest": "a5f05bffa8c584b80ab27ef6e5419082d1f12ced5f9c7e40da096eb97995acf4"
+  },
+  {
+   "league": 0,
+   "seed": 2043811373,
+   "digest": "7b34939ad3c6f742940de570acf153b1b57981d20b7e80d756e2d5715f920056"
+  },
+  {
+   "league": 0,
+   "seed": 2733221972,
+   "digest": "f461fc5767fe8b45483542cf0f0ac7f7791ff1a11aedfcf6d0888c5523352cad"
+  },
+  {
+   "league": 0,
+   "seed": 3256203909,
+   "digest": "26f74923f230b927fa1375d2cc7f6d77cd516c1f3b74aa675d5c971b3db9dd42"
+  },
+  {
+   "league": 0,
+   "seed": 1812307573,
+   "digest": "ba5856bcd4ad28be972657e055f895e75c41543e48fee9294311cc73592fe707"
+  },
+  {
+   "league": 0,
+   "seed": 2506830165,
+   "digest": "2c7b532f5678bb888a8731d4148d56e18c4e470a7f26ce8539ecfd790424f6e1"
+  },
+  {
+   "league": 0,
+   "seed": 4002991075,
+   "digest": "a71e197e8b687ebcd700185a06965d8b58b7f1cb2c3a57103d5d53f502c0264c"
+  },
+  {
+   "league": 0,
+   "seed": 888361118,
+   "digest": "ae7a3f83f56615fc00873659ecf476d588c7ec5cdb6d900bc1e1b0cd95bd4162"
+  },
+  {
+   "league": 0,
+   "seed": 3012304649,
+   "digest": "d9ee7eb24eb7b9ae61d1d20af683c3079ee4601d5a6c06c982f4c0817dd5ef5f"
+  },
+  {
+   "league": 0,
+   "seed": 3474547981,
+   "digest": "02082d7f3611c3cafdec30ed4fac39c9554c4277e1de120a18c7ab2ef7d05f38"
+  },
+  {
+   "league": 0,
+   "seed": 1263733686,
+   "digest": "c9398b6c7c175aed673b1ff5025d81eb90a6c2fd89c2424f163cd329cf401be6"
+  },
+  {
+   "league": 0,
+   "seed": 980797079,
+   "digest": "89c2e7a59ca710b593a346fe6e970a2bf6ad9f4a4408f37729acf9bf880a779c"
+  },
+  {
+   "league": 0,
+   "seed": 2183925369,
+   "digest": "e2e584698ff49f1fa03936266c38ec85f80311d2ca5a70a3761cd9a85daf6aa2"
+  },
+  {
+   "league": 0,
+   "seed": 23859402,
+   "digest": "fc8539f9359c68c423a915a34676688571a2e907d08ef0eef819bc46aff14ce9"
+  },
+  {
+   "league": 0,
+   "seed": 4044275081,
+   "digest": "2f3d8564082da8cb46a9fd77d5e92231516ed837d7f4a966d8fd4fcb67b78bb9"
+  },
+  {
+   "league": 0,
+   "seed": 942936443,
+   "digest": "1828f9aaadabe6a39e3dd8b26017b8e5c2cbbeb79b1c7d0146409966c6020cf5"
+  },
+  {
+   "league": 0,
+   "seed": 915864133,
+   "digest": "1651188ec7c5cfca87667e6fbc916834a204c2e86f8dec2ff36dce0726224bad"
+  },
+  {
+   "league": 0,
+   "seed": 1882426722,
+   "digest": "2f17f51c2084c052a1d39a736db68c3d16d9b003716af637d94eef0a2a8e1686"
+  },
+  {
+   "league": 0,
+   "seed": 1763074895,
+   "digest": "880c59b487ed551000a1bc950a3bce8eae5c096ca133ea9911dcc1574cef6824"
+  },
+  {
+   "league": 0,
+   "seed": 1823301432,
+   "digest": "28d256c511f7f0da8cc4a353837d24f33f07fc67a263ec36160f613b24994a96"
+  },
+  {
+   "league": 0,
+   "seed": 3949855795,
+   "digest": "ed08fdfad12a8684728b0366a0f8ebbea69cd3e3b51b25973ec5161c56748c27"
+  },
+  {
+   "league": 0,
+   "seed": 1713215446,
+   "digest": "2b6b8ae061ed2f247ffbe0cc22418778ad39073c8c9ff77e9545c78ffcc0835a"
+  },
+  {
+   "league": 0,
+   "seed": 2264160670,
+   "digest": "20d6998b9469e3e94d87da7a6a55dd9760336054fd578ffe8712281ab8de6e90"
+  },
+  {
+   "league": 0,
+   "seed": 62771815,
+   "digest": "6e08e6634284f2d8bef88070674578d7b06e8c5916f7a1400762ed961cb02550"
+  },
+  {
+   "league": 0,
+   "seed": 358972553,
+   "digest": "fdd535d3bb20bb1acf9711d6115d1d605a3ec536fd51d9b97729465d0fdc5f20"
+  },
+  {
+   "league": 0,
+   "seed": 3475062568,
+   "digest": "1ea1d984439baf638dfb553db48a0d6f4a6f0ae5ca4b427c383603ad7ba619a5"
+  },
+  {
+   "league": 0,
+   "seed": 31473212,
+   "digest": "3c1ddb7a2d216a0ddde39d46a900a7398e7725d3e6a6ef9c2cb3dc83fc1da6ca"
+  },
+  {
+   "league": 0,
+   "seed": 3991637308,
+   "digest": "fbfe7ff408d0bb23556c1012e353ccc3daef8c38d0cbdd87e0187d749c390255"
+  },
+  {
+   "league": 0,
+   "seed": 701678915,
+   "digest": "ae1a4d2785b778af357056f7d9e394dafc8841c99ccb0b48badafdbf9025e94c"
+  },
+  {
+   "league": 0,
+   "seed": 3791278665,
+   "digest": "b5864fc9b993c56456d140701adacfc5e4d90c7d8ff5c08a60b96f5f6a3774b2"
+  },
+  {
+   "league": 0,
+   "seed": 139726570,
+   "digest": "221b01f992e177387e6000791dd1dbd8b32abf286999b3bc9c452a55d47bc861"
+  },
+  {
+   "league": 0,
+   "seed": 1246293680,
+   "digest": "f828881bfb2fa39e3d637dc85fef161ed780a741777f4d00a1af5640a9ae5031"
+  },
+  {
+   "league": 0,
+   "seed": 3587167003,
+   "digest": "30579191835a7cfb26f605519cc005ffa10d368fef68ecaa247f31de0deb9804"
+  },
+  {
+   "league": 0,
+   "seed": 2522991492,
+   "digest": "050c61de988563fda87027207ebf24f4260c790647987e76eee49e2cc33bede4"
+  },
+  {
+   "league": 0,
+   "seed": 4169170275,
+   "digest": "29673ad6410558d6e5ca0d59f5474708e144cf6db562bef64cb71b553b0ee361"
+  },
+  {
+   "league": 0,
+   "seed": 3619475285,
+   "digest": "ef6d51c488c276d5f5060471928d5beff350c3469bed13f706809ce1852e747d"
+  },
+  {
+   "league": 0,
+   "seed": 3003080854,
+   "digest": "85deb0d5cff505f26b45f17015291fa0467431adf373fb6b6ca858e9c9504d18"
+  },
+  {
+   "league": 0,
+   "seed": 3137439691,
+   "digest": "7090eaab8b33669a32581aea73914b39e0234e8eedf0887bc8fd418bde2c2df8"
+  },
+  {
+   "league": 0,
+   "seed": 1272371749,
+   "digest": "8cad018e8000b02481c2cad000c1b4990a7af05b59452f94c576e312166b8b58"
+  },
+  {
+   "league": 0,
+   "seed": 40460089,
+   "digest": "0ef10f26076467d42b51a354add9b42edb1feededd28c5c069df04eeb73a9973"
+  },
+  {
+   "league": 0,
+   "seed": 1256062971,
+   "digest": "c7af14949faed3a464a602c7e6481819deaf22d5adcef960c4edad1ad0dc15c1"
+  },
+  {
+   "league": 0,
+   "seed": 3752275789,
+   "digest": "ab85cb46fe580b8f9d95c772da377abe7904498974a10585e35d32514c4f73b5"
+  },
+  {
+   "league": 0,
+   "seed": 1547309728,
+   "digest": "cf888d281d16a70c01420c761ed8f931a0d4b96d579065426ba237e460a7ec22"
+  },
+  {
+   "league": 0,
+   "seed": 2250703593,
+   "digest": "9080d61771ec4e19b49dd026f2b3dc02100e8cfbcb78ea158e6414229d717630"
+  },
+  {
+   "league": 0,
+   "seed": 311221496,
+   "digest": "dc03cf36690939edd3a962a6066e94734d8f830299f8de5c454a94a90a3b8cf6"
+  },
+  {
+   "league": 0,
+   "seed": 2535087922,
+   "digest": "6f308e2c91f3b68817aec31715a91b633c9d20f8a8dab19865524a3db96a0f95"
+  },
+  {
+   "league": 0,
+   "seed": 2664241772,
+   "digest": "9bd63ef35931370ab6efa36c7fd5bdc6ddbb98e3498c6252d92d5a009e753d49"
+  },
+  {
+   "league": 0,
+   "seed": 2694767912,
+   "digest": "6230330e9c766a3ae39acabc74d365c06fe59ae3a80150bd81da8f9ee0339bb1"
+  },
+  {
+   "league": 0,
+   "seed": 1873927028,
+   "digest": "5107c0965797d91e16ed2ee88978e67f816c1adc7713e7460367ba870fe22a29"
+  },
+  {
+   "league": 0,
+   "seed": 666694617,
+   "digest": "406d15f46d251b446e780170c0739546103eb1d398198a1300fb94efa2669050"
+  },
+  {
+   "league": 0,
+   "seed": 2830429249,
+   "digest": "43c74af7861c9de07d097a69d8fc92c6fc627520a7a381aaad1c58f00e9212ec"
+  },
+  {
+   "league": 0,
+   "seed": 3967595832,
+   "digest": "f93b37ab23389ee433a0564bf1368a643af2c0bd8d1bbf1196b21e097422501a"
+  },
+  {
+   "league": 0,
+   "seed": 1215366316,
+   "digest": "60a4560739e0b8f9c37eb9791ce7737cb64e98ae2c79a0743199b032e72998a1"
+  },
+  {
+   "league": 0,
+   "seed": 2017820171,
+   "digest": "cb3b17db3d1b08b822d210454a3cbe55c9417038a9343520da3c9a6378cdc7a9"
+  },
+  {
+   "league": 0,
+   "seed": 122876291,
+   "digest": "4792594dff7597c43af76b27aeac3abb49c46c94594e068bbeedb7452aae7824"
+  },
+  {
+   "league": 0,
+   "seed": 508856858,
+   "digest": "a8c8dd65984735986c8d9f55239b2c3e948d593a91a9444cb20de6bbc36032d0"
+  },
+  {
+   "league": 0,
+   "seed": 3576885674,
+   "digest": "cd21af1064d60f1dea1e39e5101bd53ed4fedbc24b3f45a199888345394dd19c"
+  }
+ ]
+}

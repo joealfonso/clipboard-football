@@ -28,6 +28,8 @@ Checked by hand on 11 November 2026 against nflverse's own repositories. Not leg
 
 None of the nflverse terms forbids redistributing derived aggregates. CC-BY-SA 4.0 (participation and FTN) requires attribution and, for adapted material, sharing under the same license. The baked caller tables in data/caller/ aggregate participation and FTN fields, so if they count as adapted material they must carry these attributions and be offered under CC-BY-SA 4.0. Pro Football Reference's terms for the combine rows (Combine row) add two limits: no competing database (5.10) and no use to train, prompt or instruct AI (5.11); the engine's player tables (data/players/distributions.json) hold only per-position percentile cut points derived from the combine, and 5.11 is an open question for Joseph. Not checked: the NFL's own terms for the NGS-sourced participation rows (nflverse publishes them under CC-BY-SA 4.0), and every other table in this file. The nflreadpy package itself is MIT, which covers its code, not the data.
 
+Local-only file: pipeline/game/real_names.py, a hand-kept list of real NFL nicknames and cities used only to reject collisions with the designed fictional team names (data/teams/names.json, M1 step 5). It is gitignored, never shipped and never committed; the collision check runs locally, and CI skips it when the file is absent.
+
 ## Contents
 
 1. Play-by-play (ok)

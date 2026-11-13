@@ -88,11 +88,19 @@ def fit_factor(
     if unknown:
         raise ValueError(f"targets not in the factor's list: {sorted(unknown)}")
     seasons = sorted(frame["season"].unique().to_list())
+    factor_rows = frame.filter(in_seasons(factor).fill_null(False))
+    if "is_ot" in factor_rows.columns:
+        factor_rows = factor_rows.filter(~pl.col("is_ot"))
     weights = {s: season_weight(s, anchor, half_life) for s in seasons}
     target_index = {t: i for i, t in enumerate(targets)}
     cells: list[dict[str, list[int]]] = []
     for level in factor["levels"]:
-        keyed = frame.with_columns(_key=level_key_expr(level)).filter(pl.col("_key").is_not_null())
+        # Step 5a: a level may be fitted on its own seasons; every other level on the factor's.
+        rows = frame.filter(level_seasons(factor, level).fill_null(False))
+        if "is_ot" in rows.columns and "lateTime" not in level["dims"]:
+            # Step 5b: overtime rows enter only the overtime-aware late levels.
+            rows = rows.filter(~pl.col("is_ot"))
+        keyed = rows.with_columns(_key=level_key_expr(level)).filter(pl.col("_key").is_not_null())
         grouped = keyed.group_by(["_key", "season", "target"]).len().sort(["_key", "season", "target"])
         by_key: dict[str, dict[int, list[int]]] = {}
         for key, season, target, n in grouped.iter_rows():
@@ -111,7 +119,7 @@ def fit_factor(
         "minPlays": factor["minPlays"],
         "seasons": seasons,
         "seasonWeights": {str(s): weights[s] for s in seasons},
-        "plays": frame.height,
+        "plays": factor_rows.height,
         "cells": cells,
     }
     if "byDown" in factor["seasons"]:
@@ -119,6 +127,27 @@ def fit_factor(
     if "downs" in factor:
         out["downs"] = factor["downs"]
     return out
+
+
+def level_seasons(factor: dict[str, Any], level: dict[str, Any]) -> pl.Expr:
+    """Rows a level is fitted on: its own season range (with the factor's downs) when it has one,
+    else the factor's seasons."""
+    if "seasons" not in level:
+        return in_seasons(factor)
+    r = level["seasons"]
+    expr = pl.col("season").is_between(r["from"], r["to"])
+    if "downs" in factor:
+        expr = expr & pl.col("down").is_in([float(d) for d in factor["downs"]])
+    return expr
+
+
+def any_seasons(factor: dict[str, Any]) -> pl.Expr:
+    """Rows any level of the factor may be fitted on."""
+    expr = in_seasons(factor)
+    for level in factor["levels"]:
+        if "seasons" in level:
+            expr = expr | level_seasons(factor, level)
+    return expr
 
 
 def in_seasons(factor: dict[str, Any]) -> pl.Expr:

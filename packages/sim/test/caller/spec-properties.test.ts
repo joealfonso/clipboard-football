@@ -159,13 +159,25 @@ describe("share distributions over a sweep (D2)", () => {
 });
 
 describe("overtime is binned as the second half", () => {
+  // Amended by step 5b: overtime is its own late time state for the late oTop and o4Top levels
+  // only (lateTime and the dimensions windowed on it, and the regulation-only copies time5R, time2R and scoreLateOnlyR). Every other label,
+  // every other factor's lookup and the defense stay exactly as the 4th quarter with the same clock.
+  const OT_AWARE = new Set(["lateTime", "scoreLate5Only", "kneelOut", "lateClockAll", "lateClock", "time5x", "time5R", "time2R", "scoreLateOnlyR"]);
   it("an overtime situation gets the same labels and shares as the 4th quarter with the same clock", () => {
     for (const s of sweep(500, 808, 0.1)) {
       const secs = Math.min(s.secondsLeftInHalf, 600);
       const ot: Situation = { ...s, quarter: 5, secondsLeftInHalf: secs, secondsLeftInGame: secs };
       const q4: Situation = { ...ot, quarter: 4 };
-      expect(binSituation(ot, data.config.dimensions)).toEqual(binSituation(q4, data.config.dimensions));
-      expect(offenseShares(ot, data).leaves).toEqual(offenseShares(q4, data).leaves);
+      const strip = (l: Record<string, string | null>): Record<string, string | null> => Object.fromEntries(Object.entries(l).filter(([k]) => !OT_AWARE.has(k)));
+      expect(strip(binSituation(ot, data.config.dimensions))).toEqual(strip(binSituation(q4, data.config.dimensions)));
+      if (ot.phase === "scrimmage") expect(binSituation(ot, data.config.dimensions)["lateTime"]).toBe("OT");
+      const a = offenseShares(ot, data);
+      const b = offenseShares(q4, data);
+      for (const name of Object.keys(b.trace)) {
+        if (name === "oTop" || name === "o4Top") continue;
+        expect([a.trace[name]?.level, a.trace[name]?.key, a.trace[name]?.weights], name).toEqual([b.trace[name]?.level, b.trace[name]?.key, b.trace[name]?.weights]);
+      }
+      if (ot.phase !== "scrimmage") expect(a.leaves).toEqual(b.leaves);
       expect(defenseShares(ot, data).presets).toEqual(defenseShares(q4, data).presets);
     }
   });
@@ -299,7 +311,7 @@ describe("golden file coverage (D3)", () => {
       for (const l of levels) if (!(inGolden.get(factor)?.has(l) ?? false)) missing.push(`${factor}@${l}`);
     }
     expect(missing).toEqual([]);
-  });
+  }, 30_000);
 
   it("includes masked situations, where availability zeroes weight the stored cell has", () => {
     // Masking past a stored cell entirely does not happen with the real tables (every

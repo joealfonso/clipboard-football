@@ -18,6 +18,21 @@ POST_HOC_REVISIONS = (
         "the downs 1-3 chain keeps the end-of-half and end-of-game clock state longer; Nickel Cover 2 added as a 13th preset, chosen from the 2024-2025 mismatch table.",
         "groups": ("passRate", "passRateByDown", "fourthDown", "kneel", "spike", "formation", "preset"),
     },
+    {
+        "name": "Post-validation revision 2 (2026-11-11, step 5a, docs/specs/m1-step5a-caller-late-game-bins.md)",
+        "what": "late-game score bins (-8..-4, -3..-1, 1..3, 4..8 split out of score7 in the last 5:00 of the game) in oTop, o4Top and o4Kick, made after both the caller's 2024-2025 holdout and the step 5 game-level holdout had been seen. It was driven by in-sample findings (the step 5 in-sample run), not by 2024-2025 numbers.",
+        "groups": ("passRate", "passRateByDown", "fourthDown", "kneel", "spike"),
+    },
+    {
+        "name": "Post-validation revision 3 (2026-11-12, step 5b, docs/specs/m1-step5b-late-game-and-clock-control.md)",
+        "what": "late caller levels in oTop and o4Top (config version 3): an overtime time state fitted on 2016-2023 overtime plays, a five-bucket late score, kick zones and field half in the late windows, and a can-kneel-out bin for a leading offense in the final 2:00; overtime without its own cell backs off to the G5/GF cells. "
+        "Made after every earlier holdout run had been seen, driven by in-sample findings. Its 2024-2025 re-validation was computed five times on 2026-11-12, all post hoc: "
+        "run 1 before the key-only gate change (regulation keys then carried an \"R|\" prefix), run 2 after it, run 3 after an edit to this report's run labels only "
+        "(runs 1-3: identical lookups and identical metrics), run 4 after the o4Top late levels were moved after the score3 levels, a post-fit change "
+        "made after seeing in-sample results and approved by Joseph, and run 5 (this report) after Joseph's scoped known deviations were added, with every metric identical to run 4 "
+        "(docs/DECISIONS.md, Step 5 misses accepted).",
+        "groups": ("passRate", "passRateByDown", "fourthDown", "kneel", "spike"),
+    },
 )
 
 
@@ -173,6 +188,37 @@ def render(d: dict[str, Any]) -> str:
         head = ["metric"] + [f"{lbl} {c}" for lbl in by for c in ("n", "predicted %", "actual %")]
         L += _t(head, rows) + [""]
 
+    lc = d.get("lateCounts")
+    if lc:
+        L += ["## 8c. Late-window cells (step 5a, A5)", "",
+              "Unweighted plays per late-window cell at the finest late level each changed factor gains (last 5:00 of the game, late score bins), "
+              "2016-2023 and 2021-2023. A cell is stored with at least 150 plays.", ""]
+        for fid, info in lc.items():
+            L += [f"### {fid}: level ({', '.join(info['level'])})", "",
+                  f"{len(info['cells'])} cells with plays; {info['atLeastN2016']} have 150 or more in 2016-2023, {info['atLeastN2021']} in 2021-2023.", ""]
+            L += _t(["cell", "plays 2016-2023", "plays 2021-2023"], [[f"`{r['key']}`", str(r["n2016"]), str(r["n2021"])] for r in info["cells"]]) + [""]
+    cc = d.get("candidateCounts")
+    if cc:
+        L += ["## 8e. Step 5b candidate late cells (B1, counted before the fit)", "",
+              "Unweighted plays per candidate late cell (lateTime: G5, GF, OT; overtime rows included), 2016-2023 and 2021-2023. Cells with fewer than 10 plays are summarised, not listed.", ""]
+        for name, info in cc.items():
+            big = [r for r in info["cells"] if r["n2016"] >= 10]
+            L += [f"### {name}", "", f"{len(info['cells'])} cells; {info['atLeastN2016']} with 150 or more in 2016-2023, {info['atLeastN2021']} in 2021-2023; {len(info['cells']) - len(big)} cells with fewer than 10 plays not listed.", ""]
+            L += _t(["cell", "plays 2016-2023", "plays 2021-2023"], [[f"`{r['key']}`", str(r["n2016"]), str(r["n2021"])] for r in big]) + [""]
+    l5 = d.get("lateChecks5b")
+    if l5:
+        L += ["## 8f. Step 5b late checks (B9, in-sample 2016-2023)", "",
+              "Thresholds in data/caller/latechecks.json, 5 pp where n >= 100, on 2016-2023 regulation: (a) tied, final 2:00, inside the 37, 3rd down: "
+              "field goal and pass rate; (b) trailing 1-8, final 2:00, own half (K75 and K99), 4th down: punt and go rate; (c) leading, final 2:00, downs 1-3, "
+              "by can-kneel-out: kneel rate. The same rows in overtime (`.OT`) are shown, not gated.", ""]
+        L += _t(["check", "n", "predicted %", "actual %", "status"], [[f"`{r['id']}`", str(r["n"]), _pct(r["predicted"]), _pct(r["actual"]), r["status"]] for r in l5]) + [""]
+    lk = d.get("lateChecks")
+    if lk:
+        L += ["## 8d. Late-game in-sample check (step 5a, B5 and B6)", "",
+              "Thresholds in data/caller/latechecks.json: 4th-down field goal rate within 5 pp on 2021-2023 where n >= 100 (`.recent`; `.all` is 2016-2023, shown); "
+              "downs 1-3 pass and kneel rate by late score bucket within 5 pp on 2016-2023 where n >= 100. Go and punt rows are shown, not gated.", ""]
+        L += _t(["check", "n", "predicted %", "actual %", "status"], [[f"`{r['id']}`", str(r["n"]), _pct(r["predicted"]), _pct(r["actual"]), r["status"]] for r in lk]) + [""]
+
     # 9
     v: Validation | None = d.get("validation")
     L += ["## 9. Validation", ""]
@@ -183,7 +229,7 @@ def render(d: dict[str, Any]) -> str:
           "Actual = share of those plays whose mapped call matches. Tolerance in absolute percentage points, from data/caller/tolerances.json. "
           "Interval = 95% Wilson interval of the actual rate.", ""]
     post_hoc = {g for r in POST_HOC_REVISIONS for g in r["groups"]}
-    L += ["**This is not a clean holdout test.** The model was restructured once after the first 2024-2025 run:", ""]
+    L += ["**This is not a clean holdout test.** The model was restructured after the first 2024-2025 run, three times:", ""]
     for r in POST_HOC_REVISIONS:
         L += [f"- {r['name']}: {r['what']}"]
     L += ["", "The metrics marked \"yes\" in the \"revised after holdout\" column were shaped with those results in view, so their passes are not "
@@ -208,6 +254,10 @@ def render(d: dict[str, Any]) -> str:
     L += ["4th-down drift: go rate predicted from 2021-2023 vs actual 2024-2025, by zone:", ""]
     L += _t(["zone", "predicted go %", "actual go %", "direction"],
             [[z, _pct(p), _pct(a), "caller under-predicts going for it" if a > p else "caller over-predicts going for it"] for z, (p, a) in v.drift.items()]) + [""]
+    lh = d.get("lateHoldout")
+    if lh:
+        L += ["Late-game rows on 2024-2025 (step 5a, C3), reported and not gated:", ""]
+        L += _t(["check", "n", "predicted %", "actual %"], [[f"`{r['id']}`", str(r["n"]), _pct(r["predicted"]), _pct(r["actual"])] for r in lh]) + [""]
     L += ["Odd calls the fitted caller can make (no guard rails in this step):", ""]
     L += _t(["call", "validation situations with a nonzero share", "mean share there %", "max share %"],
             [[k, str(o["situations"]), _pct(o["mean"], 2), _pct(o["max"], 2)] for k, o in v.oddities.items()]) + [""]

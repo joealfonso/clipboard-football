@@ -101,6 +101,11 @@ def test_holdout_and_2026_rows_never_reach_a_fitted_cell() -> None:
         "phase": "scrimmage", "down": 1.0, "b_down": "1", "b_dist5": "7-10", "b_dist3": "7+", "b_zone6": "OWN",
         "b_zone3": "OWN", "b_zoneF": "FLD", "b_score7": "0", "b_score3": "0", "b_time5": "H1", "b_time2": "N",
         "b_end": "-", "b_clock": "-", "b_diff": None, "b_time3": None, "try_call": None, "run_type": "insideRun", "pass_type": None,
+        # Step 5a (B2): the late-game dimensions, so the new late cells are covered too.
+        "b_scoreLate": "0", "b_scoreLateOnly": "0", "b_score3LateOnly": "0", "b_zoneK": "K75",
+        # Step 5b: the late time state, five-bucket late score, kneel-out, half and regulation gate.
+        "b_lateTime": "GF", "b_scoreLate5Only": "1..8", "b_kneelOut": "K1", "b_fieldHalf": "OWN", "b_lateClock": "GF",
+        "b_time5R": "H1", "b_time2R": "N", "b_scoreLateOnlyR": "0",
         "depth": None, "leaf": "insideRun", "formation": "shotgun", "front": "front.nickelLight",
         "coverage": "cover3.zone.le4", "preset": "nickelCover3",
     }
@@ -142,10 +147,17 @@ def test_season_ranges_by_factor() -> None:
 
 
 def test_fourth_down_chain_drops_fine_zone_last() -> None:
+    # Amended by step 5a: the late-window levels may use the designed kick zone (zoneK) and are
+    # skipped outside the last 5:00; every level still keeps a field zone, and the chain outside
+    # the late windows still ends zone6, then global.
+    # Amended by step 5b: the late-only levels may also use zoneK or fieldHalf with scoreLate5Only.
     levels = [lv["dims"] for lv in CFG["factors"]["o4Top"]["levels"]]
-    assert all("zone6" in d for d in levels[:-1]) and levels[-1] == []
+    late_zone = lambda d: ("zoneK" in d or "fieldHalf" in d) and any(x in d for x in ("scoreLateOnly", "score3LateOnly", "scoreLate5Only", "scoreLateOnlyR"))  # noqa: E731
+    assert all(("zone6" in d) or late_zone(d) for d in levels[:-1]) and levels[-1] == []
     assert levels[-2] == ["zone6"]
-    assert [lv["dims"] for lv in CFG["factors"]["o4Kick"]["levels"]][:-1] == [["zone6", "time2"], ["zone6"]]
+    kick = [lv["dims"] for lv in CFG["factors"]["o4Kick"]["levels"]]
+    assert kick[-3:] == [["zone6", "time2"], ["zone6"], []]
+    assert all("scoreLateOnly" in d or "score3LateOnly" in d for d in kick[:-3])
 
 
 @pytest.mark.parametrize("name", ["offense.table.json", "defense.table.json"])
@@ -158,15 +170,20 @@ def test_committed_tables_use_only_training_seasons(name: str) -> None:
     assert tables["configHash"] == load_inputs().config_hash, "tables are stale: rerun the pipeline"
     for fid, t in tables["factors"].items():
         r = CFG["factors"][fid]["seasons"]
+        # Step 5a resolved question 1: a level may carry its own (training) seasons.
+        lo = min([r["from"]] + [lv["seasons"]["from"] for lv in CFG["factors"][fid]["levels"] if "seasons" in lv])
+        hi = max([r["to"]] + [lv["seasons"]["to"] for lv in CFG["factors"][fid]["levels"] if "seasons" in lv])
         assert t["seasons"], fid
-        assert min(t["seasons"]) >= r["from"] and max(t["seasons"]) <= r["to"] <= 2023, fid
+        assert min(t["seasons"]) >= lo and max(t["seasons"]) <= hi <= 2023, fid
         assert sorted(t["seasonWeights"]) == [str(s) for s in t["seasons"]]
         for level in t["cells"]:
             for w in level.values():
                 assert sum(w) == 10000 and all(isinstance(x, int) and x >= 0 for x in w)
     if name == "offense.table.json":
         assert tables["factors"]["oTop"]["downs"] == [1, 2, 3]
-        assert tables["factors"]["o4Top"]["seasons"] == [2021, 2022, 2023]
+        # 2021-2023, plus 2016-2020 rows for the late-window twin levels only (step 5a).
+        assert tables["factors"]["o4Top"]["seasons"] == list(range(2016, 2024))
+        assert CFG["factors"]["o4Top"]["seasons"] == {"from": 2021, "to": 2023}
         assert tables["factors"]["o4Kick"]["seasons"] == list(range(2016, 2024))
         assert tables["factors"]["oPassType"]["seasons"] == [2022, 2023]
         assert tables["factors"]["oDepth"]["seasons"] == [2022, 2023]

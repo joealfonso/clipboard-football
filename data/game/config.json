@@ -1,0 +1,1134 @@
+{
+  "schemaVersion": 2,
+  "designed": true,
+  "note": "Designed settings for the M1 step 5 full-game loop, coach decision tables, league and calibration. The decision dimensions, levels and minimum counts are designed; the tables they index (tempo.json, timeouts.json, onside.json) are fitted by `uv run --project pipeline python -m pipeline.game`. docs/MODEL.md labels each part.",
+  "seasons": {
+    "from": 2016,
+    "to": 2023,
+    "tempoFrom": 2022,
+    "neverTrainFrom": 2024,
+    "holdout": [
+      2024,
+      2025
+    ],
+    "weightAnchor": 2023,
+    "halfLifeSeasons": 2,
+    "homeFieldExclude": [
+      2020
+    ]
+  },
+  "dimensions": {
+    "time5": {
+      "buckets": [
+        {
+          "label": "H1",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 1,
+              "max": 2
+            },
+            {
+              "field": "secondsLeftInHalf",
+              "min": 121
+            }
+          ]
+        },
+        {
+          "label": "H1F",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 1,
+              "max": 2
+            }
+          ]
+        },
+        {
+          "label": "H2",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3
+            },
+            {
+              "field": "secondsLeftInGame",
+              "min": 301
+            }
+          ]
+        },
+        {
+          "label": "G5",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3
+            },
+            {
+              "field": "secondsLeftInGame",
+              "min": 121
+            }
+          ]
+        },
+        {
+          "label": "GF",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3
+            }
+          ]
+        }
+      ]
+    },
+    "final": {
+      "buckets": [
+        {
+          "label": "c40",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 1,
+              "max": 2
+            },
+            {
+              "field": "secondsLeftInHalf",
+              "max": 40
+            }
+          ]
+        },
+        {
+          "label": "c120",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 1,
+              "max": 2
+            },
+            {
+              "field": "secondsLeftInHalf",
+              "max": 120
+            }
+          ]
+        },
+        {
+          "label": "c40",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 40
+            }
+          ]
+        },
+        {
+          "label": "c120",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 120
+            }
+          ]
+        },
+        {
+          "label": "-",
+          "if": []
+        }
+      ]
+    },
+    "score3": {
+      "buckets": [
+        {
+          "label": "T",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "0",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "min": 0,
+              "max": 0
+            }
+          ]
+        },
+        {
+          "label": "L",
+          "if": []
+        }
+      ]
+    },
+    "ownTO": {
+      "exact": "ownTimeouts"
+    },
+    "prevKneel": {
+      "exact": "previousSnapKneel"
+    },
+    "running": {
+      "exact": "clockRunning"
+    },
+    "down4": {
+      "buckets": [
+        {
+          "label": "4",
+          "if": [
+            {
+              "field": "down",
+              "min": 4
+            }
+          ]
+        },
+        {
+          "label": "1-3",
+          "if": []
+        }
+      ]
+    },
+    "oScore": {
+      "buckets": [
+        {
+          "label": "<=-17",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "max": -17
+            }
+          ]
+        },
+        {
+          "label": "-16..-9",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "max": -9
+            }
+          ]
+        },
+        {
+          "label": "-8..-1",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "0",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "min": 0,
+              "max": 0
+            }
+          ]
+        },
+        {
+          "label": "1+",
+          "if": []
+        }
+      ]
+    },
+    "oQtr": {
+      "buckets": [
+        {
+          "label": "Q1-3",
+          "if": [
+            {
+              "field": "quarter",
+              "max": 3
+            }
+          ]
+        },
+        {
+          "label": "Q4",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 4,
+              "max": 4
+            }
+          ]
+        },
+        {
+          "label": "OT",
+          "if": []
+        }
+      ]
+    },
+    "oTime": {
+      "buckets": [
+        {
+          "label": "F2",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 120
+            }
+          ]
+        },
+        {
+          "label": "F5",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            }
+          ]
+        },
+        {
+          "label": "-",
+          "if": []
+        }
+      ]
+    },
+    "restart": {
+      "exact": "clockRestarted"
+    },
+    "toCalled": {
+      "exact": "timeoutCalled"
+    },
+    "oTrail": {
+      "buckets": [
+        {
+          "label": "9+",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "max": -9
+            }
+          ]
+        },
+        {
+          "label": "1-8",
+          "if": [
+            {
+              "field": "scoreDiff",
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "no",
+          "if": []
+        }
+      ]
+    },
+    "oLate": {
+      "buckets": [
+        {
+          "label": "late",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            }
+          ]
+        },
+        {
+          "label": "-",
+          "if": []
+        }
+      ]
+    },
+    "epDown": {
+      "exact": "down"
+    },
+    "epDist": {
+      "buckets": [
+        {
+          "label": "1",
+          "if": [
+            {
+              "field": "distance",
+              "max": 1
+            }
+          ]
+        },
+        {
+          "label": "2",
+          "if": [
+            {
+              "field": "distance",
+              "max": 2
+            }
+          ]
+        },
+        {
+          "label": "3",
+          "if": [
+            {
+              "field": "distance",
+              "max": 3
+            }
+          ]
+        },
+        {
+          "label": "4",
+          "if": [
+            {
+              "field": "distance",
+              "max": 4
+            }
+          ]
+        },
+        {
+          "label": "5",
+          "if": [
+            {
+              "field": "distance",
+              "max": 5
+            }
+          ]
+        },
+        {
+          "label": "6",
+          "if": [
+            {
+              "field": "distance",
+              "max": 6
+            }
+          ]
+        },
+        {
+          "label": "7",
+          "if": [
+            {
+              "field": "distance",
+              "max": 7
+            }
+          ]
+        },
+        {
+          "label": "8",
+          "if": [
+            {
+              "field": "distance",
+              "max": 8
+            }
+          ]
+        },
+        {
+          "label": "9",
+          "if": [
+            {
+              "field": "distance",
+              "max": 9
+            }
+          ]
+        },
+        {
+          "label": "10",
+          "if": [
+            {
+              "field": "distance",
+              "max": 10
+            }
+          ]
+        },
+        {
+          "label": "11-15",
+          "if": [
+            {
+              "field": "distance",
+              "max": 15
+            }
+          ]
+        },
+        {
+          "label": "16-20",
+          "if": [
+            {
+              "field": "distance",
+              "max": 20
+            }
+          ]
+        },
+        {
+          "label": "21+",
+          "if": []
+        }
+      ]
+    },
+    "epYdl5": {
+      "buckets": [
+        {
+          "label": "1",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 5
+            }
+          ]
+        },
+        {
+          "label": "6",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 10
+            }
+          ]
+        },
+        {
+          "label": "11",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 15
+            }
+          ]
+        },
+        {
+          "label": "16",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 20
+            }
+          ]
+        },
+        {
+          "label": "21",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 25
+            }
+          ]
+        },
+        {
+          "label": "26",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 30
+            }
+          ]
+        },
+        {
+          "label": "31",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 35
+            }
+          ]
+        },
+        {
+          "label": "36",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 40
+            }
+          ]
+        },
+        {
+          "label": "41",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 45
+            }
+          ]
+        },
+        {
+          "label": "46",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 50
+            }
+          ]
+        },
+        {
+          "label": "51",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 55
+            }
+          ]
+        },
+        {
+          "label": "56",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 60
+            }
+          ]
+        },
+        {
+          "label": "61",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 65
+            }
+          ]
+        },
+        {
+          "label": "66",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 70
+            }
+          ]
+        },
+        {
+          "label": "71",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 75
+            }
+          ]
+        },
+        {
+          "label": "76",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 80
+            }
+          ]
+        },
+        {
+          "label": "81",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 85
+            }
+          ]
+        },
+        {
+          "label": "86",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 90
+            }
+          ]
+        },
+        {
+          "label": "91",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 95
+            }
+          ]
+        },
+        {
+          "label": "96",
+          "if": []
+        }
+      ]
+    },
+    "epYdl10": {
+      "buckets": [
+        {
+          "label": "1",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 10
+            }
+          ]
+        },
+        {
+          "label": "11",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 20
+            }
+          ]
+        },
+        {
+          "label": "21",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 30
+            }
+          ]
+        },
+        {
+          "label": "31",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 40
+            }
+          ]
+        },
+        {
+          "label": "41",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 50
+            }
+          ]
+        },
+        {
+          "label": "51",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 60
+            }
+          ]
+        },
+        {
+          "label": "61",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 70
+            }
+          ]
+        },
+        {
+          "label": "71",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 80
+            }
+          ]
+        },
+        {
+          "label": "81",
+          "if": [
+            {
+              "field": "yardLine100",
+              "max": 90
+            }
+          ]
+        },
+        {
+          "label": "91",
+          "if": []
+        }
+      ]
+    },
+    "lateT": {
+      "buckets": [
+        {
+          "label": "OT",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            }
+          ]
+        },
+        {
+          "label": "GF",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 120
+            }
+          ]
+        },
+        {
+          "label": "G5",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            }
+          ]
+        },
+        {
+          "label": null,
+          "if": []
+        }
+      ]
+    },
+    "lateS3": {
+      "buckets": [
+        {
+          "label": "T",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "0",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            },
+            {
+              "field": "scoreDiff",
+              "min": 0,
+              "max": 0
+            }
+          ]
+        },
+        {
+          "label": "L",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 5
+            }
+          ]
+        },
+        {
+          "label": "T",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "max": -1
+            }
+          ]
+        },
+        {
+          "label": "0",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            },
+            {
+              "field": "scoreDiff",
+              "min": 0,
+              "max": 0
+            }
+          ]
+        },
+        {
+          "label": "L",
+          "if": [
+            {
+              "field": "quarter",
+              "min": 3,
+              "max": 4
+            },
+            {
+              "field": "secondsLeftInGame",
+              "max": 300
+            }
+          ]
+        },
+        {
+          "label": null,
+          "if": []
+        }
+      ]
+    }
+  },
+  "tempo": {
+    "levels": [
+      {
+        "dims": [
+          "time5",
+          "final",
+          "score3",
+          "ownTO",
+          "prevKneel",
+          "restart",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "time5",
+          "final",
+          "score3",
+          "prevKneel",
+          "restart",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "time5",
+          "score3",
+          "prevKneel",
+          "restart",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "time5",
+          "prevKneel",
+          "restart",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "prevKneel",
+          "restart",
+          "toCalled"
+        ]
+      },
+      {
+        "dims": [
+          "toCalled"
+        ]
+      }
+    ],
+    "minN": 150,
+    "maxSeconds": 40,
+    "cellTotal": 10000,
+    "note": "Seconds the offense lets run before the snap when the game clock is running. Measured 2022-2023: game clock at the previous snap minus that play's measured duration minus the game clock at this snap; nflverse play_clock is 0 on every row 2016-2025, so it cannot be used (DECISIONS.md). restart: the previous snap went out of bounds (1) or drew a flag (2), so the clock was stopped and restarted on the ready signal (designed bin, added after the first in-sample game run showed run-off after such plays is about 4 s shorter and the pooled cells cut run-off after ordinary plays by 2-3 s). toCalled: a timeout is called in this dead ball; the run-off is then the time that runs before the timeout (post-validation revision 2 of step 5). Levels keep score3 down to the third level (revision 3)."
+  },
+  "timeouts": {
+    "levels": [
+      {
+        "dims": [
+          "side",
+          "time5",
+          "final",
+          "score3",
+          "running",
+          "ownTO",
+          "down4"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "time5",
+          "final",
+          "score3",
+          "running",
+          "down4"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "lateT",
+          "final",
+          "score3",
+          "running"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "lateT",
+          "score3",
+          "running"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "lateT",
+          "score3"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "lateS3"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "time5",
+          "final",
+          "running",
+          "down4"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "time5",
+          "down4"
+        ]
+      },
+      {
+        "dims": [
+          "side",
+          "down4"
+        ]
+      },
+      {
+        "dims": [
+          "side"
+        ]
+      }
+    ],
+    "minN": 150,
+    "note": "Step 5b (C): inside the late windows (G5, GF and all of overtime, `lateT`), every level before the side-only fallbacks keeps score3; `lateT` is null elsewhere, so those levels are skipped and every rate outside the late windows is unchanged."
+  },
+  "onside": {
+    "levels": [
+      {
+        "dims": [
+          "oQtr",
+          "oTime",
+          "oScore"
+        ]
+      },
+      {
+        "dims": [
+          "oQtr",
+          "oTime",
+          "oTrail"
+        ]
+      },
+      {
+        "dims": [
+          "oQtr",
+          "oLate",
+          "oTrail"
+        ]
+      }
+    ],
+    "minN": 150,
+    "designedRule": {
+      "note": "Used only where no fitted level has minN kickoffs (resolved question 7, as directed by the lead after the first holdout run): onside when trailing by more than one score (9 or more) in the final 5:00 of the 4th quarter or overtime.",
+      "trailingBy": 9,
+      "secondsLeftInGame": 300,
+      "quarterMin": 4
+    }
+  },
+  "runoffTimeout": {
+    "note": "Designed: the offense spends a timeout instead of a ten-second run-off when it is trailing or tied in the final 2:00 of a half with a timeout left; otherwise the step 3 default (take the run-off).",
+    "finalSeconds": 120
+  },
+  "loop": {
+    "maxInputsPerGame": 2500,
+    "maxScrimmageSnapsPerGame": 260
+  },
+  "league": {
+    "teams": 32,
+    "leagues": 10,
+    "gamesPerLeague": 1000,
+    "calibrationSeed": 20261112,
+    "ciSliceGames": 1000
+  },
+  "driveResults": {
+    "note": "Sim drive outcome -> nflverse fixed_drive_result. Opp touchdown (a defensive score on the drive) counts as a turnover.",
+    "touchdown": [
+      "Touchdown"
+    ],
+    "fieldGoal": [
+      "Field goal"
+    ],
+    "missedFieldGoal": [
+      "Missed field goal"
+    ],
+    "punt": [
+      "Punt"
+    ],
+    "turnover": [
+      "Turnover",
+      "Opp touchdown"
+    ],
+    "downs": [
+      "Turnover on downs"
+    ],
+    "endOfHalf": [
+      "End of half"
+    ],
+    "safety": [
+      "Safety"
+    ]
+  },
+  "expectedPoints": {
+    "note": "Fitted (post-validation revision 11): mean nflverse `ep` (expected points for the team with the ball at the snap) of 2016-2023 regular-season scrimmage snaps, season-weighted, by down, distance and field position, backing off while a cell has fewer than minN snaps. Used only by the penalty accept-or-decline policy.",
+    "levels": [
+      {
+        "dims": [
+          "epDown",
+          "epDist",
+          "epYdl5"
+        ]
+      },
+      {
+        "dims": [
+          "epDown",
+          "epDist",
+          "epYdl10"
+        ]
+      },
+      {
+        "dims": [
+          "epDown",
+          "epYdl10"
+        ]
+      },
+      {
+        "dims": [
+          "epYdl10"
+        ]
+      }
+    ],
+    "minN": 150
+  }
+}

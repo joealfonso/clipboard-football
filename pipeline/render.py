@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from pipeline.cache import DEFAULT_DIR, ENV_VAR
 from pipeline.licenses import CHECKED as LICENSES_CHECKED
 from pipeline.licenses import FINDINGS
-from pipeline.licenses import SUMMARY as LICENSE_SUMMARY
+from pipeline.licenses import LOCAL_ONLY, SUMMARY as LICENSE_SUMMARY
 from pipeline.stats import (
     CANDIDATE_PATTERNS,
     START_PLAY_TYPES,
@@ -160,6 +160,8 @@ def render_licenses() -> list[str]:
         *table_md(["table", "license", "attribution", "source"], rows),
         "",
         LICENSE_SUMMARY,
+        "",
+        LOCAL_ONLY,
         "",
     ]
 

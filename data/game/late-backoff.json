@@ -1,0 +1,1092 @@
+{
+ "generated": true,
+ "games": 10000,
+ "lateLookups": 183563,
+ "rows": [
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|OWN",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 394,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|OWN",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 253,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|OWN",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 188,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|OWN",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 120,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 100,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 92,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 19,
+   "dims": [
+    "dist3",
+    "zone6"
+   ],
+   "key": "7+|BACK",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 87,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 83,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|OWN",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 81,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 77,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|OWN",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 65,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|OWN",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 64,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|OWN",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 51,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|OWN",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 45,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 44,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 38,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 35,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|OWN",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 34,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 33,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 33,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 33,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 31,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 31,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 28,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|MID",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 27,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 26,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|MID",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 25,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 22,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|MID",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 22,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 19,
+   "dims": [
+    "dist3",
+    "zone6"
+   ],
+   "key": "7+|BACK",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 22,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 19,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|FR",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 19,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 17,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 17,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "BACK",
+   "lateTime": "GF",
+   "score": ">=9",
+   "lookups": 17,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|MID",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 16,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 16,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 19,
+   "dims": [
+    "dist3",
+    "zone6"
+   ],
+   "key": "7+|BACK",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 16,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|MID",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 15,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|OWN",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 14,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 14,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 14,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|MID",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 14,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|RZ",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 13,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 13,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|OWN",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|FR",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|MID",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "7-10|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 12,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 11,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|FR",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 11,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|GL",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 11,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 11,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "4-6|FR",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 11,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|GL",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 10,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|MID",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 10,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|FR",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 9,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|GL",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 9,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "GL",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 9,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 8,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|MID",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 7,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 19,
+   "dims": [
+    "dist3",
+    "zone6"
+   ],
+   "key": "7+|BACK",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 7,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "GL",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 7,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|FR",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 6,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "2-3|GL",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 6,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|GL",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 5,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|MID",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 5,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "11+|MID",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 5,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "GL",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 5,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|FR",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 3,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|RZ",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 3,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "BACK",
+   "lateTime": "OT",
+   "score": "0",
+   "lookups": 3,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "BACK",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 2,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|GL",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 1,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 18,
+   "dims": [
+    "dist5",
+    "zone6"
+   ],
+   "key": "1|RZ",
+   "lateTime": "G5",
+   "score": "0",
+   "lookups": 1,
+   "b9a": 0,
+   "b9b": 0
+  },
+  {
+   "factor": "o4Top",
+   "level": 20,
+   "dims": [
+    "zone6"
+   ],
+   "key": "BACK",
+   "lateTime": "GF",
+   "score": "0",
+   "lookups": 1,
+   "b9a": 0,
+   "b9b": 0
+  }
+ ]
+}

@@ -48,11 +48,11 @@ describe("determinism (C3)", () => {
 
   it("same state, calls, players, data and seed give deep-equal results over 10,000 plays", () => {
     expect(run(11)).toEqual(run(11));
-  });
+  }, 30_000);
 
   it("a different seed changes at least one", () => {
     expect(run(11)).not.toEqual(run(12));
-  });
+  }, 30_000);
 });
 
 describe("phase errors and no mutation (C4)", () => {

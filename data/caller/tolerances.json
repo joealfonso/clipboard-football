@@ -106,15 +106,8 @@
       "target": 0.1012,
       "reason": "Real trend after the training years: FG share of midfield 4th-down kicks rose from 8-10% (2016-19) to 20% (2023), 25% (2024), 28% (2025). The caller reflects coaching through 2023.",
       "date": "2026-11-11",
-      "approved_by": "Joseph"
-    },
-    {
-      "metric": "fourthDown.MID.punt",
-      "observed": 0.4695,
-      "target": 0.5237,
-      "reason": "Same trend as fourthDown.MID.fieldGoal: more midfield field goals, fewer punts, after 2023.",
-      "date": "2026-11-11",
-      "approved_by": "Joseph"
+      "approved_by": "Joseph",
+      "scope": "holdout"
     },
     {
       "metric": "man",
@@ -122,7 +115,8 @@
       "target": 0.3544,
       "reason": "Man share swings season to season (29% 2022, 41% 2023, 49% 2024, 32% 2025), partly confounded by the 2023 change in charting source (NGS to FTN). Not a model bug.",
       "date": "2026-11-11",
-      "approved_by": "Joseph"
+      "approved_by": "Joseph",
+      "scope": "holdout"
     },
     {
       "metric": "preset.nickelCover2",
@@ -130,7 +124,8 @@
       "target": 0.0961,
       "reason": "Real shift toward Nickel Cover 2 in 2024-2025 (charted Cover 2 rows about 2,500 a season through 2022, 4,527 in 2024, 5,004 in 2025).",
       "date": "2026-11-11",
-      "approved_by": "Joseph"
+      "approved_by": "Joseph",
+      "scope": "holdout"
     },
     {
       "metric": "preset.nickelCover4",
@@ -138,6 +133,52 @@
       "target": 0.1459,
       "reason": "Mirror of preset.nickelCover2: the 2024-2025 shift from Cover 4 to Cover 2.",
       "date": "2026-11-11",
+      "approved_by": "Joseph",
+      "scope": "holdout"
+    },
+    {
+      "metric": "fourthDown.FR.fieldGoal",
+      "observed": 0.703,
+      "target": 0.754,
+      "reason": "Step 5 in-sample (CALLER_REPORT 8b, 2016-2023) row outside 5 pp of the step 2 baseline pinned by the step 5a B7 check, after step 5b and the o4Top fix. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "fourthDown.FR.go",
+      "observed": 0.288,
+      "target": 0.235,
+      "reason": "Step 5 in-sample (CALLER_REPORT 8b, 2016-2023) row outside 5 pp of the step 2 baseline pinned by the step 5a B7 check, after step 5b and the o4Top fix. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "fourthDown.RZ.fieldGoal",
+      "observed": 0.742,
+      "target": 0.814,
+      "reason": "Step 5 in-sample (CALLER_REPORT 8b, 2016-2023) row outside 5 pp of the step 2 baseline pinned by the step 5a B7 check, after step 5b and the o4Top fix. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "fourthDown.RZ.go",
+      "observed": 0.256,
+      "target": 0.185,
+      "reason": "Step 5 in-sample (CALLER_REPORT 8b, 2016-2023) row outside 5 pp of the step 2 baseline pinned by the step 5a B7 check, after step 5b and the o4Top fix. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "lateDowns.>=17.kneel",
+      "observed": 0.233,
+      "target": 0.286,
+      "reason": "Step 5a B6 (CALLER_REPORT 8d, 5 pp, 2016-2023): kneel rate on downs 1-3 in the last 5:00 when leading by 17 or more. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
       "approved_by": "Joseph"
     }
   ]

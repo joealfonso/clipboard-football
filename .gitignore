@@ -6,3 +6,7 @@ node_modules/
 .venv/
 __pycache__/
 .pytest_cache/
+.pnpm-store/
+# Hand-kept list of real NFL nicknames and cities, used only for the local team-name collision
+# check (M1 step 5, B3). Stays local; see docs/DATA.md.
+pipeline/game/real_names.py

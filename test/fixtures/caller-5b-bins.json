@@ -1,0 +1,1832 @@
+{
+ "description": "Step 5b (B2): late time state, five-bucket late score and can-kneel-out. Expected labels from an independent hand rule: OT is quarter 5; GF is Q4 with 120 s or less, G5 Q4 121-300 s; kneel out (leading, GF or OT, downs 1-3) when (4-d) x 40 + 2 - 40 x min(defense timeouts, 4-d) >= seconds left. lateClock (the clock overtime falls back to): OT with 120 s or less is GF, longer OT is G5, regulation as lateTime, null elsewhere. Checked by both the TypeScript and Python test suites.",
+ "cases": [
+  {
+   "name": "Q4 301s, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "<=-9",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "<=-9",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "<=-9",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 301s, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 301s, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 301s, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "0",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "0",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "0",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 301s, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 301s, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 301s, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "-",
+    "scoreLate5Only": null,
+    "kneelOut": null,
+    "lateClock": null
+   }
+  },
+  {
+   "name": "Q4 300s, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": ">=9",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 121s, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": ">=9",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 120s, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": ">=9",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT 301s, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 5,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT 301s, diff -3 (same seconds as Q4)",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 5,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT 300s, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 5,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT 300s, diff -3 (same seconds as Q4)",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 5,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT 121s, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 5,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT 121s, diff -3 (same seconds as Q4)",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 5,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT 120s, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 5,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT 120s, diff -3 (same seconds as Q4)",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 5,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "-8..-1",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 0, at threshold 122s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 122,
+    "secondsLeftInGame": 122,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 0, 1s past threshold 123s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 123,
+    "secondsLeftInGame": 123,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 0, at threshold 122s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 122,
+    "secondsLeftInGame": 122,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 0, 1s past threshold 123s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 123,
+    "secondsLeftInGame": 123,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "G5"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 1, at threshold 82s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 82,
+    "secondsLeftInGame": 82,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 1, 1s past threshold 83s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 83,
+    "secondsLeftInGame": 83,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 1, at threshold 82s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 82,
+    "secondsLeftInGame": 82,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 1, 1s past threshold 83s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 83,
+    "secondsLeftInGame": 83,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 2, at threshold 42s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 42,
+    "secondsLeftInGame": 42,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 2, 1s past threshold 43s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 43,
+    "secondsLeftInGame": 43,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 2, at threshold 42s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 42,
+    "secondsLeftInGame": 42,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 2, 1s past threshold 43s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 43,
+    "secondsLeftInGame": 43,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 3, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 1, def TO 3, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 3, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 1, def TO 3, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 0, at threshold 82s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 82,
+    "secondsLeftInGame": 82,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 0, 1s past threshold 83s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 83,
+    "secondsLeftInGame": 83,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 0, at threshold 82s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 82,
+    "secondsLeftInGame": 82,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 0, 1s past threshold 83s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 83,
+    "secondsLeftInGame": 83,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 1, at threshold 42s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 42,
+    "secondsLeftInGame": 42,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 1, 1s past threshold 43s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 43,
+    "secondsLeftInGame": 43,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 1, at threshold 42s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 42,
+    "secondsLeftInGame": 42,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 1, 1s past threshold 43s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 43,
+    "secondsLeftInGame": 43,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 2, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 2, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 2, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 2, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 3, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 2, def TO 3, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 3, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 2, def TO 3, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 2,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 0, at threshold 42s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 42,
+    "secondsLeftInGame": 42,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 0, 1s past threshold 43s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 43,
+    "secondsLeftInGame": 43,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 0, at threshold 42s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 42,
+    "secondsLeftInGame": 42,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 0, 1s past threshold 43s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 43,
+    "secondsLeftInGame": 43,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 1, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 1, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 1, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 1, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 1
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 2, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 2, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 2, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 2, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 3, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 3, def TO 3, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 3, at threshold 2s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 2,
+    "secondsLeftInGame": 2,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K1",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "OT down 3, def TO 3, 1s past threshold 3s",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 3,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 5,
+    "secondsLeftInHalf": 3,
+    "secondsLeftInGame": 3,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 3
+   },
+   "bins": {
+    "lateTime": "OT",
+    "scoreLate5Only": "1..8",
+    "kneelOut": "K0",
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 down 4 leading never kneels out",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 10,
+    "secondsLeftInGame": 10,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 tied cannot kneel out",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 10,
+    "secondsLeftInGame": 10,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "GF",
+    "scoreLate5Only": "0",
+    "kneelOut": null,
+    "lateClock": "GF"
+   }
+  },
+  {
+   "name": "Q4 G5 leading is outside the kneel window",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 1,
+    "yardsToGo": 10,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 130,
+    "secondsLeftInGame": 130,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 0
+   },
+   "bins": {
+    "lateTime": "G5",
+    "scoreLate5Only": "1..8",
+    "kneelOut": null,
+    "lateClock": "G5"
+   }
+  }
+ ]
+}

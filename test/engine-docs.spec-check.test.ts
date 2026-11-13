@@ -155,9 +155,19 @@ describe("F1: tolerances.json was pre-registered and its hash recorded before th
     // taken over the file with that array put back to its pre-registered empty form. Every other byte
     // (tolerances, minN, seed) must still match what was registered.
     const raw = readFileSync(join(root, "data/engine/tolerances.json"), "utf8");
-    const preRegistered = raw.replace(/"known_deviations": \[[\s\S]*\]\n\}\n$/, '"known_deviations": []\n}\n');
-    expect(preRegistered.endsWith('"known_deviations": []\n}\n')).toBe(true);
+    // Tightened (code review): the bytes before the first "known_deviations" key, with the
+    // pre-registered empty array appended, must hash to the recorded value; the tail must be
+    // exactly that one key holding one array (so nothing, such as a second "metrics", can hide
+    // after it); and the parsed top-level keys must be the pre-registered set.
+    const at = raw.indexOf('"known_deviations"');
+    expect(at).toBeGreaterThan(0);
+    const preRegistered = raw.slice(0, at) + '"known_deviations": []\n}\n';
     expect(createHash("sha256").update(preRegistered).digest("hex")).toBe(m?.[1]);
+    const tail = JSON.parse(`{${raw.slice(at)}`) as Record<string, unknown>;
+    expect(Object.keys(tail)).toEqual(["known_deviations"]);
+    expect(Array.isArray(tail["known_deviations"])).toBe(true);
+    expect(raw.slice(at)).toMatch(/^"known_deviations": \[[\s\S]*\]\n\}\n$/);
+    expect(Object.keys(JSON.parse(raw) as object).sort()).toEqual(Object.keys(JSON.parse(preRegistered) as object).sort());
   });
 
   it("known deviations added after the run carry every field and only Joseph approves them", () => {

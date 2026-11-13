@@ -28,6 +28,11 @@ import { dominant, isFluke, render, round2, templateFor, type TraceEntry } from 
 export interface Players {
   readonly home: TeamPool;
   readonly away: TeamPool;
+  /**
+   * Optional (M1 step 5 home field, designed): a factor on the offense's own pre-snap foul rates
+   * (false start, delay of game) by the team in possession. Absent means 1 for both.
+   */
+  readonly offensePreSnapFoulScale?: { readonly home: number; readonly away: number };
 }
 
 export type ResolvePlay = (state: GameState, offenseCall: OffenseCall, defenseCall: string | null, players: Players, rng: Rng) => PlayResult;
@@ -49,6 +54,8 @@ const B_KICKERS = 1;
 const B_DEF_TD = 2;
 
 const IN_OWN_END_ZONE = -1;
+/** Inside this many yards of the goal the second pool level (zoneR) is also 5-yard bands. */
+const FINE_BAND_YARDS = 10;
 const IN_OPP_END_ZONE = FIELD_LENGTH + 1;
 const PER_MILLION = 1_000_000;
 const SHARE_TOTAL = 10_000;
@@ -71,6 +78,8 @@ interface Compiled {
   readonly fouls: readonly FoulDef[];
   readonly means: ReturnType<typeof leagueMeans>;
   readonly presetLabel: Readonly<Record<string, string>>;
+  /** Pre-snap fouls only the offense commits (the home-field crowd-noise factor applies to them). */
+  readonly offensePreSnap: ReadonlySet<string>;
 }
 
 function compile(data: EngineData): Compiled {
@@ -117,6 +126,7 @@ function compile(data: EngineData): Compiled {
     fouls,
     means: leagueMeans(data.distributions),
     presetLabel,
+    offensePreSnap: new Set(fouls.filter((f) => f.timing === "preSnap" && f.committedBy === "offense").map((f) => f.id)),
   };
 }
 
@@ -136,6 +146,8 @@ export function createEngine(data: EngineData): ResolvePlay {
     readonly trace: TraceEntry[];
     readonly offense: Field;
     readonly defense: Field;
+    /** Factor on the offense's pre-snap foul rates (home field); 1 by default. */
+    readonly preSnapScale: number;
   }
 
   function seconds(hist: readonly number[] | undefined, rng: Rng): number {
@@ -181,7 +193,9 @@ export function createEngine(data: EngineData): ResolvePlay {
     for (let i = 0; i < row.length; i++) {
       let r = (row[i] as number) / PER_MILLION;
       if (r > 0) {
-        for (const e of c.penaltyEffects[data.penalties.ids[i] as string] ?? []) r *= applyEffect(e, ctx.offense, ctx.defense, c.means).multiplier;
+        const id = data.penalties.ids[i] as string;
+        for (const e of c.penaltyEffects[id] ?? []) r *= applyEffect(e, ctx.offense, ctx.defense, c.means).multiplier;
+        if (ctx.preSnapScale !== 1 && c.offensePreSnap.has(id)) r *= ctx.preSnapScale;
       }
       out[i] = r;
     }
@@ -284,7 +298,7 @@ export function createEngine(data: EngineData): ResolvePlay {
     inField: boolean;
   }
 
-  function physicalScrimmage(kind: "run" | "pass" | "sack" | "scramble", cls: string, tuple: readonly number[], at: number, los: number, secs: number): Physical {
+  function physicalScrimmage(kind: "run" | "pass" | "sack" | "scramble", cls: string, tuple: readonly number[], at: number, los: number, secs: number, sameBand: boolean): Physical {
     const y = tuple[at] as number;
     const flags = tuple[at + 1] as number;
     const ty = tuple[at + 2] as number;
@@ -312,7 +326,12 @@ export function createEngine(data: EngineData): ResolvePlay {
     }
     let spot = los + y;
     let td = false;
-    if ((flags & TD) !== 0 || spot >= FIELD_LENGTH) {
+    // Post-validation revision 8: a pooled play that scored is a touchdown here only when it was
+    // drawn from this spot's own band (`sameBand`: 5 yards or fewer inside the 10), where its yards stop at most 4 yards
+    // short of what it would have gained; drawn from a coarser backoff pool, it scores only if
+    // its yards reach the goal line from this spot. Before, the flag scored it from anywhere in
+    // a 10-yard band or wider.
+    if ((sameBand && (flags & TD) !== 0) || spot >= FIELD_LENGTH) {
       spot = IN_OPP_END_ZONE;
       td = true;
     } else if (spot <= 0) spot = IN_OWN_END_ZONE;
@@ -470,15 +489,15 @@ export function createEngine(data: EngineData): ResolvePlay {
       ctx.trace.push({ factor: "cell", family, level: 0, key: `try:${t.source}` });
       const cd = drawClass(family, leaf, formation, preset, pkg, t.weights, sit, ctx);
       detail["classProbabilities"] = cd.probs;
-      return finishRunPass(ctx, family, cd, t.pools[cd.cls], null, los, rates, onTry, detail);
+      return finishRunPass(ctx, family, cd, t.pools[cd.cls], null, los, rates, onTry, detail, true);
     }
     const cell = backoff(data.scrimmage.levels, data.scrimmage.cells, labels, { leaf, formation, family }, `scrimmage ${leaf}`);
     ctx.trace.push({ factor: "cell", family, level: cell.level, key: cell.key });
     const p975 = (cell.value[classes.length] as number | undefined) ?? null;
     const cd = drawClass(family, leaf, formation, preset, pkg, cell.value.slice(0, classes.length), sit, ctx);
     detail["classProbabilities"] = cd.probs;
-    const pool = backoff(data.scrimmage.poolLevels, data.scrimmage.pools, labels, { leaf, class: cd.cls, family }, `pool ${leaf} ${cd.cls}`).value;
-    return finishRunPass(ctx, family, cd, pool, p975, los, rates, onTry, detail);
+    const found = backoff(data.scrimmage.poolLevels, data.scrimmage.pools, labels, { leaf, class: cd.cls, family }, `pool ${leaf} ${cd.cls}`);
+    return finishRunPass(ctx, family, cd, found.value, p975, los, rates, onTry, detail, found.level === 0 || (found.level === 1 && FIELD_LENGTH - los <= FINE_BAND_YARDS));
   }
 
   function finishRunPass(
@@ -491,13 +510,14 @@ export function createEngine(data: EngineData): ResolvePlay {
     rates: Float64Array,
     onTry: boolean,
     detail: Record<string, unknown>,
+    sameBand: boolean,
   ): PlayResult {
     if (pool === undefined) return fail("noCell", `no pool for ${family} ${cd.cls}`);
     const stride = data.scrimmage.poolFields.length + 1;
     const at = drawTuple(pool, stride, ctx.rng) * stride;
     const y = pool[at] as number;
     const durations = data.scrimmage.durations[family] ?? {};
-    let ph = physicalScrimmage(kindFor(family, cd.cls), cd.cls, pool, at, los, 0);
+    let ph = physicalScrimmage(kindFor(family, cd.cls), cd.cls, pool, at, los, 0, sameBand);
     const foul = liveFouls(family, rates, ph, los, ctx, onTry);
     const secs = seconds(durations[foul.replace === "incompletePass" ? "inc" : cd.cls] ?? durations["*"], ctx.rng);
     if (foul.replace === "incompletePass") {
@@ -660,12 +680,25 @@ export function createEngine(data: EngineData): ResolvePlay {
       default:
         play = { ...base, crossedLine: true, touchedByReceivers: false, end: { spot: clampField(land), possession: "defense" } };
     }
-    const fouls = kickFoul("punt", rates, ctx, rates_out, (f) => f.committedBy !== "defense" || returnEnd !== null, returnEnd === null ? undefined : clampField(returnEnd + 5));
+    // Post-validation revision 13: a pooled punt fielded, downed or out of bounds where it was,
+    // but drawn from a line further back in its band, would here reach the goal line: it is a
+    // touchback, not a ball at the receivers' 1 (the field clamp put 0.25 snaps a game there).
+    let effCls = cd.cls;
+    if ((cd.cls.startsWith("fairCatch") || cd.cls.startsWith("downed") || cd.cls.startsWith("outOfBounds")) && land >= FIELD_LENGTH) {
+      play = { ...base, crossedLine: true, touchedByReceivers: false, end: { spot: Math.max(IN_OPP_END_ZONE, Math.min(FIELD_LENGTH + 9, land)), possession: "defense" } };
+      effCls = "touchback";
+    }
+    // A receiving-team foul needs the receivers holding the ball in the field after the kick
+    // (returned, fair catch, downed or out of bounds; post-validation revision 9: before, only a
+    // return); spot 5 yards behind where they have it.
+    const held = play.end !== undefined && play.end.possession === "defense" && play.end.spot > 0 && play.end.spot < FIELD_LENGTH && cd.cls !== "blocked";
+    const holdAt = held ? (returnEnd ?? play.end.spot) : null;
+    const fouls = kickFoul("punt", rates, ctx, rates_out, (f) => f.committedBy !== "defense" || holdAt !== null, holdAt === null ? undefined : clampField(holdAt + 5));
     play = { ...play, seconds: seconds(P.durations[cd.cls] ?? P.durations["*"], ctx.rng) };
-    ctx.trace.push({ factor: "special", event: cd.cls, gross });
+    ctx.trace.push({ factor: "special", event: effCls, gross });
     const fluke = cd.base < data.config.fluke.classProbabilityBelow;
     if (fluke) ctx.trace.push({ factor: "fluke", reason: "classRare", what: label("classRare") });
-    detail["class"] = cd.cls;
+    detail["class"] = effCls;
     detail["gross"] = gross;
     detail["returnYards"] = ret;
     detail["fluke"] = fluke;
@@ -772,11 +805,14 @@ export function createEngine(data: EngineData): ResolvePlay {
     if (pool === undefined) return fail("noCell", "no kneel pool");
     const stride = pool.fields.length + 1;
     const at = drawTuple(pool.tuples, stride, ctx.rng) * stride;
-    const spot = s.spot + (pool.tuples[at] as number);
+    // Post-validation revision 12: a kneel never carries the ball back into the own end zone.
+    // The pooled yards come from kneels anywhere on the field; the real kneels inside the own 5
+    // of 2016-2023 (49, own 4 or closer) all ended in the field of play.
+    const spot = Math.max(Math.min(s.spot, 1), s.spot + (pool.tuples[at] as number));
     const play: PlayResult = {
       kind: "kneel",
       seconds: seconds(durations["kneel"] ?? durations["*"], ctx.rng),
-      end: { spot: spot <= 0 ? IN_OWN_END_ZONE : spot, possession: "offense" },
+      end: { spot, possession: "offense" },
     };
     return finish(play, ctx, "kneel", detail);
   }
@@ -871,7 +907,8 @@ export function createEngine(data: EngineData): ResolvePlay {
       const os = offGroup === "offense" ? P.offense[offSlots] : P.kick[offSlots];
       const ds = P.packages[pkg];
       if (os === undefined || ds === undefined) return fail("badCall", `no personnel for ${offSlots} or ${pkg}`);
-      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg) };
+      const preSnapScale = players.offensePreSnapFoulScale?.[state.possession] ?? 1;
+      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale };
     };
     const needDefense = (): { preset: string; pkg: string } => {
       if (defenseCall === null) return fail("missingDefenseCall", `${call} needs a defensive preset`);

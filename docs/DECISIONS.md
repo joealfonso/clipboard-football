@@ -386,7 +386,7 @@ The first eight entries record the lead's resolutions of the spec's open questio
 ### State history (spec open question 8)
 
 - Date: 2026-11-11
-- Decision: no history in GameState until challenges are decided. The challenges open issue stays open.
+- Decision: no history in GameState until challenges are decided. Settled 2026-11-11 (M1 step 5, resolved question 3): challenges are deferred to M2, see "Challenges deferred to M2" under M1 step 5; no state history is needed in M1.
 
 ### Coordinate frame
 
@@ -645,6 +645,8 @@ Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved
 - File: data/game/tolerances.json, sha256 `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`, `known_deviations` empty. Values are the spec's proposals as accepted (resolved question 11), plus minN 100 for the C7 component metrics, which the spec left open.
 - Never edited after a run. Only Joseph adds known deviations.
 
+- 2026-11-12, after Joseph accepted the remaining step 5 misses: his scoped `known_deviations` entries were appended to the file (DECISIONS.md, Step 5 misses accepted). The current file's sha256 is `78ada9e7263ef234277ccdacb8d7e01d57df56e0268fff7764c59861f14859aa`. The pre-registered bytes are unchanged: with `known_deviations` emptied back to `[]`, the file still hashes to `b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5`. No tolerance, minN or gate changed.
+
 ### What nflverse `play_clock` holds (C1, resolved question 8)
 
 - Date: 2026-11-11.
@@ -653,8 +655,12 @@ Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved
 
 ### Loop input order (spec, The loop)
 
-- Date: 2026-11-11. Decision (spec, implemented in packages/sim/src/loop/play.ts): per dead ball, overtimeToss -> startOvertime (designed toss default); kickoff -> kicking team's onside policy, resolvePlay, the designed penalty default, applyPlay; try -> offense caller, defense caller only on a two-point try, resolvePlay, penalty default, applyPlay; scrimmage -> offense timeout policy, then defense timeout policy (each masked when the team has none or already took one this dead ball), then the tempo run-off if the clock runs (a run-off that ends the period ends the dead ball), then the offense call, the defense call for a run or pass, resolvePlay, penalty default, the designed ten-second-run-off timeout rule, applyPlay.
-- The loop passes the penalty choice explicitly: `defaultPenaltyChoice` (new export of the step 3 machine, the same designed default as before, refactored out of `choose`) so the log can say accepted, declined or offsetting. Enforcement is unchanged.
+- Date: 2026-11-11, updated 2026-11-12. Decision (spec, implemented in packages/sim/src/loop/play.ts), current order per dead ball:
+  - overtimeToss: startOvertime (designed toss default).
+  - kickoff: kicking team then receiving team may call a timeout (fitted per-role rates, revision 4); the kicking team's onside policy; resolvePlay; the offended team's penalty choice; applyPlay.
+  - try: scoring team then the other team may call a timeout (revision 4); offense caller; defense caller only on a two-point try; resolvePlay; penalty choice; applyPlay.
+  - scrimmage: offense timeout policy, then defense, each masked when the team has none or already took one this dead ball. If one is called while the clock runs, the offense's run-off before it comes first, from the `toCalled` tempo cells (revision 1); otherwise the tempo run-off if the clock runs. A run-off that ends the period ends the dead ball. Then the offense call, the defense call for a run or pass, resolvePlay, penalty choice, the designed ten-second-run-off timeout rule, applyPlay.
+- Penalty choice: since revision 11 the loop asks the offended team's coach, which sees what each legal option leaves (a view without the seed or Rng state, code review fix) and picks the higher lead plus fitted expected points. The step 3 machine's designed default (`defaultPenaltyChoice`, refactored out of `choose`) stays the fallback for callers that pass no choice. The choice is passed explicitly, so the log says accepted, declined or offsetting.
 - Input cap: 2,500 machine inputs per game, and 260 scrimmage snaps (data/game/config.json loop); either throws a typed `GameLoopError`. Placeholders of milestone A (no timeouts, zero run-off, never onside) were replaced by the fitted policies before any calibration run, so no placeholder remains in code.
 - Decision policies are passed per team (`TeamSetup.coach`, resolved question 14); the average coach is `averageCoach(...)`, one closure per call, no module state.
 
@@ -662,10 +668,22 @@ Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved
 
 - Date: 2026-11-11. Clock-running rule for real dead balls (designed, pipeline/game/decisions.py): stopped at the first snap of a quarter, after the two-minute warning (pbp has no warning row, so it is read from the clock crossing 2:00), after kicks, tries and changes of possession, incompletions, spikes, interceptions and lost fumbles; after a flag or out of bounds, stopped inside the snap-start windows (last 2:00 of the 2nd quarter, last 5:00 of the 4th and of overtime) and running outside them; running otherwise.
 - Tempo bins (designed): time5, the final-2:00 clock (c40, c120), score3, offense timeouts, previous snap a kneel, and previous snap went out of bounds or drew a flag (restart 1 or 2). The restart bin was added after the first in-sample loop runs, before any 2024-2025 run: run-off after an ordinary run averages about 33 s, after an out-of-bounds play about 29 s and after a flag about 11 s, and the pooled cells cut the run-off after ordinary plays by 2 to 3 s, which gave the sim about 8 extra snaps a game.
-- Timeout bins (designed): side, time5, final-2:00 clock, score3 from the team's view, clock running, own timeouts, 4th down; six levels down to side alone; a dead ball where the team has no timeout is not an observation (masked to 0). Challenge or replay timeouts (description names a challenge or replay) are excluded. Timeouts before tries and kickoffs are counted in docs/COACH_REPORT.md and not asked by the loop.
-- Onside: a kickoff whose description says "onside". 427 of the 454 flagged kickoffs of 2016-2023 travelled 20 yards or less and none lacks a distance; 4 unflagged kickoffs went 15 yards or less (squibs). One fitted level (quarter group, final 2:00 or 5:00 of the 4th, kicker's score bin), then the designed rule (trailing by 9 or more in the final 5:00 of the 4th quarter or overtime). Recovery stays the step 4 designed kickoff model.
+- Timeout bins (designed): side, time5, final-2:00 clock, score3 from the team's view, clock running, own timeouts, 4th down; six levels down to side alone; a dead ball where the team has no timeout is not an observation (masked to 0). Challenge or replay timeouts (description names a challenge or replay) are excluded. Since revision 4 the loop also asks before kickoffs and tries, at one fitted rate per role (kicking, receiving, scoring, other team), 2016-2023.
+- Onside: a kickoff whose description says "onside". 427 of the 454 flagged kickoffs of 2016-2023 travelled 20 yards or less and none lacks a distance; 4 unflagged kickoffs went 15 yards or less (squibs). Fitted levels by quarter group, time left and the kicker's score bin, then by score deficit (revision 5); only where no level has 150 kickoffs, the designed rule (trailing by 9 or more in the final 5:00 of the 4th quarter or overtime). Recovery stays the step 4 designed kickoff model.
 - Ten-second run-off: the offense spends a timeout instead when trailing or tied in the final 2:00 of a half with a timeout left (designed, spec).
 - N: 150 for all three tables, as step 2 (resolved question 11).
+
+### Challenges deferred to M2 (resolved question 3, settles the CLAUDE.md open issue)
+
+- Date: 2026-11-11. Decision (lead): challenges are deferred to M2, when a human coach can throw the flag. In M1 no one challenges. pbp plays are recorded as finally ruled, so overturned calls are already in the fitted outcomes. Challenge-related timeouts are excluded from the timeout fit. The minimal M2 design is in the step 5 spec (proposal 3).
+
+### CI sample size (resolved question 1, settles the CLAUDE.md open issue)
+
+- Date: 2026-11-11. Decision (lead): the full 10,000-game calibration runs locally as one command (`scripts/game/calibrate.ts`) and writes the summaries with per-game digests and hashes. CI recomputes every status from the committed summary and hashes, and re-simulates a fixed slice of 1,000 games (the first 1,000 of the run, league 0) requiring exact digests and the 3x speed allowance. Since the code review, the slice check and the D1/D2 home-field check run in their own vitest project and CI job (`pnpm test:heavy`, test/game/*.heavy.test.ts, no file parallelism).
+
+### Home field settled (resolved question 2, settles the CLAUDE.md open issue)
+
+- Date: 2026-11-11. Designed, centered and symmetric, gated on home win rate and home margin, 2020 excluded from the tuning target. See "League, team strength and home field" below.
 
 ### League, team strength and home field (B, D, resolved questions 2 and 6)
 
@@ -684,3 +702,405 @@ Spec: docs/specs/m1-step5-full-game-and-calibration.md, with the lead's resolved
 - Joseph reversed the earlier cut: ticket prices and revenue (M6), staff budgets and off-season stadium upgrades (M8) are in. Relocation stays cut.
 - He also asked for trades that include draft picks and trades with three or more teams (M6, with pick trading during the draft in M7).
 - Constraint kept from the earlier cut: each money decision must have a visible consequence on the field or in the budget, for example crowd size changing home-field advantage. See docs/ROADMAP.md.
+
+### Fantasy football and a sportsbook after the franchise game (Joseph, 2026-11-11)
+
+- Fantasy football comes after the franchise milestones, as M10.
+- Joseph also asked for betting with odds and spreads. It goes in M10 as a play-money sportsbook (moneyline, spread, over/under). Lines come from the sim's own win probability. No real money, purchases or cash value, which the lead set as a hard limit.
+
+### First game-level runs (2026-11-11): in-sample 17, holdout 15 gated failures
+
+- The in-sample run came first, then the holdout, with the settings recorded above. Results as first written to docs/GAME_REPORT.md: in-sample 17 gated failures, holdout 15. Main miss: the sim ran 133.4 scrimmage plays a game against 126.6 (in-sample) and 12.02 drives per team-game against 11.01. Points per drive matched.
+
+### Step 5 post-validation revisions 1-5 (lead's direction after the first holdout run)
+
+- Date: 2026-11-11. Every revision was found by comparing the sim with 2016-2023 (the in-sample run). Each one changes fitted data, designed bins or loop code, and none is tuned to a 2024-2025 number. Tolerances, minN and known deviations are unchanged. The holdout run that follows them is post hoc, and GAME_REPORT.md says so.
+- How the cause was found: game seconds between consecutive snaps of one drive, split by the previous play (run in bounds, complete, incomplete, out of bounds, sack, kneel, spike, flag, first down or not), outside or inside the snap-start windows, score state in the windows, and timeout or not, real 2016-2023 against 600 simulated games. The in-drive totals already matched outside timeouts and flags. The one structural gap was timeouts outside the final windows: real gap 37.5 s after a run with a timeout called, sim 4.3 s. Teams call those timeouts with the play clock nearly out, so the clock runs first. The sim called every timeout before any run-off. Inside the windows, sim runs while leading took 24.9 s against 32.4 s.
+- Revision 1 (loop and tempo fit): a timeout now comes after the run-off that precedes it. The run-off before a timeout is drawn from new tempo cells (bin `toCalled`), measured on dead balls with a non-challenge timeout. If that run-off stops the clock (two-minute warning, end of period), the timeout is not called.
+- Revision 2 (tempo levels): score3 is kept down to the third level (it was dropped at the third). Leading and trailing offenses in the late windows no longer pool.
+- Revision 3 (timeout levels, by-construction check): 4th down is kept at every level. Before, sparse 4th-down cells backed off to cells dominated by downs 1-3. In-sample C7 timeouts per team-game went from 3.17 to 3.31 (actual 3.32). Defense c120 went from 9.39 to 10.29 (actual 10.41), and c40 from 7.39 to 8.31 (actual 8.37).
+- Revision 4 (timeouts before kickoffs and tries): the game-level metric counts every non-challenge timeout, but the loop asked only before scrimmage snaps. The loop now also asks each team before a kickoff and a try, at fitted per-role rates (2016-2023): kicking team 1.58%, receiving team 1.90%, scoring team 2.43%, other team 2.37% (data/game/timeouts.json `beforeKickoffOrTry`).
+- Revision 5 (onside, resolved question 7 as the lead directed): two more fitted levels, by score deficit (9 or more, 1-8, not trailing) and time left (final 2:00 or 5:00 of the 4th; then final 5:00 of the 4th or not). The designed rule is used only where no level has 150 kickoffs, which now means overtime only. For example, the 4th quarter's final 5:00 trailing by 9 or more uses the fitted 64% instead of the rule's 100%.
+- In-sample before (first run) and after all five:
+  - scrimmage plays 133.37 to 129.88 (actual 126.59)
+  - drives per team-game 12.02 to 11.73 (11.01)
+  - points per team-game 24.94 to 24.19 (22.49)
+  - drive duration 148.1 to 151.9 s (164.5)
+  - timeouts per team-game 3.49 to 3.53 (3.66; it fell to 3.14 after revisions 1, 2 and 5 alone)
+  - onside per game 0.39 to 0.29 (0.20)
+  - gated failures 17 to 13.
+  - C7 still passes in-sample and on 2024-2025. Home margin 2.12 and margin SD 13.86 still pass, so the home-field and team-spread settings were not retuned.
+- What remains is not clock. Seconds between snaps inside drives now match by category within about 0.5%, and the late windows match (345 vs 347 s a game). Two causes are left:
+  - Drives are shorter in plays: 5.54 snaps a drive against 5.75.
+  - The sim has fewer flags: 8.3 accepted supported penalties against 9.6, plus about 2 unsupported fouls a game the engine never draws, and each flag costs 10-25 s.
+  - The onside excess now comes from game states, not the decision. The sim reaches late two-score deficits more often than real games, while its onside rates by cell match the data.
+
+### Step 4 and step 5 post-validation revisions 8-13 (debugger findings, lead's direction)
+
+- Date: 2026-11-11. Every cause was found on 2016-2023 data. None is tuned to a 2024-2025 number. Tolerances and known deviations are unchanged. The step 4 engine validation (in-sample and holdout) and the step 5 holdout were rerun after these revisions; both are post hoc and are reported as such.
+- Revision 8 (step 4, touchdowns and red-zone bins; resolve.ts and data/engine/config.json):
+  - The problem: the class cells binned the red zone as 6-20 and the yard pools as 1-10. A 10-yard-plus class always scored from the 6-10. A pooled play that scored from the 2 also scored, via its touchdown flag, from the 9.
+  - Before the fix, at the 6-10 the sim scored on 38% of snaps; the real rates are 12.8% for runs and 25.6% for passes.
+  - Class cells now use `zone7`: zone6 with the red zone split at the 10 and the 15, and the own 10 split at the 5. The coarser levels use `zoneR`, then zone3.
+  - Pools now use `ydlP`: bands 1-2, 3-5, 6-10, 11-15 and 16-20; 10-yard bands in the middle; then 81-85, 86-90, 91-95 and 96-99 at the own end. Backoff works as before (300 plays per cell, 100 per pool).
+  - A pooled touchdown counts only when the play was drawn from this spot's own band, or from a 5-yard backoff band inside the 10. Otherwise it scores only if its yards reach the goal line.
+  - Sim touchdown rate per snap, sim against real 2016-2023:
+
+    | Band | Runs | Passes |
+    | --- | --- | --- |
+    | 1-5 | 47% vs 43% | 38% vs 42% |
+    | 6-10 | 13% vs 13% | 24% vs 26% |
+    | 11-20 | 6.5% vs 4.9% | 9.5% vs 12.6% |
+
+  - Step 4 gates: the same three accepted deviations fail and nothing else. A first version with no zone3 fallback failed `meanYards.playAction`; the fallback was added before the run reported here.
+- Revision 9 (step 4, punt holding; pipeline/engine/penalties.py mapping and resolve.ts):
+  - The problem: pbp names a receiving-team hold on a punt "Offensive Holding". It was mapped to `offensiveHolding` and emitted against the kicking team.
+  - It now maps to the return-team foul (`returnTeamIllegalBlock`, 10 yards from the spot of the foul).
+  - The engine attaches receiving-team punt fouls whenever the receivers hold the ball in the field (returned, fair catch, downed or out of bounds), not only on returns.
+  - Accepted punt fouls per game in the sim: receiving team 0.35, kicking-team holding 0.04.
+  - Step 4 per-snap rates: offensiveHolding 1.75% to 1.58% (actual 1.54%), returnTeamIllegalBlock 0.08% to 0.25% (actual 0.26%).
+- Revision 10 (step 5 box score): a punt or field goal try counts, and closes its drive, unless a foul made the down be replayed. Before, a punt with an accepted previous-spot foul was not counted and its drive closed as "downs". Test: test/game/box.test.ts.
+- Revision 11 (step 5, penalty accept or decline; loop and data/game/ep.json):
+  - The problem: the step 3 designed default compared down before distance. Defenses declined offensive pass interference 639 of 639 times, and offensive holding was accepted 35% of the time against 82% in real games.
+  - The loop now passes each offended team's own choice. Its coach sees the state each legal option leaves and picks the one with the higher value for itself: its lead plus the fitted expected points of the next snap (season-weighted mean of nflverse `ep`, 2016-2023, by down, distance and field position, with backoff).
+  - The machine's own default is unchanged, for callers that pass no choice.
+  - Accept rates, sim against real 2016-2023:
+
+    | Foul | Sim | Real |
+    | --- | --- | --- |
+    | offensive holding | 80.6% | 83.9% |
+    | defensive holding | 71.8% | 75.6% |
+    | offside | 65.5% | 68.3% |
+    | illegal contact | 68.4% | 71.7% |
+    | offensive pass interference | 59.9% | 82.6% |
+    | defensive pass interference | 100% | 91.0% |
+    | return-team illegal block | 99.5% | 90.8% |
+
+  - Two gaps remain. Defensive pass interference is always paired with an incompletion, so declining never pays. Offensive pass interference is declined on 2nd down whenever 3rd and 10 beats 2nd and 20 by expected points, where real coaches often take the yards.
+- Revision 12 (step 4, kneels at the own goal line): a kneel never carries the ball into the own end zone. The kneel pool is field-wide; all 49 real kneels from the own 4 or closer (2016-2023) ended in the field. Before, the sim gave up 0.011 safeties a game on kneels at its own 1.
+- Revision 13 (step 4, punts carried past the goal line): a pooled punt fielded, downed or out of bounds, but drawn from a line further back in its band, would here reach the goal line. It is now a touchback; before, the field clamp put the ball at the receivers' 1, about 0.25 snaps a game.
+  - Step 4 punt gates still pass. Touchback rate in-sample is 9.3% against 6.9% (tolerance 3.0 pp); holdout 9.0% against 7.9%.
+- Not changed (fix 5, time per snap), and why:
+  - 2022-2023, after an ordinary run: real gap 37.3 s (duration 4.5 plus run-off 32.7), sim 37.5 s, which matches.
+  - The 2016-2023 gap is 37.9 s because the 2016-2021 offenses ran about 0.6 s a snap slower. The tempo fit uses 2022-2023 only (resolved question 8). That is a choice of seasons, not a bug.
+  - After a sack, real run-off is 34.7 s, but the restart-0 cell pools sacks with runs and completions (about 32 s). That is a bin choice, reported here rather than tuned.
+- Remaining safety excess: 0.49% of drives against 0.26%. Kneels and punts at the 1 are fixed. What is left is runs and sacks from the own 1-5, where the sim snaps the ball about twice as often as real teams do (pooled losses within 5-yard bands; the caller's choices near the own goal line).
+- In-sample, before revisions 8-13 and after:
+  - gated failures 13 to 8
+  - points per team-game 24.19 to 22.14 (actual 22.49)
+  - total points 48.4 to 44.3 (45.0)
+  - scrimmage plays 129.9 to 128.1 (126.6)
+  - drives per team-game 11.73 to 11.44 (11.01)
+  - accepted supported penalties 8.29 to 9.60 (9.64), and their yards 68.0 to 80.8 (80.4)
+  - drive duration 151.9 to 156.0 s (164.5)
+  - safety drives 0.57% to 0.49% (0.26%)
+
+### Step 5a late-game bins: thresholds file before the first fit
+
+- Date: 2026-11-12T07:28:55Z, before milestone B's first fit. data/caller/latechecks.json (designed in-sample thresholds, resolved question 2) sha256 `06b6244077894771c7f4ee4f4b6b0ade0abc0e619376489d8025b8d0aa74b8f8`. data/caller/tolerances.json is unchanged.
+
+### Post-validation revision 2 (caller late-game bins), step 5a
+
+- Date: 2026-11-11. Spec: docs/specs/m1-step5a-caller-late-game-bins.md, with the lead's resolved questions. It was made after both the caller's 2024-2025 holdout and the step 5 game-level holdout had been seen. It was driven by the step 5 in-sample findings. Its caller holdout re-validation was run once and is post hoc (CALLER_REPORT.md section 9 says so).
+- What changed:
+  - data/caller/config.json is now version 2. The caller config hash (catalog plus config) went from `24600cf51672874c2d058d34e6b84ab07dbd3ff13b8095579638e7231b8d38cd` to `7814556a3ce16e3ac7c9c7a62a32daea5e0c6b69ffd36693ca73eb7560b72581`.
+  - Tables record `configVersion` and `configHash`. Every loader refuses a mismatch, naming both (TypeScript `checkCallerTables`, Python `check_tables`).
+  - New Dimension type `window` (the approved schema change). It ranges a field inside a window of another dimension, and outside the window it either copies another dimension's label or is null.
+  - Levels may carry their own fitting `seasons`.
+- Bins (designed):
+  - `scoreLate`: the nine late buckets in time5 G5 and GF, score7 elsewhere.
+  - `scoreLateOnly`: the late buckets, null elsewhere.
+  - `score3LateOnly`.
+  - `zoneK`: kick zones 1-37, 38-50, 51-75 and 76-99. A field-zone dimension was added because at zone6 the late 4th-down cells never reach 150 plays (A5: 0 of 671 at the finest late o4Top level, even in 2016-2023).
+- Chains:
+  - oTop uses scoreLate where it used score7, then two late-only levels before its score3 levels.
+  - o4Top uses scoreLate where it used score7, then late-only zoneK levels. Each late level has a 2016-2023 twin that is used when the 2021-2023 cell has fewer than 150 plays (resolved question 1). The cells that use the twin are K37 trailing 4-8 in the final 2:00, and, without time, K37 at -16..-9, -8..-4, -3..-1, 4..8, 9..16 and <=-17, plus K75 at -16..-9, 4..8 and <=-17. No 2021-2023 late cell reached 150.
+  - o4Kick gains late score levels before its existing chain. Two coarse zoneK-by-score3 levels were tried and removed before the holdout run: they came before finer score3 cells and moved leading-team field goal rates away from the data.
+  - Outside the last 5:00, every share is unchanged (B1 test against the frozen pre-5a golden file).
+- A3: with the bins added but unused, the offense and defense cells were byte-identical; only `configVersion` and `configHash` changed.
+- B5 (in-sample, 4th down, last 5:00, inside the 37), predicted field goal rate against actual, 2016-2023:
+
+  | Score | Before | After | Actual |
+  | --- | --- | --- | --- |
+  | Trailing 4-8 | 65.4% | 1.9% | 7.8% |
+  | Trailing 1-3 | 65.3% | 95.1% | 94.4% |
+  | Leading 4-8 | 64.1% | 82.3% | 82.0% |
+  | Tied | 66.4% | 66.4% | 93.5% |
+  | Leading 1-3 | 63.7% | 65.5% | 82.4% |
+
+  - Tied and leading 1-3 cells stay under 150 plays at every late level, so they fall back unchanged.
+  - Every row has fewer than 100 plays in 2021-2023, so B5 has nothing to gate.
+- B6 (downs 1-3, last 5:00), two rows outside 5 pp. Both buckets existed in score7 already, so their cells did not change:
+  - Tied pass rate: 65.3% vs 60.3%.
+  - Leading by 17+ kneel rate: 21.9% vs 28.6%.
+- B7 (step 2 8b rows): on the 4th-down factor's own window, 2021-2023, every row that passed still passes. On 2016-2023, three rows move out of 5 pp:
+  - Red-zone field goal: 74.2% vs 81.4%; before, 77.9%.
+  - Red-zone go: 25.6% vs 18.5%.
+  - FR go: 28.7% vs 23.5%.
+  - Cause: the old late cells over-predicted field goals when trailing by a touchdown, which hid an under-prediction elsewhere in the red zone.
+- Tests amended to the spec and listed for review:
+  - pipeline/tests/test_caller_fit.py: the holdout pytest gains the late label columns (B2).
+  - The chain-shape test accepts the late zoneK levels; outside the windows o4Top still ends with zone6, then global.
+  - The committed-tables seasons test reads each level's own seasons.
+- C (caller re-validation on 2024-2025, one run, post hoc):
+  - Gated failures: 0.
+  - Of the five known deviations, four still fail and stay accepted: midfield 4th-down field goal, man share, Nickel Cover 2 and Nickel Cover 4.
+  - `fourthDown.MID.punt` now passes: 51.8% predicted against 47.0% actual. Its entry is left untouched for Joseph to review.
+  - The late-game rows are shown in CALLER_REPORT.md section 9, not gated.
+- D1: the step 4 engine validation was rerun on the new caller files. Every step 4 metric is equal to the previous run (largest change 0.0), and the same three accepted deviations fail.
+- D2 and D3 (step 5 in-sample, same league seeds, sim against real 2016-2023):
+
+  | Diagnostic | Sim | Real | D3 |
+  | --- | --- | --- | --- |
+  | Late 4th-down field goal, trailing 4-8 | 3.5% | 7.4% | pass |
+  | Late 4th-down field goal, trailing 1-3 | 94.3% | 95.0% | pass |
+  | Late 4th-down field goal, tied | 72.9% | 89.1% | fail |
+  | Late 4th-down field goal, leading 1-3 | 70.5% | 79.3% | pass |
+  | Late 4th-down field goal, leading 4-8 | 83.2% | 82.2% | pass |
+  | Final-2:00 field goal tries per game, tied | 0.021 | 0.062 | fail |
+  | Final-2:00 field goal tries per game, trailing 1-3 | 0.038 | 0.093 | fail |
+  | Final-2:00 field goal tries per game, trailing 4-8 | 0.019 | 0 | pass |
+  | Final-2:00 field goal tries per game, leading 1-3 | 0.023 | 0.014 | pass |
+  | Final-2:00 field goal tries per game, leading 4-8 | 0.038 | 0.036 | pass |
+
+  - The tied cells fall back unchanged (under 150 plays).
+- D4: in-sample gated failures went from 8 (after fixes 1-5) to 4:
+  - absMargin 1-3: 18.7 vs 24.2
+  - absMargin 8-14: 27.0 vs 22.7
+  - drives per team-game: 11.44 vs 11.01
+  - drive start: 30.4 vs 28.7
+- The before/after table is in GAME_REPORT.md. Onside, punts, overtime and absMargin 22+ now pass in-sample.
+- D5: margin SD and home margin still pass, so league settings were not retuned.
+- D6: the step 5 holdout was rerun after 5a to keep the committed summaries current. It is post hoc and labelled so: 12 gated failures.
+
+## M1 step 5b: late-game caller levels, timeouts and clock control
+
+Spec: docs/specs/m1-step5b-late-game-and-clock-control.md, with the lead's resolved questions (binding).
+
+### Milestone A: out-of-bounds counterfactual, go/no-go (recorded before any D code)
+
+- Date: 2026-11-12.
+- Method:
+  - Scratch only (scratchpad `a5b/variant.ts` and `a5b/oob_real.py`; nothing in packages/sim).
+  - Each in-field run, scramble and completion the offense keeps takes its out-of-bounds flag from real 2016-2023 rates by family x offense score bin (T9+, T1-8, 0, L1-8, L9+) x time bin (outside the windows, H1F, G5, GF, OT). The rates are unweighted counts of nflverse `out_of_bounds` on plays without a penalty, touchdown, turnover, sack, kneel, spike or incompletion.
+  - The draw uses an independent stream seeded from the game seed and snap count, so no other draw changes; the games still diverge once the clock does.
+  - 10,000 in-sample games each, run seed 20261112 and its 10 league seeds (as GAME_REPORT.md). No 2024-2025 data was read.
+- Results, baseline against variant, with the min and max across the 10 league seeds in brackets for every metric (in-sample only, no 2024-2025 data; corrected after code review, which found the spread given for the 1-3 share only):
+
+  | Metric | Baseline [league min, max] | Variant [league min, max] |
+  | --- | --- | --- |
+  | absMargin 0 | 0.72% [0.20, 1.40] | 0.79% [0.30, 1.30] |
+  | absMargin 1-3 | 18.73% [17.10, 21.30] | 18.07% [15.70, 19.40] |
+  | absMargin 4-7 | 26.20% [25.10, 27.60] | 26.50% [24.50, 28.00] |
+  | absMargin 8-14 | 26.97% [25.20, 28.40] | 27.19% [25.50, 28.70] |
+  | absMargin 15-21 | 16.34% [15.80, 17.10] | 15.94% [14.20, 17.20] |
+  | absMargin 22+ | 11.04% [8.90, 12.50] | 11.51% [10.00, 13.00] |
+  | Drives per team-game | 11.43 [11.28, 11.54] | 11.45 [11.35, 11.54] |
+  | Overtime | 3.80% [3.00, 4.50] | 4.17% [3.10, 4.90] |
+  | Tie | 0.72% [0.20, 1.40] | 0.79% [0.30, 1.30] |
+  | Scrimmage plays | 128.5 [128.0, 129.0] | 128.7 [128.3, 128.9] |
+  | Leader's clock-stopping snap share, G5 | 18.9% [18.0, 19.4] | 16.0% [14.9, 16.8] |
+  | Leader's clock-stopping snap share, GF | 5.5% [5.0, 5.8] | 4.1% [3.5, 4.6] |
+  | Leader field goals in G5 when up 9+, per game | 0.07 [0.06, 0.08] | 0.07 [0.06, 0.08] |
+  | Drives starting in the final 2:00, per game | 1.26 [1.21, 1.30] | 1.25 [1.20, 1.32] |
+  | Games decided by exactly 3 | 8.37% [7.30, 9.70] | 7.91% [7.10, 9.00] |
+
+  - The clock-stop measure here counts the leader's snaps after which the same team has the ball with the clock stopped. It is not the debugger's definition, so these numbers are not comparable to its 31% vs 10.5%. The variant moves this measure down, toward real.
+- Decision: **no-go** under resolved question 1. The 1-3 share must rise by more than the spread across league seeds (4.2 points). It fell by 0.66, and the paired per-league changes range from -4.0 to +2.0.
+- Milestone D (the engine's situational out-of-bounds layer) was not built. This goes to the lead with these numbers.
+
+### Milestone B: late caller levels, chosen from the B1 counts before the fit
+
+- Date: 2026-11-12. The order was chosen from the counts in CALLER_REPORT.md section 8e, before any 5b share was fitted. The caller config is now version 3.
+- New designed dimensions:
+  - `lateTime`: G5, GF and OT, with "-" elsewhere. OT covers every overtime situation; there is no OTF split.
+  - `scoreLate5Only`: five buckets in the late windows, null elsewhere.
+  - `kneelOut`: K1 or K0 for a leading offense on downs 1-3 in GF or OT, null elsewhere. The test is (4 - d) x P + 2 - P x min(t, 4 - d) >= seconds left, with t the defense's timeouts (corrected after code review: the timeout term was missing here, not in the code), where P is the play clock from the rule set (`clock.playClockAfterPlay`, filled in at load) and k = 2 is a designed allowance.
+  - `fieldHalf`: opponent half or own half.
+  - Regulation-only copies `time5R`, `time2R` and `scoreLateOnlyR`: the same labels as time5, time2 and scoreLateOnly in regulation, null in overtime (from `time5x`, time5 with an OT label).
+- How overtime is kept apart: every pre-5b oTop and o4Top level except the last field and global levels uses the regulation-only copies. Overtime situations therefore skip those levels in lookup, and overtime rows never enter them in fitting; overtime rows enter only the levels keyed by `lateTime`. Outside the late windows the weights and the keys are unchanged.
+  - The first build expressed this as a `reg` dimension ("R" in regulation) that prefixed every regulation key with "R|". It was replaced before the report with the copies above, because the prefix changed keys that the step 5a checks pin. Lookups and cells are identical (every cell equal after stripping the prefix, and all 260 golden situations give the same shares). The caller holdout was recomputed after this key-only change, with identical results (run counts under "Holdout runs for step 5b" below).
+- The caller config hash (catalog plus config) went from `7814556a3ce16e3ac7c9c7a62a32daea5e0c6b69ffd36693ca73eb7560b72581` (version 2) to `6cbe9305cbe8dc2092807c9b090acee156c40ea76d0906a75b673d9c4f841ceb` (version 3).
+- oTop chain (2016-2023):
+  1. [down, kneelOut, scoreLate5Only, lateTime] (10 of 12 cells with 150 plays or more)
+  2. [down, kneelOut, lateTime] (6 of 6)
+  3. The 5a levels 0 and 1 (regulation only)
+  4. [down, zoneK, scoreLateOnly, lateTime, end] (43 of 1,316)
+  5. [down, zoneK, scoreLate5Only, lateTime] (76 of 144)
+  6. [zoneK, scoreLate5Only, lateTime] (41 of 48)
+  7. [fieldHalf, scoreLate5Only, lateTime] (22 of 24)
+  8. The 5a late levels without zone (regulation only)
+  9. The score3 levels (regulation only)
+  10. [down]
+  11. Global
+- o4Top chain:
+  1. The 5a levels (regulation only)
+  2. [zoneK, scoreLate5Only, lateTime] on 2021-2023 (0 cells with 150 plays), then its 2016-2023 twin (8 of 48)
+  3. [fieldHalf, scoreLate5Only, lateTime] on 2021-2023 (0), then its 2016-2023 twin (15 of 24)
+  4. The score3 levels (regulation only)
+  5. [dist5, zone6], [dist3, zone6], [zone6], global
+
+### Milestone B correction after the first fit: overtime falls back to the G5/GF cells
+
+- Date: 2026-11-12. Disclosure: this changed the level list after the first v3 fit. It was driven by the B10 lookup listing and the lead's binding resolved question 2, not by fitted shares. The gated B9 and 8b rows were identical before and after it.
+- Problem: the regulation-only gate kept overtime off every pre-5b level. An overtime situation with no overtime cell therefore fell past the late levels to oTop [down] (or o4Top [dist5, zone6]). On the in-sample run, 1,066 oTop lookups (overtime, trailing 1-8, downs 1-3) did so. Resolved question 2 says such situations back off to the G5/GF cells.
+- Fix (designed): `lateClockAll` (rules) and `lateClock` (group: G5, GF, null otherwise). In overtime, 2:00 or less reads GF and more reads G5; regulation reads as `lateTime`. New levels right after the overtime-aware late levels:
+  - oTop: [down, zoneK, scoreLate5Only, lateClock], [fieldHalf, scoreLate5Only, lateClock].
+  - o4Top: [zoneK, scoreLate5Only, lateClock] and [fieldHalf, scoreLate5Only, lateClock], each with its 2016-2023 twin.
+- They are fitted on regulation rows only, so each cell equals the G5/GF cell of the `lateTime` level it mirrors (TypeScript and pytest check this). A regulation situation reaches them only after the mirrored level has missed the same key, so regulation lookups are unchanged.
+
+### Milestone C: timeout levels keep score3 late
+
+- Date: 2026-11-12. Game config schemaVersion 2. New designed decision dimensions:
+  - `lateT`: G5, GF or OT, null elsewhere.
+  - `lateS3`: score3 inside those windows, null elsewhere.
+- Levels: the two pre-5b score3 levels, then [side, lateT, final, score3, running], [side, lateT, score3, running], [side, lateT, score3] and [side, lateS3]. After those come the pre-5b levels without score, which a late view never reaches (test/game/timeouts5b.test.ts), then [side].
+- Fitted on 2016-2023, N = 150. All 290 frozen pre-5b golden views outside the windows give identical rates. C7 passes in-sample (11 of 11) and on its one 2024-2025 rerun (11 of 11, post hoc, labelled in COACH_REPORT.md).
+
+### Milestone B and C results (in-sample first; each holdout once, post hoc)
+
+- B9 (CALLER_REPORT 8d, 5 pp, n >= 100):
+  - (b) trailing 1-8, final 2:00, own half, 4th down: go 97.5% vs 97.2% and punt 2.5% vs 2.8%. Pass.
+  - (c) kneel by can-kneel-out: K1 98.2% vs 98.4%, K0 25.0% vs 25.1%. Pass.
+  - (a) tied, inside the 37, 3rd down, final 2:00: n = 93, under minN, so not gated. Field goal 15.8% vs 22.6%, pass 20.2% vs 32.3%.
+  - Overtime rows are shown, not gated. Tied 3rd down inside the 37: field goal 2.3% vs 15.9% (n = 113).
+- B10: neither (a) nor (b) appears on the list. 78 cells remain past the last score-aware level (2,667 of 183,563 late snaps). All are o4Top, tied or leading by 9+, in their own half (GAME_REPORT.md).
+- B11:
+  - Every 5a B5/B6 row that passed still passes. `lateDowns.0.pass` now passes; `lateDowns.>=17.kneel` still fails (23.3% vs 28.6%).
+  - Four 8b rows on 2016-2023 are outside 5 pp of the step 2 baseline that the 5a B7 check pins (corrected after code review; this first listed only one). Predicted vs actual, then the gap at the pinned step 2 baseline, before 5b, and after 5b:
+    - 4th down field goal, zone FR: 70.3 vs 75.4. Gap -2.5 (step 2), -4.9 (before 5b), -5.1 (after 5b).
+    - 4th down go, zone FR: 28.8 vs 23.5. Gap +2.8, +5.2, +5.3.
+    - 4th down field goal, zone RZ: 74.2 vs 81.4. Gap -3.5, -7.2, -7.2.
+    - 4th down go, zone RZ: 25.6 vs 18.5. Gap +3.5, +7.1, +7.1.
+  - Three of the four were already outside 5 pp before 5b (step 5a moved them). 5b moved the FR rows by 0.1 to 0.2 pp, through the late zoneK cells, which drop distance, and took the FR field goal row past 5 pp. I did not reorder any levels; that goes to Joseph.
+  - Tables total 196 KB. Two builds are byte-identical.
+- B12, revision 3, post hoc: 0 unaccepted gated failures. The same 4 accepted deviations still fail. It was computed three times (see "Holdout runs for step 5b").
+- C3 is in COACH_REPORT.md section 3, as the spec asks: timeouts per team-game by side x score3 x window, sim loop vs real 2016-2023 (`python -m pipeline.game.c3`, in-sample only), with the C7 per-dead-ball 2 pp check where n >= 100. GAME_REPORT keeps the per-dead-ball view. (Corrected after code review; it was first only in GAME_REPORT, per dead ball.) Two rows miss the check:
+  - Trailing defense, G5: 17.0% vs 22.3%.
+  - Tied offense, GF: 8.9% vs 13.3%.
+  - C moved neither row; both were the same before C.
+
+### Milestone E: investigations (report only; hypotheses for a later spec)
+
+- Date: 2026-11-12. Measures are designed proxies, computed the same way on both sides: `pipeline/game/investigate.py` for the real side and `scripts/game/investigate.ts` for the sim side, rendered in GAME_REPORT.md. E's diff changes no table, config or sim code.
+- E1, safeties:
+  - Sim 0.117 a game, real 0.055.
+  - Sack safeties: sim 0.087, real 0.021.
+  - From the own 1-5: sim 0.064, real 0.028. From the own 6-10: sim 0.041, real 0.014.
+  - Snaps from the own 1-5: sim 1.64 a game, real 1.34. On downs 1-3 there the sim passes 54.9% of the time, real 46.4%.
+  - Hypothesis: sack yardage is not bounded by field position near the own goal, and the caller's own 1-5 pass share is too high (oTop's zone bins do not separate the own 1-5).
+- E2, dropback and incompletion shares match real within about 2 points in most score x time cells. Tied G5 is the exception: dropbacks 51.9% vs 57.2%.
+- E2, how the leader's snaps end in the last 5:00:
+  - A timeout before the next snap: sim 18.8% (G5) and 34.6% (GF), real 30.7% and 48.6%.
+  - Out of bounds: sim 7.5% and 5.9%, real 4.6% and 2.8%. The sim's leader goes out of bounds more than real, which agrees with A's no-go.
+  - Hypothesis: the main clock-control gap is the trailing defense's timeout use on the leader's snaps, not out of bounds. The C3 row for the trailing defense in G5 (17.0% vs 22.3% per dead ball) points the same way.
+
+### Milestone F: step 5 in-sample recheck and the one holdout run
+
+- Date: 2026-11-12. 10,000 in-sample games per stage, same seeds. The full table is in GAME_REPORT.md ("Step 5b before and after"); D equals C because D was not built.
+
+  | Metric | Baseline | After B | After C | Actual |
+  | --- | --- | --- | --- | --- |
+  | absMargin 1-3 | 18.73 | 19.02 | 19.03 | 24.22 |
+  | absMargin 8-14 | 26.97 | 27.61 | 27.64 | 22.71 |
+  | Drives per team-game | 11.43 | 11.43 | 11.43 | 11.01 |
+  | Overtime rate | 3.80 | 4.55 | 4.58 | 5.74 |
+  | 4th-down goes per game | 2.90 | 3.08 | 3.08 | 2.68 |
+  | Mean drive start | 30.42 | 30.54 | 30.54 | 28.68 |
+  | Exact 3-point margin | 8.37% | 9.04% | 9.02% | - |
+  | Overtime ending on 3 | 31.6% | 40.9% | 41.3% | - |
+  | Leader clock-stop G5 / GF | 18.9% / 5.5% | 18.0% / 5.3% | 18.0% / 5.3% | - |
+  | Drives starting in final 2:00 | 1.26 | 1.23 | 1.23 | - |
+
+  - After B and after C were recomputed (in-sample only) once the o4Top reorder shipped, so they describe the committed tables. Before the reorder they read: absMargin 1-3 18.69 and 18.63, 8-14 27.88 and 27.94, 4th-down goes 3.15 and 3.15.
+
+- F2 is not met. In-sample gated failures went from 4 to 5:
+  - The 1-3, 8-14, drives and drive-start misses remain.
+  - `fourthDownGo.perGame` now fails: 3.15 vs 2.68 before the o4Top reorder, 3.08 after it, tolerance 0.4. B causes it: the late zoneK cells drop distance and lean toward going (8b's own-half 4th-down go rows rose too). Joseph accepted the post-reorder number (Step 5 misses accepted).
+  - Per F2, no further change was made. The misses go to Joseph with these numbers.
+- F3: the 5a D3 rows still fail in the same three places:
+  - Tied late 4th-down field goal: 71.6% vs 89.1%.
+  - Final-2:00 field goal tries, tied: 0.027 vs 0.062 a game.
+  - Final-2:00 field goal tries, trailing 1-3: 0.043 vs 0.093 a game.
+  - Leading 1-3 improved, from 70.5% to 80.8% (real 79.3%).
+- F4: the step 5 holdout came after F1, post hoc and labelled with this spec in GAME_REPORT.md: 12 gated failures, the same count as the run before 5b. It was computed three times (see "Holdout runs for step 5b"). The slice digests changed after the key change only because game records carry the caller's lookup keys, which lost the "R|" prefix; they were regenerated.
+- F5 (playtester reads 3 close CLI games) is not the engineer's step and is still open.
+
+### o4Top late levels moved after the score3 levels (post-fit change, Joseph, 2026-11-12)
+
+- Caller config hash (catalog plus config) went from `6cbe9305cbe8dc2092807c9b090acee156c40ea76d0906a75b673d9c4f841ceb` to `809c9b144e4869bd2db3ec934a9743bbb0619024adae816cd3b040eda12460ae` (still version 3; only the o4Top level order changed).
+- What: in o4Top, the late zoneK and fieldHalf levels (lateTime and lateClock, each with its 2016-2023 twin) now come after the two score3 levels ([dist5, zone6, score3, time5R] and [dist5, zone6, score3, time2R]) instead of before them. Nothing else changed: no bin, no threshold, no tolerance. Overtime skips the score3 levels (regulation only), so overtime lookups are unchanged.
+- Disclosure: a post-fit change, made after seeing in-sample results. The reasons were the `fourthDownGo.perGame` regression (2.90 before 5b, 3.15 after) and the 8b FR and RZ 4th-down rows. The late zoneK cells drop distance and leaned toward going for it. Joseph chose it ("Fix, accept the rest") and kept it after seeing the in-sample numbers ("Keep the fix").
+- In-sample, before → after the move (10,000 games, same seeds):
+  - Gated, all still failing: absMargin 1-3 18.63 → 19.03 (actual 24.22); absMargin 8-14 27.94 → 27.64 (22.71); drives per team-game 11.43 → 11.43 (11.01); drive start 30.61 → 30.54 (28.68); 4th-down goes per game 3.15 → 3.08 (2.68). No new gated miss.
+  - 8b: FR and RZ rows unchanged (FR field goal -5.1, go +5.3; RZ -7.2, +7.1 pp). Midfield go +6.7 → +6.1, punt -8.2 → -7.7.
+  - Slightly worse, accepted by Joseph as they stand: D3 tied late 4th-down field goal 71.6% → 71.1% (real 89.1%), D3 tied final-2:00 field goal tries 0.0274 → 0.0270 a game (real 0.0624), and C3 tied offense in GF 8.90% → 8.89% per dead ball (real 13.27%).
+
+### Step 5 misses accepted (Joseph, 2026-11-12)
+
+- Decision: Joseph accepted every remaining step 5 miss as it stands after step 5b and the o4Top fix ("Fix, accept the rest", "Keep the fix", "Accept them"). No tolerance value, threshold or table was changed to make anything pass.
+- How it is recorded: `known_deviations` entries with metric, observed, target, reason, scope, date and approved_by "Joseph". An entry applies only to its own sample: `scope` "insample" or "holdout"; an entry without a scope is a holdout entry, as the step 2 and step 4 entries always were. `statusOf` and `approvedFor` (scripts/game/calibrate.ts), `_approved` (pipeline/caller/validate.py), `approved_for` (pipeline/engine/validate.py; added in the final review, so the three unscoped step 4 engine entries no longer reach the 2016-2023 in-sample run) and the coach component check (scope passed explicitly, not read from the label) apply this rule; pipeline/tests/test_engine_scope.py checks it. Everything before `known_deviations` in each tolerance file is byte-identical to its pre-registered version (data/game/tolerances.json still hashes to `b4fe3046…` with the array emptied).
+- Game, data/game/tolerances.json (predicted vs actual, in the metric's unit; percent rows in pp):
+  - `absMargin.share.1-3` (insample): 19.03 vs 24.2167
+  - `absMargin.share.8-14` (insample): 27.64 vs 22.7053
+  - `drives.perTeamGame` (insample): 11.4255 vs 11.0119
+  - `driveStart.mean` (insample): 30.5373 vs 28.6781
+  - `fourthDownGo.perGame` (insample): 3.0805 vs 2.6767
+  - `diag.late4thFieldGoal.tied` (insample): 0.7105 vs 0.8913
+  - `diag.final2FieldGoalAttempts.tied` (insample): 0.027 vs 0.0624
+  - `diag.final2FieldGoalAttempts.trailing1-3` (insample): 0.0433 vs 0.0934
+  - `diag.timeoutRate.defense.T.G5` (insample): 0.1713 vs 0.2227
+  - `diag.timeoutRate.offense.0.GF` (insample): 0.0889 vs 0.1327
+  - `points.share.10-16` (holdout): 20.73 vs 17.5551
+  - `total.mean` (holdout): 44.2937 vs 45.9246
+  - `absMargin.share.1-3` (holdout): 19.03 vs 25.1838
+  - `absMargin.share.8-14` (holdout): 27.64 vs 18.0147
+  - `absMargin.share.22+` (holdout): 10.95 vs 15.9926
+  - `drives.perTeamGame` (holdout): 11.4255 vs 10.5956
+  - `driveResult.share.touchdown` (holdout): 20.5281 vs 22.9615
+  - `driveResult.share.fieldGoal` (holdout): 13.9634 vs 16.204
+  - `driveResult.share.punt` (holdout): 36.5378 vs 34.2817
+  - `scrimmagePlays.perGame` (holdout): 128.7275 vs 123.4118
+  - `driveDuration.mean` (holdout): 156.337 vs 170.8647
+  - `punts.perGame` (holdout): 8.3862 vs 7.3143
+  - `twoPointTries.perGame` (holdout): 0.3777 vs 0.4835
+- Caller, data/caller/tolerances.json, in-sample (shares):
+  - `fourthDown.FR.fieldGoal` (insample): 0.703 vs 0.754
+  - `fourthDown.FR.go` (insample): 0.288 vs 0.235
+  - `fourthDown.RZ.fieldGoal` (insample): 0.742 vs 0.814
+  - `fourthDown.RZ.go` (insample): 0.256 vs 0.185
+  - `lateDowns.>=17.kneel` (insample): 0.233 vs 0.286
+- Caller, data/caller/tolerances.json, holdout (step 2 entries, kept, now with scope "holdout"). Joseph approved each in "Five caller validation misses accepted as known deviations" (M1 step 2 section, dated 2026-11-11):
+  - `fourthDown.MID.fieldGoal` (holdout)
+  - `man` (holdout)
+  - `preset.nickelCover2` (holdout)
+  - `preset.nickelCover4` (holdout)
+- Removed: the step 2 caller deviation `fourthDown.MID.punt` (approved 2026-11-11). It now passes on 2024-2025 (51.3% vs 47.0%, within 5 pp), so the entry no longer describes a miss. The other four step 2 entries are kept, now with scope "holdout". The engine's step 4 entries are unchanged.
+- Holdout runs (B12 and F4): the caller's 2024-2025 re-validation for revision 3 was computed 5 times, the step 5 game holdout 7 times (run 6 only to remeasure speed, run 7 only for the report layout), the engine 5 times and C7 twice, all on 2026-11-12 and all post hoc; see "Holdout runs for step 5b" below. Runs 1-3 and 5 changed no lookup or metric; run 4 followed the o4Top reorder. The spec asked for one run; Joseph accepted the reruns.
+
+### Holdout runs for step 5b (all 2026-11-12, all post hoc)
+
+Every 2024-2025 computation made under step 5b, labelled the same way in each report. No change was made between runs on the strength of a holdout number.
+
+| Pipeline | Run | When | What changed before it | Result |
+| --- | --- | --- | --- | --- |
+| Caller (CALLER_REPORT 9) | 1 | Before the key-only gate change | Revision 3 (late levels) | 0 unaccepted gated failures |
+| Caller | 2 | After the key-only gate change | Keys only; lookups identical | Every metric identical to run 1 |
+| Caller | 3 | After it | The report's run labels only | Every metric identical |
+| Caller | 4 | After it | o4Top late levels moved after the score3 levels (Joseph) | 0 unaccepted gated failures |
+| Caller | 5 | After it | Joseph's scoped known deviations added (tolerances only) | Every metric identical to run 4 |
+| C7 (COACH_REPORT 2) | 1 | Before the key-only gate change | Timeout late levels (C) | 0 failures; the timeout tables do not use caller keys |
+| C7 | 2 | After the o4Top reorder | Joseph's scoped known deviations added (the summary pins the tolerance file) | 0 failures, every metric identical to run 1 |
+| Engine (ENGINE_REPORT 1) | 1 | After the key-only gate change (none before) | Caller tables v3 | Engine tables unchanged except the config hash |
+| Engine | 2 | After it | The report's wording only | Every metric identical |
+| Engine | 3 | After it | The o4Top reorder | Every metric identical to run 2 |
+| Engine | 4 | After it | The caller pipeline's scoped known-deviation code (in the engine's code hash) | Every metric identical to run 3 |
+| Engine | 5 | After it | Final review: the engine's own validation applies the same scope rule (exact metric and scope; no scope means holdout) | Every metric identical to run 4 |
+| Step 5 game (GAME_REPORT 2) | 1 | Before the key-only gate change | 5b B and C | 12 gated failures |
+| Step 5 game | 2 | After the key-only gate change | Keys only | Every metric identical |
+| Step 5 game | 3 | After it | Code review: box-score first downs (no gated metric uses them), the C3 per-team-game diagnostic, the report labels | Every gated metric identical |
+| Step 5 game | 4 | After it | The o4Top reorder | 13 gated failures: `driveResult.share.punt` newly fails (36.54 vs 34.28, tolerance 2; was 36.21) |
+| Step 5 game | 5 | After it | Joseph's scoped known deviations added | Every metric identical to run 4; the 13 misses read "accepted" |
+| Step 5 game | 6 | After it | Nothing but the report label: a speed remeasure (run 5's 95 ms per game was taken at load average about 40) | Every metric identical to run 5 |
+| Step 5 game | 7 | After it | The report layout (accepted misses listed apart from the gated-failure line) and the recomputed F1 stages | Every metric identical to run 6 |
+

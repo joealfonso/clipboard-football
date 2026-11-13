@@ -1,7 +1,8 @@
 {
   "generated": true,
   "side": "defense",
-  "configHash": "24600cf51672874c2d058d34e6b84ab07dbd3ff13b8095579638e7231b8d38cd",
+  "configVersion": 3,
+  "configHash": "809c9b144e4869bd2db3ec934a9743bbb0619024adae816cd3b040eda12460ae",
   "halfLifeSeasons": 2,
   "weightAnchor": 2023,
   "factors": {

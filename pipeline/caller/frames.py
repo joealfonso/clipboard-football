@@ -7,7 +7,7 @@ from typing import Any
 import polars as pl
 
 from pipeline.caller.bins import bin_situation
-from pipeline.caller.fit import in_seasons, label_col
+from pipeline.caller.fit import any_seasons, in_seasons, label_col
 
 # Bin label columns are prefixed (fit.label_col) so they never collide with pbp columns.
 # pbp column -> Situation field.
@@ -69,7 +69,7 @@ def factor_frames(plays: pl.DataFrame, config: dict[str, Any]) -> dict[str, pl.D
     runpass = pl.col("call").is_in(["run", "pass"])
 
     def make(fid: str, cond: pl.Expr, target: pl.Expr, tag: pl.Expr | None = None) -> pl.DataFrame:
-        df = plays.filter(cond.fill_null(False) & in_seasons(f[fid]).fill_null(False))
+        df = plays.filter(cond.fill_null(False) & any_seasons(f[fid]).fill_null(False))
         df = df.with_columns(target=target, tag=tag if tag is not None else pl.lit(None, dtype=pl.String))
         return df.filter(pl.col("target").is_not_null())
 

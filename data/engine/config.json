@@ -9,7 +9,10 @@
     "halfLifeSeasons": 2,
     "fieldGoalHalfLifeSeasons": 1,
     "neverTrainFrom": 2024,
-    "holdout": [2024, 2025],
+    "holdout": [
+      2024,
+      2025
+    ],
     "passLeavesFrom": 2022,
     "durationFrom": 2022
   },
@@ -19,42 +22,316 @@
     "ydl10": {
       "type": "range",
       "field": "yardLine100",
-      "phases": ["scrimmage", "try"],
+      "phases": [
+        "scrimmage",
+        "try"
+      ],
       "buckets": [
-        { "label": "1-10", "min": 1, "max": 10 },
-        { "label": "11-20", "min": 11, "max": 20 },
-        { "label": "21-30", "min": 21, "max": 30 },
-        { "label": "31-40", "min": 31, "max": 40 },
-        { "label": "41-50", "min": 41, "max": 50 },
-        { "label": "51-60", "min": 51, "max": 60 },
-        { "label": "61-70", "min": 61, "max": 70 },
-        { "label": "71-80", "min": 71, "max": 80 },
-        { "label": "81-90", "min": 81, "max": 90 },
-        { "label": "91-99", "min": 91, "max": 99 }
+        {
+          "label": "1-10",
+          "min": 1,
+          "max": 10
+        },
+        {
+          "label": "11-20",
+          "min": 11,
+          "max": 20
+        },
+        {
+          "label": "21-30",
+          "min": 21,
+          "max": 30
+        },
+        {
+          "label": "31-40",
+          "min": 31,
+          "max": 40
+        },
+        {
+          "label": "41-50",
+          "min": 41,
+          "max": 50
+        },
+        {
+          "label": "51-60",
+          "min": 51,
+          "max": 60
+        },
+        {
+          "label": "61-70",
+          "min": 61,
+          "max": 70
+        },
+        {
+          "label": "71-80",
+          "min": 71,
+          "max": 80
+        },
+        {
+          "label": "81-90",
+          "min": 81,
+          "max": 90
+        },
+        {
+          "label": "91-99",
+          "min": 91,
+          "max": 99
+        }
       ]
     },
     "puntZone": {
       "type": "range",
       "field": "yardLine100",
-      "phases": ["scrimmage"],
+      "phases": [
+        "scrimmage"
+      ],
       "buckets": [
-        { "label": "P1-49", "min": 1, "max": 49 },
-        { "label": "P50-59", "min": 50, "max": 59 },
-        { "label": "P60-69", "min": 60, "max": 69 },
-        { "label": "P70-79", "min": 70, "max": 79 },
-        { "label": "P80-89", "min": 80, "max": 89 },
-        { "label": "P90-99", "min": 90, "max": 99 }
+        {
+          "label": "P1-49",
+          "min": 1,
+          "max": 49
+        },
+        {
+          "label": "P50-59",
+          "min": 50,
+          "max": 59
+        },
+        {
+          "label": "P60-69",
+          "min": 60,
+          "max": 69
+        },
+        {
+          "label": "P70-79",
+          "min": 70,
+          "max": 79
+        },
+        {
+          "label": "P80-89",
+          "min": 80,
+          "max": 89
+        },
+        {
+          "label": "P90-99",
+          "min": 90,
+          "max": 99
+        }
+      ]
+    },
+    "zone7": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": [
+        "scrimmage"
+      ],
+      "buckets": [
+        {
+          "label": "GL",
+          "min": 1,
+          "max": 5
+        },
+        {
+          "label": "I10",
+          "min": 6,
+          "max": 10
+        },
+        {
+          "label": "R15",
+          "min": 11,
+          "max": 15
+        },
+        {
+          "label": "R20",
+          "min": 16,
+          "max": 20
+        },
+        {
+          "label": "FR",
+          "min": 21,
+          "max": 35
+        },
+        {
+          "label": "MID",
+          "min": 36,
+          "max": 50
+        },
+        {
+          "label": "OWN",
+          "min": 51,
+          "max": 89
+        },
+        {
+          "label": "B10",
+          "min": 90,
+          "max": 95
+        },
+        {
+          "label": "B5",
+          "min": 96,
+          "max": 99
+        }
+      ]
+    },
+    "zoneR": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": [
+        "scrimmage"
+      ],
+      "buckets": [
+        {
+          "label": "GL",
+          "min": 1,
+          "max": 5
+        },
+        {
+          "label": "I10",
+          "min": 6,
+          "max": 10
+        },
+        {
+          "label": "RZ",
+          "min": 11,
+          "max": 20
+        },
+        {
+          "label": "OPP",
+          "min": 21,
+          "max": 50
+        },
+        {
+          "label": "OWN",
+          "min": 51,
+          "max": 95
+        },
+        {
+          "label": "B5",
+          "min": 96,
+          "max": 99
+        }
+      ]
+    },
+    "ydlP": {
+      "type": "range",
+      "field": "yardLine100",
+      "phases": [
+        "scrimmage",
+        "try"
+      ],
+      "buckets": [
+        {
+          "label": "1-2",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "label": "3-5",
+          "min": 3,
+          "max": 5
+        },
+        {
+          "label": "6-10",
+          "min": 6,
+          "max": 10
+        },
+        {
+          "label": "11-15",
+          "min": 11,
+          "max": 15
+        },
+        {
+          "label": "16-20",
+          "min": 16,
+          "max": 20
+        },
+        {
+          "label": "21-30",
+          "min": 21,
+          "max": 30
+        },
+        {
+          "label": "31-40",
+          "min": 31,
+          "max": 40
+        },
+        {
+          "label": "41-50",
+          "min": 41,
+          "max": 50
+        },
+        {
+          "label": "51-60",
+          "min": 51,
+          "max": 60
+        },
+        {
+          "label": "61-70",
+          "min": 61,
+          "max": 70
+        },
+        {
+          "label": "71-80",
+          "min": 71,
+          "max": 80
+        },
+        {
+          "label": "81-85",
+          "min": 81,
+          "max": 85
+        },
+        {
+          "label": "86-90",
+          "min": 86,
+          "max": 90
+        },
+        {
+          "label": "91-95",
+          "min": 91,
+          "max": 95
+        },
+        {
+          "label": "96-99",
+          "min": 96,
+          "max": 99
+        }
       ]
     }
   },
   "families": {
     "run": {
-      "leaves": ["insideRun", "outsideRun", "qbSneak"],
-      "classes": ["fumble", "loss", "r1_3", "r4_9", "r10_19", "r20"]
+      "leaves": [
+        "insideRun",
+        "outsideRun",
+        "qbSneak"
+      ],
+      "classes": [
+        "fumble",
+        "loss",
+        "r1_3",
+        "r4_9",
+        "r10_19",
+        "r20"
+      ]
     },
     "pass": {
-      "leaves": ["shortPass", "intermediatePass", "deepPass", "screenPass", "playAction"],
-      "classes": ["sack", "scramble", "int", "inc", "fumbleCatch", "c0", "c1_9", "c10_19", "c20"]
+      "leaves": [
+        "shortPass",
+        "intermediatePass",
+        "deepPass",
+        "screenPass",
+        "playAction"
+      ],
+      "classes": [
+        "sack",
+        "scramble",
+        "int",
+        "inc",
+        "fumbleCatch",
+        "c0",
+        "c1_9",
+        "c10_19",
+        "c20"
+      ]
     }
   },
   "classRules": {
@@ -62,27 +339,133 @@
     "pass": "First match: sack, scramble, int (interception), inc (incomplete), fumbleCatch (completion with a fumble), then completions by yards: c0 (<= 0), c1_9, c10_19, c20 (20+). A dropback that is none of these (two-point rows only) is classed from its description: see pipeline/engine/classes.py."
   },
   "levels": [
-    { "dims": ["leaf", "formation", "down", "dist5", "zone6", "score3", "time2"] },
-    { "dims": ["leaf", "down", "dist5", "zone6", "score3", "time2"] },
-    { "dims": ["leaf", "down", "dist3", "zone6"] },
-    { "dims": ["leaf", "dist3", "zone3"] },
-    { "dims": ["leaf", "zone3"] },
-    { "dims": ["leaf"] },
-    { "dims": ["family"] }
+    {
+      "dims": [
+        "leaf",
+        "formation",
+        "down",
+        "dist5",
+        "zone7",
+        "score3",
+        "time2"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "down",
+        "dist5",
+        "zone7",
+        "score3",
+        "time2"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "down",
+        "dist3",
+        "zone7"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "dist3",
+        "zoneR"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "zoneR"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "zone3"
+      ]
+    },
+    {
+      "dims": [
+        "leaf"
+      ]
+    },
+    {
+      "dims": [
+        "family"
+      ]
+    }
   ],
   "poolLevels": [
-    { "dims": ["leaf", "class", "ydl10"] },
-    { "dims": ["leaf", "class", "zone3"] },
-    { "dims": ["leaf", "class"] },
-    { "dims": ["family", "class"] }
+    {
+      "dims": [
+        "leaf",
+        "class",
+        "ydlP"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "class",
+        "zoneR"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "class",
+        "zone3"
+      ]
+    },
+    {
+      "dims": [
+        "leaf",
+        "class"
+      ]
+    },
+    {
+      "dims": [
+        "family",
+        "class"
+      ]
+    }
   ],
   "twoPoint": {
     "note": "Two-point tries use the scrimmage classes. A leaf with fewer than minPlays tries backs off to scrimmage plays snapped at the 2, then to scrimmage plays at the goal line (zone6 GL), then to every try of the family.",
-    "levels": ["try", "at2", "goalLine", "tryFamily"]
+    "levels": [
+      "try",
+      "at2",
+      "goalLine",
+      "tryFamily"
+    ]
   },
   "punts": {
-    "levels": [{ "dims": ["puntZone"] }, { "dims": [] }],
-    "poolLevels": [{ "dims": ["class", "puntZone"] }, { "dims": ["class"] }],
+    "levels": [
+      {
+        "dims": [
+          "puntZone"
+        ]
+      },
+      {
+        "dims": []
+      }
+    ],
+    "poolLevels": [
+      {
+        "dims": [
+          "class",
+          "puntZone"
+        ]
+      },
+      {
+        "dims": [
+          "class"
+        ]
+      }
+    ],
     "longGrossFrom": 45,
     "classes": [
       "blocked",
@@ -107,10 +490,26 @@
     "extrapolation": "Beyond the longest 1-yard distance with at least capMinAttempts attempts, the make probability is capped at the curve's value there and falls linearly to 0 at maxDistance. Designed (spec resolved question 6).",
     "capMinAttempts": 20,
     "bands": [
-      { "label": "<30", "min": 0, "max": 29 },
-      { "label": "30-39", "min": 30, "max": 39 },
-      { "label": "40-49", "min": 40, "max": 49 },
-      { "label": "50+", "min": 50, "max": 99 }
+      {
+        "label": "<30",
+        "min": 0,
+        "max": 29
+      },
+      {
+        "label": "30-39",
+        "min": 30,
+        "max": 39
+      },
+      {
+        "label": "40-49",
+        "min": 40,
+        "max": 49
+      },
+      {
+        "label": "50+",
+        "min": 50,
+        "max": 99
+      }
     ],
     "blockedEndBehindLine": 8
   },
@@ -124,9 +523,28 @@
     "yardsPercentile": 0.975
   },
   "penalties": {
-    "levels": [{ "dims": ["pfamily", "down", "dist3"] }, { "dims": ["pfamily"] }],
+    "levels": [
+      {
+        "dims": [
+          "pfamily",
+          "down",
+          "dist3"
+        ]
+      },
+      {
+        "dims": [
+          "pfamily"
+        ]
+      }
+    ],
     "minSnaps": 2000,
-    "families": ["run", "pass", "punt", "fieldGoal", "extraPoint"],
+    "families": [
+      "run",
+      "pass",
+      "punt",
+      "fieldGoal",
+      "extraPoint"
+    ],
     "note": "Rates per snap, accepted and declined fouls both counted, from every foul named in the play description. A snap is a run, pass, punt, field goal or extra point, or a no_play row with a foul. no_play rows take their family from pbp's pass and rush flags, or from '(Punt formation)' and '(Field Goal formation)' in the description; a pre-snap foul with neither counts for run and pass in proportion.",
     "mapping": {
       "False Start": "falseStart",
@@ -198,7 +616,17 @@
     "byFamily": {
       "Illegal Block Above the Waist": {
         "note": "Designed: a block above the waist by the receiving team on a punt is the rule set's return-team illegal block. Anywhere else it is unsupported.",
-        "families": ["punt"],
+        "families": [
+          "punt"
+        ],
+        "side": "defense",
+        "id": "returnTeamIllegalBlock"
+      },
+      "Offensive Holding": {
+        "note": "Designed (post-validation revision 9, M1 step 5): holding by the receiving team on a punt (pbp names every return-team hold 'Offensive Holding', charged to the receivers) is the rule set's return-team foul, 10 yards from the spot of the foul, like a block above the waist. Before, it was mapped to offensiveHolding and the engine emitted it against the kicking team. Kicking-team holding stays offensiveHolding.",
+        "families": [
+          "punt"
+        ],
         "side": "defense",
         "id": "returnTeamIllegalBlock"
       }
@@ -212,20 +640,125 @@
     },
     "pairing": {
       "note": "Designed. What physical play goes with each foul. noPlay: the snap never happens. sampled: a play sampled normally. incompletePass: an incomplete pass on a pass leaf. Fouls by both teams only on run and pass plays without a change of possession.",
-      "falseStart": { "pairs": "noPlay", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint", "kneel", "spike"] },
-      "delayOfGame": { "pairs": "noPlay", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint", "kneel", "spike"] },
-      "encroachment": { "pairs": "noPlay", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint", "kneel", "spike"] },
-      "defensiveOffside": { "pairs": "sampled", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint"] },
-      "offensiveHolding": { "pairs": "sampled", "families": ["run", "pass", "punt", "fieldGoal", "extraPoint"] },
-      "defensiveHolding": { "pairs": "sampled", "families": ["run", "pass"] },
-      "defensivePassInterference": { "pairs": "incompletePass", "families": ["pass"], "spot": "fitted" },
-      "offensivePassInterference": { "pairs": "incompletePass", "families": ["pass"] },
-      "illegalContact": { "pairs": "sampled", "families": ["pass"] },
-      "intentionalGrounding": { "pairs": "incompletePass", "families": ["pass"], "spot": "passer", "passerDepth": 7 },
-      "roughingThePasser": { "pairs": "sampled", "families": ["pass"] },
-      "unnecessaryRoughness": { "pairs": "sampled", "families": ["run", "pass"] },
-      "unnecessaryRoughnessDeadBall": { "pairs": "sampled", "families": ["run", "pass"], "onlyWhenBallDeadInField": true },
-      "returnTeamIllegalBlock": { "pairs": "sampled", "families": ["punt"], "note": "Only on a punt the receivers return and keep; spot of the foul 5 yards behind where the return ends." }
+      "falseStart": {
+        "pairs": "noPlay",
+        "families": [
+          "run",
+          "pass",
+          "punt",
+          "fieldGoal",
+          "extraPoint",
+          "kneel",
+          "spike"
+        ]
+      },
+      "delayOfGame": {
+        "pairs": "noPlay",
+        "families": [
+          "run",
+          "pass",
+          "punt",
+          "fieldGoal",
+          "extraPoint",
+          "kneel",
+          "spike"
+        ]
+      },
+      "encroachment": {
+        "pairs": "noPlay",
+        "families": [
+          "run",
+          "pass",
+          "punt",
+          "fieldGoal",
+          "extraPoint",
+          "kneel",
+          "spike"
+        ]
+      },
+      "defensiveOffside": {
+        "pairs": "sampled",
+        "families": [
+          "run",
+          "pass",
+          "punt",
+          "fieldGoal",
+          "extraPoint"
+        ]
+      },
+      "offensiveHolding": {
+        "pairs": "sampled",
+        "families": [
+          "run",
+          "pass",
+          "punt",
+          "fieldGoal",
+          "extraPoint"
+        ]
+      },
+      "defensiveHolding": {
+        "pairs": "sampled",
+        "families": [
+          "run",
+          "pass"
+        ]
+      },
+      "defensivePassInterference": {
+        "pairs": "incompletePass",
+        "families": [
+          "pass"
+        ],
+        "spot": "fitted"
+      },
+      "offensivePassInterference": {
+        "pairs": "incompletePass",
+        "families": [
+          "pass"
+        ]
+      },
+      "illegalContact": {
+        "pairs": "sampled",
+        "families": [
+          "pass"
+        ]
+      },
+      "intentionalGrounding": {
+        "pairs": "incompletePass",
+        "families": [
+          "pass"
+        ],
+        "spot": "passer",
+        "passerDepth": 7
+      },
+      "roughingThePasser": {
+        "pairs": "sampled",
+        "families": [
+          "pass"
+        ]
+      },
+      "unnecessaryRoughness": {
+        "pairs": "sampled",
+        "families": [
+          "run",
+          "pass"
+        ]
+      },
+      "unnecessaryRoughnessDeadBall": {
+        "pairs": "sampled",
+        "families": [
+          "run",
+          "pass"
+        ],
+        "onlyWhenBallDeadInField": true
+      },
+      "returnTeamIllegalBlock": {
+        "pairs": "sampled",
+        "families": [
+          "punt"
+        ],
+        "note": "Only on a punt the receivers keep in the field of play (returned, fair caught, downed or out of bounds; post-validation revision 9); spot of the foul 5 yards behind where they have the ball. Receiving-team holding on punts maps here too."
+      }
     }
-  }
+  },
+  "binsNote": "Post-validation revision 8 (M1 step 5): class cells use zone7 (zone6 with the red zone split at the 10 and the 15 and the own 10 at the 5) then zoneR, then zone3; pools use ydlP (bands 1-2, 3-5, 6-10, 11-15, 16-20, then 10 yards, then 81-85, 86-90, 91-95 and 96-99 at the own end). A pooled play's touchdown flag counts only when it was drawn from this spot's own band. Before, a pool band 1-10 and a red-zone cell 6-20 let a play that scored from the 2 score from the 9, and a 10-yard-plus class always score from the 6-10."
 }

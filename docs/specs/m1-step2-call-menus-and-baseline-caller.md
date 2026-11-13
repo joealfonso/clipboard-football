@@ -379,6 +379,8 @@ Likely to change: bin edges and N after the first backoff report; formation list
 
 ## Resolved open questions (lead, 2026-11-11)
 
+Amended by docs/specs/m1-step5a-caller-late-game-bins.md (late-game score bins for oTop, o4Top and o4Kick; post-validation revision 2).
+
 These override anything above that conflicts. Record each in docs/DECISIONS.md.
 
 1. Defense set: drop Base Cover 1, add Nickel Cover 1 (4-man rush). Keep Nickel Cover 1 Blitz. Final 12: Base Cover 3, Base Cover 2, Run Stuff, Nickel Cover 3, Nickel Cover 4, Nickel 2-Man, Nickel Cover 1, Nickel Cover 1 Blitz, Dime Cover 4, Dime Cover 0 Blitz, Goal Line, Prevent. Base screen has 3 choices, Nickel 5, Dime 2, Specials 2. If the mismatch report shows another common real call with no home, report it; don't add presets without asking.

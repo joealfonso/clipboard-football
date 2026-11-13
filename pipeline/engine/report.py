@@ -46,7 +46,12 @@ def render(r: dict[str, Any]) -> str:
         "",
         f"Config hash `{r['configHash']}`, matchup hash `{r['matchupHash']}`, tolerances hash `{r['tolerancesHash']}`, code hash `{r['codeHash']}`, nflreadpy {r['nflreadpy']}.",
         "",
-        "## 1. Validation, 2024-2025 (never trained on)",
+        "## 1. Validation, 2024-2025 (never trained on; post hoc since revision 7)",
+        "",
+        "No 2024-2025 row reaches a fit. But this is not a clean holdout result: every run of this validation after the first was made after "
+        "2024-2025 results had been seen. That covers post-validation revisions 1-6 of step 4 and revisions 7-13 (step 5 in-sample findings: "
+        "pre-snap foul cells, red-zone and goal-line bins and the touchdown flag, punt holding, kneels at the own goal, punt touchbacks), "
+        "plus the reruns after the step 5a caller amendment, the code review fixes and the step 5b caller levels (the engine tables are unchanged; the validation plays use the callers). Step 5b: 5 runs on 2026-11-12, all after the caller's key-only gate change (none before it): run 2 followed an edit to this report's wording only, with every metric identical to run 1; run 3 followed the caller's o4Top level reorder (approved by Joseph), every metric identical to run 2; run 4 followed the caller pipeline's scoped known-deviation code, which the engine's code hash covers; run 5 (this report) followed the same scope rule applied to the engine's own validation (an unscoped step 4 entry no longer covers an in-sample miss). Every rerun is post hoc. The revisions are listed in docs/DECISIONS.md.",
         "",
     ]
     v = r.get("validation")

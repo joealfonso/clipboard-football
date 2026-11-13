@@ -69,10 +69,18 @@ describe("coarse buckets are unions of fine buckets (A7)", () => {
   });
 
   it("4th down drops the fine field zone last", () => {
+    // Amended by step 5a: late-only levels may use the designed kick zone (zoneK); every level
+    // still keeps a field zone, and the chain still ends zone6, then global.
     const levels = config.factors.o4Top.levels.map((l) => l.dims);
     expect(levels.at(-1)).toEqual([]);
     expect(levels.at(-2)).toEqual(["zone6"]);
-    for (const dims of levels.slice(0, -1)) expect(dims).toContain("zone6");
+    // Amended by step 5b: the late-only levels may also pair the five-bucket late score (or the
+    // regulation-only copy of scoreLateOnly) with zoneK, or finally with field half (spec: "a final
+    // late level uses opponent half vs own half").
+    for (const dims of levels.slice(0, -1)) {
+      const lateOnly = ["scoreLateOnly", "score3LateOnly", "scoreLate5Only", "scoreLateOnlyR"].some((d) => dims.includes(d));
+      expect(dims.includes("zone6") || (lateOnly && (dims.includes("zoneK") || dims.includes("fieldHalf"))), dims.join(",")).toBe(true);
+    }
   });
 
   it("every factor ends in a global level and keeps score sign and the final-2:00 flag until down-only", () => {
@@ -80,9 +88,11 @@ describe("coarse buckets are unions of fine buckets (A7)", () => {
       const levels = config.factors[id].levels.map((l) => l.dims);
       expect(levels.at(-1)).toEqual([]);
       expect(levels.at(-2)).toEqual(["down"]);
+      // Amended by step 5b: kneelOut is set only for a leading offense (it carries the score sign),
+      // and lateTime and lateClock carry the final-2:00 flag (GF).
       for (const dims of levels.slice(0, -2)) {
-        expect(dims.some((d) => d.startsWith("score"))).toBe(true);
-        expect(dims.some((d) => d.startsWith("time"))).toBe(true);
+        expect(dims.some((d) => d.startsWith("score") || d === "kneelOut"), dims.join(",")).toBe(true);
+        expect(dims.some((d) => d.startsWith("time") || d === "lateTime" || d === "lateClock"), dims.join(",")).toBe(true);
       }
     }
   });
@@ -141,7 +151,9 @@ describe("generated tables", () => {
     expect(range(off?.factors.oTop?.seasons ?? [])).toEqual([2016, 2023]);
     expect(off?.factors.oTop?.downs).toEqual([1, 2, 3]);
     expect(off?.factors.o4Top?.downs).toEqual([4]);
-    expect(range(off?.factors.o4Top?.seasons ?? [])).toEqual([2021, 2023]);
+    // 2021-2023, plus 2016-2020 rows for the late-window twin levels only (step 5a, resolved question 1).
+    expect(config.factors.o4Top.seasons).toMatchObject({ from: 2021, to: 2023 });
+    expect(range(off?.factors.o4Top?.seasons ?? [])).toEqual([2016, 2023]);
     expect(range(off?.factors.o4Kick?.seasons ?? [])).toEqual([2016, 2023]);
     expect(off?.factors.oPassType?.seasons).toEqual([2022, 2023]);
     expect(off?.factors.oDepth?.seasons).toEqual([2022, 2023]);

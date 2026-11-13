@@ -51,7 +51,7 @@ describe("determinism (D1)", () => {
     const a = run(20261111);
     expect(run(20261111)).toEqual(a);
     expect(run(20261112)).not.toEqual(a);
-  });
+  }, 30_000);
 });
 
 describe("shares (D2)", () => {

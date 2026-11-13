@@ -67,3 +67,9 @@ SUMMARY = (
     "participation rows (nflverse publishes them under CC-BY-SA 4.0), and every other table in this file. The nflreadpy "
     "package itself is MIT, which covers its code, not the data."
 )
+
+LOCAL_ONLY = (
+    "Local-only file: pipeline/game/real_names.py, a hand-kept list of real NFL nicknames and cities used only to reject "
+    "collisions with the designed fictional team names (data/teams/names.json, M1 step 5). It is gitignored, never shipped and "
+    "never committed; the collision check runs locally, and CI skips it when the file is absent."
+)

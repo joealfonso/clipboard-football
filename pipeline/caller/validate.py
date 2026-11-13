@@ -69,15 +69,17 @@ class Validation:
         return [m for m in self.metrics if m.status == "fail"]
 
 
-def _approved(tolerances: dict[str, Any]) -> set[str]:
+def _approved(tolerances: dict[str, Any], scope: str = "holdout") -> set[str]:
+    """Metrics Joseph accepted for one sample (code review, 2026-11-12). An entry applies only to
+    its own scope; an entry without a scope applies to the holdout validation only, as before."""
     return {
         d["metric"]
         for d in tolerances.get("known_deviations", [])
-        if d.get("approved_by") == "Joseph"
+        if d.get("approved_by") == "Joseph" and d.get("scope", "holdout") == scope
     }
 
 
-def run_validation(plays: pl.DataFrame, caller: Caller, tolerances: dict[str, Any]) -> Validation:
+def run_validation(plays: pl.DataFrame, caller: Caller, tolerances: dict[str, Any], scope: str = "holdout") -> Validation:
     tol = {m["id"]: m for m in tolerances["metrics"]}
     metrics: dict[str, Metric] = {}
 
@@ -191,7 +193,7 @@ def run_validation(plays: pl.DataFrame, caller: Caller, tolerances: dict[str, An
                 for pr in pred["presets"]:
                     metric(f"preset.{pr['call']}", "preset", f"Preset {pr['call']}").add(pr["p"], row["preset"] == pr["call"])
 
-    approved = _approved(tolerances)
+    approved = _approved(tolerances, scope)
     for m in metrics.values():
         if m.n < m.min_n:
             m.status = "not gated"
@@ -221,6 +223,7 @@ def summary(
     seasons: list[int],
     code_hash: str = "",
     file_hashes: dict[str, str] | None = None,
+    config_version: int | None = None,
 ) -> dict[str, Any]:
     def r(x: float | None) -> float | None:
         return None if x is None else round(x, 6)
@@ -242,6 +245,7 @@ def summary(
         })
     return {
         "generated": True,
+        **({} if config_version is None else {"configVersion": config_version}),
         "configHash": config_hash,
         "tolerancesHash": tolerances_hash,
         # The code and the exact generated files this summary validated (sha256).

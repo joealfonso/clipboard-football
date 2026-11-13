@@ -1,4 +1,4 @@
-export { applyPlay, callTimeout, newGame, penaltyOptions, runPreSnap, startOvertime } from "./machine";
+export { applyPlay, callTimeout, defaultPenaltyChoice, newGame, penaltyOptions, runPreSnap, startOvertime } from "./machine";
 export type { NewGameOptions, PlayChoices } from "./machine";
 export type { PenaltyOption } from "./enforce";
 export { GameRuleError } from "./errors";

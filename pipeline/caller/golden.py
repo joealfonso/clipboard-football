@@ -35,6 +35,19 @@ def grid() -> list[dict[str, Any]]:
         if ytg > yl:
             continue
         out.append(_sit("scrimmage", down, ytg, yl, sd, q, h, g, ot, dt))
+    # Step 5a: the last 5:00 of the game, every late score bucket and both sides of its edges.
+    for down, ytg, yl, sd, (q, h, g), (ot, dt) in itertools.product(
+        (1, 3, 4), (1, 5, 10), (8, 25, 37, 60), (-17, -12, -8, -4, -3, -1, 0, 1, 3, 4, 8, 12, 17),
+        [(4, 300, 300), (4, 121, 121), (4, 120, 120), (4, 40, 40), (5, 250, 250)], [(3, 3), (0, 2)],
+    ):
+        if ytg > yl:
+            continue
+        out.append(_sit("scrimmage", down, ytg, yl, sd, q, h, g, ot, dt))
+    # Step 5a (B4): a broad last-5:00 sweep so every backoff level late situations reach is offered.
+    for down, ytg, yl, sd, secs, (ot, dt) in itertools.product(
+        (1, 2, 3, 4), (1, 3, 7, 10, 15), (2, 8, 20, 30, 37, 45, 60, 80, 95), (-20, -12, -6, -2, 0, 2, 6, 12, 20), (290, 150, 100, 30), [(0, 0), (3, 3), (1, 0)],
+    ):
+        out.append(_sit("scrimmage", down, min(ytg, yl), yl, sd, 4, secs, secs, ot, dt))
     for sd, (q, g) in itertools.product(list(range(-21, 22)) + [-30, 30], [(1, 3000), (4, 600), (4, 100), (5, 300)]):
         out.append(_sit("try", 1, 2, 2, sd, q, g, g, 2, 2))
     return out
@@ -81,6 +94,13 @@ def _hits(caller: Caller, sit: dict[str, Any], entry: dict[str, Any]) -> set[str
             hits.add("masked-fallthrough")
         if any(not caller.avail.is_available(t, sit) for t in caller.off[fid]["targets"]):
             hits.add("masked")
+        late = caller.labels(sit).get("scoreLateOnly")
+        if late is not None:
+            hits.add(f"late:{late}")
+            # Every (factor, level) a late situation reaches, for the late-window factors.
+            for k, v in entry["offense"]["trace"].items():
+                if k in ("oTop", "o4Top", "o4Kick"):
+                    hits.add(f"late:{k}@{v['level']}")
     else:
         hits.add("try")
     return hits
@@ -95,6 +115,8 @@ def build_golden(caller: Caller) -> tuple[list[dict[str, Any]], dict[str, int]]:
     covered: dict[str, int] = {}
     # First pass: one situation per new tag, up to three per tag for the special ones.
     want = {"masked-fallthrough": 10, "masked": 10, "try": 20}
+    # Step 5a (B4): at least 6 late-window situations per late score bucket (9 buckets).
+    want.update({f"late:{b}": 6 for b in ("<=-17", "-16..-9", "-8..-4", "-3..-1", "0", "1..3", "4..8", "9..16", ">=17")})
     for i, hits in enumerate(hit_sets):
         new = [h for h in hits if covered.get(h, 0) < want.get(h, 1)]
         if new:

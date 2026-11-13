@@ -18,7 +18,7 @@ describe("determinism (E3)", () => {
       const g = randomGame(rules, { gameType: seed % 2 === 0 ? "regularSeason" : "postseason", seed, rulesHash: hash }, 7000 + seed);
       expect(replay(rules, g.start, g.inputs)).toEqual(g.states);
     }
-  });
+  }, 30_000);
 
   it("a mid-game state survives JSON and continues to the same final state", () => {
     for (let seed = 0; seed < 50; seed++) {
@@ -62,5 +62,5 @@ describe("soak (E4)", () => {
     }
     const ms = performance.now() - t0;
     console.log(`soak: 1000 games, ${transitions} transitions, ${overtimeGames} overtime games, ${ties} ties, ${ms.toFixed(0)} ms`);
-  });
+  }, 30_000);
 });

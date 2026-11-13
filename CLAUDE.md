@@ -4,10 +4,10 @@ A single-player American football coach and GM game in the browser. You call pla
 
 ## Stack and commands
 
-M1 step 1 is built: pnpm workspace (`packages/shared`, `packages/sim` with the seeded RNG) and the pipeline survey. The rest of the stack below is still planned.
+M1 steps 1 to 5 are built: pnpm workspace (`packages/shared`, `packages/sim`), the data pipelines, the step 2 caller, the step 3 rules machine, the step 4 play engine and the step 5 full-game loop with its headless CLI and 10,000-game calibration (gate not yet passed; docs/GAME_REPORT.md). The app, UI and the rest of the stack below are still planned.
 
 - Stack: TypeScript, Vite, Canvas 2D, no engine. Sim runs in a Web Worker. Saves in IndexedDB. Config in JSON validated with zod. Data pipeline in Python 3.12 with uv, reading nflverse through `nflreadpy` (not `nfl_data_py`, it is deprecated).
-- Run: `uv run --project pipeline python -m pipeline.inventory` from the repo root. Writes docs/DATA.md. Raw downloads cache in `~/.cache/clipboard-football`, or the directory in `CLIPBOARD_FOOTBALL_CACHE`. No app to run yet.
+- Run: `pnpm sim:game -- --seed 1` from the repo root (after `pnpm install`) prints one full game play by play with the engine's why line and a team box score; `--league-seed <n>` picks the generated league (default 2026), `--format json` prints the game record. The seed and league seed are on the first lines. Pipelines: `uv run --project pipeline python -m pipeline.inventory` (docs/DATA.md), `pipeline.caller`, `pipeline.engine`, `pipeline.game`; raw downloads cache in `~/.cache/clipboard-football`, or the directory in `CLIPBOARD_FOOTBALL_CACHE`. Calibration: `node --import ./scripts/engine/register.mjs scripts/game/calibrate.ts --target insample|holdout`. Heavy simulation checks (D1/D2 home field, F3 calibration slice): `pnpm test:heavy`.
 - Test: `pnpm install && pnpm test && pnpm lint && pnpm typecheck`, then `uv run --project pipeline pytest pipeline`. Without a global pnpm, use `npx -y pnpm@10.34.9` in place of `pnpm`.
 
 ## Key directories
@@ -51,6 +51,6 @@ The main session plans, delegates and reviews. Subagents can't spawn other subag
 ## Project notes
 
 - Milestones M1 to M9 are in the original brief. M1: pipeline plus a headless engine that sims one game as text. Gate: 10,000 games pass the calibration test.
-- Settled 2026-11-11 for M1 step 5: full 10,000-game calibration runs locally, CI re-sims a fixed 1,000-game slice; home field is designed, centered and gated on home win rate and margin; challenges are deferred to M2. See docs/specs/m1-step5-full-game-and-calibration.md.
+- Settled 2026-11-11 for M1 step 5: full 10,000-game calibration runs locally, CI re-sims a fixed 1,000-game slice; home field is designed, centered and gated on home win rate and margin; challenges are deferred to M2. See docs/DECISIONS.md (Challenges deferred to M2, CI sample size, Home field settled) and docs/specs/m1-step5-full-game-and-calibration.md.
 - Settled 2026-11-11: kickoffs are designed and tuned to 2025, the one exception to the holdout rule. See docs/DECISIONS.md.
 - Settled 2026-11-11: the offense menu is split into screens of at most five choices, and the baseline play caller is a fitted table with backoff. See docs/DECISIONS.md, docs/MENUS.md and docs/specs/m1-step2-call-menus-and-baseline-caller.md.

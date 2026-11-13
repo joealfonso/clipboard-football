@@ -55,6 +55,9 @@ class SeasonData:
     personnel_tokens: Counter[str] = field(default_factory=Counter)
     defense_personnel: Counter[str] = field(default_factory=Counter)
     offense_personnel: Counter[str] = field(default_factory=Counter)
+    # Step 5b: overtime scrimmage plays, processed like `plays` but kept apart. Only the late-window
+    # levels of oTop and o4Top (those keyed by lateTime) ever fit them.
+    ot_plays: pl.DataFrame | None = None
 
 
 def _counts(s: pl.Series) -> Counter[str]:
@@ -116,7 +119,10 @@ def build_season(
         .unique()
         .with_columns(rusher_threw=pl.lit(True))
     )
-    plays = pbp.filter(pl.col("scope").is_in(["scrimmage", "try"])).join(
+    pt = pl.col("play_type")
+    ot_scrimmage = (pl.col("scope") == "overtime") & pl.col("down").is_not_null() & pt.is_in(list(SCRIMMAGE_PLAY_TYPES)) \
+        & (pl.col("aborted_play").fill_null(0) != 1) & (pl.col("extra_point_attempt").fill_null(0) != 1) & (pl.col("two_point_attempt").fill_null(0) != 1)
+    plays = pbp.filter(pl.col("scope").is_in(["scrimmage", "try"]) | ot_scrimmage).with_columns(is_ot=pl.col("scope") == "overtime").join(
         passers, on=["game_id", "posteam", "rusher_player_id"], how="left"
     )
     data = SeasonData(season=season, plays=plays, exclusions=exclusions)
@@ -196,7 +202,9 @@ def build_season(
         run_location=pl.col("run_location").cast(pl.String),
         run_gap=pl.col("run_gap").cast(pl.String),
     )
-    data.plays = plays.drop([c for c in ID_COLS + ["posteam_timeouts_remaining", "defteam_timeouts_remaining"] if c in plays.columns])
+    plays = plays.drop([c for c in ID_COLS + ["posteam_timeouts_remaining", "defteam_timeouts_remaining"] if c in plays.columns])
+    data.plays = plays.filter(~pl.col("is_ot")).drop("is_ot")
+    data.ot_plays = plays.filter(pl.col("is_ot")).drop("is_ot")
     return data
 
 

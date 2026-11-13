@@ -144,6 +144,24 @@ export const dimensionSchema = z.discriminatedUnion("type", [
     groups: z.array(z.strictObject({ label: z.string(), members: z.array(z.string()).min(1) })).min(1),
   }),
   z.strictObject({
+    type: z.literal("window"),
+    of: z.string(),
+    members: z.array(z.string()).min(1),
+    field: z.enum(numericFields),
+    phases,
+    buckets: z.array(rangeBucket).min(1),
+    otherwise: z.string().nullable(),
+  }),
+  z.strictObject({
+    type: z.literal("kneelOut"),
+    of: z.string(),
+    members: z.array(z.string()).min(1),
+    phases,
+    kneelSeconds: z.number().int().nonnegative(),
+    playClockRule: z.string().regex(/^[A-Za-z]+(\.[A-Za-z]+)+$/),
+    playClock: z.number().int().positive().optional(),
+  }),
+  z.strictObject({
     type: z.literal("endState"),
     of: z.string(),
     phases,
@@ -153,8 +171,8 @@ export const dimensionSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export const levelSchema = z.strictObject({ tag: z.string().optional(), dims: z.array(z.string()) });
 const seasonRange = z.strictObject({ from: z.number().int(), to: z.number().int() });
+export const levelSchema = z.strictObject({ tag: z.string().optional(), dims: z.array(z.string()), seasons: seasonRange.optional() });
 
 const factorSchema = z.strictObject({
   side: z.enum(["offense", "defense"]),
@@ -274,6 +292,8 @@ const factorTablesShape = Object.fromEntries(FACTOR_IDS.map((id) => [id, factorT
 export const callerTablesSchema = z.strictObject({
   generated: z.literal(true),
   side: z.enum(["offense", "defense"]),
+  // Tables built before config version 2 (step 5a) carry no version: they are version 1.
+  configVersion: z.number().int().default(1),
   configHash: z.string().regex(/^[0-9a-f]{64}$/),
   halfLifeSeasons: z.number().positive(),
   weightAnchor: z.number().int(),
@@ -290,4 +310,37 @@ export function parseCallerConfig(json: unknown): CallerConfig {
 
 export function parseCallerTables(json: unknown): CallerTables {
   return callerTablesSchema.parse(json) as CallerTables;
+}
+
+/**
+ * Step 5b: fill each kneelOut dimension's play clock from the rule set (its `playClockRule`
+ * path, for example "clock.playClockAfterPlay"). The config never holds the number.
+ */
+export function withRulePlayClock(config: CallerConfig, rules: unknown): CallerConfig {
+  const dims: Record<string, CallerConfig["dimensions"][string]> = {};
+  for (const [name, d] of Object.entries(config.dimensions)) {
+    if (d.type !== "kneelOut") {
+      dims[name] = d;
+      continue;
+    }
+    let v: unknown = rules;
+    for (const part of d.playClockRule.split(".")) v = (v as Record<string, unknown> | undefined)?.[part];
+    if (typeof v !== "number") throw new Error(`${name}: rule set has no number at ${d.playClockRule}`);
+    dims[name] = { ...d, playClock: v };
+  }
+  return { ...config, dimensions: dims };
+}
+
+/**
+ * Step 5a (A4): tables built from a different config version or hash than the config given are
+ * refused, with an error naming both.
+ */
+export function checkCallerTables(config: CallerConfig, configHash: string, tables: readonly CallerTables[]): void {
+  for (const t of tables) {
+    if (t.configVersion !== config.version || t.configHash !== configHash) {
+      throw new Error(
+        `caller ${t.side} tables were built from config version ${t.configVersion} (sha256 ${t.configHash}), but the config given is version ${config.version} (sha256 ${configHash})`,
+      );
+    }
+  }
 }

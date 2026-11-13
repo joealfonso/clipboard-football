@@ -44,6 +44,35 @@ export type Dimension =
       readonly groups: readonly { readonly label: string; readonly members: readonly string[] }[];
     })
   | (DimensionBase & {
+      /**
+       * Step 5a: a range of `field` inside a window of another dimension (`of` labelled one of
+       * `members`), and outside it the label of the dimension `otherwise` names, or null (the
+       * dimension does not apply, so a level using it is skipped).
+       */
+      readonly type: "window";
+      readonly of: string;
+      readonly members: readonly string[];
+      readonly field: NumericSituationField;
+      readonly buckets: readonly RangeBucket[];
+      readonly otherwise: string | null;
+    })
+  | (DimensionBase & {
+      /**
+       * Step 5b: whether a leading offense on downs 1-3 can kneel out the clock: with d the down,
+       * t the defense's timeouts and P the rule set's play clock,
+       * (4 - d) x P + kneelSeconds - P x min(t, 4 - d) >= seconds left in the game.
+       * "K1" or "K0" inside `of` labelled one of `members`; null otherwise (not leading, 4th down,
+       * or outside the window). `playClock` is filled from the rule set (`playClockRule`) by the
+       * loader, never written in the config.
+       */
+      readonly type: "kneelOut";
+      readonly of: string;
+      readonly members: readonly string[];
+      readonly kneelSeconds: number;
+      readonly playClockRule: string;
+      readonly playClock?: number;
+    })
+  | (DimensionBase & {
       readonly type: "endState";
       readonly of: string;
       readonly appliesTo: readonly string[];
@@ -61,15 +90,17 @@ export type Dimension =
 export const CONTEXT_DIMENSIONS = ["leaf", "front"] as const;
 export type ContextDimension = (typeof CONTEXT_DIMENSIONS)[number];
 
+export interface SeasonRange {
+  readonly from: number;
+  readonly to: number;
+}
+
 export interface Level {
   /** A tagged level only ever looks up the cell named by its tag (for example "try"). */
   readonly tag?: string;
   readonly dims: readonly string[];
-}
-
-export interface SeasonRange {
-  readonly from: number;
-  readonly to: number;
+  /** Step 5a: fit this level on these seasons instead of the factor's (fitting only; lookup ignores it). */
+  readonly seasons?: SeasonRange;
 }
 
 export interface FactorConfig {
@@ -167,6 +198,8 @@ export interface FactorTable {
 export interface CallerTables {
   readonly generated: true;
   readonly side: "offense" | "defense";
+  /** The data/caller/config.json version and hash the tables were built from. */
+  readonly configVersion: number;
   readonly configHash: string;
   readonly halfLifeSeasons: number;
   readonly weightAnchor: number;

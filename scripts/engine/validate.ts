@@ -10,7 +10,8 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseCallerConfig, parseCallerTables, parseCatalog } from "../../packages/shared/src/schema";
+import { createHash } from "node:crypto";
+import { checkCallerTables, withRulePlayClock, parseCallerConfig, parseCallerTables, parseCatalog } from "../../packages/shared/src/schema";
 import { parseRuleSet } from "../../packages/shared/src/rules-schema";
 import { parseEngineData } from "../../packages/shared/src/engine-schema";
 import type { CallerData, EngineData, TeamPool } from "../../packages/shared/src/types";
@@ -49,10 +50,13 @@ function readJson(root: string, p: string): unknown {
 function loadAll(root: string): { data: EngineData; caller: CallerData } {
   const caller: CallerData = {
     catalog: parseCatalog(readJson(root, "data/calls/catalog.json")),
-    config: parseCallerConfig(readJson(root, "data/caller/config.json")),
+    config: withRulePlayClock(parseCallerConfig(readJson(root, "data/caller/config.json")), readJson(root, "data/rules/nfl-2026.json")),
     offense: parseCallerTables(readJson(root, "data/caller/offense.table.json")),
     defense: parseCallerTables(readJson(root, "data/caller/defense.table.json")),
   };
+  const h = createHash("sha256");
+  for (const f of ["data/calls/catalog.json", "data/caller/config.json"]) h.update(readFileSync(join(root, f))).update(Buffer.from([0]));
+  checkCallerTables(caller.config, h.digest("hex"), [caller.offense, caller.defense]);
   const rules = parseRuleSet(readJson(root, "data/rules/nfl-2026.json"));
   const data = parseEngineData(
     {

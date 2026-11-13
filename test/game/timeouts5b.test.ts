@@ -1,0 +1,85 @@
+// M1 step 5b, C1: inside the late windows (G5, GF and all of overtime) every timeout lookup level
+// except the side-only fallback carries score3 from the calling team's view; outside them, the
+// rates of the frozen pre-5b golden views are identical (test/fixtures/game-golden-pre5b.json).
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import type { CoachView } from "../../packages/shared/src/types";
+import { timeoutShare } from "../../packages/sim/src/loop/coach";
+import { REPO, loadGameData } from "../../scripts/game/data";
+
+const data = loadGameData();
+const dims = data.config.dimensions;
+const levels = data.config.timeouts.levels;
+
+const view = (v: Record<string, number>): CoachView => ({
+  phase: "scrimmage", down: v["down"] ?? 1, yardsToGo: 10, yardLine100: 50, scoreDiff: v["scoreDiff"] ?? 0, quarter: v["quarter"] ?? 1,
+  secondsLeftInHalf: v["secondsLeftInHalf"] ?? 900, secondsLeftInGame: v["secondsLeftInGame"] ?? 900, offenseTimeouts: v["ownTimeouts"] ?? 3, defenseTimeouts: v["ownTimeouts"] ?? 3,
+  clockRunning: v["clockRunning"] === 1, playClock: 40, previousSnapKneel: v["previousSnapKneel"] === 1, previousSnapRestart: (v["clockRestarted"] ?? 0) as 0 | 1 | 2, beforeTimeout: v["timeoutCalled"] === 1,
+  offenseTimeoutsThisDeadBall: 0, defenseTimeoutsThisDeadBall: 0,
+});
+
+const late = (v: CoachView): boolean => v.quarter >= 5 || (v.quarter === 4 && v.secondsLeftInGame <= 300);
+const SCORE = new Set(["score3", "lateS3"]);
+
+describe("timeout levels keep score3 in the late windows (C1)", () => {
+  it("every late lookup, both sides, lands on a level with score3 or on the side-only fallback", () => {
+    let checked = 0;
+    for (const quarter of [4, 5]) {
+      for (const secs of [600, 301, 300, 200, 121, 120, 60, 10]) {
+        if (quarter === 4 && secs > 300) continue;
+        for (const scoreDiff of [-9, -3, 0, 3, 9]) {
+          for (const down of [1, 3, 4]) {
+            for (const ownTimeouts of [1, 2, 3]) {
+              for (const clockRunning of [0, 1]) {
+                const v = view({ quarter, secondsLeftInHalf: secs, secondsLeftInGame: secs, scoreDiff, down, ownTimeouts, clockRunning });
+                expect(late(v)).toBe(true);
+                for (const side of ["offense", "defense"] as const) {
+                  const f = timeoutShare(side === "offense" ? v : { ...v, scoreDiff: -v.scoreDiff }, side, data.tables, dims, 1);
+                  const d = levels[f.level]?.dims ?? [];
+                  const ok = d.some((x) => SCORE.has(x)) || (d.length === 1 && d[0] === "side");
+                  expect(ok, `${side} ${JSON.stringify(v)} level ${f.level} [${d.join(",")}]`).toBe(true);
+                  checked++;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(1000);
+  });
+
+  it("the config: every level that can serve a late view, except side-only, carries score3", () => {
+    // A level serves late views only if none of its dimensions is null there. lateT and lateS3
+    // are non-null only in the late windows; the levels after them are reached only when a
+    // late level misses, so the fitted table must hold every [side, lateS3] cell.
+    const finalLate = levels.findIndex((l) => l.dims.includes("lateS3"));
+    expect(finalLate).toBeGreaterThan(0);
+    levels.slice(0, finalLate + 1).forEach((l, i) => expect(l.dims.some((x) => SCORE.has(x)), `level ${i}`).toBe(true));
+    const cells = data.tables.timeouts.cells[finalLate] ?? {};
+    // lateS3 is score3 inside the late windows (null outside), so its key is side and score.
+    for (const side of ["offense", "defense"]) {
+      for (const s of ["T", "0", "L"]) expect(cells[`${side}|${s}`], `${side} ${s}`).toBeDefined();
+    }
+  });
+});
+
+describe("outside the late windows every timeout rate is unchanged (C1)", () => {
+  const frozen = JSON.parse(readFileSync(join(REPO, "test/fixtures/game-golden-pre5b.json"), "utf8")) as {
+    timeouts: { view: Record<string, number>; side: "offense" | "defense"; p: number }[];
+  };
+
+  it("at least 200 frozen pre-5b dead-ball views outside the windows give the same rate", () => {
+    let n = 0;
+    for (const g of frozen.timeouts) {
+      const v = view(g.view);
+      if (late(v)) continue;
+      const f = timeoutShare(g.side === "offense" ? v : { ...v, scoreDiff: -v.scoreDiff }, g.side, data.tables, dims, 1);
+      expect(f.value, `${g.side} ${JSON.stringify(g.view)}`).toBeCloseTo(g.p, 12);
+      n++;
+    }
+    expect(n).toBeGreaterThanOrEqual(200);
+  });
+});

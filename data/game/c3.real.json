@@ -1,0 +1,65 @@
+{
+ "generated": true,
+ "rows": {
+  "defense.0.G5": {
+   "perTeamGame": 0.010922988379810145,
+   "timeouts": 46
+  },
+  "defense.0.GF": {
+   "perTeamGame": 0.047016677488192424,
+   "timeouts": 220
+  },
+  "defense.L.G5": {
+   "perTeamGame": 0.03300716522289853,
+   "timeouts": 143
+  },
+  "defense.L.GF": {
+   "perTeamGame": 0.1616645545994083,
+   "timeouts": 586
+  },
+  "defense.T.G5": {
+   "perTeamGame": 0.407347882903683,
+   "timeouts": 1833
+  },
+  "defense.T.GF": {
+   "perTeamGame": 0.23012466799043357,
+   "timeouts": 901
+  },
+  "offense.0.G5": {
+   "perTeamGame": 0.005534677671386867,
+   "timeouts": 17
+  },
+  "offense.0.GF": {
+   "perTeamGame": 0.043520104332627846,
+   "timeouts": 196
+  },
+  "offense.L.G5": {
+   "perTeamGame": 0.06277192996635277,
+   "timeouts": 276
+  },
+  "offense.L.GF": {
+   "perTeamGame": 0.07769972859390621,
+   "timeouts": 321
+  },
+  "offense.T.G5": {
+   "perTeamGame": 0.04659291820607302,
+   "timeouts": 174
+  },
+  "offense.T.GF": {
+   "perTeamGame": 0.1384657605926506,
+   "timeouts": 591
+  }
+ },
+ "seasons": [
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023
+ ],
+ "teamGames": 4190,
+ "weighted": true
+}

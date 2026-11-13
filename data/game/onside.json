@@ -1,0 +1,64 @@
+{
+  "generated": true,
+  "seasons": [2016,2017,2018,2019,2020,2021,2022,2023],
+  "levels": [
+    {
+      "dims": ["oQtr","oTime","oScore"]
+    },
+    {
+      "dims": ["oQtr","oTime","oTrail"]
+    },
+    {
+      "dims": ["oQtr","oLate","oTrail"]
+    }
+  ],
+  "minN": 150,
+  "kickoffs": 21342,
+  "attempts": 451,
+  "designedRule": {
+    "note": "Used only where no fitted level has minN kickoffs (resolved question 7, as directed by the lead after the first holdout run): onside when trailing by more than one score (9 or more) in the final 5:00 of the 4th quarter or overtime.",
+    "trailingBy": 9,
+    "secondsLeftInGame": 300,
+    "quarterMin": 4
+  },
+  "cells": [
+    {
+      "Q1-3|-|-16..-9": [8311,864],
+      "Q1-3|-|-8..-1": [1768,2455],
+      "Q1-3|-|0": [2317,3294],
+      "Q1-3|-|1+": [1087,9475],
+      "Q1-3|-|<=-17": [6549,257],
+      "Q4|-|-16..-9": [65501,262],
+      "Q4|-|-8..-1": [2646,571],
+      "Q4|-|1+": [173,1784],
+      "Q4|F2|-8..-1": [959238,184],
+      "Q4|F2|1+": [0,480],
+      "Q4|F5|-8..-1": [117159,219],
+      "Q4|F5|1+": [0,679]
+    },
+    {
+      "Q1-3|-|1-8": [1768,2455],
+      "Q1-3|-|9+": [7924,1121],
+      "Q1-3|-|no": [1408,12769],
+      "Q4|-|1-8": [2646,571],
+      "Q4|-|9+": [122148,387],
+      "Q4|-|no": [1436,1929],
+      "Q4|F2|1-8": [959238,184],
+      "Q4|F2|no": [0,583],
+      "Q4|F5|1-8": [117159,219],
+      "Q4|F5|no": [0,737]
+    },
+    {
+      "Q1-3|-|1-8": [1768,2455],
+      "Q1-3|-|9+": [7924,1121],
+      "Q1-3|-|no": [1408,12769],
+      "Q4|-|1-8": [2646,571],
+      "Q4|-|9+": [122148,387],
+      "Q4|-|no": [1436,1929],
+      "Q4|late|1-8": [492134,403],
+      "Q4|late|9+": [634674,245],
+      "Q4|late|no": [0,1320]
+    }
+  ],
+  "configHash": "49707b492a164a4a717447048153225b8f9b3e57f974c48a6dea452d5bce82eb"
+}

@@ -202,9 +202,18 @@ def run_engine(reqs: list[dict[str, Any]], root: Path, seed: int, k: int, teams:
     return res
 
 
+def approved_for(tolerances: dict[str, Any], scope: str) -> set[str]:
+    """Metrics Joseph accepted for one sample (final review, 2026-11-12): exact metric and exact
+    scope; an entry without a scope is a holdout entry, as the step 4 entries always were."""
+    if scope not in ("insample", "holdout"):
+        raise ValueError(f"unknown scope {scope!r}")
+    return {d["metric"] for d in tolerances.get("known_deviations", [])
+            if d.get("approved_by") == "Joseph" and d.get("scope", "holdout") == scope}
+
+
 def score(label: str, reqs: list[dict[str, Any]], meta: list[dict[str, Any]], res: list[dict[str, Any]], snaps: pl.DataFrame,
           tolerances: dict[str, Any], rules_ids: list[str], families: dict[str, Any], punt_classes: list[str], kickoff_classes: list[str],
-          fg_bands: list[dict[str, Any]], include_kickoff: bool) -> Validation:
+          fg_bands: list[dict[str, Any]], include_kickoff: bool, *, scope: str) -> Validation:
     tol = {m["id"]: m for m in tolerances["metrics"]}
     v = Validation(label)
 
@@ -317,7 +326,7 @@ def score(label: str, reqs: list[dict[str, Any]], meta: list[dict[str, Any]], re
             metric("flags.any", "penaltyFlags", "Snaps with at least one supported flag").add(pred.get("anyFlag", 0.0), 1.0 if n_act >= 1 else 0.0, sw)
             metric("flags.bothTeams", "penaltyFlags", "Snaps with supported flags on both teams").add(pred.get("twoFlags", 0.0), 1.0 if {"offense", "defense"} <= sd else 0.0, sw)
             metric("flags.twoOrMore", "penaltyFlags", "Snaps with two or more supported flags").add(pred.get("twoFlags", 0.0), 1.0 if n_act >= 2 else 0.0, sw)
-    approved = {d["metric"] for d in tolerances.get("known_deviations", []) if d.get("approved_by") == "Joseph"}
+    approved = approved_for(tolerances, scope)
     for m in v.metrics.values():
         if m.kind == UNREGISTERED:
             m.status, m.note = "not gated", "no pre-registered tolerance"

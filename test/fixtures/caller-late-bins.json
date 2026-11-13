@@ -1,0 +1,1265 @@
+{
+ "description": "Step 5a (A1): late score bins. Expected labels from an independent hand rule (last 5:00 of the game, or overtime, uses the nine late buckets; otherwise score7 or null). Checked by both the TypeScript and Python test suites.",
+ "cases": [
+  {
+   "name": "Q4 301s left, diff -17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -17,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "<=-17",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff -16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -16,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-1",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff -4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -4,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-1",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff -3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-1",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-1",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "0",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..8",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..8",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..8",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..8",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 16,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 301s left, diff 17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 17,
+    "quarter": 4,
+    "secondsLeftInHalf": 301,
+    "secondsLeftInGame": 301,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": ">=17",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -17,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "<=-17",
+    "scoreLateOnly": "<=-17",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -16,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": "-16..-9",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": "-16..-9",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -4,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "0",
+    "scoreLateOnly": "0",
+    "score3LateOnly": "0"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..3",
+    "scoreLateOnly": "1..3",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..3",
+    "scoreLateOnly": "1..3",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "4..8",
+    "scoreLateOnly": "4..8",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "4..8",
+    "scoreLateOnly": "4..8",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": "9..16",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 16,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": "9..16",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 300s left, diff 17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 17,
+    "quarter": 4,
+    "secondsLeftInHalf": 300,
+    "secondsLeftInGame": 300,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": ">=17",
+    "scoreLateOnly": ">=17",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -17,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "<=-17",
+    "scoreLateOnly": "<=-17",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -16,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": "-16..-9",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": "-16..-9",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -4,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "0",
+    "scoreLateOnly": "0",
+    "score3LateOnly": "0"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..3",
+    "scoreLateOnly": "1..3",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..3",
+    "scoreLateOnly": "1..3",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "4..8",
+    "scoreLateOnly": "4..8",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "4..8",
+    "scoreLateOnly": "4..8",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": "9..16",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 16,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": "9..16",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 121s left, diff 17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 17,
+    "quarter": 4,
+    "secondsLeftInHalf": 121,
+    "secondsLeftInGame": 121,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": ">=17",
+    "scoreLateOnly": ">=17",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -17,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "<=-17",
+    "scoreLateOnly": "<=-17",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -16,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": "-16..-9",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -9,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-16..-9",
+    "scoreLateOnly": "-16..-9",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -8,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -4,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff -1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -1,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 0",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 0,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "0",
+    "scoreLateOnly": "0",
+    "score3LateOnly": "0"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 1",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 1,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..3",
+    "scoreLateOnly": "1..3",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 3,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "1..3",
+    "scoreLateOnly": "1..3",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 4",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 4,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "4..8",
+    "scoreLateOnly": "4..8",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 8",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 8,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "4..8",
+    "scoreLateOnly": "4..8",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 9",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 9,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": "9..16",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 16",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 16,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "9..16",
+    "scoreLateOnly": "9..16",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "Q4 120s left, diff 17",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": 17,
+    "quarter": 4,
+    "secondsLeftInHalf": 120,
+    "secondsLeftInGame": 120,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": ">=17",
+    "scoreLateOnly": ">=17",
+    "score3LateOnly": "L"
+   }
+  },
+  {
+   "name": "overtime, 250 s left, diff -3",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 5,
+    "secondsLeftInHalf": 250,
+    "secondsLeftInGame": 250,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-3..-1",
+    "scoreLateOnly": "-3..-1",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "overtime, 250 s left, diff -7",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -7,
+    "quarter": 5,
+    "secondsLeftInHalf": 250,
+    "secondsLeftInGame": 250,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-4",
+    "scoreLateOnly": "-8..-4",
+    "score3LateOnly": "T"
+   }
+  },
+  {
+   "name": "first half, 90 s left, trailing by 3 (not a late window)",
+   "situation": {
+    "phase": "scrimmage",
+    "down": 4,
+    "yardsToGo": 5,
+    "yardLine100": 30,
+    "scoreDiff": -3,
+    "quarter": 2,
+    "secondsLeftInHalf": 90,
+    "secondsLeftInGame": 1890,
+    "offenseTimeouts": 2,
+    "defenseTimeouts": 2
+   },
+   "bins": {
+    "scoreLate": "-8..-1",
+    "scoreLateOnly": null,
+    "score3LateOnly": null
+   }
+  }
+ ]
+}

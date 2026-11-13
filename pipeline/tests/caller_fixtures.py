@@ -63,8 +63,15 @@ def frame(*overrides: dict[str, Any]) -> pl.DataFrame:
     return pl.DataFrame([{**BASE_ROW, **o} for o in overrides], schema=SCHEMA)
 
 
-def config() -> dict[str, Any]:
+def raw_config() -> dict[str, Any]:
     return json.loads((REPO / "data/caller/config.json").read_text())
+
+
+def config() -> dict[str, Any]:
+    """The real config as every loader sees it: with the rule set's play clock (step 5b)."""
+    from pipeline.caller.config import rules_json, with_rule_play_clock
+
+    return with_rule_play_clock(raw_config(), rules_json())
 
 
 # ------------------------------------------------------------------ stub source
@@ -163,8 +170,10 @@ def make_root(tmp: Path, *, min_plays: int = 1, tolerance: float | None = None) 
     (tmp / "data/calls").mkdir(parents=True)
     (tmp / "data/caller").mkdir(parents=True)
     (tmp / "docs").mkdir()
+    (tmp / "data/rules").mkdir(parents=True)
     shutil.copy(REPO / "data/calls/catalog.json", tmp / "data/calls/catalog.json")
-    cfg = config()
+    shutil.copy(REPO / "data/rules/nfl-2026.json", tmp / "data/rules/nfl-2026.json")
+    cfg = raw_config()
     for f in cfg["factors"].values():
         f["minPlays"] = min_plays
     (tmp / "data/caller/config.json").write_text(json.dumps(cfg, indent=2))

@@ -70,7 +70,7 @@ def load_inputs(root: Path = REPO) -> Inputs:
     tol = (root / TOLERANCES_PATH).read_bytes()
     return Inputs(
         catalog=json.loads(cat),
-        config=json.loads(cfg),
+        config=with_rule_play_clock(json.loads(cfg), rules_json(root)),
         tolerances=json.loads(tol),
         config_hash=_sha(cat, cfg),
         tolerances_hash=_sha(tol),
@@ -84,3 +84,34 @@ def catalog_order(catalog: dict[str, Any]) -> list[str]:
 
 def season_weight(season: int, anchor: int, half_life: float) -> float:
     return 0.5 ** ((anchor - season) / half_life)
+
+
+class TablesConfigMismatch(Exception):
+    pass
+
+
+def check_tables(cfg: dict[str, Any], config_hash: str, tables: list[dict[str, Any]]) -> None:
+    """Step 5a (A4): refuse caller tables built from another config version or hash."""
+    for t in tables:
+        if t.get("configVersion") != cfg["version"] or t.get("configHash") != config_hash:
+            raise TablesConfigMismatch(
+                f"caller {t.get('side')} tables were built from config version {t.get('configVersion')} (sha256 {t.get('configHash')}), "
+                f"but the config given is version {cfg['version']} (sha256 {config_hash})"
+            )
+
+
+def with_rule_play_clock(cfg: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]:
+    """Step 5b: fill each kneelOut dimension's play clock from the rule set (`playClockRule`)."""
+    dims = {}
+    for name, d in cfg["dimensions"].items():
+        if d.get("type") == "kneelOut":
+            v: Any = rules
+            for part in d["playClockRule"].split("."):
+                v = v[part]
+            d = {**d, "playClock": int(v)}
+        dims[name] = d
+    return {**cfg, "dimensions": dims}
+
+
+def rules_json(root: Path = REPO) -> dict[str, Any]:
+    return json.loads((root / "data/rules/nfl-2026.json").read_text(encoding="utf-8"))

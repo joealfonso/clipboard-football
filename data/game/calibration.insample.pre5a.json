@@ -1,0 +1,423 @@
+{
+ "target": "insample",
+ "actualSeasons": [
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023
+ ],
+ "runSeed": 20261112,
+ "games": 10000,
+ "league": {
+  "schemaVersion": 1,
+  "designed": true,
+  "homeField": {
+   "ratingEdge": 0.69,
+   "crowdNoise": 0.031
+  },
+  "teamStrength": {
+   "sd": 1.2
+  },
+  "tuning": {
+   "status": "tuned",
+   "date": "2026-11-11",
+   "command": "node --import ./scripts/engine/register.mjs scripts/game/tune.ts",
+   "seasons": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+   ],
+   "homeFieldSeasons": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2021,
+    2022,
+    2023
+   ],
+   "note": "Training targets only (2016-2023; home field without 2020 and neutral sites). No 2024 or 2025 number was read.",
+   "targets": {
+    "marginSd": 14.13662330752994,
+    "homeMargin": 2.0942956266413377,
+    "homeWin": 0.5522929004900884
+   },
+   "crowdNoiseFrom": {
+    "homeOffensePreSnapRate": 0.017693651700842066,
+    "awayOffensePreSnapRate": 0.018826690800922207
+   },
+   "seed": 772026,
+   "gamesPerPoint": {
+    "sdGrid": 4000,
+    "edgeGrid": 8000
+   },
+   "sdGrid": [
+    {
+     "sd": 0,
+     "marginSd": 13.986153643872214,
+     "homeMargin": -0.2975,
+     "homeWin": 0.4905
+    },
+    {
+     "sd": 2,
+     "marginSd": 14.245230778667645,
+     "homeMargin": 0.01225,
+     "homeWin": 0.50575
+    },
+    {
+     "sd": 4,
+     "marginSd": 15.970122179792488,
+     "homeMargin": 0.15475,
+     "homeWin": 0.507375
+    },
+    {
+     "sd": 6,
+     "marginSd": 18.275064295372534,
+     "homeMargin": -0.255,
+     "homeWin": 0.493875
+    }
+   ],
+   "edgeGrid": [
+    {
+     "edge": 0,
+     "marginSd": 13.91200240574663,
+     "homeMargin": -0.37375,
+     "homeWin": 0.492875
+    },
+    {
+     "edge": 0.5,
+     "marginSd": 14.079410443534204,
+     "homeMargin": 1.44125,
+     "homeWin": 0.5475625
+    },
+    {
+     "edge": 1,
+     "marginSd": 14.062633398811725,
+     "homeMargin": 3.138625,
+     "homeWin": 0.591625
+    },
+    {
+     "edge": 1.5,
+     "marginSd": 14.11619855819459,
+     "homeMargin": 4.657125,
+     "homeWin": 0.635
+    }
+   ],
+   "check": {
+    "sd": 1.2,
+    "edge": 0.69,
+    "crowd": 0.031,
+    "marginSd": 14.097833873950282,
+    "homeMargin": 2.03975,
+    "homeWin": 0.5630625
+   }
+  },
+  "note": "Designed league settings (M1 step 5). homeField: centered and symmetric; every home player's ratings get +ratingEdge points and every away player's -ratingEdge for the game, and offensive pre-snap foul rates are x (1 - crowdNoise) for the home offense and x (1 + crowdNoise) for the away offense. teamStrength: each generated team draws a strength shift, round(sd x a standard normal) rating points, for all its players. Tuned on 2016-2023 only (tuning record below); placeholders 0 until tuned."
+ },
+ "note": "Step 5 in-sample run after fixes 1-5 (revisions 8-13), before the step 5a caller amendment; kept for the before/after comparison in docs/GAME_REPORT.md (5a D4).",
+ "metrics": [
+  {
+   "id": "points.mean",
+   "predicted": 22.135,
+   "actual": 22.493743744084544,
+   "status": "pass"
+  },
+  {
+   "id": "points.sd",
+   "predicted": 9.256169564133964,
+   "actual": 9.95736010041889,
+   "status": "pass"
+  },
+  {
+   "id": "points.share.0-9",
+   "predicted": 7.53,
+   "actual": 8.553745505999396,
+   "status": "pass"
+  },
+  {
+   "id": "points.share.10-16",
+   "predicted": 20.73,
+   "actual": 18.363446276768457,
+   "status": "pass"
+  },
+  {
+   "id": "points.share.17-23",
+   "predicted": 29.275000000000002,
+   "actual": 28.025802985183272,
+   "status": "pass"
+  },
+  {
+   "id": "points.share.24-30",
+   "predicted": 24.18,
+   "actual": 24.08771774154535,
+   "status": "pass"
+  },
+  {
+   "id": "points.share.31-37",
+   "predicted": 12.65,
+   "actual": 13.864485682964641,
+   "status": "pass"
+  },
+  {
+   "id": "points.share.38+",
+   "predicted": 5.635,
+   "actual": 7.104801807538884,
+   "status": "pass"
+  },
+  {
+   "id": "total.mean",
+   "predicted": 44.27,
+   "actual": 44.98748748816909,
+   "status": "pass"
+  },
+  {
+   "id": "total.sd",
+   "predicted": 12.732921895621589,
+   "actual": 13.905027799469405,
+   "status": "pass"
+  },
+  {
+   "id": "homeMargin.mean",
+   "predicted": 1.918,
+   "actual": 2.0942956266413377,
+   "status": "pass"
+  },
+  {
+   "id": "margin.sd",
+   "predicted": 13.300401347327831,
+   "actual": 14.13662330752994,
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.0",
+   "predicted": 0.5599999999999999,
+   "actual": 0.3569125651165628,
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.1-3",
+   "predicted": 20.02,
+   "actual": 24.21672131608963,
+   "status": "fail"
+  },
+  {
+   "id": "absMargin.share.4-7",
+   "predicted": 25.509999999999998,
+   "actual": 23.960489896024324,
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.8-14",
+   "predicted": 26.729999999999997,
+   "actual": 22.70528547258396,
+   "status": "fail"
+  },
+  {
+   "id": "absMargin.share.15-21",
+   "predicted": 16.439999999999998,
+   "actual": 14.981009257111861,
+   "status": "pass"
+  },
+  {
+   "id": "absMargin.share.22+",
+   "predicted": 10.74,
+   "actual": 13.779581493073664,
+   "status": "fail"
+  },
+  {
+   "id": "homeWin.rate",
+   "predicted": 55.82,
+   "actual": 55.22929004900884,
+   "status": "pass"
+  },
+  {
+   "id": "drives.perTeamGame",
+   "predicted": 11.43775,
+   "actual": 11.011930539076266,
+   "status": "fail"
+  },
+  {
+   "id": "driveStart.mean",
+   "predicted": 30.337181700946427,
+   "actual": 28.678141738787307,
+   "status": "fail"
+  },
+  {
+   "id": "driveResult.share.touchdown",
+   "predicted": 20.284146794605583,
+   "actual": 21.60088025525542,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.fieldGoal",
+   "predicted": 14.245371685864791,
+   "actual": 14.882725916442594,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.missedFieldGoal",
+   "predicted": 3.0526108718935108,
+   "actual": 2.611995891044811,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.punt",
+   "predicted": 37.912613931935915,
+   "actual": 36.87183896933621,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.turnover",
+   "predicted": 10.626215820419226,
+   "actual": 11.675215505871323,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.downs",
+   "predicted": 5.409280671460733,
+   "actual": 5.320438010862595,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.endOfHalf",
+   "predicted": 7.979716290354309,
+   "actual": 6.780377174953671,
+   "status": "pass"
+  },
+  {
+   "id": "driveResult.share.safety",
+   "predicted": 0.49004393346593517,
+   "actual": 0.25652827623339314,
+   "status": "pass"
+  },
+  {
+   "id": "scrimmagePlays.perGame",
+   "predicted": 128.0721,
+   "actual": 126.59408723925847,
+   "status": "pass"
+  },
+  {
+   "id": "penalties.supported.perGame",
+   "predicted": 9.603,
+   "actual": 9.63895930563843,
+   "status": "pass"
+  },
+  {
+   "id": "penaltyYards.supported.perGame",
+   "predicted": 80.7961,
+   "actual": 80.44384841700303,
+   "status": "pass"
+  },
+  {
+   "id": "penalties.all.perGame",
+   "predicted": 9.603,
+   "actual": 11.820535121293627,
+   "status": "not gated"
+  },
+  {
+   "id": "penaltyYards.all.perGame",
+   "predicted": 80.7961,
+   "actual": 99.5009405457323,
+   "status": "not gated"
+  },
+  {
+   "id": "turnovers.perTeamGame",
+   "predicted": 1.20695,
+   "actual": 1.2661003659259948,
+   "status": "pass"
+  },
+  {
+   "id": "interceptions.perTeamGame",
+   "predicted": 0.79455,
+   "actual": 0.7916841625939898,
+   "status": "pass"
+  },
+  {
+   "id": "fumblesLost.perTeamGame",
+   "predicted": 0.4124,
+   "actual": 0.4744162033320051,
+   "status": "pass"
+  },
+  {
+   "id": "sacks.perTeamGame",
+   "predicted": 2.5226,
+   "actual": 2.4262781395127933,
+   "status": "pass"
+  },
+  {
+   "id": "top.sd",
+   "predicted": 265.4715156354071,
+   "actual": 268.3033069144722,
+   "status": "pass"
+  },
+  {
+   "id": "top.winnerMean",
+   "predicted": 1926.5878921962992,
+   "actual": 1913.7511090491607,
+   "status": "pass"
+  },
+  {
+   "id": "driveDuration.mean",
+   "predicted": 155.98327031103145,
+   "actual": 164.4679144740742,
+   "status": "pass"
+  },
+  {
+   "id": "overtime.rate",
+   "predicted": 3.55,
+   "actual": 5.735052036092559,
+   "status": "fail"
+  },
+  {
+   "id": "tie.rate",
+   "predicted": 0.5599999999999999,
+   "actual": 0.3569125651165628,
+   "status": "pass"
+  },
+  {
+   "id": "timeouts.perTeamGame",
+   "predicted": 3.4983,
+   "actual": 3.6647958861762304,
+   "status": "pass"
+  },
+  {
+   "id": "fourthDownGo.perGame",
+   "predicted": 2.627,
+   "actual": 2.6766568297406645,
+   "status": "pass"
+  },
+  {
+   "id": "punts.perGame",
+   "predicted": 8.7061,
+   "actual": 8.164653999531708,
+   "status": "fail"
+  },
+  {
+   "id": "fieldGoalAttempts.perGame",
+   "predicted": 3.9601,
+   "actual": 3.8575285368108165,
+   "status": "pass"
+  },
+  {
+   "id": "twoPointTries.perGame",
+   "predicted": 0.3712,
+   "actual": 0.4643019109037174,
+   "status": "pass"
+  },
+  {
+   "id": "onside.perGame",
+   "predicted": 0.2632,
+   "actual": 0.1989425198005662,
+   "status": "fail"
+  }
+ ]
+}

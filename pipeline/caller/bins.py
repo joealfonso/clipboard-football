@@ -49,6 +49,24 @@ def bin_situation(sit: dict[str, Any], dims: dict[str, dict[str, Any]]) -> Label
         elif d["type"] == "group":
             inner = visit(d["of"])
             label = next((g["label"] for g in d["groups"] if inner is not None and inner in g["members"]), None)
+        elif d["type"] == "window":
+            inner = visit(d["of"])
+            if inner is not None and inner in d["members"]:
+                label = _range_label(sit[d["field"]], d["buckets"], name)
+            else:
+                label = None if d["otherwise"] is None else visit(d["otherwise"])
+        elif d["type"] == "kneelOut":
+            inner = visit(d["of"])
+            dn = sit["down"]
+            if inner is None or inner not in d["members"] or sit["scoreDiff"] <= 0 or dn < 1 or dn > 3:
+                label = None
+            else:
+                if "playClock" not in d:
+                    raise ValueError(f"{name}: no play clock (load the config with the rule set)")
+                left = 4 - dn
+                p = d["playClock"]
+                can = left * p + d["kneelSeconds"] - p * min(sit["defenseTimeouts"], left) >= sit["secondsLeftInGame"]
+                label = "K1" if can else "K0"
         elif d["type"] == "endState":
             inner = visit(d["of"])
             if inner is not None and inner in d["appliesTo"]:

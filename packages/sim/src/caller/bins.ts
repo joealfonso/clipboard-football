@@ -56,6 +56,25 @@ export function binSituation(situation: Situation, dimensions: Readonly<Record<s
           label = g === undefined ? null : g.label;
           break;
         }
+        case "window": {
+          const inner = visit(dim.of);
+          if (inner !== null && dim.members.includes(inner)) label = rangeLabel(situation[dim.field], dim.buckets, name);
+          else label = dim.otherwise === null ? null : visit(dim.otherwise);
+          break;
+        }
+        case "kneelOut": {
+          const inner = visit(dim.of);
+          const d = situation.down;
+          if (inner === null || !dim.members.includes(inner) || situation.scoreDiff <= 0 || d < 1 || d > 3) {
+            label = null;
+            break;
+          }
+          if (dim.playClock === undefined) throw new RangeError(`${name}: no play clock (load the config with the rule set)`);
+          const left = 4 - d;
+          const can = left * dim.playClock + dim.kneelSeconds - dim.playClock * Math.min(situation.defenseTimeouts, left) >= situation.secondsLeftInGame;
+          label = can ? "K1" : "K0";
+          break;
+        }
         case "endState": {
           const inner = visit(dim.of);
           label =

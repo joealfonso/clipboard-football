@@ -63,10 +63,15 @@ describe("MODEL.md for step 3 (E6)", () => {
     expect(clock).not.toMatch(/^\s*\*\*(fitted|designed|mixed)\*\*/im);
   });
 
-  it("Clock and tempo says tempo and timeout decisions are not built yet", () => {
-    expect(clock).toMatch(/not built yet/i);
-    expect(clock).toMatch(/tempo/i);
-    expect(clock).toMatch(/timeout/i);
+  // Updated in M1 step 5 (lead's authorization): the section must state the current status,
+  // which is now the built tempo and timeout model with its label.
+  it("Clock and tempo describes the built tempo and timeout model and labels it", () => {
+    expect(clock).not.toMatch(/not built yet/i);
+    expect(clock).toMatch(/\*\*Tempo, timeouts and onside kicks \(mixed/i);
+    expect(clock).toMatch(/designed structure/i);
+    expect(clock).toMatch(/fitted numbers/i);
+    expect(clock).toMatch(/tempo\.json/);
+    expect(clock).toMatch(/timeouts\.json/);
   });
 
   it("documents the default policies as designed (resolved open question 3)", () => {
@@ -91,10 +96,14 @@ describe("PERF.md soak record (E4)", () => {
 describe("CLAUDE.md (E7)", () => {
   const claude = read("CLAUDE.md");
 
-  it("still lists challenges as an open issue", () => {
-    const openLine = claude.split("\n").find((l) => /open issues/i.test(l));
-    expect(openLine, "an open issues line").toBeDefined();
-    expect(openLine).toMatch(/challenges/i);
+  // Updated in M1 step 5 (lead's authorization): challenges were settled as deferred to M2, so
+  // CLAUDE.md must record that status, and no longer list them as open.
+  it("records challenges as deferred to M2", () => {
+    const line = claude.split("\n").find((l) => /challenges/i.test(l));
+    expect(line, "a CLAUDE.md line on challenges").toBeDefined();
+    expect(line).toMatch(/settled/i);
+    expect(line).toMatch(/deferred to M2/i);
+    expect(claude.split("\n").some((l) => /open issues/i.test(l) && /challenges/i.test(l))).toBe(false);
   });
 
   it("has Run and Test lines that are filled in", () => {

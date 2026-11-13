@@ -161,7 +161,7 @@ def team_sensitivity(v: Any, reqs: list[dict[str, Any]], meta: list[dict[str, An
     rows = {m.id: {"actual": m.actual, "unit": m.unit, "tolerance": m.tolerance, "status": m.status, "pre": m.predicted, "by": {}} for m in watch}
     for teams in SENSITIVITY_TEAMS:
         res = validate_mod.run_engine(reqs, root, seed, k, teams)
-        alt = validate_mod.score("sensitivity", reqs, meta, res, snaps, tol, include_kickoff=True, **common)
+        alt = validate_mod.score("sensitivity", reqs, meta, res, snaps, tol, include_kickoff=True, scope="holdout", **common)
         for mid in rows:
             rows[mid]["by"][teams] = alt.metrics[mid].predicted
     return {"teams": list(SENSITIVITY_TEAMS), "rows": rows}
@@ -203,6 +203,11 @@ def build(
     cfg = inputs.config
     s = cfg["seasons"]
     caller_tables = {side: read_json(root, Path(f"data/caller/{side}.table.json")) for side in ("offense", "defense")}
+    from pipeline.caller.config import check_tables
+    from pipeline.caller.config import load_inputs as caller_inputs
+
+    ci = caller_inputs(root)
+    check_tables(ci.config, ci.config_hash, list(caller_tables.values()))
     caller = Caller(inputs.catalog, inputs.caller_config, caller_tables["offense"], caller_tables["defense"])
     rules = read_json(root, Path("data/rules/nfl-2026.json"))
 
@@ -370,7 +375,7 @@ def build(
         ins_snaps = snaps_v.filter(pl.col("season").is_between(lo, hi))
         reqs, meta = validate_mod.requests(ins, ins_snaps, None, pass_share, weights)
         res = validate_mod.run_engine(reqs, root, seed, k)
-        v_in = validate_mod.score(f"in-sample {lo}-{hi}", reqs, meta, res, ins_snaps, tol, include_kickoff=False, **common)
+        v_in = validate_mod.score(f"in-sample {lo}-{hi}", reqs, meta, res, ins_snaps, tol, include_kickoff=False, scope="insample", **common)
         if in_sample_only:
             report["inSample"] = validate_mod.summary(v_in, {}, list(range(lo, hi + 1)))
             write_atomic(root / REPORT_PATH, report_mod.render(report))
@@ -386,7 +391,7 @@ def build(
         ko25 = next((sd.kickoff_frame for sd in seasons_data if sd.season == 2025), None)
         reqs, meta = validate_mod.requests(ho, ho_snaps, ko25, pass_share)
         res = validate_mod.run_engine(reqs, root, seed, k)
-        v = validate_mod.score(f"validation {hold[0]}-{hold[-1]}", reqs, meta, res, ho_snaps, tol, include_kickoff=True, **common)
+        v = validate_mod.score(f"validation {hold[0]}-{hold[-1]}", reqs, meta, res, ho_snaps, tol, include_kickoff=True, scope="holdout", **common)
         hashes = {
             "configHash": inputs.config_hash,
             "matchupHash": inputs.matchup_hash,

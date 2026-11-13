@@ -79,8 +79,17 @@ def write_atomic(path: Path, text: str) -> None:
         raise
 
 
-def prepare_plays(seasons_data: list[Any], cfg: dict[str, Any]) -> pl.DataFrame:
-    plays = pl.concat([sd.plays for sd in seasons_data], how="diagonal_relaxed")
+def prepare_ot_plays(seasons_data: list[Any], cfg: dict[str, Any]) -> pl.DataFrame | None:
+    """Step 5b: overtime scrimmage plays, prepared exactly like the rest, for oTop and o4Top's
+    lateTime levels only."""
+    frames = [sd.ot_plays for sd in seasons_data if getattr(sd, "ot_plays", None) is not None and sd.ot_plays.height]
+    if not frames:
+        return None
+    return prepare_plays(seasons_data, cfg, frames)
+
+
+def prepare_plays(seasons_data: list[Any], cfg: dict[str, Any], frames: list[pl.DataFrame] | None = None) -> pl.DataFrame:
+    plays = pl.concat(frames if frames is not None else [sd.plays for sd in seasons_data], how="diagonal_relaxed")
     off = personnel_frame(plays["offense_personnel"], cfg, "off")
     de = personnel_frame(plays["defense_personnel"], cfg, "def")
     plays = plays.join(off, on="offense_personnel", how="left").join(de, on="defense_personnel", how="left")
@@ -104,9 +113,14 @@ def observed_values(seasons_data: list[Any]) -> dict[str, Counter[str]]:
     return out
 
 
-def fit_all(plays: pl.DataFrame, cfg: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def fit_all(plays: pl.DataFrame, cfg: dict[str, Any], ot: pl.DataFrame | None = None) -> dict[str, dict[str, Any]]:
     s = cfg["seasons"]
     frames = factor_frames(plays, cfg)
+    if ot is not None:
+        # Overtime rows join oTop and o4Top only; fit_factor lets them into lateTime levels only.
+        ot_frames = factor_frames(ot, cfg)
+        for fid in ("oTop", "o4Top"):
+            frames[fid] = pl.concat([frames[fid].with_columns(is_ot=pl.lit(False)), ot_frames[fid].with_columns(is_ot=pl.lit(True))], how="diagonal_relaxed")
     return {
         fid: fit_factor(frames[fid], cfg["factors"][fid], s["weightAnchor"], s["halfLifeSeasons"], s["neverTrainFrom"])
         for fid in cfg["factors"]
@@ -117,6 +131,7 @@ def tables_for(side: str, factors: tuple[str, ...], fitted: dict[str, Any], cfg:
     return {
         "generated": True,
         "side": side,
+        "configVersion": cfg["version"],
         "configHash": config_hash,
         "halfLifeSeasons": cfg["seasons"]["halfLifeSeasons"],
         "weightAnchor": cfg["seasons"]["weightAnchor"],
@@ -142,8 +157,9 @@ def build(
         return 3
     log("mapping and binning")
     plays = prepare_plays(seasons_data, cfg)
+    ot_plays = prepare_ot_plays(seasons_data, cfg)
     log("fitting")
-    fitted = fit_all(plays, cfg)
+    fitted = fit_all(plays, cfg, ot_plays)
     offense = tables_for("offense", OFFENSE_FACTORS, fitted, cfg, inputs.config_hash)
     defense = tables_for("defense", DEFENSE_FACTORS, fitted, cfg, inputs.config_hash)
     out_dir = root / OUT_DIR
@@ -156,7 +172,7 @@ def build(
     golden, coverage = build_golden(caller)
     write_atomic(
         out_dir / GOLDEN,
-        '{\n  "generated": true,\n  "configHash": "' + inputs.config_hash + '",\n  "situations": [\n'
+        '{\n  "generated": true,\n  "configVersion": ' + str(cfg["version"]) + ',\n  "configHash": "' + inputs.config_hash + '",\n  "situations": [\n'
         + ",\n".join("    " + json.dumps(g, separators=(",", ":")) for g in golden)
         + "\n  ]\n}\n",
     )
@@ -245,11 +261,34 @@ def build(
         "backoff": {},
     }
 
+    # Step 5a: late-window cell counts (A5) and the in-sample late-game checks (B5, B6).
+    from pipeline.caller.frames import factor_frames
+    from pipeline.caller.late import late_checks, late_counts
+
+    late_path = root / "data/caller/latechecks.json"
+    late_thr = json.loads(late_path.read_text(encoding="utf-8")) if late_path.exists() else None
+    if late_thr is not None and "scoreLateOnly" in cfg["dimensions"]:
+        report["lateCounts"] = late_counts(factor_frames(plays, cfg), cfg["factors"]["o4Top"]["minPlays"])
+        if "lateTime" in cfg["dimensions"]:
+            from pipeline.caller.late import candidate_counts
+
+            frames_all = factor_frames(plays if ot_plays is None else pl.concat([plays, ot_plays], how="diagonal_relaxed"), cfg)
+            report["candidateCounts"] = candidate_counts(frames_all, cfg["factors"]["o4Top"]["minPlays"])
+        from pipeline.caller.validate import _approved
+
+        report["lateChecks"] = late_checks(plays.filter(pl.col("season").is_between(2016, 2023)), caller, late_thr, True, (2021, 2023),
+                                           _approved(inputs.tolerances, "insample"))
+        if "kneelOut" in cfg["dimensions"]:
+            # Step 5b B9, appended after the 5a rows.
+            from pipeline.caller.late import checks_5b
+
+            report["lateChecks5b"] = checks_5b(plays, ot_plays, caller, late_thr)
+
     # In-sample check on training seasons only, available before any holdout run.
     log("training-data check")
     report["trainingCheck"] = {
         label: run_validation(
-            plays.filter(pl.col("season").is_between(lo, hi) & (pl.col("phase") == "scrimmage")), caller, inputs.tolerances
+            plays.filter(pl.col("season").is_between(lo, hi) & (pl.col("phase") == "scrimmage")), caller, inputs.tolerances, "insample"
         )
         for label, lo, hi in (("2016-2023", 2016, 2023), ("2021-2023", 2021, 2023))
     }
@@ -268,10 +307,12 @@ def build(
         v = run_validation(plays.filter(pl.col("season").is_in(holdout)), caller, inputs.tolerances)
         report["validation"] = v
         report["backoff"] = v.backoff
+        if late_thr is not None and "scoreLateOnly" in cfg["dimensions"]:
+            report["lateHoldout"] = late_checks(plays.filter(pl.col("season").is_in(holdout)), caller, late_thr, False, None)
         hashes = {name: file_sha((out_dir / name).read_bytes()) for name in (OFFENSE_TABLE, DEFENSE_TABLE, GOLDEN)}
         write_atomic(
             out_dir / VALIDATION,
-            dumps(summary(v, inputs.config_hash, inputs.tolerances_hash, holdout, code_hash(), hashes)),
+            dumps(summary(v, inputs.config_hash, inputs.tolerances_hash, holdout, code_hash(), hashes, cfg["version"])),
         )
         if v.gated_failures:
             code = 1

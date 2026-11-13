@@ -78,3 +78,23 @@ export type {
   WhyTemplates,
 } from "./engine";
 export { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
+export type {
+  CoachTables,
+  CoachView,
+  DecisionCondition,
+  DecisionDim,
+  DecisionLevel,
+  GameConfig,
+  GameData,
+  KickView,
+  LeagueSettings,
+  OnsideRule,
+  OnsideTable,
+  RateTable,
+  TeamName,
+  TeamNames,
+  TempoTable,
+  SpecialTimeoutRole,
+  ExpectedPointsTable,
+  TimeoutTable,
+} from "./game";

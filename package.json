@@ -9,7 +9,9 @@
   "scripts": {
     "test": "vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc -p packages/shared && tsc -p packages/shared/tsconfig.test.json && tsc -p packages/sim && tsc -p packages/sim/tsconfig.test.json && tsc -p tsconfig.tooling.json"
+    "typecheck": "tsc -p packages/shared && tsc -p packages/shared/tsconfig.test.json && tsc -p packages/sim && tsc -p packages/sim/tsconfig.test.json && tsc -p tsconfig.tooling.json",
+    "sim:game": "node --import ./scripts/engine/register.mjs scripts/game/sim-game.ts",
+    "test:heavy": "vitest run --config vitest.heavy.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

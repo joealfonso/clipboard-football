@@ -1,0 +1,695 @@
+{
+  "schemaVersion": 1,
+  "note": "Pre-registered before the first 2024-2025 run of M1 step 5 (component C7 and game-level G). Absolute tolerances: |predicted - actual| <= tolerance passes. unit pp means percentage points; minN is the minimum real count (snaps, dead balls, kickoffs, team-games or attempts) for a metric to be gated. Never edited after a run; only Joseph adds known_deviations.",
+  "metrics": [
+    {
+      "id": "coach.tempo.meanRunoff.H1",
+      "label": "Mean pre-snap run-off with the clock running, time5 H1",
+      "unit": "s",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.tempo.meanRunoff.H1F",
+      "label": "Mean pre-snap run-off with the clock running, time5 H1F",
+      "unit": "s",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.tempo.meanRunoff.H2",
+      "label": "Mean pre-snap run-off with the clock running, time5 H2",
+      "unit": "s",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.tempo.meanRunoff.G5",
+      "label": "Mean pre-snap run-off with the clock running, time5 G5",
+      "unit": "s",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.tempo.meanRunoff.GF",
+      "label": "Mean pre-snap run-off with the clock running, time5 GF",
+      "unit": "s",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.timeouts.perTeamGame",
+      "label": "Timeouts per team-game (dead balls before scrimmage snaps)",
+      "unit": "timeouts",
+      "tolerance": 0.3,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.timeouts.rate.offense.c120",
+      "label": "Timeout rate per dead ball, offense, final 2:00 bucket c120",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.timeouts.rate.offense.c40",
+      "label": "Timeout rate per dead ball, offense, final 2:00 bucket c40",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.timeouts.rate.defense.c120",
+      "label": "Timeout rate per dead ball, defense, final 2:00 bucket c120",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.timeouts.rate.defense.c40",
+      "label": "Timeout rate per dead ball, defense, final 2:00 bucket c40",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "coach.onside.rate.trailingQ4",
+      "label": "Onside attempt rate per kickoff, kicker trailing in Q4",
+      "unit": "pp",
+      "tolerance": 5.0,
+      "minN": 100,
+      "gated": true
+    },
+    {
+      "id": "points.mean",
+      "label": "Points per team-game, mean",
+      "unit": "pt",
+      "tolerance": 1.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.sd",
+      "label": "Points per team-game, SD",
+      "unit": "pt",
+      "tolerance": 1.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.share.0-9",
+      "label": "Team-games scoring 0-9",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.share.10-16",
+      "label": "Team-games scoring 10-16",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.share.17-23",
+      "label": "Team-games scoring 17-23",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.share.24-30",
+      "label": "Team-games scoring 24-30",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.share.31-37",
+      "label": "Team-games scoring 31-37",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "points.share.38+",
+      "label": "Team-games scoring 38+",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "total.mean",
+      "label": "Total points per game, mean",
+      "unit": "pt",
+      "tolerance": 1.5,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "total.sd",
+      "label": "Total points per game, SD",
+      "unit": "pt",
+      "tolerance": 1.5,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "homeMargin.mean",
+      "label": "Home margin, mean (non-neutral games)",
+      "unit": "pt",
+      "tolerance": 1.5,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "margin.sd",
+      "label": "Margin SD",
+      "unit": "pt",
+      "tolerance": 1.5,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "absMargin.share.0",
+      "label": "Games by absolute margin 0",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "absMargin.share.1-3",
+      "label": "Games by absolute margin 1-3",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "absMargin.share.4-7",
+      "label": "Games by absolute margin 4-7",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "absMargin.share.8-14",
+      "label": "Games by absolute margin 8-14",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "absMargin.share.15-21",
+      "label": "Games by absolute margin 15-21",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "absMargin.share.22+",
+      "label": "Games by absolute margin 22+",
+      "unit": "pp",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "homeWin.rate",
+      "label": "Home win rate, ties as half (non-neutral games)",
+      "unit": "pp",
+      "tolerance": 4.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "drives.perTeamGame",
+      "label": "Drives per team-game",
+      "unit": "drives",
+      "tolerance": 0.4,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveStart.mean",
+      "label": "Mean drive start, yards from own goal",
+      "unit": "yd",
+      "tolerance": 1.5,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.touchdown",
+      "label": "Drive outcome share, touchdown",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.fieldGoal",
+      "label": "Drive outcome share, fieldGoal",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.missedFieldGoal",
+      "label": "Drive outcome share, missedFieldGoal",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.punt",
+      "label": "Drive outcome share, punt",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.turnover",
+      "label": "Drive outcome share, turnover",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.downs",
+      "label": "Drive outcome share, downs",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.endOfHalf",
+      "label": "Drive outcome share, endOfHalf",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveResult.share.safety",
+      "label": "Drive outcome share, safety",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "scrimmagePlays.perGame",
+      "label": "Scrimmage plays per game (run, pass, sack, scramble, kneel, spike; no noPlay)",
+      "unit": "plays",
+      "tolerance": 3.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "penalties.supported.perGame",
+      "label": "Accepted penalties per game, supported ids",
+      "unit": "fouls",
+      "tolerance": 0.8,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "penaltyYards.supported.perGame",
+      "label": "Enforced penalty yards per game, supported ids",
+      "unit": "yd",
+      "tolerance": 7.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "penalties.all.perGame",
+      "label": "Accepted penalties per game, all fouls (known gap)",
+      "unit": "fouls",
+      "tolerance": 0.0,
+      "minN": 0,
+      "gated": false
+    },
+    {
+      "id": "penaltyYards.all.perGame",
+      "label": "Enforced penalty yards per game, all fouls (known gap)",
+      "unit": "yd",
+      "tolerance": 0.0,
+      "minN": 0,
+      "gated": false
+    },
+    {
+      "id": "turnovers.perTeamGame",
+      "label": "Turnovers per team-game (interceptions and lost fumbles on scrimmage plays)",
+      "unit": "turnovers",
+      "tolerance": 0.15,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "interceptions.perTeamGame",
+      "label": "Interceptions thrown per team-game",
+      "unit": "ints",
+      "tolerance": 0.1,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "fumblesLost.perTeamGame",
+      "label": "Fumbles lost per team-game (scrimmage plays)",
+      "unit": "fumbles",
+      "tolerance": 0.1,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "sacks.perTeamGame",
+      "label": "Sacks taken per team-game",
+      "unit": "sacks",
+      "tolerance": 0.25,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "top.sd",
+      "label": "SD of team time of possession",
+      "unit": "s",
+      "tolerance": 45.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "top.winnerMean",
+      "label": "Winning team's mean time of possession",
+      "unit": "s",
+      "tolerance": 45.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "driveDuration.mean",
+      "label": "Mean drive duration",
+      "unit": "s",
+      "tolerance": 10.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "overtime.rate",
+      "label": "Overtime rate",
+      "unit": "pp",
+      "tolerance": 2.0,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "tie.rate",
+      "label": "Tie rate",
+      "unit": "pp",
+      "tolerance": 0.75,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "timeouts.perTeamGame",
+      "label": "Timeouts used per team-game",
+      "unit": "timeouts",
+      "tolerance": 0.3,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "fourthDownGo.perGame",
+      "label": "4th-down go attempts per game",
+      "unit": "plays",
+      "tolerance": 0.4,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "punts.perGame",
+      "label": "Punts per game",
+      "unit": "punts",
+      "tolerance": 0.4,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "fieldGoalAttempts.perGame",
+      "label": "Field goal attempts per game",
+      "unit": "kicks",
+      "tolerance": 0.3,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "twoPointTries.perGame",
+      "label": "Two-point tries per game",
+      "unit": "tries",
+      "tolerance": 0.1,
+      "minN": 0,
+      "gated": true
+    },
+    {
+      "id": "onside.perGame",
+      "label": "Onside attempts per game (gated only with at least 30 real attempts)",
+      "unit": "kicks",
+      "tolerance": 0.05,
+      "minN": 30,
+      "gated": true
+    }
+  ],
+  "known_deviations": [
+    {
+      "metric": "absMargin.share.1-3",
+      "observed": 19.03,
+      "target": 24.2167,
+      "reason": "Step 5 in-sample miss after step 5b and the o4Top fix; no tuning made (spec F2). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "absMargin.share.8-14",
+      "observed": 27.64,
+      "target": 22.7053,
+      "reason": "Step 5 in-sample miss after step 5b and the o4Top fix; no tuning made (spec F2). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "drives.perTeamGame",
+      "observed": 11.4255,
+      "target": 11.0119,
+      "reason": "Step 5 in-sample miss after step 5b and the o4Top fix; no tuning made (spec F2). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "driveStart.mean",
+      "observed": 30.5373,
+      "target": 28.6781,
+      "reason": "Step 5 in-sample miss after step 5b and the o4Top fix; no tuning made (spec F2). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "fourthDownGo.perGame",
+      "observed": 3.0805,
+      "target": 2.6767,
+      "reason": "Step 5 in-sample miss after step 5b and the o4Top fix; no tuning made (spec F2). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.late4thFieldGoal.tied",
+      "observed": 0.7105,
+      "target": 0.8913,
+      "reason": "Step 5a D3 (10 pp): tied late 4th-down field goal rate, sim vs real 2016-2023. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.final2FieldGoalAttempts.tied",
+      "observed": 0.027,
+      "target": 0.0624,
+      "reason": "Step 5a D3 (0.02 a game): tied final-2:00 field goal tries per game, sim vs real 2016-2023. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.final2FieldGoalAttempts.trailing1-3",
+      "observed": 0.0433,
+      "target": 0.0934,
+      "reason": "Step 5a D3 (0.02 a game): trailing 1-3 final-2:00 field goal tries per game, sim vs real 2016-2023. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.timeoutRate.defense.T.G5",
+      "observed": 0.1713,
+      "target": 0.2227,
+      "reason": "Step 5b C3 (C7's 2 pp per dead ball): trailing defense timeout rate, game 5:00 to 2:01, sim vs real 2016-2023. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "diag.timeoutRate.offense.0.GF",
+      "observed": 0.0889,
+      "target": 0.1327,
+      "reason": "Step 5b C3 (C7's 2 pp per dead ball): tied offense timeout rate, final 2:00, sim vs real 2016-2023. Not tuned; Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "insample",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "points.share.10-16",
+      "observed": 20.73,
+      "target": 17.5551,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "total.mean",
+      "observed": 44.2937,
+      "target": 45.9246,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "absMargin.share.1-3",
+      "observed": 19.03,
+      "target": 25.1838,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "absMargin.share.8-14",
+      "observed": 27.64,
+      "target": 18.0147,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "absMargin.share.22+",
+      "observed": 10.95,
+      "target": 15.9926,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "drives.perTeamGame",
+      "observed": 11.4255,
+      "target": 10.5956,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "driveResult.share.touchdown",
+      "observed": 20.5281,
+      "target": 22.9615,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "driveResult.share.fieldGoal",
+      "observed": 13.9634,
+      "target": 16.204,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "driveResult.share.punt",
+      "observed": 36.5378,
+      "target": 34.2817,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "scrimmagePlays.perGame",
+      "observed": 128.7275,
+      "target": 123.4118,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "driveDuration.mean",
+      "observed": 156.337,
+      "target": 170.8647,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "punts.perGame",
+      "observed": 8.3862,
+      "target": 7.3143,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "twoPointTries.perGame",
+      "observed": 0.3777,
+      "target": 0.4835,
+      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "scope": "holdout",
+      "date": "2026-11-12",
+      "approved_by": "Joseph"
+    }
+  ]
+}

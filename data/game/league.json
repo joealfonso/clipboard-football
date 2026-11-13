@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "Designed league settings (M1 step 5). homeField: centered and symmetric; every home player's ratings get +ratingEdge points and every away player's -ratingEdge for the game, and offensive pre-snap foul rates are x (1 - crowdNoise) for the home offense and x (1 + crowdNoise) for the away offense. teamStrength: each generated team draws a strength shift, round(sd x a standard normal) rating points, for all its players. Tuned on 2016-2023 only (tuning record below); placeholders 0 until tuned.",
+  "homeField": {
+    "ratingEdge": 0.69,
+    "crowdNoise": 0.031
+  },
+  "teamStrength": {
+    "sd": 1.2
+  },
+  "tuning": {
+    "status": "tuned",
+    "date": "2026-11-11",
+    "command": "node --import ./scripts/engine/register.mjs scripts/game/tune.ts",
+    "seasons": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023
+    ],
+    "homeFieldSeasons": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021,
+      2022,
+      2023
+    ],
+    "note": "Training targets only (2016-2023; home field without 2020 and neutral sites). No 2024 or 2025 number was read.",
+    "targets": {
+      "marginSd": 14.13662330752994,
+      "homeMargin": 2.0942956266413377,
+      "homeWin": 0.5522929004900884
+    },
+    "crowdNoiseFrom": {
+      "homeOffensePreSnapRate": 0.017693651700842066,
+      "awayOffensePreSnapRate": 0.018826690800922207
+    },
+    "seed": 772026,
+    "gamesPerPoint": {
+      "sdGrid": 4000,
+      "edgeGrid": 8000
+    },
+    "sdGrid": [
+      {
+        "sd": 0,
+        "marginSd": 13.986153643872214,
+        "homeMargin": -0.2975,
+        "homeWin": 0.4905
+      },
+      {
+        "sd": 2,
+        "marginSd": 14.245230778667645,
+        "homeMargin": 0.01225,
+        "homeWin": 0.50575
+      },
+      {
+        "sd": 4,
+        "marginSd": 15.970122179792488,
+        "homeMargin": 0.15475,
+        "homeWin": 0.507375
+      },
+      {
+        "sd": 6,
+        "marginSd": 18.275064295372534,
+        "homeMargin": -0.255,
+        "homeWin": 0.493875
+      }
+    ],
+    "edgeGrid": [
+      {
+        "edge": 0,
+        "marginSd": 13.91200240574663,
+        "homeMargin": -0.37375,
+        "homeWin": 0.492875
+      },
+      {
+        "edge": 0.5,
+        "marginSd": 14.079410443534204,
+        "homeMargin": 1.44125,
+        "homeWin": 0.5475625
+      },
+      {
+        "edge": 1,
+        "marginSd": 14.062633398811725,
+        "homeMargin": 3.138625,
+        "homeWin": 0.591625
+      },
+      {
+        "edge": 1.5,
+        "marginSd": 14.11619855819459,
+        "homeMargin": 4.657125,
+        "homeWin": 0.635
+      }
+    ],
+    "check": {
+      "sd": 1.2,
+      "edge": 0.69,
+      "crowd": 0.031,
+      "marginSd": 14.097833873950282,
+      "homeMargin": 2.03975,
+      "homeWin": 0.5630625
+    }
+  }
+}

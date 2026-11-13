@@ -160,7 +160,7 @@ def load_inputs(root: Path = REPO) -> Inputs:
     tol = tol_path.read_bytes() if tol_path.exists() else None
     return Inputs(
         config=json.loads(ecfg),
-        caller_config=json.loads(ccfg),
+        caller_config=_caller_cfg(json.loads(ccfg), root),
         catalog=json.loads(cat),
         matchup=json.loads(mat),
         personnel=read_json(root, PERSONNEL_PATH),
@@ -174,3 +174,9 @@ def load_inputs(root: Path = REPO) -> Inputs:
 
 def weights_for(seasons: list[int], anchor: int, half_life: float) -> dict[int, float]:
     return {s: season_weight(s, anchor, half_life) for s in seasons}
+
+
+def _caller_cfg(cfg: dict[str, Any], root: Path) -> dict[str, Any]:
+    from pipeline.caller.config import rules_json, with_rule_play_clock
+
+    return with_rule_play_clock(cfg, rules_json(root))

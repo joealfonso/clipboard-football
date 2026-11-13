@@ -169,6 +169,26 @@ function sameOption(a: PenaltyOption, b: PenaltyOption): boolean {
   return a.kind === b.kind && (a.kind !== "accept" || (b.kind === "accept" && a.foul === b.foul));
 }
 
+/** The designed default policy's pick among the legal options (null when the play has no foul). */
+function defaultOption(s: GameState, rules: RuleSet, play: PlayResult, raw: ReturnType<typeof resolveRaw>, options: readonly PenaltyOption[]): { e: Enforced; option: PenaltyOption | null } {
+  if (options.length === 0) return { e: enforce(s, rules, play, raw, { kind: "decline" }), option: null };
+  const first = options[0] as PenaltyOption;
+  if (first.kind === "offset") return { e: enforce(s, rules, play, raw, first), option: first };
+  const fouler = (play.fouls ?? [])[0]?.by ?? "offense";
+  const offended = other(sideTeam(fouler, s.possession));
+  let best: { e: Enforced; option: PenaltyOption } | null = null;
+  for (const o of options) {
+    if (o.kind !== "accept") continue;
+    const e = enforce(s, rules, play, raw, o);
+    if (best === null || declineIsBetter(offended, e.r, best.e.r)) best = { e, option: o };
+  }
+  const decline: PenaltyOption = { kind: "decline" };
+  const declined = options.some((o) => o.kind === "decline") ? enforce(s, rules, play, raw, decline) : null;
+  if (best === null) return { e: declined as Enforced, option: decline };
+  if (declined !== null && declineIsBetter(offended, declined.r, best.e.r)) return { e: declined, option: decline };
+  return best;
+}
+
 function choose(s: GameState, rules: RuleSet, play: PlayResult, raw: ReturnType<typeof resolveRaw>, choices: PlayChoices): Enforced {
   const options = penaltyOptions(s, rules, play);
   if (choices.penalty !== undefined) {
@@ -176,21 +196,19 @@ function choose(s: GameState, rules: RuleSet, play: PlayResult, raw: ReturnType<
     if (!options.some((o) => sameOption(o, picked))) reject("badChoice", `"${picked.kind}" is not a legal penalty choice here`);
     return enforce(s, rules, play, raw, picked);
   }
-  if (options.length === 0) return enforce(s, rules, play, raw, { kind: "decline" });
-  const first = options[0] as PenaltyOption;
-  if (first.kind === "offset") return enforce(s, rules, play, raw, first);
-  const fouler = (play.fouls ?? [])[0]?.by ?? "offense";
-  const offended = other(sideTeam(fouler, s.possession));
-  let best: Enforced | null = null;
-  for (const o of options) {
-    if (o.kind !== "accept") continue;
-    const e = enforce(s, rules, play, raw, o);
-    if (best === null || declineIsBetter(offended, e.r, best.r)) best = e;
-  }
-  const declined = options.some((o) => o.kind === "decline") ? enforce(s, rules, play, raw, { kind: "decline" }) : null;
-  if (best === null) return declined as Enforced;
-  if (declined !== null && declineIsBetter(offended, declined.r, best.r)) return declined;
-  return best;
+  return defaultOption(s, rules, play, raw, options).e;
+}
+
+/**
+ * The option the designed default penalty policy picks for this play in this state (null when
+ * the play carries no foul). Passing it back as `choices.penalty` enforces exactly what the
+ * default would; the step 5 loop does that so the event log can say "accepted" or "declined".
+ */
+export function defaultPenaltyChoice(s: GameState, rules: RuleSet, play: PlayResult): PenaltyOption | null {
+  live(s);
+  const options = penaltyOptions(s, rules, play);
+  if (options.length === 0) return null;
+  return defaultOption(s, rules, play, resolveRaw(s, rules, play), options).option;
 }
 
 function afterWarning(s: GameState, rules: RuleSet): boolean {
