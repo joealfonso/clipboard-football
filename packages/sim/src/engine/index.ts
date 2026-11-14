@@ -1,5 +1,7 @@
 export { createEngine } from "./resolve";
-export type { Players, ResolvePlay } from "./resolve";
+export type { EngineOptions, Players, ResolvePlay } from "./resolve";
+export { createCredit, creditStream } from "./participants";
+export type { CreditInput, Credited, Unit } from "./participants";
 export { EngineError } from "./errors";
 export type { EngineErrorCode } from "./errors";
 export { assignNumbers, byPosition, curveAt, generateTeam, migrateTeamPool, numberStream, onField, percentileOf, ratingFromMeasurements, ratingOf, slotNeeds } from "./players";

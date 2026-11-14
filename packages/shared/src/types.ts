@@ -39,7 +39,12 @@ export type {
   KickoffOutcome,
   KickoffPlay,
   NoPlay,
+  OnField,
+  OnFieldSide,
   OnsideKickPlay,
+  ParticipantRole,
+  Participants,
+  PlayDetailM2,
   PlayResult,
   PlaySide,
   PuntPlay,
@@ -47,6 +52,7 @@ export type {
   ScrimmagePlay,
   TwoPointPlay,
 } from "./play";
+export { PARTICIPANT_ROLES } from "./play";
 export type {
   BaseRating,
   BaselinePenalties,
@@ -64,8 +70,12 @@ export type {
   MatchupCentered,
   Names,
   PairingRule,
+  ParticipantRole as ParticipantRoleConfig,
+  ParticipantTilt,
+  ParticipantsConfig,
   Personnel,
   Player,
+  PositionShares,
   Position,
   RatingDistribution,
   RatingEffect,

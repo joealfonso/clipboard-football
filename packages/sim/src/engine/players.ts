@@ -2,7 +2,7 @@
 // designed mapping from a combine measurement to a 0-99 rating.
 
 import { BASE_RATINGS, jerseyNumberAllowed, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS } from "../../../shared/src/engine";
-import type { CurvePoint, Distributions, DrillTable, Names, Personnel, Player, Position, RatingsConfig, Slots, TeamPool } from "../../../shared/src/engine";
+import type { CurvePoint, Distributions, DrillTable, Names, ParticipantsConfig, Personnel, Player, Position, RatingsConfig, Slots, TeamPool } from "../../../shared/src/engine";
 import type { RuleSet } from "../../../shared/src/rules";
 import { Rng } from "../rng";
 import { fail } from "./errors";
@@ -89,10 +89,13 @@ export function ratingFromMeasurements(
   return Math.round(curveAt(ratings.curve, acc / wsum));
 }
 
-/** The most players of each position any formation, package or kick unit puts on the field. */
-export function slotNeeds(personnel: Personnel): Readonly<Record<Position, number>> {
+/**
+ * The most players of each position any formation, package or kick unit puts on the field, and
+ * any extra units given (M2: the return units in participants.json, which fit inside these).
+ */
+export function slotNeeds(personnel: Personnel, extra: readonly Slots[] = []): Readonly<Record<Position, number>> {
   const need = Object.fromEntries(POSITIONS.map((p) => [p, 0])) as Record<Position, number>;
-  const groups: Slots[] = [...Object.values(personnel.offense), ...Object.values(personnel.kick), ...Object.values(personnel.packages)];
+  const groups: Slots[] = [...Object.values(personnel.offense), ...Object.values(personnel.kick), ...Object.values(personnel.packages), ...extra];
   for (const g of groups) {
     for (const p of POSITIONS) need[p] = Math.max(need[p], g[p] ?? 0);
   }
@@ -106,6 +109,8 @@ export interface GeneratorData {
   readonly names: Names;
   /** M2 milestone A: the numbers each position may wear. */
   readonly rules: Pick<RuleSet, "jerseyNumbers">;
+  /** M2 milestone B: the return units must fill from the same players (B3). */
+  readonly participants?: Pick<ParticipantsConfig, "returnUnits">;
 }
 
 /** A player before M2 (schema version 1): everything but the number. */
@@ -162,7 +167,7 @@ function draw(curve: readonly CurvePoint[], rng: Rng): number {
  * side stream (numberStream; M2 milestone A). Same seed, same team.
  */
 export function generateTeam(rng: Rng, data: GeneratorData, teamName = "Team"): TeamPool {
-  const need = slotNeeds(data.personnel);
+  const need = slotNeeds(data.personnel, Object.values(data.participants?.returnUnits ?? {}));
   const players: UnnumberedPlayer[] = [];
   for (const position of POSITIONS) {
     for (let i = 0; i < need[position]; i++) {

@@ -1453,6 +1453,14 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - The step 4 A2 player-schema test pinned version 1 as the only known version; its fixture moves to version 2 (every rejection case kept, "unknown schemaVersion" now 3) and a case checks version 1 still parses through the version 1 schema.
 - Pins: the CLI golden (test/game/__snapshots__/cli.test.ts.snap) changes in its two provenance lines only (rule set hash). The engine validation summary (data/engine/validation.json) pins the rule set file and the engine code, and the game holdout summary (data/game/calibration.json) pins both too; both go stale here. Re-pinning them means re-running the engine pipeline and the game holdout, which the M2 spec leaves out (Non-goals: the holdout run). Not done; for the lead.
 
+### B: who made the play (engineer, 2026-11-14)
+- Return units live in a new designed file, data/engine/participants.json, not in personnel.json as the spec words it (resolved 7). Why: personnel.json is an input of the pipeline's centered matchup table (`matchupHash` = sha of matchup.json and personnel.json) and of the engine validation summary, so editing it would change a generated file's bytes and need an engine pipeline rerun. The units, the role shares, the tilts, the fallbacks and the fouling-player table are all in the one new file, loaded as `EngineData.participants` (schema `participantsSchema`). Interface change: `EngineData` gains `participants`; `EngineFiles` gains `participants`; the game's data hashes gain the file.
+- Return units are the on-field record only. The engine's kick rating effects keep reading the receiving team's base package, as in M1; switching them to the return unit would change kick outcomes.
+- Credit stream: per play, `creditStream(rng)` seeds a new Rng from the outcome stream's four state words before the play's first draw (read only). Tests can swap it: `createEngine(data, { creditStream })` (optional second argument; the one-argument call is unchanged). With a fixed swapped stream, 100 games had identical outcome digests and different participants.
+- Shapes for the UI (packages/shared/src/play.ts): `Participants` (role -> id, `foulers` array), `OnField` (`offense` and `defense`, each position -> ids in slot order; offense is the team that snapped or kicked), `PARTICIPANT_ROLES`. TRACE_FIELDS gains one factor per role with `id`, `number`, `name`, plus `fouler` with `penalty`, so the why tests cover them (spec D).
+- B6 (report of real position shares) is not built: it needs a pipeline step joining pbp receivers and rushers to roster positions. Not gated.
+- Byte-identity: all 10,000 in-sample outcome digests identical to the baseline; CLI golden changes only in its data-hash line (the new file).
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

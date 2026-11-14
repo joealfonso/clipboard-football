@@ -27,6 +27,7 @@ export const ENGINE_FILES = {
   kickoff: "data/engine/kickoff.json",
   matchup: "data/engine/matchup.centered.json",
   personnel: "data/engine/personnel.json",
+  participants: "data/engine/participants.json",
   ratings: "data/players/ratings.json",
   distributions: "data/players/distributions.json",
   names: "data/players/names.json",

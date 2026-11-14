@@ -143,6 +143,37 @@ export interface NoPlay extends PlayBase {
   readonly kind: "noPlay";
 }
 
+// ---------------------------------------------------------------- M2: who made the play
+
+/** The roles a play can credit (M2 milestone B). Ids are Player.id. */
+export const PARTICIPANT_ROLES = [
+  "passer", "target", "receiver", "ballCarrier", "tackler", "sacker", "interceptor", "fumbleForcer", "fumbleRecoverer", "kicker", "punter", "returner",
+] as const;
+export type ParticipantRole = (typeof PARTICIPANT_ROLES)[number];
+
+/**
+ * detail.participants: player ids by role. A role that did not happen is absent, never a guess.
+ * `foulers` has one id per foul, in the order of the play's `fouls`.
+ */
+export type Participants = Readonly<Partial<Record<ParticipantRole, string>>> & { readonly foulers?: readonly string[] };
+
+/** One side's players on the field by position, slot order (first WR first). Positions with no slot are absent. */
+export type OnFieldSide = Readonly<Partial<Record<"QB" | "RB" | "WR" | "TE" | "OL" | "DL" | "LB" | "CB" | "S" | "K" | "P", readonly string[]>>>;
+
+/** detail.onField: both sides for this play, offense = the team that snapped or kicked. */
+export interface OnField {
+  readonly offense: OnFieldSide;
+  readonly defense: OnFieldSide;
+}
+
+/** The detail fields M2 adds that the UI reads. Every PlayResult from resolvePlay has them. */
+export interface PlayDetailM2 {
+  readonly participants: Participants;
+  readonly onField: OnField;
+  /** M2 milestone D: the why line's plain-words headline. */
+  readonly headline?: string;
+}
+
 export type PlayResult =
   | ScrimmagePlay
   | PuntPlay

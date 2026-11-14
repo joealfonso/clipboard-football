@@ -16,6 +16,7 @@ export {
   parsePlayer,
   parseTeamPool,
   parseTeamPoolV1,
+  participantsSchema,
   personnelSchema,
   playerSchema,
   ratingsSchema,

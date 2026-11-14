@@ -21,6 +21,7 @@ import type { GameState } from "../game/types";
 import type { Rng } from "../rng";
 import { applyEffect, leagueMeans, type Field } from "./effects";
 import { fail } from "./errors";
+import { createCredit, creditStream, type Unit } from "./participants";
 import { onField } from "./players";
 import { backoff, drawIndex, drawTuple, drawWeighted } from "./tables";
 import { dominant, isFluke, render, round2, templateFor, variantFor, type TraceEntry } from "./why";
@@ -37,6 +38,15 @@ export interface Players {
 }
 
 export type ResolvePlay = (state: GameState, offenseCall: OffenseCall, defenseCall: string | null, players: Players, rng: Rng) => PlayResult;
+
+/** Engine options. Tests only: the default is the one the game uses. */
+export interface EngineOptions {
+  /**
+   * M2 B7: the stream participants are credited from, given the outcome stream before a play's
+   * first draw. It must not advance the outcome stream. Default: creditStream (participants.ts).
+   */
+  readonly creditStream?: (rng: Rng) => Rng;
+}
 
 // Outcome tuple flags (pipeline/engine/classes.py).
 const OB = 1;
@@ -142,8 +152,10 @@ function compile(data: EngineData): Compiled {
 
 const RUN_PASS_CALLS = new Set(["insideRun", "outsideRun", "qbSneak", "shortPass", "intermediatePass", "deepPass", "screenPass", "playAction"]);
 
-export function createEngine(data: EngineData): ResolvePlay {
+export function createEngine(data: EngineData, options: EngineOptions = {}): ResolvePlay {
   const c = compile(data);
+  const credit = createCredit(data.participants);
+  const creditFor = options.creditStream ?? creditStream;
   const why = data.why;
   const label = (k: string): string => why.labels[k] ?? k;
   const minS = data.config.durations.minSeconds;
@@ -158,6 +170,10 @@ export function createEngine(data: EngineData): ResolvePlay {
     readonly defense: Field;
     /** Factor on the offense's pre-snap foul rates (home field); 1 by default. */
     readonly preSnapScale: number;
+    /** M2 B: the call's leaf, the receiving team's return unit on a kickoff or punt, and the credit stream. */
+    readonly leaf: string;
+    readonly receiving: { readonly name: string; readonly unit: Unit } | null;
+    readonly credit: Rng;
   }
 
   function seconds(hist: readonly number[] | undefined, rng: Rng): number {
@@ -287,9 +303,13 @@ export function createEngine(data: EngineData): ResolvePlay {
   }
 
   function finish(play: PlayResult, ctx: Ctx, when: string, detail: Record<string, unknown>): PlayResult {
+    // M2 B: the outcome is final here; credit the players from the credit stream (no outcome draw).
+    const cls = typeof detail["class"] === "string" ? detail["class"] : null;
+    const cr = credit({ play, cls, leaf: ctx.leaf, offense: ctx.offense, defense: ctx.receiving?.unit ?? ctx.defense, unit: ctx.receiving?.name ?? null }, ctx.credit);
+    for (const e of cr.trace) ctx.trace.push(e);
     const t: WhyTemplate = templateFor(why, when, play.kind, variantFor(why, when, ctx.trace));
     const r = render(t, ctx.trace);
-    return { ...play, detail: { ...detail, why: r.text, whyTemplate: r.template, trace: ctx.trace } } as PlayResult;
+    return { ...play, detail: { ...detail, why: r.text, whyTemplate: r.template, trace: ctx.trace, participants: cr.participants, onField: cr.onField } } as PlayResult;
   }
 
   function whenFor(ctx: Ctx, fouls: readonly Foul[] | undefined, fluke: boolean, fallback: string): string {
@@ -914,12 +934,17 @@ export function createEngine(data: EngineData): ResolvePlay {
     const defPool = players[state.possession === "home" ? "away" : "home"];
     const call = offenseCall.call;
     const P = data.personnel;
-    const ctxFor = (offSlots: string, offGroup: "offense" | "kick", pkg: string): Ctx => {
+    // Seeded before this play's first outcome draw; reads the outcome stream, never advances it.
+    const creditRng = creditFor(rng);
+    const ctxFor = (offSlots: string, offGroup: "offense" | "kick", pkg: string, leaf: string = call): Ctx => {
       const os = offGroup === "offense" ? P.offense[offSlots] : P.kick[offSlots];
       const ds = P.packages[pkg];
       if (os === undefined || ds === undefined) return fail("badCall", `no personnel for ${offSlots} or ${pkg}`);
       const preSnapScale = players.offensePreSnapFoulScale?.[state.possession] ?? 1;
-      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale };
+      const unitName = offGroup === "kick" ? data.participants.receivingUnit[leaf] : undefined;
+      const rs = unitName === undefined ? undefined : data.participants.returnUnits[unitName];
+      const receiving = unitName === undefined || rs === undefined ? null : { name: unitName, unit: onField(defPool, rs, unitName) };
+      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale, leaf, receiving, credit: creditRng };
     };
     const needDefense = (): { preset: string; pkg: string } => {
       if (defenseCall === null) return fail("missingDefenseCall", `${call} needs a defensive preset`);
@@ -946,7 +971,7 @@ export function createEngine(data: EngineData): ResolvePlay {
         const ok = k === "always" || (k === "trailing" && trailing) || (k === "trailingInFinalPeriod" && trailing && state.period === data.rules.game.regulationPeriods);
         if (!ok) return fail("badCall", `onside kicks are allowed only when "${k}"`);
       }
-      return ignoring(kickoff(ctxFor("kickoff", "kick", "base"), call === "onsideKick"));
+      return ignoring(kickoff(ctxFor("kickoff", "kick", "base", call), call === "onsideKick"));
     }
     if (state.phase === "try") {
       if (call === "extraPoint") return ignoring(extraPoint(ctxFor("extraPoint", "kick", "base")));
@@ -955,7 +980,7 @@ export function createEngine(data: EngineData): ResolvePlay {
       if (leaf === undefined || !RUN_PASS_CALLS.has(leaf)) return fail("badCall", "a two-point try needs a run or pass play");
       const formation = needFormation();
       const { preset, pkg } = needDefense();
-      return runOrPass(ctxFor(formation, "offense", pkg), leaf, formation, preset, pkg, true);
+      return runOrPass(ctxFor(formation, "offense", pkg, leaf), leaf, formation, preset, pkg, true);
     }
     if (RUN_PASS_CALLS.has(call)) {
       const formation = needFormation();

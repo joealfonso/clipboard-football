@@ -73,6 +73,54 @@ export interface Personnel {
   readonly presetPackage: Readonly<Record<string, string>>;
 }
 
+// ---------------------------------------------------------------- designed: who made the play (M2 B)
+
+/** A role's share by position, before the split across that position's on-field slots. */
+export type PositionShares = Readonly<Partial<Record<Position, number>>>;
+
+export interface ParticipantRole {
+  /** The side whose on-field players are the candidates: the snapping (kicking) team or the other one. */
+  readonly side: "offense" | "defense";
+  /** Shares by the play's leaf (a run or pass call). */
+  readonly byLeaf?: Readonly<Record<string, PositionShares>>;
+  /** Shares by the drawn class. */
+  readonly byClass?: Readonly<Record<string, PositionShares>>;
+  /** Shares by the receiving unit (returners). */
+  readonly byUnit?: Readonly<Record<string, PositionShares>>;
+  /** Shares when no other table has an entry. */
+  readonly flat?: PositionShares;
+  /** Positions used, equally, when no position with a share is on the field. */
+  readonly fallback?: readonly Position[];
+}
+
+export interface ParticipantTilt {
+  readonly role: string;
+  /** Drawn classes the tilt applies to; "*" for every class. */
+  readonly classes: readonly string[];
+  readonly rating: string;
+  /** Weight x exp(coef x (rating - center)). */
+  readonly coef: number;
+}
+
+/** data/engine/participants.json (designed). docs/MODEL.md, "Who made the play". */
+export interface ParticipantsConfig {
+  readonly schemaVersion: number;
+  readonly designed: true;
+  readonly center: number;
+  /** The receiving team's units on kicks: kickoff return and punt return. */
+  readonly returnUnits: Readonly<Record<string, Slots>>;
+  /** Play kind -> the receiving unit on the field (other kicks keep the defense package). */
+  readonly receivingUnit: Readonly<Record<string, string>>;
+  /** Position -> relative weight of its first, second, ... on-field slot (default all 1). */
+  readonly slotWeights: Readonly<Partial<Record<Position, readonly number[]>>>;
+  readonly roles: Readonly<Record<string, ParticipantRole>>;
+  readonly tilts: readonly ParticipantTilt[];
+  /** Fouls on a pass that leave the pass with no target (intentional grounding). */
+  readonly noTarget: readonly string[];
+  /** Penalty id -> the positions that may commit it, by the side that fouled. */
+  readonly foulers: Readonly<Record<string, Readonly<Partial<Record<"offense" | "defense", readonly Position[]>>>>>;
+}
+
 // ---------------------------------------------------------------- designed: ratings
 
 export interface RatingInput {
@@ -300,6 +348,21 @@ export interface MatchupCentered {
 
 /** Every trace factor the engine records and the fields a why template slot may bind to (E3). */
 export const TRACE_FIELDS = {
+  // M2 milestone B: the players a play names, one entry per role present (detail.participants).
+  passer: ["id", "number", "name"],
+  target: ["id", "number", "name"],
+  receiver: ["id", "number", "name"],
+  ballCarrier: ["id", "number", "name"],
+  tackler: ["id", "number", "name"],
+  sacker: ["id", "number", "name"],
+  interceptor: ["id", "number", "name"],
+  fumbleForcer: ["id", "number", "name"],
+  fumbleRecoverer: ["id", "number", "name"],
+  kicker: ["id", "number", "name"],
+  punter: ["id", "number", "name"],
+  returner: ["id", "number", "name"],
+  /** One per foul, in the order of the play's fouls. */
+  fouler: ["id", "number", "name", "penalty"],
   call: ["label", "leaf", "kind"],
   cell: ["family", "level", "key"],
   class: ["name", "label", "basePct", "pct"],
@@ -351,6 +414,8 @@ export interface EngineData {
   readonly kickoff: KickoffTable;
   readonly matchup: MatchupCentered;
   readonly personnel: Personnel;
+  /** M2 milestone B: who made the play (designed). */
+  readonly participants: ParticipantsConfig;
   readonly ratings: RatingsConfig;
   readonly distributions: Distributions;
   readonly names: Names;

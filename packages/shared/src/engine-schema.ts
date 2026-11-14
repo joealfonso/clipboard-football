@@ -14,6 +14,7 @@ import type {
   KickoffTable,
   MatchupCentered,
   Names,
+  ParticipantsConfig,
   Personnel,
   Player,
   RatingsConfig,
@@ -357,6 +358,47 @@ export const distributionsSchema = z.looseObject({
   drills: z.record(z.string(), z.record(z.string(), z.strictObject({ cuts: z.array(z.number()).min(2), n: posInt }))),
 });
 
+// ---------------------------------------------------------------- M2 B: who made the play
+
+const shares = z.partialRecord(position, z.number().nonnegative());
+const participantRole = z.strictObject({
+  side: z.enum(["offense", "defense"]),
+  byLeaf: z.record(z.string(), shares).optional(),
+  byClass: z.record(z.string(), shares).optional(),
+  byUnit: z.record(z.string(), shares).optional(),
+  flat: shares.optional(),
+  fallback: z.array(position).optional(),
+});
+
+/** Roles the engine reads from participants.json (packages/sim/src/engine/participants.ts). */
+export const PARTICIPANT_CONFIG_ROLES = [
+  "ballCarrier", "target", "tackler", "returnTackler", "coverageTackler", "sacker", "interceptor", "fumbleForcer", "defenseRecoverer", "offenseRecoverer", "returner",
+] as const;
+
+export const participantsSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    designed: z.literal(true),
+    note: z.string().optional(),
+    center: z.number(),
+    returnUnits: z.record(z.string(), slots),
+    receivingUnit: z.record(z.string(), z.string()),
+    slotWeights: z.partialRecord(position, z.array(z.number().positive()).min(1)),
+    roles: z.record(z.string(), participantRole),
+    tilts: z.array(z.strictObject({ role: z.string(), classes: z.array(z.string()).min(1), rating: z.string(), coef: z.number() })),
+    noTarget: z.array(z.string()),
+    foulers: z.record(z.string(), z.strictObject({ offense: z.array(position).min(1).optional(), defense: z.array(position).min(1).optional() })),
+  })
+  .superRefine((p, ctx) => {
+    for (const r of PARTICIPANT_CONFIG_ROLES) if (!(r in p.roles)) ctx.addIssue({ code: "custom", message: `participants.json has no role ${r}` });
+    for (const [k, s] of Object.entries(p.returnUnits)) {
+      const n = Object.values(s).reduce((a, b) => a + (b ?? 0), 0);
+      if (n !== 11) ctx.addIssue({ code: "custom", message: `return unit ${k} puts ${n} on the field` });
+    }
+    for (const [kind, unit] of Object.entries(p.receivingUnit)) if (!(unit in p.returnUnits)) ctx.addIssue({ code: "custom", message: `${kind} uses unknown return unit ${unit}` });
+    for (const t of p.tilts) if (!(t.role in p.roles)) ctx.addIssue({ code: "custom", message: `tilt on unknown role ${t.role}` });
+  });
+
 export interface EngineFiles {
   readonly config: unknown;
   readonly scrimmage: unknown;
@@ -365,6 +407,7 @@ export interface EngineFiles {
   readonly kickoff: unknown;
   readonly matchup: unknown;
   readonly personnel: unknown;
+  readonly participants: unknown;
   readonly ratings: unknown;
   readonly distributions: unknown;
   readonly names: unknown;
@@ -383,6 +426,7 @@ export function parseEngineData(files: EngineFiles, rules: RuleSet, caller: Call
     kickoff: kickoffSchema.parse(files.kickoff) as unknown as KickoffTable,
     matchup: matchupCenteredSchema.parse(files.matchup) as unknown as MatchupCentered,
     personnel: personnelSchema.parse(files.personnel) as unknown as Personnel,
+    participants: participantsSchema.parse(files.participants) as unknown as ParticipantsConfig,
     ratings: ratingsSchema.parse(files.ratings) as unknown as RatingsConfig,
     distributions: distributionsSchema.parse(files.distributions) as unknown as Distributions,
     names: namesSchema.parse(files.names) as Names,
