@@ -121,3 +121,17 @@ export type {
   ReceivingLine,
   RushingLine,
 } from "./game";
+export type {
+  ContinueAbout,
+  DecisionAnswer,
+  DecisionRequest,
+  OffenseCallChoice,
+  PenaltyPreview,
+  ReasonCode,
+  RequestKind,
+  RequestOption,
+  RequestScreen,
+  SessionErrorCode,
+  Tempo,
+} from "./game";
+export { REASON_CODES, TEMPOS } from "./game";

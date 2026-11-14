@@ -29,7 +29,11 @@ export type { EngineFiles } from "./engine-schema";
 export { gameConfigSchema, leagueSettingsSchema, onsideTableSchema, parseGameData, rateTableSchema, teamNamesSchema, tempoTableSchema, timeoutTableSchema } from "./game-schema";
 export type { GameFiles } from "./game-schema";
 export {
+  decisionAnswerSchema,
+  decisionRequestSchema,
   onFieldSchema,
+  parseDecisionAnswer,
+  parseDecisionRequest,
   parseOnField,
   parseParticipants,
   parsePlayerBoxScore,

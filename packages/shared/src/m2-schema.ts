@@ -1,10 +1,13 @@
 // zod schemas for what the M2 UI reads from the sim (docs/specs/m2-playable-game-design.md,
-// "Needs from the engine"): who made each play and who was on the field (needs 2 and 4), the
-// per-player box score and rating ranks (needs 8 and 11). The worker side can validate messages
+// "Needs from the engine"): the step-wise loop's requests and answers (need 1), who made each
+// play and who was on the field (needs 2 and 4), the per-player box score and rating ranks
+// (needs 8 and 11). The worker side can validate messages
 // with these; packages/sim never imports this file. Types: play.ts, stats.ts.
 
 import { z } from "zod";
+import { MAX_CHOICES_PER_SCREEN } from "./catalog";
 import { POSITIONS } from "./engine";
+import { REASON_CODES, TEMPOS, type DecisionAnswer, type DecisionRequest } from "./game";
 import { PARTICIPANT_ROLES, type OnField, type Participants } from "./play";
 import type { PlayerBoxScore, RatingRanks } from "./game";
 
@@ -59,4 +62,51 @@ export function parsePlayerBoxScore(json: unknown): PlayerBoxScore {
 
 export function parseRatingRanks(json: unknown): RatingRanks {
   return ratingRanksSchema.parse(json) as RatingRanks;
+}
+
+// ---------------------------------------------------------------- need 1: the step-wise loop
+
+const team = z.enum(["home", "away"]);
+const option = z
+  .strictObject({ id, legal: z.boolean(), reason: z.enum(REASON_CODES).optional(), opens: id.optional() })
+  .refine((o) => (o.reason !== undefined) === !o.legal, { message: "an option has a reason exactly when it is off" });
+const screen = z.strictObject({ id, options: z.array(option).min(1).max(MAX_CHOICES_PER_SCREEN - 1) });
+const offenseCall = z.strictObject({ call: id, formation: id.optional(), twoPointPlay: id.optional() });
+const preview = z.strictObject({
+  phase: z.enum(["kickoff", "scrimmage", "try", "overtimeToss", "final"]),
+  possession: team,
+  spot: z.number().int(),
+  down: z.number().int(),
+  distance: z.number().int(),
+  score: z.strictObject({ home: count, away: count }),
+});
+const base = { seq: z.number().int().positive(), team, screens: z.array(screen).min(1) };
+const about = z.discriminatedUnion("what", [
+  z.strictObject({ what: z.literal("tossResult"), winner: team, choice: z.enum(["receive", "kick", "defer"]) }),
+  z.strictObject({ what: z.literal("theyKickOff"), onside: z.boolean(), safetyKick: z.boolean() }),
+  z.strictObject({ what: z.literal("theyLineUp"), call: id }),
+]);
+/** The PlayResult is checked as an object here; its own shape is the sim's contract (play.ts). */
+const play = z.looseObject({ kind: z.string() });
+
+export const decisionRequestSchema = z.discriminatedUnion("kind", [
+  z.strictObject({ ...base, kind: z.literal("toss") }),
+  z.strictObject({ ...base, kind: z.literal("overtimeToss") }),
+  z.strictObject({ ...base, kind: z.literal("kickoff"), safetyKick: z.boolean() }),
+  z.strictObject({ ...base, kind: z.literal("try"), sameCall: offenseCall.nullable() }),
+  z.strictObject({ ...base, kind: z.literal("offenseCall"), tempo: z.enum(TEMPOS), clockRunning: z.boolean(), sameCall: offenseCall.nullable(), fieldGoalYards: z.number().int() }),
+  z.strictObject({ ...base, kind: z.literal("defenseCall"), onTry: z.boolean(), sameCall: id.nullable() }),
+  z.strictObject({ ...base, kind: z.literal("penalty"), play, offenseCall, defenseCall: id.nullable(), outcomes: z.array(z.strictObject({ option: id, after: preview })).min(2) }),
+  z.strictObject({ ...base, kind: z.literal("runoff"), play, offenseCall, defenseCall: id.nullable(), clock: count, clockAfter: count }),
+  z.strictObject({ ...base, kind: z.literal("continue"), about }),
+]);
+
+export const decisionAnswerSchema = z.strictObject({ seq: z.number().int().positive(), path: z.array(id).min(1) });
+
+export function parseDecisionRequest(json: unknown): DecisionRequest {
+  return decisionRequestSchema.parse(json) as DecisionRequest;
+}
+
+export function parseDecisionAnswer(json: unknown): DecisionAnswer {
+  return decisionAnswerSchema.parse(json) as DecisionAnswer;
 }

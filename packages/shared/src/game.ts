@@ -4,6 +4,7 @@
 // game-schema.ts. docs/MODEL.md says which parts are fitted, designed or mixed.
 
 import type { EngineData } from "./engine";
+import type { PlayResult } from "./play";
 import type { Situation } from "./situation";
 
 /**
@@ -298,3 +299,138 @@ export interface RatingRank {
 
 /** Player id -> rating name (base ratings and the position's skills) -> rank (C6). */
 export type RatingRanks = Readonly<Record<string, Readonly<Record<string, RatingRank>>>>;
+
+// ---------------------------------------------------------------- M2 E: the step-wise loop's requests
+
+/**
+ * Tempo for the human offense (design decision 3; spec resolved 13): Normal draws the run-off as
+ * the average coach does; Hurry-up from the fitted cells for a trailing offense in the final 2:00;
+ * Run the clock from the cells for a leading offense in the final 5:00. Resets to Normal each drive.
+ */
+export const TEMPOS = ["hurryUp", "normal", "runClock"] as const;
+export type Tempo = (typeof TEMPOS)[number];
+
+/** Why an option is off (design decision 9). The UI words each one. */
+export const REASON_CODES = [
+  /** The team has no timeouts left. */
+  "noTimeouts",
+  /** The team already took a timeout in this dead ball (rules.timeouts.perTeamPerDeadBall). */
+  "timeoutTaken",
+  /** The rule set does not let a timeout replace the ten-second run-off. */
+  "timeoutNotAllowed",
+  /** Kick: only on 4th down or in the last 2:00 of a half (catalog rule). */
+  "kickNotNow",
+  /** Kick or Clock on a two-point try. */
+  "notOnTry",
+  /** Same call with no earlier call by this side in this game. */
+  "noEarlierCall",
+  /** Same call whose last call is not legal now. */
+  "lastCallNotLegal",
+  /** The rule set's onside rule does not allow one now. */
+  "onsideNotAllowed",
+] as const;
+export type ReasonCode = (typeof REASON_CODES)[number];
+
+export interface RequestOption {
+  readonly id: string;
+  readonly legal: boolean;
+  /** Set exactly when the option is off. */
+  readonly reason?: ReasonCode;
+  /** The screen this option opens; absent for a final option. */
+  readonly opens?: string;
+}
+
+/**
+ * One menu screen. Every screen also has Esc (Back, or the pause menu on the first screen), so
+ * options.length + 1 <= MAX_CHOICES_PER_SCREEN (7).
+ */
+export interface RequestScreen {
+  readonly id: string;
+  readonly options: readonly RequestOption[];
+}
+
+/** An offense call as the loop takes it (the sim's OffenseCall). */
+export interface OffenseCallChoice {
+  readonly call: string;
+  readonly formation?: string;
+  readonly twoPointPlay?: string;
+}
+
+/** What a penalty option leaves, as both sidelines see it. */
+export interface PenaltyPreview {
+  readonly phase: "kickoff" | "scrimmage" | "try" | "overtimeToss" | "final";
+  readonly possession: "home" | "away";
+  readonly spot: number;
+  readonly down: number;
+  readonly distance: number;
+  readonly score: { readonly home: number; readonly away: number };
+}
+
+interface RequestBase {
+  /** Increases with every request of a session; an answer names the request it answers. */
+  readonly seq: number;
+  /** The human's team. */
+  readonly team: "home" | "away";
+  /** screens[0] is the first screen; an option's `opens` names another screen here. */
+  readonly screens: readonly RequestScreen[];
+}
+
+/** Dead balls with nothing to call still wait for the human (design decision 17). */
+export type ContinueAbout =
+  | { readonly what: "tossResult"; readonly winner: "home" | "away"; readonly choice: "receive" | "kick" | "defer" }
+  | { readonly what: "theyKickOff"; readonly onside: boolean; readonly safetyKick: boolean }
+  /** The other team lines up for a kick, a kneel or a spike (visible before the snap). */
+  | { readonly what: "theyLineUp"; readonly call: string };
+
+/**
+ * A decision the loop is waiting for (spec E; design "Needs from the engine" 1). Nothing here
+ * says what the other team called for the coming snap, except a kick, kneel or spike it has
+ * visibly lined up for (`theyLineUp`).
+ */
+export type DecisionRequest =
+  | (RequestBase & { readonly kind: "toss" })
+  | (RequestBase & { readonly kind: "overtimeToss" })
+  | (RequestBase & { readonly kind: "kickoff"; readonly safetyKick: boolean })
+  | (RequestBase & { readonly kind: "try"; readonly sameCall: OffenseCallChoice | null })
+  | (RequestBase & {
+      readonly kind: "offenseCall";
+      readonly tempo: Tempo;
+      readonly clockRunning: boolean;
+      /** This side's last call in this game; legality is the sameCall option's. */
+      readonly sameCall: OffenseCallChoice | null;
+      /** Field goal distance from here, a fact for the Kick screen ("Field goal (47 yd)"). */
+      readonly fieldGoalYards: number;
+    })
+  | (RequestBase & { readonly kind: "defenseCall"; readonly onTry: boolean; readonly sameCall: string | null })
+  | (RequestBase & {
+      readonly kind: "penalty";
+      /** The play just run (after the snap, so both calls are public). */
+      readonly play: PlayResult;
+      readonly offenseCall: OffenseCallChoice;
+      readonly defenseCall: string | null;
+      /** One per option on the first screen, same ids. */
+      readonly outcomes: readonly { readonly option: string; readonly after: PenaltyPreview }[];
+    })
+  | (RequestBase & {
+      readonly kind: "runoff";
+      readonly play: PlayResult;
+      readonly offenseCall: OffenseCallChoice;
+      readonly defenseCall: string | null;
+      /** Game clock before the run-off and after it. */
+      readonly clock: number;
+      readonly clockAfter: number;
+    })
+  | (RequestBase & { readonly kind: "continue"; readonly about: ContinueAbout });
+
+export type RequestKind = DecisionRequest["kind"];
+
+/**
+ * The human's answer: the option ids from the first screen to a final option, for example
+ * ["pass", "shotgun", "deepPass"], ["timeout"], ["sameCall"], ["clock", "hurryUp"], ["accept:0"].
+ */
+export interface DecisionAnswer {
+  readonly seq: number;
+  readonly path: readonly string[];
+}
+
+export type SessionErrorCode = "noRequest" | "staleRequest" | "unknownOption" | "illegalOption" | "incompletePath";

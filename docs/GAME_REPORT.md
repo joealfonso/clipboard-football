@@ -6,9 +6,9 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 ## 1. In-sample check, 2016-2023 (run first)
 
-Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb`; code hash `08ca5790687025b5867adadfe09ac8a1da31e216e33c08092d366dc0c1f9f402`.
+Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb`; code hash `701a6a797b26095ca121924d48d3f5d666680bf66ae0b1dc60dc20e1b8d9c547`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 7.743 ms per game, 80.3 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 11.503 ms per game, 118.8 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 

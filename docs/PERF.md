@@ -6,6 +6,7 @@ Performance budgets and measurements. Each measurement records the date, machine
 
 Targets for sim speed, frame time, load time and pipeline runtime, with why each was chosen.
 
+- Step-wise loop (M2 E9): from a human's answer to the next request, p99 at most 10 ms over the CI slice played with a scripted human seat, leaving room in the design's 100 ms snap budget.
 - Play engine (M1 step 4, C9): at most 100 microseconds per `resolvePlay` call on average, so a full game of about 160 plays stays under 25 ms with room for the callers and the state machine (about 1 ms per game). CI runs the same check with a 3x allowance.
 
 ## Sim throughput
@@ -24,6 +25,7 @@ Runtime and peak memory of each pipeline command, cold and warm cache.
 
 Dated results, newest first.
 
+- 2026-11-14, M2 milestone E (E9), gate p99 at most 10 ms from an answer to the next request. Apple M4 (darwin arm64), Node 25.6.0. Command: `node --import ./scripts/engine/register.mjs scripts/game/session-perf.ts 1000` (the in-sample CI slice, 1,000 games, a scripted human seat answering every request with a seeded random legal path). 191,694 answers, 30.5 s: p50 0.128 ms, p99 1.021 ms, max 26.2 ms. Not a clean reading: the load average was 14 to 21 from other work on the host. Passes the gate. The in-sample calibration run just before it measured 11.5 ms per game under the same load (it was 7.4 to 9.2 ms in the quieter M2 A to D runs).
 - 2026-11-12, M1 step 5c after the code review (game holdout run 10, pins only; every metric identical to run 9), same machine and command, run alone on an idle machine (load average 1.8 to 2.7): 6.3 ms per game (holdout, 65 s wall clock) and 6.3 ms (in-sample, 65.3 s). Passes the 25 ms gate.
 - 2026-11-12, M1 step 5c, the committed runs: game holdout run 9 (approvals and timing only; every metric, slice digest and diagnostic identical to run 8), Apple M4 (darwin arm64), Node v25.6.0, command `node --import ./scripts/engine/register.mjs scripts/game/calibrate.ts --target holdout`, run alone on an otherwise idle machine (load average 2.8 before, 3.7 after): 6.4 ms per game (holdout, 66.2 s wall clock). The committed in-sample run (`--target insample`): 6.2 ms per game (64 s). Passes the 25 ms gate. Run 8's 28.2 ms was taken while other work loaded the machine and is not a speed measurement.
 - 2026-11-12, M1 step 5b, the committed runs (game holdout run 7, layout only; every metric identical to runs 5 and 6), same machine and command, Apple M4, load average about 15-24 from other work: 14.1 ms per game (holdout, 144.6 s wall clock) and 16.9 ms (in-sample, 175.6 s). Passes the 25 ms gate. Run 6 measured 8.4 ms (holdout) at lower load.

@@ -197,6 +197,39 @@ export function choosePenalty(outcomes: readonly PenaltyOutcome[], offended: Tea
   return best.option;
 }
 
+// ---------------------------------------------------------------- M2 E: the human offense's tempo modes
+
+/** Situation fields a tempo mode reads its cells from (spec resolved 13; designed mapping). */
+const TEMPO_MODE_CELLS = {
+  /** A trailing offense in the final 2:00 of the game: time5 GF, final c120, score T. */
+  hurryUp: { quarter: 4, secondsLeftInGame: 120, secondsLeftInHalf: 120, scoreDiff: -1 },
+  /** A leading offense in the final 5:00: time5 G5, final "-", score L. */
+  runClock: { quarter: 4, secondsLeftInGame: 300, secondsLeftInHalf: 300, scoreDiff: 1 },
+} as const;
+
+/**
+ * The view a Hurry-up or Run the clock draw reads: the real view (down, clock state, own
+ * timeouts, previous snap, timeout being called) with the time and score of the fitted cells the
+ * mode stands for, whatever the real situation.
+ */
+export function tempoModeView(view: CoachView, mode: "hurryUp" | "runClock"): CoachView {
+  return { ...view, ...TEMPO_MODE_CELLS[mode] };
+}
+
+/**
+ * Seconds a Hurry-up or Run the clock offense lets run: one draw from the mode's fitted cell. A
+ * run-off before a timeout stops a second short of the end of the half or game, as for the
+ * average coach (clockRules.timeoutBeforeExpiry). Normal is the average coach's own tempo.
+ */
+export function modeTempo(view: CoachView, mode: "hurryUp" | "runClock", tables: CoachTables, config: GameConfig, rng: Rng): number {
+  const drawn = sampleIndex(tempoShares(tempoModeView(view, mode), tables, config.dimensions).value, rng);
+  if (view.beforeTimeout && config.clockRules?.timeoutBeforeExpiry === true) {
+    const left = view.quarter === 2 ? view.secondsLeftInHalf : view.quarter >= 4 ? view.secondsLeftInGame : Number.POSITIVE_INFINITY;
+    return Math.min(drawn, Math.max(0, left - 1));
+  }
+  return drawn;
+}
+
 // ---------------------------------------------------------------- the coach
 
 /**

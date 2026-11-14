@@ -12,7 +12,7 @@
   2023
  ],
  "tolerancesSha256": "b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb",
- "codeHash": "08ca5790687025b5867adadfe09ac8a1da31e216e33c08092d366dc0c1f9f402",
+ "codeHash": "701a6a797b26095ca121924d48d3f5d666680bf66ae0b1dc60dc20e1b8d9c547",
  "codeFiles": [
   "packages/shared/src/caller.ts",
   "packages/shared/src/catalog.ts",
@@ -55,6 +55,7 @@
   "packages/sim/src/loop/coach.ts",
   "packages/sim/src/loop/league.ts",
   "packages/sim/src/loop/play.ts",
+  "packages/sim/src/loop/requests.ts",
   "packages/sim/src/loop/views.ts",
   "packages/sim/src/rng.ts",
   "packages/sim/src/splitmix64.ts",
@@ -229,8 +230,8 @@
   "postseasonTies": 0
  },
  "perf": {
-  "msPerGame": 7.743,
-  "wallSeconds": 80.3,
+  "msPerGame": 11.503,
+  "wallSeconds": 118.8,
   "machine": "darwin arm64, Apple M4, Node v25.6.0"
  },
  "metrics": [

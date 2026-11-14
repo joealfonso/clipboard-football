@@ -3,7 +3,7 @@
 // toss, drawn from the Rng passed to newGame and startOvertime.
 
 import type { PlayResult, RuleSet } from "../../../shared/src/types";
-import type { Rng } from "../rng";
+import { Rng } from "../rng";
 import { draftOf, type Draft, type Events } from "./draft";
 import { declineIsBetter, enforce, penaltyOptions, validateFouls, type Enforced, type PenaltyOption } from "./enforce";
 import { reject, GameRuleError } from "./errors";
@@ -38,6 +38,14 @@ export interface PlayChoices {
 /** One draw: the low bit of the next uint32 names the winner. */
 function drawToss(rng: Rng): Team {
   return (rng.nextUint32() & 1) === 1 ? "home" : "away";
+}
+
+/**
+ * M2 E: who wins the next coin toss drawn from `rng`, read from a copy of its state, so the human
+ * winner can choose before newGame or startOvertime makes the same draw. Never advances `rng`.
+ */
+export function peekToss(rng: Rng): Team {
+  return drawToss(Rng.fromState(rng.getState()));
 }
 
 /** Rule 4-2-2: who receives now, and who receives the kickoff that opens the next half. */
