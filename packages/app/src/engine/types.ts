@@ -27,8 +27,10 @@ export type {
   RatingRanks,
   ReasonCode,
   RequestKind,
+  RequestEvent,
   RequestOption,
   RequestScreen,
+  RequestState,
   Tempo,
 } from "@clipboard-football/shared";
 export { PARTICIPANT_ROLES };
@@ -47,51 +49,6 @@ export interface OnFieldSlot {
 export interface OnFieldSlots {
   readonly offense: readonly OnFieldSlot[];
   readonly defense: readonly OnFieldSlot[];
-}
-
-// ---------------------------------------------------------------- request snapshot (coming in the engine)
-
-/**
- * ASSUMED until the engine ships it: the state a DecisionRequest is asked in, so the HUD can show
- * the clock a human defense sees after the run-off. Field names are the app's guess from the
- * coordinator's description (clock, running, quarter, timeouts, down, distance, spot, the run-off
- * just applied, whether a two-minute warning or an AI timeout happened). Read with readSnapshot,
- * which drops it when any field is missing or malformed, so the HUD falls back to the committed state.
- */
-export interface RequestSnapshot {
-  readonly clock: number;
-  readonly clockRunning: boolean;
-  readonly period: number;
-  readonly timeouts: { readonly home: number; readonly away: number };
-  readonly down: number;
-  readonly distance: number;
-  readonly spot: number;
-  /** Seconds of run-off applied before this request (0 for none). */
-  readonly runoffSeconds: number;
-  readonly twoMinuteWarning: boolean;
-  /** The AI's team called a timeout in this dead ball before the request. */
-  readonly aiTimeout: boolean;
-}
-
-export function readSnapshot(req: unknown): RequestSnapshot | null {
-  if (typeof req !== "object" || req === null) return null;
-  const s = (req as Record<string, unknown>)["snapshot"];
-  if (typeof s !== "object" || s === null) return null;
-  const o = s as Record<string, unknown>;
-  const n = (k: string): number | undefined => num(o[k]);
-  const b = (k: string): boolean | undefined => (typeof o[k] === "boolean" ? (o[k] as boolean) : undefined);
-  const t = o["timeouts"] as Record<string, unknown> | undefined;
-  const clock = n("clock") ?? n("clockSeconds");
-  const period = n("period") ?? n("quarter");
-  const running = b("clockRunning") ?? b("running");
-  const runoff = n("runoffSeconds") ?? n("runoff") ?? 0;
-  const home = num(t?.["home"]);
-  const away = num(t?.["away"]);
-  const down = n("down");
-  const distance = n("distance");
-  const spot = n("spot");
-  if (clock === undefined || period === undefined || running === undefined || home === undefined || away === undefined || down === undefined || distance === undefined || spot === undefined) return null;
-  return { clock, clockRunning: running, period, timeouts: { home, away }, down, distance, spot, runoffSeconds: runoff, twoMinuteWarning: b("twoMinuteWarning") ?? false, aiTimeout: b("aiTimeout") ?? false };
 }
 
 // ---------------------------------------------------------------- hooks for milestones F and G

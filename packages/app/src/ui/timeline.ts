@@ -96,6 +96,8 @@ export interface TimelineCtx {
   readonly endZoneYards: number;
   /** Jersey numbers by player id, for labels that name a player ("Fumble, recovered by #55"). */
   readonly numbers: Readonly<Record<string, number>>;
+  /** Pixels per yard of the current layout, for the line's minimum spacing; absent means no spreading. */
+  readonly pxPerYard?: number;
 }
 
 // ---------------------------------------------------------------- sampling
@@ -140,20 +142,37 @@ const PUNT_LABELS: Readonly<Record<string, string>> = {
   blocked: "Blocked",
 };
 
-function unitOf(event: PlayEvent): { offense: { group: "offense" | "kick"; name: string }; defense: { group: "defense" | "returnUnits"; name: string }; drops: string; routes: string } {
+type LineFamily = "run" | "pass" | "kick" | null;
+
+function unitOf(event: PlayEvent): { offense: { group: "offense" | "kick"; name: string }; defense: { group: "defense" | "returnUnits"; name: string }; drops: string; routes: string; line: LineFamily } {
   const { play, offense, defense } = event;
   const k = play.kind;
   const leaf = offense.call === "goForTwo" ? (offense.twoPointPlay ?? "") : offense.call;
-  if (k === "kickoff" || k === "onsideKick" || (k === "noPlay" && event.before.phase === "kickoff")) return { offense: { group: "kick", name: "kickoff" }, defense: { group: "returnUnits", name: "kickoff" }, drops: "return", routes: "cover" };
-  if (k === "punt" || leaf === "punt") return { offense: { group: "kick", name: "punt" }, defense: { group: "returnUnits", name: "punt" }, drops: "return", routes: "cover" };
-  if (k === "fieldGoal" || k === "extraPoint" || leaf === "fieldGoal" || leaf === "extraPoint") return { offense: { group: "kick", name: leaf === "extraPoint" || k === "extraPoint" ? "extraPoint" : "fieldGoal" }, defense: { group: "returnUnits", name: "fieldGoal" }, drops: "kick", routes: "kick" };
-  if (k === "kneel" || k === "spike" || leaf === "kneel" || leaf === "spike") return { offense: { group: "offense", name: "underCenter" }, defense: { group: "defense", name: "base" }, drops: "kick", routes: "kick" };
+  if (k === "kickoff" || k === "onsideKick" || (k === "noPlay" && event.before.phase === "kickoff")) return { offense: { group: "kick", name: "kickoff" }, defense: { group: "returnUnits", name: "kickoff" }, drops: "return", routes: "cover", line: null };
+  if (k === "punt" || leaf === "punt") return { offense: { group: "kick", name: "punt" }, defense: { group: "returnUnits", name: "punt" }, drops: "return", routes: "cover", line: "kick" };
+  if (k === "fieldGoal" || k === "extraPoint" || leaf === "fieldGoal" || leaf === "extraPoint") return { offense: { group: "kick", name: leaf === "extraPoint" || k === "extraPoint" ? "extraPoint" : "fieldGoal" }, defense: { group: "returnUnits", name: "fieldGoal" }, drops: "kick", routes: "kick", line: "kick" };
+  if (k === "kneel" || k === "spike" || leaf === "kneel" || leaf === "spike") return { offense: { group: "offense", name: "underCenter" }, defense: { group: "defense", name: "base" }, drops: "kick", routes: "kick", line: "kick" };
   return {
     offense: { group: "offense", name: offense.formation ?? "shotgun" },
     defense: { group: "defense", name: defense ?? "" },
     drops: "",
     routes: RUN_LEAVES.has(leaf) ? "run" : leaf,
+    line: RUN_LEAVES.has(leaf) ? "run" : "pass",
   };
+}
+
+/**
+ * DESIGN.md Spacing: the line is a diagram, not to scale across. When the marks on the line
+ * (depth up to `maxDepth`, within 10 yards of the middle) come out closer than `minGap` yards,
+ * spread them evenly out from the middle by one factor. Depths never change.
+ */
+export function spreadLine(points: readonly Pt[], onLine: readonly boolean[], minGap: number): Pt[] {
+  const xs = points.filter((_, i) => onLine[i]).map((p) => p.x).sort((a, b) => a - b);
+  let gap = Infinity;
+  for (let i = 1; i < xs.length; i++) gap = Math.min(gap, (xs[i] as number) - (xs[i - 1] as number));
+  if (!(gap < minGap) || gap <= 0) return [...points];
+  const k = minGap / gap;
+  return points.map((p, i) => (onLine[i] ? { x: clampX(MID_X + (p.x - MID_X) * k), y: p.y } : p));
 }
 
 /** Where a slot lines up at the set: the template, or rows by order when the template has none. */
@@ -220,8 +239,12 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   const offTmpl = unit.offense.group === "offense" ? templates.offense[unit.offense.name] : templates.kick[unit.offense.name];
   const defTmpl = unit.defense.group === "defense" ? templates.defense[pkg] : templates.returnUnits[unit.defense.name];
   const defSlots = onField?.defense ?? [];
-  const offStart = alignmentOf(offSlots, offTmpl, "O", los);
-  const defStart = alignmentOf(defSlots, defTmpl, "X", los);
+  const minGap = ctx.pxPerYard === undefined ? 0 : templates.lineSpacing.minPx / ctx.pxPerYard;
+  const lineOf = (pts: readonly Pt[]): boolean[] => pts.map((q) => Math.abs(q.y - los) <= templates.lineSpacing.maxDepth + 1e-9 && Math.abs(q.x - MID_X) <= 10);
+  const offRaw = alignmentOf(offSlots, offTmpl, "O", los);
+  const defRaw = alignmentOf(defSlots, defTmpl, "X", los);
+  const offStart = spreadLine(offRaw, lineOf(offRaw), minGap);
+  const defStart = spreadLine(defRaw, lineOf(defRaw), minGap);
   const startOf = new Map<string, Pt>();
   offSlots.forEach((s, i) => startOf.set(s.id, offStart[i] as Pt));
   defSlots.forEach((s, i) => startOf.set(s.id, defStart[i] as Pt));
@@ -534,11 +557,13 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
         marks.push({ slot: s.slot, side, position: s.position, playerId: s.id, keys: [{ t: 0, ...start }], roles: roleOf(s.id), fact: false });
         continue;
       }
-      const way = diagramPath(start, side === "O" ? routes : drops, s.position, side);
+      const contact = unit.line === null ? undefined : templates.lineContact[unit.line];
+      const lineman = (s.position === "OL" || s.position === "DL") && contact?.[s.position] !== undefined;
+      const way = diagramPath(start, lineman ? contact : side === "O" ? routes : drops, s.position, side);
       const keys: Key[] = [{ t: 0, ...start }, { t: snapAt, ...start }];
       way.forEach((p, i) => keys.push({ t: snapAt + ((i + 1) / way.length) * (diagramEnd - snapAt), ...p }));
       keys.push({ ...(keys[keys.length - 1] as Key), t: liveEnd });
-      marks.push({ slot: s.slot, side, position: s.position, playerId: s.id, keys: keepClear(keys, b.ball, clear, snapWindowEnd, liveEnd), roles: roleOf(s.id), fact: false });
+      marks.push({ slot: s.slot, side, position: s.position, playerId: s.id, keys: lineman ? keepClearSideways(keys, b.ball, templates.field.linemanClearYards, snapWindowEnd, liveEnd, side === "O" ? -1 : 1) : keepClear(keys, b.ball, clear, snapWindowEnd, liveEnd), roles: roleOf(s.id), fact: false });
     }
   };
   build(offSlots, "O");
@@ -585,15 +610,22 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
  * its path once the path is clear on the same side.
  */
 const MAX_TURN = Math.PI / 4;
-function keepClear(keys: readonly Key[], ball: readonly Key[], clear: number, from: number, to: number): Key[] {
-  const out: Key[] = keys.filter((k) => k.t < from);
+
+/** Sample times of the live play; the ball is read just before the whistle, so a respot (a jump to the dead-ball spot) never pushes anyone. */
+function samples(from: number, to: number): number[] {
   const times: number[] = [];
   for (let t = from; t < to; t += 25) times.push(t);
   times.push(to);
+  return times;
+}
+const ballBefore = (ball: readonly Key[], t: number, to: number): Pt => at(ball, Math.min(t, to - 1));
+
+function keepClear(keys: readonly Key[], ball: readonly Key[], clear: number, from: number, to: number): Key[] {
+  const out: Key[] = keys.filter((k) => k.t < from);
   let dir: number | null = null;
-  for (const t of times) {
+  for (const t of samples(from, to)) {
     const m = at(keys, t);
-    const bp = at(ball, t);
+    const bp = ballBefore(ball, t, to);
     const d = dist(m, bp);
     const own: number = d < 1e-9 ? (dir ?? (m.x <= MID_X ? Math.PI : 0)) : Math.atan2(m.y - bp.y, m.x - bp.x);
     let angle: number;
@@ -615,6 +647,46 @@ function keepClear(keys: readonly Key[], ball: readonly Key[], clear: number, fr
     dir = angle;
     const r = Math.max(clear, d);
     out.push({ t, x: bp.x + r * Math.cos(angle), y: bp.y + r * Math.sin(angle) });
+  }
+  return out;
+}
+
+/**
+ * keepClear for a lineman: pushed only sideways, never up or down, so he holds the contact depth
+ * his block stopped at and no X is drawn past an O (or the reverse). The side he is pushed to holds
+ * until he is clear, so he never jumps across the ball.
+ */
+function keepClearSideways(keys: readonly Key[], ball: readonly Key[], clear: number, from: number, to: number, away: -1 | 1): Key[] {
+  const out: Key[] = keys.filter((k) => k.t < from);
+  let side = 0;
+  for (const t of samples(from, to)) {
+    const m = at(keys, t);
+    const bp = ballBefore(ball, t, to);
+    const dy = m.y - bp.y;
+    // Look one sample ahead too: a kicked ball crosses the line fast, so the push starts before it arrives.
+    const ahead = ballBefore(ball, t + 25, to);
+    const free = dist(m, bp) >= clear && dist(at(keys, t + 25), ahead) >= clear;
+    const mySide = m.x === bp.x ? (m.x <= MID_X ? -1 : 1) : Math.sign(m.x - bp.x);
+    if (free && (side === 0 || mySide === side || Math.abs(dy) >= clear)) {
+      side = 0;
+      out.push({ t, ...m });
+      continue;
+    }
+    if (side === 0) side = mySide;
+    const dx = Math.sqrt(Math.max(0, clear * clear - dy * dy));
+    const want = bp.x + side * Math.max(dx, side * (m.x - bp.x));
+    const x = clampX(want);
+    // Against a sideline there's no room to the side: step away from the ball up or down instead,
+    // on the side of it the lineman is already on (his own side of the line when level with it),
+    // so he never crosses the ball's path.
+    if (x !== want) {
+      const ex = x - bp.x;
+      const back = Math.sqrt(Math.max(0, clear * clear - ex * ex));
+      const dir = Math.abs(dy) < 1e-9 ? away : Math.sign(dy);
+      out.push({ t, x, y: dir < 0 ? Math.min(m.y, bp.y - back) : Math.max(m.y, bp.y + back) });
+      continue;
+    }
+    out.push({ t, x, y: m.y });
   }
   return out;
 }

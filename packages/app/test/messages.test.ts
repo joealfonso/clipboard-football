@@ -1,9 +1,8 @@
-// Messages across the worker boundary are checked both ways (messages.ts), and the request
-// snapshot the engine is adding is read defensively (readSnapshot).
+// Messages across the worker boundary are checked both ways (messages.ts), and every request
+// carries the state it is decided in (the engine's request.state and request.events).
 
 import { describe, expect, it } from "vitest";
 import { isAnswerShape, isFromWorker, isToWorker } from "../src/engine/messages";
-import { readSnapshot } from "../src/engine/types";
 import { playGame } from "./support";
 
 describe("messages to the worker", () => {
@@ -40,26 +39,12 @@ describe("messages from the worker", () => {
   });
 });
 
-describe("the request snapshot (ASSUMED shape until the engine adds it)", () => {
-  it("is read when complete, under either name the description allows", () => {
-    expect(readSnapshot({ snapshot: { clock: 95, clockRunning: true, period: 4, timeouts: { home: 2, away: 1 }, down: 3, distance: 4, spot: 62, runoffSeconds: 31, twoMinuteWarning: false, aiTimeout: true } })).toEqual({
-      clock: 95,
-      clockRunning: true,
-      period: 4,
-      timeouts: { home: 2, away: 1 },
-      down: 3,
-      distance: 4,
-      spot: 62,
-      runoffSeconds: 31,
-      twoMinuteWarning: false,
-      aiTimeout: true,
-    });
-    expect(readSnapshot({ snapshot: { clock: 95, running: false, quarter: 2, timeouts: { home: 2, away: 1 }, down: 1, distance: 10, spot: 25, runoff: 0 } })?.period).toBe(2);
-  });
-
-  it("is ignored when missing or incomplete, so the HUD falls back to the committed state", () => {
-    expect(readSnapshot({})).toBeNull();
-    expect(readSnapshot(null)).toBeNull();
-    expect(readSnapshot({ snapshot: { clock: 95 } })).toBeNull();
+describe("request state", () => {
+  it("every request after the toss carries its state, and a human defense sees the run-off before the snap", () => {
+    const g = playGame(42, "away");
+    const later = g.requests.slice(2);
+    for (const r of later) expect(r.state, r.kind).not.toBeNull();
+    const runoffBeforeDefense = g.requests.some((r) => r.kind === "defenseCall" && r.events.some((e) => e.t === "runoff"));
+    expect(runoffBeforeDefense).toBe(true);
   });
 });

@@ -4,6 +4,7 @@
 
 import { FIELD_WIDTH_YARDS, type Layout } from "./layout";
 import { at, MID_X, type Key, type Timeline, type TLMark } from "./timeline";
+import { numberShown, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "./marks";
 import { COLOR, FONT_MONO, FONT_UI } from "./tokens";
 
 export type MarkLabels = "involved" | "all" | "none";
@@ -106,8 +107,10 @@ export function drawField(g: CanvasRenderingContext2D, v: View, scene: FieldScen
   // End zone names, upright.
   g.fillStyle = COLOR.inkSoft;
   g.font = `600 ${Math.round(20 * textScale)}px ${FONT_UI}`;
-  g.fillText(scene.topName.toUpperCase(), X(v, MID_X), Y(v, 100 + ez / 2));
-  g.fillText(scene.bottomName.toUpperCase(), X(v, MID_X), Y(v, -ez / 2));
+  // Toward the end line, clear of the goal line where the play happens.
+  const nameIn = Math.min(ez / 2, 2.5);
+  g.fillText(scene.topName.toUpperCase(), X(v, MID_X), Y(v, 100 + ez - nameIn));
+  g.fillText(scene.bottomName.toUpperCase(), X(v, MID_X), Y(v, -ez + nameIn));
   // Line of scrimmage and the line to gain.
   g.strokeStyle = COLOR.ink;
   g.lineWidth = 2;
@@ -148,6 +151,16 @@ function arrowhead(g: CanvasRenderingContext2D, v: View, a: { x: number; y: numb
   g.stroke();
 }
 
+/** path.block: a short tick across the end of a lineman's path. */
+function blockTick(g: CanvasRenderingContext2D, v: View, a: { x: number; y: number }, b: { x: number; y: number }): void {
+  const ang = Math.atan2(Y(v, b.y) - Y(v, a.y), X(v, b.x) - X(v, a.x)) + Math.PI / 2;
+  const half = 5;
+  g.beginPath();
+  g.moveTo(X(v, b.x) - half * Math.cos(ang), Y(v, b.y) - half * Math.sin(ang));
+  g.lineTo(X(v, b.x) + half * Math.cos(ang), Y(v, b.y) + half * Math.sin(ang));
+  g.stroke();
+}
+
 function moves(m: TLMark, snapAt: number): boolean {
   const last = m.keys[m.keys.length - 1] as Key;
   const a = at(m.keys, snapAt);
@@ -165,17 +178,23 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
     g.strokeStyle = color;
     g.lineWidth = 2;
     g.setLineDash(m.side === "X" ? [6, 4] : []);
-    if (t < tl.snapAt) {
-      if (m.fact) continue;
-      g.globalAlpha = o.routeAlpha;
-      polyline(g, v, trail(m.keys, tl.snapAt, Infinity));
-      g.globalAlpha = 1;
-      continue;
-    }
-    const pts = trail(m.keys, tl.snapAt, t);
+    // Every path stops at the edge of the mark it leads to (DESIGN.md Shapes), 1 px clear.
+    const edge = (v.markPx / 2 + 1) / v.s;
+    const preview = t < tl.snapAt;
+    if (preview && m.fact) continue;
+    const pts = trimEnd(trail(m.keys, tl.snapAt, preview ? Infinity : t), edge);
+    if (pts === null) continue;
+    if (preview) g.globalAlpha = o.routeAlpha;
     polyline(g, v, pts);
     const last = m.keys[m.keys.length - 1] as Key;
-    if (m.side === "O" && t >= last.t && pts.length >= 2) arrowhead(g, v, pts[pts.length - 2] as Key, pts[pts.length - 1] as Key);
+    const ended = preview || t >= last.t;
+    if (m.side === "O" && ended && pts.length >= 2) {
+      const a = pts[pts.length - 2] as { x: number; y: number };
+      const b = pts[pts.length - 1] as { x: number; y: number };
+      if (m.position === "OL") blockTick(g, v, a, b);
+      else arrowhead(g, v, a, b);
+    }
+    g.globalAlpha = 1;
   }
   g.setLineDash([]);
   // The ball's flight, dotted.
@@ -215,21 +234,32 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
     if (whistle && tl.rings.includes(m.playerId)) {
       g.strokeStyle = COLOR.ink;
       g.beginPath();
-      g.arc(cx, cy, r + 6, 0, Math.PI * 2);
+      g.arc(cx, cy, r + RING_GAP, 0, Math.PI * 2);
       g.stroke();
     }
+  }
+  // Jersey numbers: all at the set, named players during the live play, all at the whistle.
+  const phase = t < tl.snapAt ? "set" : whistle ? "whistle" : "live";
+  const inside = o.markLabels === "all" && v.markPx >= 20;
+  const placedMarks: MarkPx[] = tl.marks.flatMap((m) => {
     const n = o.numbers[m.playerId];
-    const show = n !== undefined && (o.markLabels === "all" || (o.markLabels === "involved" && whistle && tl.involved.includes(m.playerId)));
-    if (show) {
+    if (n === undefined) return [];
+    const p = at(m.keys, t);
+    const named = tl.involved.includes(m.playerId);
+    return [{ id: m.playerId, side: m.side, x: X(v, p.x), y: Y(v, p.y), ringed: whistle && tl.rings.includes(m.playerId), named, number: n, show: numberShown(o.markLabels, phase, named) }];
+  });
+  const sideOf = new Map(tl.marks.map((m) => [m.playerId, m.side]));
+  g.textBaseline = "middle";
+  if (inside) {
+    for (const m of placedMarks) {
+      if (!m.show) continue;
       g.fillStyle = m.side === "O" ? COLOR.offense : COLOR.defense;
-      if (o.markLabels === "all" && v.markPx >= 20) {
-        g.textBaseline = "middle";
-        g.fillText(String(n), cx, cy);
-      } else {
-        // Under an O, above an X: the side away from the line of scrimmage.
-        g.textBaseline = m.side === "O" ? "top" : "bottom";
-        g.fillText(String(n), cx, m.side === "O" ? cy + r + 2 : cy - r - 2);
-      }
+      g.fillText(String(m.number), m.x, m.y);
+    }
+  } else {
+    for (const b of placeNumbers(placedMarks, v.markPx, numberPx)) {
+      g.fillStyle = sideOf.get(b.id) === "O" ? COLOR.offense : COLOR.defense;
+      g.fillText(String(o.numbers[b.id]), b.x, b.y);
     }
   }
   // Flags and labels at the whistle.

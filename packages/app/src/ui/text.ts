@@ -4,7 +4,7 @@
 
 import type { PlayResult } from "@clipboard-football/shared";
 import type { Catalog } from "@clipboard-football/shared";
-import { readDetail, type ContinueAbout, type GameEvent, type OffenseCallChoice, type PenaltyPreview, type PlayEvent, type ReasonCode, type Snapshot, type Team, type Tempo } from "../engine/types";
+import { readDetail, type ContinueAbout, type RequestEvent, type GameEvent, type OffenseCallChoice, type PenaltyPreview, type PlayEvent, type ReasonCode, type Snapshot, type Team, type Tempo } from "../engine/types";
 
 export interface TeamText {
   readonly name: string;
@@ -197,15 +197,29 @@ export function playText(ev: PlayEvent, ctx: TextCtx): string {
     }
     case "kickoff":
     case "onsideKick": {
+      // Plain words for what happened to the kick, from the engine's class and the result.
       const k = who(parts.kicker);
-      const lbl = d.class === undefined ? undefined : (ctx.labels[d.class] ?? KICK_CLASS_TEXT[d.class]);
-      let t = play.kind === "onsideKick" ? "Onside kick" : "Kickoff";
-      if (k !== undefined) t = `${k}: ${t.toLowerCase()}`;
-      if (lbl !== undefined) t += `, ${lbl}`;
       const r = who(parts.returner);
-      if (r !== undefined) t += `, returned by ${r}`;
-      if (play.kind === "onsideKick" && after.phase === "scrimmage") t += after.possession === off ? `, recovered by the ${ctx.teams[off].nickname}` : `, recovered by the ${ctx.teams[def].nickname}`;
-      return t;
+      const head = play.kind === "onsideKick" ? (k === undefined ? "Onside kick" : `${k} kicks onside`) : k === undefined ? "Kickoff" : `${k} kicks off`;
+      const by = r === undefined ? "" : ` by ${r}`;
+      const cls = d.class ?? ("outcome" in play ? play.outcome : "");
+      if (play.kind === "onsideKick" || cls.startsWith("onside")) {
+        if (cls === "onsideOutOfBounds" || ("outcome" in play && play.outcome === "outOfBounds")) return `${head}, out of bounds`;
+        if (after.phase !== "scrimmage") return head;
+        return after.possession === off ? `${head}, recovered by the ${ctx.teams[off].nickname}` : `${head}, recovered by the ${ctx.teams[def].nickname}`;
+      }
+      const KICKOFF: Readonly<Record<string, string>> = {
+        touchbackEndZone: "touchback",
+        touchbackLandingZone: "touchback",
+        short: "short of the landing zone",
+        outOfBounds: "out of bounds",
+        fairCatch: `fair catch${by}`,
+        returned: r === undefined ? "returned" : `returned${by}`,
+        returnTD: `returned for a touchdown${by}`,
+        kickersRecover: `recovered by the ${ctx.teams[off].nickname}`,
+      };
+      const what = KICKOFF[cls];
+      return what === undefined ? head : `${head}, ${what}`;
     }
     case "noPlay":
       return "No play";
@@ -307,6 +321,20 @@ export function eventLine(ev: GameEvent, ctx: TextCtx): string | null {
   }
 }
 
+
+/** Lines for the events a request says happened before it in this dead ball. */
+export function requestEventLine(ev: RequestEvent, ctx: TextCtx): string {
+  switch (ev.t) {
+    case "runoff":
+      return `Clock ran ${ev.seconds} s before the snap.`;
+    case "timeout":
+      return `Timeout, ${ctx.teams[ev.team].nickname} (${ev.left} left).`;
+    case "twoMinuteWarning":
+      return "Two-minute warning.";
+    case "endPeriod":
+      return ev.period < ctx.regulationPeriods ? `End of the ${periodText(ev.period, ctx.regulationPeriods)} quarter.` : ev.period === ctx.regulationPeriods ? "End of regulation." : "End of overtime.";
+  }
+}
 
 /** Text for an off choice's reason (the engine's ReasonCode). */
 export function reasonText(code: ReasonCode | undefined): string {

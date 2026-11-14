@@ -22,7 +22,7 @@ export interface Timing {
 export interface Templates {
   readonly version: number;
   readonly timing: Timing;
-  readonly field: { readonly markYards: number; readonly markMinPx: number; readonly losFromTop: number; readonly panEdgeYards: number; readonly clearOfBallYards: number };
+  readonly field: { readonly markYards: number; readonly markMinPx: number; readonly losFromTop: number; readonly panEdgeYards: number; readonly clearOfBallYards: number; readonly linemanClearYards: number };
   readonly offense: Readonly<Record<string, Alignment>>;
   readonly kick: Readonly<Record<string, Alignment>>;
   readonly defense: Readonly<Record<string, Alignment>>;
@@ -31,6 +31,10 @@ export interface Templates {
   readonly drops: Readonly<Record<string, Waypoints>>;
   readonly presetDrops: Readonly<Record<string, string>>;
   readonly passDepth: Readonly<Record<string, number>>;
+  /** OL and DL movement by play family: they stop at contact (path.block), whatever the call. */
+  readonly lineContact: Readonly<Record<"run" | "pass" | "kick", Waypoints>>;
+  /** DESIGN.md Spacing: line marks at least minPx apart, spread out from the center; maxDepth picks the line. */
+  readonly lineSpacing: { readonly minPx: number; readonly maxDepth: number };
 }
 
 export class TemplateError extends Error {
@@ -60,10 +64,17 @@ function groupOf(v: unknown, path: string, leaf: (x: unknown) => boolean): void 
 export function parseTemplates(v: unknown): Templates {
   if (!isObj(v) || v["designed"] !== true || !isNum(v["version"])) throw new TemplateError("needs version and designed: true");
   numbers(v["timing"], "timing", ["runoffMaxMs", "setMs", "liveMinMs", "liveMaxMs", "liveSecondsMin", "liveSecondsMax", "holdMs", "scoreHoldMs", "crossfadeMs", "routeAlpha"]);
-  numbers(v["field"], "field", ["markYards", "markMinPx", "losFromTop", "panEdgeYards", "clearOfBallYards"]);
+  numbers(v["field"], "field", ["markYards", "markMinPx", "losFromTop", "panEdgeYards", "clearOfBallYards", "linemanClearYards"]);
   for (const k of ["offense", "kick", "defense", "returnUnits"]) groupOf(v[k], k, isPair);
   for (const k of ["routes", "drops"]) groupOf(v[k], k, (x) => Array.isArray(x) && x.every(isPair));
   if (!isObj(v["presetDrops"]) || !Object.values(v["presetDrops"]).every((x) => typeof x === "string")) throw new TemplateError("presetDrops must map presets to drop names");
+  const lc = v["lineContact"];
+  if (!isObj(lc)) throw new TemplateError("lineContact must be an object");
+  for (const k of ["run", "pass", "kick"]) {
+    const g = lc[k];
+    if (!isObj(g) || !Object.values(g).every((x) => Array.isArray(x) && x.every(isPair))) throw new TemplateError(`lineContact.${k} is malformed`);
+  }
+  numbers(v["lineSpacing"], "lineSpacing", ["minPx", "maxDepth"]);
   if (!isObj(v["passDepth"]) || !Object.values(v["passDepth"]).every(isNum)) throw new TemplateError("passDepth must map pass plays to yards");
   const t = v["timing"] as Record<string, number>;
   if ((t["liveMinMs"] as number) > (t["liveMaxMs"] as number)) throw new TemplateError("timing.liveMinMs is above liveMaxMs");
