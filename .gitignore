@@ -11,3 +11,7 @@ __pycache__/
 # check (M1 step 5, B3). Stays local; see docs/DATA.md.
 pipeline/game/real_names.py
 packages/app/dist/
+
+# Local agent worktrees and preview config
+.claude/worktrees/
+.claude/launch.json
