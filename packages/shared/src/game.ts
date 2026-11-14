@@ -407,7 +407,7 @@ export interface RequestState {
 
 /** What happened in this dead ball before the request, in order (the loop's events, short form). */
 export type RequestEvent =
-  /** Seconds the clock ran before the snap (or before a timeout). */
+  /** Seconds the game clock really ran before the snap (or before a timeout): the drawn run-off, cut short by a two-minute warning or the end of the period. */
   | { readonly t: "runoff"; readonly seconds: number }
   | { readonly t: "timeout"; readonly team: "home" | "away"; readonly side: "offense" | "defense"; readonly left: number }
   | { readonly t: "twoMinuteWarning"; readonly period: number }

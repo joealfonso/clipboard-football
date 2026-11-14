@@ -244,7 +244,8 @@ export function requestEvents(events: readonly GameEvent[], from: number): Reque
   const out: RequestEvent[] = [];
   for (let i = from; i < events.length; i++) {
     const e = events[i] as GameEvent;
-    if (e.t === "runoff") out.push({ t: "runoff", seconds: e.seconds });
+    // The seconds the clock really ran: a two-minute warning or the end of the period can cut the drawn run-off short.
+    if (e.t === "runoff") out.push({ t: "runoff", seconds: e.after.period === e.before.period ? e.before.clock - e.after.clock : e.before.clock });
     else if (e.t === "timeout") out.push({ t: "timeout", team: e.team, side: e.side, left: e.left });
     else if (e.t === "twoMinuteWarning" || e.t === "endPeriod") out.push({ t: e.t, period: e.period });
   }
