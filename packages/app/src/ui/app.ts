@@ -9,7 +9,7 @@ import type { SaveData } from "../engine/session";
 import { SimClient } from "../engine/client";
 import { whyHeadline } from "../engine/headline";
 import type { FromWorker, Matchup, SimErrorInfo, TeamSummary, UiData } from "../engine/protocol";
-import { readDetail, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
+import { readDetail, readSnapshot, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
 import { Animator } from "./animator";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
@@ -38,7 +38,7 @@ import {
   type ScreenRow,
   type Unit,
 } from "./screens";
-import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, storageAvailable, writeSave, type Settings } from "./storage";
+import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, setSaveAside, storageAvailable, writeSave, type Settings } from "./storage";
 import { parseTemplates, type Templates } from "./templates";
 import {
   abbrev,
@@ -100,6 +100,8 @@ interface GameView {
   /** The pending play a penalty request already showed, so the commit doesn't animate it twice. */
   shownPending: string | null;
   requestAt: number;
+  /** Run-off seconds a request snapshot already showed, so the snap doesn't count them down again. */
+  runoffShown: number;
 }
 
 const POSITION_UNIT: Readonly<Record<Position, Unit>> = { QB: "Offense", RB: "Offense", WR: "Offense", TE: "Offense", OL: "Offense", DL: "Defense", LB: "Defense", CB: "Defense", S: "Defense", K: "Special teams", P: "Special teams" };
@@ -275,7 +277,7 @@ export class App {
   private async onStep(m: Extract<FromWorker, { t: "step" }>): Promise<void> {
     const fresh = this.game === null || m.resumed || this.game.matchup.seed !== m.matchup.seed;
     if (fresh) {
-      this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0 };
+      this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0, runoffShown: 0 };
       this.stack = [{ id: "game" }];
       if (!m.resumed) bumpLog((l) => l.gamesStarted++);
     }
@@ -309,7 +311,9 @@ export class App {
           const key = JSON.stringify(ev.play);
           g.eventLines = pre;
           pre = [];
-          if (g.shownPending !== key) await this.animate(g, ev, runoff, prev);
+          // A run-off the request's snapshot already showed before the snap isn't counted down again.
+          if (g.shownPending !== key) await this.animate(g, ev, Math.max(0, runoff - g.runoffShown), prev);
+          g.runoffShown = 0;
           g.shownPending = null;
           runoff = 0;
           this.setPlayText(g, ev);
@@ -332,6 +336,18 @@ export class App {
     }
     g.request = m.request;
     g.menu = m.request === null ? null : openMenu(m.request);
+    // The request's snapshot (when the engine sends one): show what happened before this decision,
+    // as the design asks for a human defense, which is asked after the run-off.
+    const snap = readSnapshot(m.request);
+    if (snap !== null && g.state !== null) {
+      const ctx = this.textCtx(g);
+      const lines: string[] = [];
+      if (snap.aiTimeout) lines.push(`Timeout, ${ctx.teams[other(g.human)].nickname}.`);
+      if (snap.runoffSeconds > 0 && g.runoffShown === 0) lines.push(`Clock ran ${snap.runoffSeconds} s before the snap.`);
+      if (snap.twoMinuteWarning) lines.push("Two-minute warning.");
+      g.eventLines = [...g.eventLines, ...lines.filter((l) => !g.eventLines.includes(l))];
+      g.runoffShown = snap.runoffSeconds;
+    }
     g.requestAt = performance.now();
     this.highlight = 0;
     if (m.request?.kind === "penalty" || m.request?.kind === "runoff") await this.showPending(g, m.request);
@@ -712,6 +728,16 @@ export class App {
       case "copy":
         this.copyDetails(top);
         return;
+      case "newGameAside":
+        // Keep the save that can't be resumed (for a bug report), then start fresh.
+        void setSaveAside()
+          .catch(() => null)
+          .then((key) => {
+            this.hasSave = false;
+            this.status = key === null ? "" : `The old save is kept aside as ${key}.`;
+            this.act({ id: "title" }, { key: "1", label: "New game", on: true, action: "newGame" });
+          });
+        return;
       case "deleteSave":
         void deleteSave().finally(() => {
           this.hasSave = false;
@@ -843,6 +869,14 @@ export class App {
     el.textContent = parts.join(" ");
   }
 
+  /** The state the HUD shows: the open request's snapshot over the committed state, else the committed state. */
+  private hudState(g: GameView): GameState | null {
+    const s = g.state;
+    const snap = readSnapshot(g.request);
+    if (s === null || snap === null) return s;
+    return { ...s, clock: snap.clock, clockRunning: snap.clockRunning, period: snap.period, timeouts: snap.timeouts, down: snap.down, distance: snap.distance, spot: snap.spot };
+  }
+
   private renderTopBar(): void {
     const bar = this.root.topBar;
     const g = this.game;
@@ -850,7 +884,7 @@ export class App {
       bar.replaceChildren(h("span", { class: "brand" }, "Clipboard Football"));
       return;
     }
-    const s = g.state;
+    const s = this.hudState(g);
     if (s === null) {
       // Before the opening toss is settled.
       bar.replaceChildren(...(["away", "home"] as const).map((t) => h("span", { class: "team" }, swatch(swatchFor(g.matchup[t].index)), h("span", { class: "abbr" }, abbrev(g.matchup[t]), t === g.human ? " (you)" : ""), h("span", { class: "score mono" }, "0"))), h("span", { class: "time" }, "Coin toss"));
@@ -929,7 +963,7 @@ export class App {
   private gamePanel(): HTMLElement[] {
     const g = this.game;
     if (g === null || this.ui === null) return [];
-    const s = g.state;
+    const s = this.hudState(g);
     const header =
       s === null
         ? h("div", { class: "situation" }, h("div", { class: "dd mono" }, "Coin toss"))

@@ -9,7 +9,7 @@ import type { DecisionAnswer, DecisionRequest, GameEvent, GameState, Team } from
 let cached: Prepared | null = null;
 
 export function prepared(): Prepared {
-  cached ??= prepare(loadGameData(), "test-data-hash");
+  cached ??= prepare(loadGameData(), "test-data-hash", "test-code-hash");
   return cached;
 }
 

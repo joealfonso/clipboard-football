@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { FromWorker } from "../src/engine/protocol";
-import { SAVE_SCHEMA_VERSION, Session, type SaveData } from "../src/engine/session";
+import { SAVE_SCHEMA_VERSION, Session, checkSave, type SaveData } from "../src/engine/session";
 import type { PlayEvent } from "../src/engine/types";
 import { playGame, prepared, scriptedAnswer } from "./support";
 
@@ -26,7 +26,7 @@ describe("a whole game through the worker session", () => {
   it("every step message carries the save, version 2, with the engine's answer log", () => {
     const last = g.sent[g.sent.length - 1];
     if (last?.t !== "step") throw new Error("no step");
-    expect(last.save).toMatchObject({ schemaVersion: SAVE_SCHEMA_VERSION, dataHash: "test-data-hash", leagueSeed: 2026, seed: 31, human: "home", gameType: "regularSeason" });
+    expect(last.save).toMatchObject({ schemaVersion: SAVE_SCHEMA_VERSION, dataHash: "test-data-hash", codeHash: "test-code-hash", leagueSeed: 2026, seed: 31, human: "home", gameType: "regularSeason" });
     expect(last.save.log).toEqual(g.answers);
   });
 });
@@ -112,18 +112,49 @@ describe("answers and saves", () => {
     }
   });
 
-  it("refuses a save from other data or the M1 adapter as older, and junk as damaged", () => {
+  const good: SaveData = { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: "test-data-hash", codeHash: "test-code-hash", leagueSeed: 2026, seed: 36, human: "home", gameType: "regularSeason", log: [] };
+
+  it("reads a save from other data, other engine code or an earlier version as older", () => {
     const sent: FromWorker[] = [];
     const s = new Session(prepared(), (m) => sent.push(m));
-    const good: SaveData = { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: "test-data-hash", leagueSeed: 2026, seed: 36, human: "home", gameType: "regularSeason", log: [] };
     s.handle({ t: "resume", save: { ...good, dataHash: "other" } });
+    s.handle({ t: "resume", save: { ...good, codeHash: "an-older-build" } });
+    const { codeHash: _drop, ...v2 } = good;
+    void _drop;
+    s.handle({ t: "resume", save: { ...v2, schemaVersion: 2 } });
     s.handle({ t: "resume", save: { ...good, schemaVersion: 1, log: [{ kind: "continue" }] } });
-    s.handle({ t: "resume", save: { nonsense: true } });
-    s.handle({ t: "resume", save: { ...good, log: [{ seq: 1, path: ["teleport"] }] } });
-    s.handle({ t: "resume", save: { ...good, log: [{ kind: "continue" }] } });
-    expect(sent.map((m) => (m.t === "saveError" ? m.reason : m.t))).toEqual(["older", "older", "damaged", "damaged", "damaged"]);
-    s.handle({ t: "resume", save: good });
+    expect(sent.map((m) => (m.t === "saveError" ? m.reason : m.t))).toEqual(["older", "older", "older", "older"]);
+  });
+
+  it("reads junk, answers the schema rejects, and any log that fails to replay as damaged, never a sim error", () => {
+    const sent: FromWorker[] = [];
+    const s = new Session(prepared(), (m) => sent.push(m));
+    const g = playGame(36, "home");
+    const bad: unknown[] = [
+      { nonsense: true },
+      null,
+      [],
+      { ...good, seed: -1 },
+      { ...good, human: "both" },
+      { ...good, log: [{ kind: "continue" }] },
+      { ...good, log: [{ seq: 0, path: ["continue"] }] },
+      { ...good, log: [{ seq: 1, path: [] }] },
+      { ...good, log: [{ seq: 1, path: ["teleport"] }] },
+      // A real log with one answer changed so the replay rejects it part way through.
+      { ...good, log: g.answers.map((a, i) => (i === 40 ? { seq: a.seq, path: ["teleport"] } : a)) },
+      // A real log with an answer out of order (stale seq).
+      { ...good, log: [g.answers[1], g.answers[0]] },
+    ];
+    for (const save of bad) s.handle({ t: "resume", save });
+    expect(sent.map((m) => (m.t === "saveError" ? m.reason : m.t))).toEqual(bad.map(() => "damaged"));
+    s.handle({ t: "resume", save: { ...good, log: g.answers.slice(0, 30) } });
     expect(sent[sent.length - 1]?.t).toBe("step");
+  });
+
+  it("checkSave says why", () => {
+    expect(checkSave(good, "test-data-hash", "test-code-hash")).toEqual({ ok: true, save: good });
+    expect(checkSave(good, "test-data-hash", "new-code")).toEqual({ ok: false, reason: "older" });
+    expect(checkSave("save", "test-data-hash", "test-code-hash")).toEqual({ ok: false, reason: "damaged" });
   });
 
   it("box and ranks come from the engine", () => {

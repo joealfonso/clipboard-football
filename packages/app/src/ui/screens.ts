@@ -139,7 +139,8 @@ export function detailsScreen(): ScreenModel {
 }
 
 export function saveErrorScreen(reason: "older" | "damaged"): ScreenModel {
-  return { id: `save-${reason}`, title: "Saved game", rows: [row("1", "Delete save", "deleteSave"), row("Esc", "Back", "back")] };
+  // Starting new keeps the bad save aside (storage.setSaveAside); Delete removes it for good.
+  return { id: `save-${reason}`, title: "Saved game", rows: [row("1", "Start a new game", "newGameAside", { note: "the old save is kept aside" }), row("2", "Delete save", "deleteSave"), row("Esc", "Back", "back")] };
 }
 
 export function simErrorScreen(): ScreenModel {

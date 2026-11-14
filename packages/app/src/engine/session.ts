@@ -3,7 +3,7 @@
 // The game itself is the engine's step-wise loop (packages/sim loop/session.ts): startSession,
 // answerSession, replaySession, sessionRecord. A save is the seed plus the engine's answer log.
 
-import type { GameData, TeamPool } from "@clipboard-football/shared";
+import { decisionAnswerSchema, decisionRequestSchema, type GameData, type TeamPool } from "@clipboard-football/shared";
 import {
   EngineError,
   GameLoopError,
@@ -29,14 +29,22 @@ import type { FromWorker, Matchup, TeamSummary, ToWorker, UiData } from "./proto
 import type { DecisionAnswer, RatingRanks, Team } from "./types";
 
 export const DEFAULT_LEAGUE_SEED = 2026;
-/** Version 2: the log holds the engine's answers (option paths). Version 1 saves (the M1 adapter's answers) can't be resumed. */
-export const SAVE_SCHEMA_VERSION = 2;
+/**
+ * Save versions: 1 held the M1 adapter's answers; 2 the engine's answer paths; 3 adds `codeHash`.
+ * Only the current version resumes; an older one reads as "from an older version".
+ */
+export const SAVE_SCHEMA_VERSION = 3;
 
-/** Everything that rebuilds a game: plain JSON for IndexedDB. Same shape as version 1. */
+/** Everything that rebuilds a game: plain JSON for IndexedDB. */
 export interface SaveData {
   readonly schemaVersion: number;
   /** sha256 over every data file's hash; a save from other data can't be resumed. */
   readonly dataHash: string;
+  /**
+   * sha256 over the sim and shared sources the build was made from (vite.config.ts). The same
+   * answers replayed by different engine code can give a different game, so a mismatch reads as older.
+   */
+  readonly codeHash: string;
   readonly leagueSeed: number;
   readonly seed: number;
   readonly human: Team;
@@ -49,11 +57,12 @@ export interface Prepared {
   readonly data: GameData;
   readonly kit: GameKit;
   readonly dataHash: string;
+  readonly codeHash: string;
   league(leagueSeed: number): readonly LeagueTeam[];
   ranks(leagueSeed: number): RatingRanks;
 }
 
-export function prepare(data: GameData, dataHash: string): Prepared {
+export function prepare(data: GameData, dataHash: string, codeHash: string): Prepared {
   const leagues = new Map<number, readonly LeagueTeam[]>();
   const ranks = new Map<number, RatingRanks>();
   const league = (seed: number): readonly LeagueTeam[] => {
@@ -68,6 +77,7 @@ export function prepare(data: GameData, dataHash: string): Prepared {
     data,
     kit: prepareGame(data),
     dataHash,
+    codeHash,
     league,
     ranks(seed) {
       let r = ranks.get(seed);
@@ -105,22 +115,27 @@ function summary(teams: readonly LeagueTeam[], name: string, p: Prepared): TeamS
   return { index, name: t.name, place: nm?.place ?? t.name, nickname: nm?.nickname ?? t.name, pool: t.pool };
 }
 
-function isSave(v: unknown): v is SaveData {
-  if (typeof v !== "object" || v === null) return false;
+/** What a stored save is: older (another version, data or code), damaged (unreadable), or usable. */
+export function checkSave(v: unknown, dataHash: string, codeHash: string): { ok: true; save: SaveData } | { ok: false; reason: "older" | "damaged" } {
+  if (typeof v !== "object" || v === null || Array.isArray(v)) return { ok: false, reason: "damaged" };
   const s = v as Record<string, unknown>;
-  return (
-    typeof s["schemaVersion"] === "number" &&
-    typeof s["dataHash"] === "string" &&
+  if (typeof s["schemaVersion"] !== "number") return { ok: false, reason: "damaged" };
+  // A save from another version, other data or other engine code is not replayed (it could give a different game).
+  if (s["schemaVersion"] !== SAVE_SCHEMA_VERSION || s["dataHash"] !== dataHash || s["codeHash"] !== codeHash) {
+    return typeof s["dataHash"] === "string" ? { ok: false, reason: "older" } : { ok: false, reason: "damaged" };
+  }
+  const shapeOk =
     Number.isSafeInteger(s["leagueSeed"]) &&
+    (s["leagueSeed"] as number) >= 0 &&
     Number.isSafeInteger(s["seed"]) &&
+    (s["seed"] as number) >= 0 &&
     (s["human"] === "home" || s["human"] === "away") &&
     (s["gameType"] === "regularSeason" || s["gameType"] === "postseason") &&
-    Array.isArray(s["log"])
-  );
+    Array.isArray(s["log"]) &&
+    // Every answer through the shared zod schema.
+    s["log"].every((a) => decisionAnswerSchema.safeParse(a).success);
+  return shapeOk ? { ok: true, save: v as SaveData } : { ok: false, reason: "damaged" };
 }
-
-const isAnswer = (a: unknown): a is DecisionAnswer =>
-  typeof a === "object" && a !== null && Number.isSafeInteger((a as DecisionAnswer).seq) && Array.isArray((a as DecisionAnswer).path) && (a as DecisionAnswer).path.every((x) => typeof x === "string");
 
 interface Game {
   readonly setup: GameSetup;
@@ -146,13 +161,19 @@ export class Session {
   }
 
   private save(g: Game): SaveData {
-    return { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: this.p.dataHash, leagueSeed: g.matchup.leagueSeed, seed: g.matchup.seed, human: g.human, gameType: g.matchup.gameType, log: g.session.inputs };
+    return { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: this.p.dataHash, codeHash: this.p.codeHash, leagueSeed: g.matchup.leagueSeed, seed: g.matchup.seed, human: g.human, gameType: g.matchup.gameType, log: g.session.inputs };
   }
 
   private step(g: Game, resumed: boolean): void {
     const run = g.session.run;
     const events = run === null ? [] : resumed ? run.events : run.events.slice(g.reported);
     g.reported = run?.events.length ?? 0;
+    // The engine's request against its own schema before it crosses to the UI.
+    const req = g.session.request;
+    if (req !== null) {
+      const r = decisionRequestSchema.safeParse(req);
+      if (!r.success) throw new Error(`the engine sent a request its schema rejects: ${r.error.message}`);
+    }
     this.send({ t: "step", matchup: g.matchup, human: g.human, events, request: g.session.request, state: run?.state ?? null, save: this.save(g), resumed });
   }
 
@@ -196,17 +217,16 @@ export class Session {
           this.step(this.game, false);
           return;
         case "resume": {
-          const s = m.save;
-          if (!isSave(s)) return this.send({ t: "saveError", reason: "damaged" });
-          if (s.schemaVersion !== SAVE_SCHEMA_VERSION || s.dataHash !== this.p.dataHash) return this.send({ t: "saveError", reason: "older" });
-          if (!s.log.every(isAnswer)) return this.send({ t: "saveError", reason: "damaged" });
+          const checked = checkSave(m.save, this.p.dataHash, this.p.codeHash);
+          if (!checked.ok) return this.send({ t: "saveError", reason: checked.reason });
+          const s = checked.save;
           let g: Game;
           try {
             g = this.begin(s.leagueSeed, s.seed, s.human, s.gameType, s.log);
-          } catch (e) {
-            // replaySession throws a RangeError when the log doesn't fit the game.
-            if (e instanceof RangeError) return this.send({ t: "saveError", reason: "damaged" });
-            throw e;
+          } catch {
+            // Any failure to replay the log (a rejected answer, an engine error on the way) means
+            // this save can't be resumed: damaged, never a sim error the UI would retry forever.
+            return this.send({ t: "saveError", reason: "damaged" });
           }
           this.game = g;
           this.step(g, true);

@@ -98,6 +98,20 @@ export async function deleteSave(): Promise<void> {
   await tx("readwrite", (s) => s.delete(KEY));
 }
 
+/**
+ * Moves the current save aside under "set-aside-<time>" in the same store, so a save that can't
+ * be resumed is kept for a bug report rather than deleted, and the slot is free for a new game.
+ * Returns the key it was kept under, or null when there was no save.
+ */
+export async function setSaveAside(now: Date = new Date()): Promise<string | null> {
+  const save = await readSave();
+  if (save === undefined) return null;
+  const key = `set-aside-${now.toISOString()}`;
+  await tx("readwrite", (s) => s.put(save, key));
+  await deleteSave();
+  return key;
+}
+
 // ---------------------------------------------------------------- local playtest log
 
 /** Counts for the gate playtest (design "How the gate is tested"); kept in this browser only. */
