@@ -167,7 +167,7 @@ Calibration runs use the step 5 in-sample run (`scripts/game/calibrate.ts --targ
 
 | # | Criterion | How it fails |
 |---|---|---|
-| C1 | For every game in the CI slice, player lines sum to the team box: passing yards, rushing yards, receiving yards and catches, TDs, INTs thrown equal INTs made, sacks taken equal sacks made, FG and XP counts. | A sum mismatch. |
+| C1 | For every game in the CI slice, player lines sum to the team box: passing yards, rushing yards, receiving yards and catches, TDs, INTs thrown equal INTs made, sacks taken equal sacks made, FG and XP counts. Amended 2026-11-14 (lead): completions, catches and their yards leave out intercepted passes the offense recovered (`defensePossessedDuringPlay` with no turnover), which the step 5 team box counts as completions. | A sum mismatch. |
 | C2 | Plays that don't stand (wiped by an accepted foul, replayed down) add no player stat; a test with a scripted log covers each. | A stat from a wiped play. |
 | C3 | The box score is built from the event log alone; re-running it from a parsed JSON record gives the same box (step 5 E5). | Diff. |
 | C4 | A player with no stat in a category has no value (the UI shows a dash), distinct from 0. | 0 for a player with no attempt. |
