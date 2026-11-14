@@ -1123,6 +1123,10 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 11 | 2026-11-13, step 5d | Every step 5d change and Joseph's step 5d approvals | 0 gated failures; 3 accepted misses wider (see "Holdout runs for step 5d"); stopped, nothing recorded |
 | C7 | 8 | 2026-11-13, step 5d | Approvals and pins only, metrics must match run 7: Joseph's step 5d holdout known deviations (the summary pins the tolerances file) | Every metric identical to run 7 |
 | Step 5 game | 12 | 2026-11-13, step 5d | Approvals and pins only, metrics must match run 11: Joseph's step 5d holdout known deviations and C7 run 8 | Every metric, diagnostic and slice digest identical to run 11; 0 gated failures, the three misses now read "accepted". Run on a loaded machine (load average 22-48), so its 49.7 ms per game is not a speed reading |
+| Caller | 8 | 2026-11-13, step 5d | Code review fixes (lost-challenge reading, loud binning; caller tables unchanged) | Every metric identical to run 7 |
+| Engine | 9 | 2026-11-13, step 5d | Code review fixes in the caller code its hash covers (engine tables unchanged) | Every metric identical to run 8 |
+| C7 | 9 | 2026-11-13, step 5d | Code review: lost-challenge reading (tempo, timeout and onside cells moved) and Joseph's rerun acceptances | Every metric passes or stays at its accepted value (`defense.c40` 8.34 vs 10.35) |
+| Step 5 game | 13 | 2026-11-13, step 5d | Code review and spec check fixes, Joseph's rerun acceptances, C7 run 9 | 1 new gated failure (`points.share.38+`) and 2 accepted misses wider (see "Holdout runs after the step 5d code review"); stopped, nothing recorded |
 
 
 ## M1 step 5c: playtest fixes
@@ -1403,6 +1407,16 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
   - The four 5d checks re-recorded in data/game/step5d-accepted.json: `d.spike.trail0TO` 0.0506 (before 0.0502), `d.gap.trail0TO` 31.40% (31.72%), `d.kneel.thenPlay.lead1to8` 0.0165 (0.0171), `d.kneel.thenPlay.notLeading` 0.0195 (0.0207). Each is better than its earlier accepted value; the record pins the exact run H value, so it was re-recorded.
   - `absMargin.share.8-14` (insample) in data/game/tolerances.json at 27.98 vs 22.7053 (before 28.12; its record pins the exact value). New tolerances sha256 `cccf0748…`, recorded under "Game-level and component tolerances pre-registered".
 - Lead's call: the re-freeze of the step 5b timeout rates (test/fixtures/game-timeouts-review5d.json) is accepted as a data-reading correction like step 5c revision 1, not a later milestone's regeneration.
+
+### Holdout runs after the step 5d code review (2026-11-13, all post hoc): stopped
+- In pin-safe order, each labelled post hoc and counted above (caller run 8, engine run 9, C7 run 9, step 5 game run 13). The machine was quiet at each start (load average under 4); the engine run itself drove the load to about 20.
+- Caller run 8: every one of 60 metrics identical to run 7; 0 unaccepted gated failures. Engine run 9: every one of 118 metrics identical to run 8. C7 run 9: every metric passes or stays at its accepted value (`coach.timeouts.rate.defense.c40` 8.34 vs 10.35, |diff| 2.0083 against the accepted 2.0084); in-sample all pass.
+- Step 5 game in-sample, pins only before the holdout: every metric and diagnostic identical to the H1 rerun.
+- Step 5 game holdout run 13 (14.2 ms per game in-sample and 15.3 ms per game holdout, 157.5 s; the 15-minute load average was still 10-13 from the engine run, so these are not clean speed readings, though under the 25 ms gate):
+  - New gated failure: `points.share.38+` 5.33% vs 8.36% (tolerance 3; |diff| 3.03; league-seed spread 4.20 to 6.25; 5.47%, passing, at run 12).
+  - Accepted misses wider than accepted: `total.mean` 44.11 vs 45.92, |diff| 1.8137 against the accepted 1.7561 (seeds 43.51 to 45.30); `twoPointTries.perGame` 0.376 vs 0.483, |diff| 0.1073 against the accepted 0.1058 (seeds 0.350 to 0.406).
+  - The other thirteen accepted holdout rows are at or better.
+- Stop rule: nothing is recorded for the three; they go to Joseph. The holdout summary (data/game/calibration.json) is run 13's.
 
 ## Publishing
 

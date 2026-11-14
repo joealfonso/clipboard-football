@@ -32,8 +32,10 @@ POST_HOC_REVISIONS = (
         "made after seeing in-sample results and approved by Joseph, and run 5 after Joseph's scoped known deviations were added, with every metric identical to run 4 "
         "(docs/DECISIONS.md, Step 5 misses accepted). Step 5c (docs/specs/m1-step5c-playtest-fixes.md): run 6 on 2026-11-12, post hoc, after the step 5c caller changes "
         "(the o4Kick edge zone, the late try chart, the leader's kneel-gap level): 0 unaccepted gated failures; the midfield 4th-down field goal miss narrowed (11.2% vs 17.0%, from 10.3%). "
-        "Step 5d (docs/specs/m1-step5d-clock-fixes.md): run 7 (this report) on 2026-11-13, post hoc, after the step 5d caller changes (the Situation's clock and overtime fields, "
-        "timeouts at the snap in clock order, the clock-aware spike levels, the not-leading late levels, the K0x split, the c40-banded late 4th-down levels and the overtime try rule).",
+        "Step 5d (docs/specs/m1-step5d-clock-fixes.md): run 7 on 2026-11-13, post hoc, after the step 5d caller changes (the Situation's clock and overtime fields, "
+        "timeouts at the snap in clock order, the clock-aware spike levels, the not-leading late levels, the K0x split, the c40-banded late 4th-down levels and the overtime try rule): "
+        "0 unaccepted gated failures. Run 8 (this report) on 2026-11-13, post hoc, after the step 5d code review (lost-challenge timeouts read as charged after the play; "
+        "binning fails on a missing field; the caller tables did not change).",
         "groups": ("passRate", "passRateByDown", "fourthDown", "kneel", "spike"),
     },
 )

@@ -29,7 +29,8 @@ POST_HOC = (
     "scoped known deviations were added to data/game/tolerances.json (no table changed). Tolerance values are unchanged."
     " Step 5c: run 3 on 2026-11-12, post hoc, after revision 1 (timeout rows in clock order, which also changes the 2024-2025 actuals) and milestones D-F: coach.timeouts.rate.defense.c40 fails (8.34 vs 10.35, tolerance 2 pp). Run 4, same day: Joseph accepted that row (scoped known deviation); every number identical to run 3. Run 5: Joseph's game holdout known deviations changed the tolerances file this summary pins; every number identical to run 4. Run 6: pins only after the code review (the drain window moved into the game config); the summary is byte-identical to run 5."
     " Step 5d: run 7 on 2026-11-13, post hoc, after the step 5d tempo level (milestone B) and Joseph's step 5d known deviation, which changed the tolerances file this summary pins."
-    " Run 8 (this report), approvals and pins only, metrics must match run 7: Joseph's step 5d game holdout known deviations changed the tolerances file this summary pins."
+    " Run 8, approvals and pins only, metrics must match run 7: Joseph's step 5d game holdout known deviations changed the tolerances file this summary pins."
+    " Run 9 (this report) on 2026-11-13, post hoc, after the step 5d code review (lost-challenge timeouts read as charged after the play, which moved the tempo, timeout and onside cells) and Joseph's rerun acceptances."
 )
 
 
