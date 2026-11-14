@@ -65,7 +65,9 @@ const GAMES: Played[] = [
 ];
 
 const short = (e: GameEvent): RequestEvent | { t: string } => {
-  if (e.t === "runoff") return { t: "runoff", seconds: e.seconds };
+  // The seconds the clock really ran (the log keeps the drawn value): a two-minute warning or the
+  // end of the period can cut the run-off short; at a period end the clock ran out from before.clock.
+  if (e.t === "runoff") return { t: "runoff", seconds: e.after.period === e.before.period ? e.before.clock - e.after.clock : e.before.clock };
   if (e.t === "timeout") return { t: "timeout", team: e.team, side: e.side, left: e.left };
   if (e.t === "twoMinuteWarning") return { t: "twoMinuteWarning", period: e.period };
   if (e.t === "endPeriod") return { t: "endPeriod", period: e.period };
