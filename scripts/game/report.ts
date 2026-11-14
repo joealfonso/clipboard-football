@@ -62,7 +62,7 @@ function section(title: string, s: Summary): string[] {
     "",
     `League settings (designed, tuned on 2016-2023): home rating edge ${s.league.homeField.ratingEdge}, crowd noise ${s.league.homeField.crowdNoise}, team strength SD ${s.league.teamStrength.sd}. Invariant violations: ${s.invariants.violations}. Postseason soak: ${s.invariants.postseasonGames.toLocaleString("en-US")} games, ${s.invariants.postseasonTies} ties. Speed: ${s.perf.msPerGame} ms per game, ${s.perf.wallSeconds} s wall clock (${s.perf.machine}).`,
     "",
-    `Gated failures: ${fails.map((r) => r.id).join(", ")}.`,
+    `Gated failures: ${fails.map((r) => `\`${r.id}\``).join(", ")}.`,
     "",
     `Accepted by Joseph (known deviations in data/game/tolerances.json for this sample, 2026-11-12): ${s.metrics.filter((r) => r.status === "accepted").map((r) => `\`${r.id}\``).join(", ") || "none"}.`,
     "",
@@ -456,7 +456,8 @@ export function renderReport(summaries: Readonly<Record<string, Summary>>, coach
     lines.push("- 2026-11-12, step 5c, counted as step 5b run 10 in docs/DECISIONS.md, pins only, metrics must match run 9: after the code review fixes (text, a config move, C7 run 6), on an idle machine: 0 gated failures (post hoc).");
     lines.push("- 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md, after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: 0 gated failures, 3 accepted misses wider (post hoc).");
     lines.push("- 2026-11-13, step 5d, counted as step 5b run 12 in docs/DECISIONS.md, approvals and pins only, metrics must match run 11: Joseph's step 5d holdout known deviations and C7 run 8: 0 gated failures (post hoc; its speed reading was taken on a loaded machine).");
-    lines.push(`- 2026-11-13, step 5d, counted as step 5b run 13 in docs/DECISIONS.md (the run in section 2), after the step 5d code review and spec check fixes, Joseph's rerun acceptances and C7 run 9: ${n} gated failures (post hoc).`);
+    lines.push("- 2026-11-13, step 5d, counted as step 5b run 13 in docs/DECISIONS.md, after the step 5d code review and spec check fixes, Joseph's rerun acceptances and C7 run 9: 1 gated failure (points.share.38+) and 2 accepted misses wider (post hoc).");
+    lines.push(`- 2026-11-13, step 5d, counted as step 5b run 14 in docs/DECISIONS.md (the run in section 2), approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 holdout acceptances, the gated-failure line's backticks and C7 run 10: ${n} gated failures (post hoc).`);
   }
   lines.push("");
   if (summaries["holdout"] !== undefined) lines.push(...section("2. Validation, 2024-2025 (holdout)", summaries["holdout"]));

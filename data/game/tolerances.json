@@ -585,9 +585,9 @@
     },
     {
       "metric": "total.mean",
-      "observed": 44.1685,
+      "observed": 44.1109,
       "target": 45.9246,
-      "reason": "Step 5d game holdout run 11 (post hoc): 44.1685 vs 45.9246, |diff| 1.7561. Accepted before step 5d at 44.2341 (|diff| 1.6905, step 5c run 8); wider after step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
+      "reason": "Step 5d game holdout run 13 (post hoc, after the step 5d code review): 44.1109 vs 45.9246, |diff| 1.8137. Accepted before at 44.1685 (|diff| 1.7561, step 5d run 11) and 44.2341 before step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "holdout",
       "date": "2026-11-13",
       "approved_by": "Joseph"
@@ -684,11 +684,11 @@
     },
     {
       "metric": "twoPointTries.perGame",
-      "observed": 0.3777,
+      "observed": 0.3762,
       "target": 0.4835,
-      "reason": "Step 5 2024-2025 holdout miss after step 5b and the o4Top fix, post hoc (run 4); mostly later NFL trends (more touchdowns and field goals, fewer punts and plays). Joseph accepted it as it stands: 'Accept them'.",
+      "reason": "Step 5d game holdout run 13 (post hoc, after the step 5d code review): 0.3762 vs 0.4835, |diff| 0.1073. Accepted before at 0.3777 (|diff| 0.1058, step 5b run 4: mostly later NFL trends, more touchdowns and field goals, fewer punts and plays). Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "holdout",
-      "date": "2026-11-12",
+      "date": "2026-11-13",
       "approved_by": "Joseph"
     },
     {
@@ -732,6 +732,15 @@
       "observed": 3.7309,
       "target": 4.0496,
       "reason": "Step 5d game holdout run 11 (post hoc): 3.7309 vs 4.0496, |diff| 0.3187. Accepted before step 5d at 3.7386 (|diff| 0.3110, step 5c run 8); wider after step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
+      "scope": "holdout",
+      "date": "2026-11-13",
+      "approved_by": "Joseph"
+    },
+    {
+      "metric": "points.share.38+",
+      "observed": 5.33,
+      "target": 8.364,
+      "reason": "Step 5d game holdout run 13 (post hoc, after the step 5d code review): 5.33% vs 8.364% of team-games scoring 38 or more, |diff| 3.03, tolerance 3; 5.47% (passing) at step 5d run 12; league-seed spread 4.20 to 6.25. New in step 5d. Not tuned. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "holdout",
       "date": "2026-11-13",
       "approved_by": "Joseph"
