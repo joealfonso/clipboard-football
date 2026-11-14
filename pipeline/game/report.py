@@ -31,7 +31,7 @@ POST_HOC = (
     " Step 5d: run 7 on 2026-11-13, post hoc, after the step 5d tempo level (milestone B) and Joseph's step 5d known deviation, which changed the tolerances file this summary pins."
     " Run 8, approvals and pins only, metrics must match run 7: Joseph's step 5d game holdout known deviations changed the tolerances file this summary pins."
     " Run 9 on 2026-11-13, post hoc, after the step 5d code review (lost-challenge timeouts read as charged after the play, which moved the tempo, timeout and onside cells) and Joseph's rerun acceptances."
-    " Run 10 (this report), approvals and pins only, metrics must match run 9: Joseph's step 5d run 13 holdout known deviations changed the tolerances file this summary pins."
+    " Run 10 (this report), approvals and pins only, metrics must match run 9: the game holdout known deviations Joseph accepted after step 5d's code review changed the tolerances file this summary pins."
 )
 
 

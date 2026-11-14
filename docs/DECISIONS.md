@@ -1080,6 +1080,7 @@ Spec: docs/specs/m1-step5b-late-game-and-clock-control.md, with the lead's resol
   - `preset.nickelCover2` (holdout)
   - `preset.nickelCover4` (holdout)
 - Removed: the step 2 caller deviation `fourthDown.MID.punt` (approved 2026-11-11). It now passes on 2024-2025 (51.3% vs 47.0%, within 5 pp), so the entry no longer describes a miss. The other four step 2 entries are kept, now with scope "holdout". The engine's step 4 entries are unchanged.
+- Step 5d additions and updates (Joseph, 2026-11-13; DECISIONS.md "5d misses accepted", "5d rerun values accepted", "5d holdout misses accepted", "5d holdout run 13 misses accepted"): `absMargin.share.8-14` (insample): 27.98 vs 22.7053; `total.mean` (holdout): 44.1109 vs 45.9246; `absMargin.share.8-14` (holdout): 28.12 vs 18.0147; `fieldGoalAttempts.perGame` (holdout): 3.7309 vs 4.0496; `twoPointTries.perGame` (holdout): 0.3762 vs 0.4835; `points.share.38+` (holdout, new): 5.33 vs 8.364.
 - Holdout runs (B12 and F4): the caller's 2024-2025 re-validation for revision 3 was computed 5 times, the step 5 game holdout 7 times (run 6 only to remeasure speed, run 7 only for the report layout), the engine 5 times and C7 twice, all on 2026-11-12 and all post hoc; see "Holdout runs for step 5b" below. Runs 1-3 and 5 changed no lookup or metric; run 4 followed the o4Top reorder. The spec asked for one run; Joseph accepted the reruns.
 
 ### Holdout runs for step 5b (all 2026-11-12, all post hoc)
@@ -1127,6 +1128,8 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Engine | 9 | 2026-11-13, step 5d | Code review fixes in the caller code its hash covers (engine tables unchanged) | Every metric identical to run 8 |
 | C7 | 9 | 2026-11-13, step 5d | Code review: lost-challenge reading (tempo, timeout and onside cells moved) and Joseph's rerun acceptances | Every metric passes or stays at its accepted value (`defense.c40` 8.34 vs 10.35) |
 | Step 5 game | 13 | 2026-11-13, step 5d | Code review and spec check fixes, Joseph's rerun acceptances, C7 run 9 | 1 new gated failure (`points.share.38+`) and 2 accepted misses wider (see "Holdout runs after the step 5d code review"); stopped, nothing recorded |
+| C7 | 10 | 2026-11-14, step 5d | Approvals and pins only, metrics must match run 9: Joseph's run 13 holdout known deviations (the summary pins the tolerances file) | Both blocks identical to run 9 |
+| Step 5 game | 14 | 2026-11-14, step 5d | Approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 acceptances, the gated-failure line's backticks, C7 run 10 | Every metric, diagnostic and slice digest identical to run 13; 0 gated failures (`points.share.38+` now reads "accepted"); 8.3 ms per game on a quiet machine |
 
 
 ## M1 step 5c: playtest fixes
@@ -1424,6 +1427,9 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
   - Updated: `total.mean` 44.1109 vs 45.9246 (before 44.1685, |diff| 1.7561 -> 1.8137); `twoPointTries.perGame` 0.3762 vs 0.4835 (before 0.3777, |diff| 0.1058 -> 0.1073).
 - New tolerances sha256 `b71e299e…` (see "Game-level and component tolerances pre-registered").
 - Also fixed: GAME_REPORT's gated-failure line now puts each id in backticks (scripts/game/report.ts), the format the step 5 G3 check reads; the bug showed only once a holdout failure existed (run 13). Pins-only reruns follow (C7 if pinned, the in-sample summary, game holdout run 14).
+
+### Pins-only reruns after the run 13 acceptances (engineer, 2026-11-14)
+- Started only once the 15-minute load average was under 4 (load 2.7 / 1.7 / 1.4 at the start), in pin-safe order: C7 run 10 (both blocks identical to run 9), the in-sample summary (every metric, diagnostic and slice digest identical to the H1 rerun; 7.4 ms per game), and game holdout run 14, "approvals, report fix and pins only, metrics must match run 13": every metric, diagnostic and slice digest identical to run 13, 0 gated failures, 8.3 ms per game (85.8 s), a clean reading under the 25 ms gate.
 
 ## Publishing
 

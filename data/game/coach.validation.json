@@ -1,6 +1,6 @@
 {
   "generated": true,
-  "tolerancesSha256": "cccf074890a94b7ca26c34925f364b366ea63fec785cd25dd400e849e68c13b5",
+  "tolerancesSha256": "b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb",
   "inSample": {
     "label": "in-sample 2016-2023",
     "seasons": [2016,2017,2018,2019,2020,2021,2022,2023],

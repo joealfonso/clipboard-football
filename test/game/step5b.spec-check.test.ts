@@ -246,7 +246,8 @@ describe("B12/F4/C4: every holdout run is disclosed post hoc, and the run counts
   // engine run 8, C7 run 7, step 5 game run 11).
   // Amended again 2026-11-13: C7 run 8 and step 5 game run 12, pins only after Joseph's step 5d holdout approvals.
   // Amended 2026-11-13 (M1 step 5d code review): caller run 8, engine run 9, C7 run 9, step 5 game run 13.
-  const EXPECTED: Record<string, number> = { Caller: 8, "Step 5 game": 13, Engine: 9, C7: 9 };
+  // Amended 2026-11-14: C7 run 10 and step 5 game run 14, pins only after Joseph's run 13 holdout approvals.
+  const EXPECTED: Record<string, number> = { Caller: 8, "Step 5 game": 14, Engine: 9, C7: 10 };
   const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
   const maxRun = (label: string): number => {
     const ns = [...label.matchAll(/\brun (\d+)\b/gi)].map((m) => Number(m[1]));
