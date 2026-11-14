@@ -495,9 +495,9 @@
     },
     {
       "metric": "absMargin.share.8-14",
-      "observed": 28.12,
+      "observed": 27.98,
       "target": 22.7053,
-      "reason": "Step 5d in-sample run H (after milestones A-E): 28.12 vs 22.7053, |diff| 5.41, up from 5.21 (27.92, step 5c run H) before step 5d; league-seed spread 26.1 to 31.0. It moved at milestone D. No tuning made. Joseph accepted it at this value (question dialog, 2026-11-13, 'Accept and move on').",
+      "reason": "Step 5d in-sample run H rerun (after the code review and spec check fixes): 27.98 vs 22.7053, |diff| 5.27; accepted before at 28.12 (first 5d run H, |diff| 5.41) and 27.92 before step 5d (step 5c run H); league-seed spread 26.2 to 30.0. No tuning made. Joseph re-accepted it at this value (question dialog, 2026-11-13, 'Accept').",
       "scope": "insample",
       "date": "2026-11-13",
       "approved_by": "Joseph"
