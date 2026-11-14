@@ -200,6 +200,20 @@ export interface TeamNames {
   readonly teams: readonly TeamName[];
 }
 
+/** The cell fields a tempo mode reads its run-off with (data/game/tempo-modes.json, designed; M2 E). */
+export interface TempoModeCell {
+  readonly quarter: number;
+  readonly secondsLeftInGame: number;
+  readonly secondsLeftInHalf: number;
+  readonly scoreDiff: number;
+}
+
+export interface TempoModes {
+  readonly schemaVersion: number;
+  readonly designed: true;
+  readonly modes: { readonly hurryUp: TempoModeCell; readonly runClock: TempoModeCell };
+}
+
 /** Everything the full-game loop reads, validated by game-schema.ts before it reaches the sim. */
 export interface GameData {
   readonly engine: EngineData;
@@ -207,6 +221,8 @@ export interface GameData {
   readonly tables: CoachTables;
   readonly league: LeagueSettings;
   readonly teamNames: TeamNames;
+  /** M2 E: the human offense's tempo modes (designed). */
+  readonly tempoModes: TempoModes;
   /** sha256 of the rule set file's bytes. */
   readonly rulesHash: string;
   /** sha256 of each data file the game reads, by repo path. */

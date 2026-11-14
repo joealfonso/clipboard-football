@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import type { EngineData } from "./engine";
-import type { CoachTables, ExpectedPointsTable, GameConfig, GameData, LeagueSettings, OnsideTable, TeamNames, TempoTable, TimeoutTable } from "./game";
+import type { CoachTables, ExpectedPointsTable, GameConfig, GameData, LeagueSettings, OnsideTable, TeamNames, TempoModes, TempoTable, TimeoutTable } from "./game";
 
 const condition = z.strictObject({ field: z.string().min(1), min: z.number().optional(), max: z.number().optional() });
 const dim = z.union([
@@ -155,6 +155,14 @@ export const teamNamesSchema = z
     if (nick.size !== t.teams.length) ctx.addIssue({ code: "custom", message: "nicknames must be unique" });
   });
 
+const tempoModeCell = z.strictObject({ quarter: z.number().int().positive(), secondsLeftInGame: z.number().int().nonnegative(), secondsLeftInHalf: z.number().int().nonnegative(), scoreDiff: z.number().int() });
+export const tempoModesSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  designed: z.literal(true),
+  note: z.string().optional(),
+  modes: z.strictObject({ hurryUp: tempoModeCell, runClock: tempoModeCell }),
+});
+
 export interface GameFiles {
   readonly config: unknown;
   readonly tempo: unknown;
@@ -163,6 +171,7 @@ export interface GameFiles {
   readonly ep: unknown;
   readonly league: unknown;
   readonly teamNames: unknown;
+  readonly tempoModes: unknown;
 }
 
 export function parseGameData(files: GameFiles, engine: EngineData, rulesHash: string, dataHashes: Readonly<Record<string, string>>): GameData {
@@ -178,6 +187,7 @@ export function parseGameData(files: GameFiles, engine: EngineData, rulesHash: s
     tables,
     league: leagueSettingsSchema.parse(files.league) as unknown as LeagueSettings,
     teamNames: teamNamesSchema.parse(files.teamNames) as unknown as TeamNames,
+    tempoModes: tempoModesSchema.parse(files.tempoModes) as unknown as TempoModes,
     rulesHash,
     dataHashes,
   };

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "M2 milestone E (designed mapping onto fitted cells, spec resolved 13): the time and score a human offense's tempo mode reads its run-off cell with, whatever the real situation. Down, clock state, own timeouts, the previous snap and whether a timeout is being called stay real. hurryUp: a trailing offense in the final 2:00 of the game (time5 GF, final c120, score3 and lateS3 T). runClock: a leading offense in the final 5:00 (time5 G5, final -, L). Normal is the average coach's own tempo and is not listed.",
+  "modes": {
+    "hurryUp": { "quarter": 4, "secondsLeftInGame": 120, "secondsLeftInHalf": 120, "scoreDiff": -1 },
+    "runClock": { "quarter": 4, "secondsLeftInGame": 300, "secondsLeftInHalf": 300, "scoreDiff": 1 }
+  }
+}

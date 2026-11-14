@@ -1493,6 +1493,13 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - Same call repeats this side's last scrimmage call, or a two-point try's run or pass; kickoffs and extra points do not count. Off with `noEarlierCall` or `lastCallNotLegal`.
 - Not measured yet: E9 on Joseph's machine. On this machine, under load from a parallel 10,000-game run, 30 random-bot games (5,760 answers) gave p50 0.17 ms and p99 8.7 ms from answer to next request; the slow answers were scattered (garbage collection, not game length).
 
+### Code review fixes to E (engineer, 2026-11-14)
+- Flag 5, the tempo-mode cells are data. The time and score Hurry-up and Run the clock read their cells with moved from `TEMPO_MODE_CELLS` in coach.ts to data/game/tempo-modes.json (designed, schema `tempoModesSchema`). Same values.
+  - Interface change: `GameData.tempoModes` and `GameFiles.tempoModes`; `tempoModeView(view, mode, modes)` and `modeTempo(view, mode, modes, tables, config, rng)` take the modes.
+  - The file is in the game's data hashes.
+- The UI's data loader (packages/app/src/engine/data.ts) now loads data/engine/participants.json and data/game/tempo-modes.json. It loaded neither, and its `as unknown as` cast hid that from the typecheck, so the browser build would have failed at load since milestone B. Two lines each; nothing else in the UI changed.
+- Pins: game.ts is in the engine validation's import graph (through types.ts), play.ts and coach.ts are in the game calibration's, and the new file is in its data hashes. So engine run 10 and game holdout run 15 are stale again. A pins-only engine run 11 and game holdout run 16 would re-pin them; not run, pending the lead. The in-sample summary is re-run.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

@@ -105,6 +105,8 @@ export type {
   TeamName,
   TeamNames,
   TempoTable,
+  TempoModeCell,
+  TempoModes,
   SpecialTimeoutRole,
   ExpectedPointsTable,
   TimeoutTable,

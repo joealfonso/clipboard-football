@@ -27,6 +27,8 @@ import timeoutsUrl from "../../../../data/game/timeouts.json?url";
 import onsideUrl from "../../../../data/game/onside.json?url";
 import epUrl from "../../../../data/game/ep.json?url";
 import leagueUrl from "../../../../data/game/league.json?url";
+import tempoModesUrl from "../../../../data/game/tempo-modes.json?url";
+import participantsUrl from "../../../../data/engine/participants.json?url";
 import teamNamesUrl from "../../../../data/teams/names.json?url";
 import uiTemplatesUrl from "../../../../data/ui/templates.json?url";
 
@@ -44,6 +46,7 @@ export const FILES: readonly (readonly [string, string])[] = [
   ["data/engine/kickoff.json", kickoffUrl],
   ["data/engine/matchup.centered.json", matchupUrl],
   ["data/engine/personnel.json", personnelUrl],
+  ["data/engine/participants.json", participantsUrl],
   ["data/players/ratings.json", ratingsUrl],
   ["data/players/distributions.json", distributionsUrl],
   ["data/players/names.json", namesUrl],
@@ -55,6 +58,7 @@ export const FILES: readonly (readonly [string, string])[] = [
   ["data/game/ep.json", epUrl],
   ["data/game/league.json", leagueUrl],
   ["data/teams/names.json", teamNamesUrl],
+  ["data/game/tempo-modes.json", tempoModesUrl],
   ["data/ui/templates.json", uiTemplatesUrl],
 ];
 
@@ -140,6 +144,7 @@ export async function loadData(progress: (file: string, done: number, total: num
     kickoff: json("data/engine/kickoff.json"),
     matchup: json("data/engine/matchup.centered.json"),
     personnel: json("data/engine/personnel.json"),
+    participants: json("data/engine/participants.json"),
     ratings: json("data/players/ratings.json"),
     distributions: json("data/players/distributions.json"),
     names: json("data/players/names.json"),
@@ -154,6 +159,7 @@ export async function loadData(progress: (file: string, done: number, total: num
     ep: json("data/game/ep.json"),
     league: json("data/game/league.json"),
     teamNames: json("data/teams/names.json"),
+    tempoModes: json("data/game/tempo-modes.json"),
   } as unknown as Parameters<typeof parseGameData>[0];
   const simHashes = Object.fromEntries(Object.entries(hashes).filter(([f]) => !f.startsWith("data/ui/")));
   const data = check("data/game", () => parseGameData(gameFiles, engine, hashes[rulesFile] as string, simHashes));

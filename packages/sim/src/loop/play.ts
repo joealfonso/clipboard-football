@@ -458,7 +458,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
       const view = { ...coachView(s, rules, lastSnap), beforeTimeout };
       const humanOffense = human(s.possession) && seat !== null;
       // M2 E: the human offense's tempo mode; Normal is the average coach's draw.
-      const tempoOf = (v: typeof view): number => (humanOffense && seat.tempo !== "normal" ? modeTempo(v, seat.tempo, kit.data.tables, kit.data.config, rng) : off.tempo(v, rng));
+      const tempoOf = (v: typeof view): number => (humanOffense && seat.tempo !== "normal" ? modeTempo(v, seat.tempo, kit.data.tempoModes, kit.data.tables, kit.data.config, rng) : off.tempo(v, rng));
       const drawn = tempoOf(view);
       const seconds = Math.min(drawn, s.playClock);
       if (!beforeTimeout && seconds >= s.clock && !humanOffense && off.clockOut?.(view) === true) {
