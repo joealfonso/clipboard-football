@@ -28,17 +28,25 @@ export const POSITION_SKILLS = {
   P: ["kickPower", "kickAccuracy"],
 } as const satisfies Readonly<Record<Position, readonly string[]>>;
 
-export const PLAYER_SCHEMA_VERSION = 1;
+/** Version 2 (M2 milestone A) adds `number`. Version 1 pools migrate by seed (sim: migrateTeamPool). */
+export const PLAYER_SCHEMA_VERSION = 2;
 
 export interface Player {
   readonly schemaVersion: number;
   readonly id: string;
   readonly name: string;
   readonly position: Position;
+  /** Jersey number: unique within the team, allowed for the position by the rule set (jerseyNumbers). */
+  readonly number: number;
   /** Integers 0 to 99. */
   readonly ratings: Readonly<Record<BaseRating, number>>;
   /** The position's skills (POSITION_SKILLS), integers 0 to 99. */
   readonly skills: Readonly<Record<string, number>>;
+}
+
+/** Whether the rule set lets a player at `position` wear `n` (Rule 5-1-2, rules.jerseyNumbers). */
+export function jerseyNumberAllowed(rules: Pick<RuleSet, "jerseyNumbers">, position: string, n: number): boolean {
+  return Number.isInteger(n) && (rules.jerseyNumbers[position] ?? []).some(([a, b]) => n >= a && n <= b);
 }
 
 /** One team's players. Order within a position is the order slots are filled (M1 has no depth chart). */

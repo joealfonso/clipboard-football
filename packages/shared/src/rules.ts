@@ -157,5 +157,10 @@ export interface RuleSet {
     readonly regularSeason: OvertimeFormat;
     readonly postseason: OvertimeFormat;
   };
+  /**
+   * M2 milestone A: the numbers each position may wear (Rule 5-1-2), as inclusive [from, to]
+   * ranges, keyed by the game's positions (engine.ts POSITIONS).
+   */
+  readonly jerseyNumbers: Readonly<Record<string, readonly (readonly [number, number])[]>>;
   readonly penalties: Readonly<Record<string, PenaltyRule>>;
 }

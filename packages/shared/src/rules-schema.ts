@@ -2,6 +2,7 @@
 // already-validated RuleSet and never imports this file.
 
 import { z } from "zod";
+import { POSITIONS } from "./engine";
 import type { RuleSet } from "./rules";
 
 const count = z.number().int().nonnegative();
@@ -24,6 +25,12 @@ const penaltySchema = z.strictObject({
   committedBy: z.enum(["offense", "defense", "either"]),
   endZoneSpot: fieldSpot.nullable(),
 });
+
+const jersey = z.number().int().min(0).max(99);
+/** Inclusive [from, to] number ranges (M2 milestone A). */
+const numberRanges = z
+  .array(z.tuple([jersey, jersey]).refine(([a, b]) => a <= b, { message: "a number range starts after it ends" }))
+  .min(1);
 
 const overtimeSchema = z.strictObject({
     periodSeconds: positive,
@@ -101,6 +108,7 @@ export const ruleSetSchema = z
     }),
     timeouts: z.strictObject({ perHalf: count, perTeamPerDeadBall: positive }),
     overtime: z.strictObject({ regularSeason: overtimeSchema, postseason: overtimeSchema }),
+    jerseyNumbers: z.strictObject(Object.fromEntries(POSITIONS.map((p) => [p, numberRanges])) as Record<(typeof POSITIONS)[number], typeof numberRanges>),
     penalties: z.record(z.string().regex(/^[a-z][A-Za-z0-9]*$/), penaltySchema),
   })
   .superRefine((r, ctx) => {

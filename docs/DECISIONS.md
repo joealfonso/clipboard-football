@@ -1435,6 +1435,24 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 - Decision: start M2 now. Fix the AI's missed field goals in a short round after M2: PLAYTEST_M1_5D new findings 1-3 (close games ending in range with no kick, first halves ending in range with no kick, early 50+ yard tries by tied teams), plus 4-5 (OT kneels far from the goal, OT spikes almost gone). Joseph chose "Start M2" on 2026-11-14.
 - Why: in M2 the player calls their own team's plays, so these affect only the AI opponent, and each fix round has cost hours.
 
+## M2: engine and game loop
+
+Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions of 2026-11-12). UI side: docs/specs/m2-playable-game-design.md.
+
+### How "byte-identical" is proved for milestones A to E (engineer, 2026-11-14)
+- The spec's outcome digest is the step 5 per-game digest with the fields M2 adds left out (spec, Milestones). `scripts/game/outcome-digests.ts` replays the in-sample run (10 leagues x 1,000 games), drops the M2 detail keys (`participants`, `onField`, `headline`) and the M2 trace factors (one per role, `fouler`, later `standout`), and sets the three provenance hashes the record carries (`rules.hash`, `dataHashes`, `final.rules.hash`) to the baseline's. Those hashes change by design: M2 adds data (the jersey-number rules in A, a participants file in B, the headlines in D). Every other byte of every record must match.
+- Baseline: test/fixtures/m2-baseline-digests.json, written by the same script on the tree at `04f0f5d` (the last M1 commit). Its 1,000 slice digests equal the slice in that commit's data/game/calibration.insample.json, so at the baseline the outcome digest is the raw digest. It also holds, per league, a digest of the generated players with `number` and `schemaVersion` left out (A4).
+- Check: `node --import ./scripts/engine/register.mjs scripts/game/outcome-digests.ts --check test/fixtures/m2-baseline-digests.json` (about 90 s). Run after each milestone; results in each milestone's commit message.
+- The in-sample summary (data/game/calibration.insample.json) is re-run after each milestone so its pins (code hash, file hashes, raw slice digests) are current; every metric, diagnostic and invariant count must stay identical.
+
+### A: jersey numbers (engineer, 2026-11-14)
+- Rule values: `jerseyNumbers` in data/rules/nfl-2026.json, one leaf per position the game uses, each a list of inclusive [from, to] ranges, cited in RULES.md (Rule 5-1-2). Cornerbacks and safeties take the defensive backs' 0-49; placekickers and punters the kickers' 0-49 and 90-99.
+- Player schema version 2: `number` (integer 0-99). Unique within a team is checked by `teamPoolSchema`; the rule set check needs the rule set, so it is `parseTeamPool(json, rules)` (rules optional, so the existing one-argument call still parses a pool). Version 1 stays readable through `playerV1Schema`, `teamPoolV1Schema` and `parseTeamPoolV1`; `migrateTeamPool(pool, rules, seed)` (sim) migrates it.
+- Number assignment (designed): pool order, uniform among the free allowed numbers. The generator draws from `numberStream(rng)`, a copy of its generator jumped 2^64 ahead, so the generator's own stream, and every name, rating and id it draws, is unchanged (A4, checked for all 10 calibration leagues).
+- `GeneratorData` gains `rules` (only `jerseyNumbers` is read). Every caller already passes EngineData.
+- The step 4 A2 player-schema test pinned version 1 as the only known version; its fixture moves to version 2 (every rejection case kept, "unknown schemaVersion" now 3) and a case checks version 1 still parses through the version 1 schema.
+- Pins: the CLI golden (test/game/__snapshots__/cli.test.ts.snap) changes in its two provenance lines only (rule set hash). The engine validation summary (data/engine/validation.json) pins the rule set file and the engine code, and the game holdout summary (data/game/calibration.json) pins both too; both go stale here. Re-pinning them means re-running the engine pipeline and the game holdout, which the M2 spec leaves out (Non-goals: the holdout run). Not done; for the lead.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

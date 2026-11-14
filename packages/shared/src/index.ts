@@ -15,10 +15,13 @@ export {
   parseEngineData,
   parsePlayer,
   parseTeamPool,
+  parseTeamPoolV1,
   personnelSchema,
   playerSchema,
   ratingsSchema,
   teamPoolSchema,
+  teamPoolV1Schema,
+  playerV1Schema,
   whySchema,
 } from "./engine-schema";
 export type { EngineFiles } from "./engine-schema";

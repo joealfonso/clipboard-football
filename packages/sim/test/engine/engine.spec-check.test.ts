@@ -207,16 +207,17 @@ function averageTeam(d: EngineData, level: Record<string, number>, name: string)
     const v = level[position] as number;
     for (let i = 0; i < need[position]; i++) {
       players.push({
-        schemaVersion: 1,
+        schemaVersion: 2,
         id: `${name}-${position}${i + 1}`,
         name: `${name} ${position}${i + 1}`,
         position,
+        number: players.length,
         ratings: Object.fromEntries(BASE_RATINGS.map((r) => [r, v])) as Player["ratings"],
         skills: Object.fromEntries(POSITION_SKILLS[position].map((s) => [s, v])),
       });
     }
   }
-  return { schemaVersion: 1, name, players };
+  return { schemaVersion: 2, name, players };
 }
 
 describe("D7: edges are relative to the same slots' league average", () => {

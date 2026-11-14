@@ -77,7 +77,7 @@ export type {
   WhyTemplate,
   WhyTemplates,
 } from "./engine";
-export { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
+export { BASE_RATINGS, jerseyNumberAllowed, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
 export type {
   CoachTables,
   CoachView,

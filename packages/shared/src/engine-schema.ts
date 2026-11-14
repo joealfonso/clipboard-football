@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import type { CallerData } from "./caller";
-import { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
+import { BASE_RATINGS, jerseyNumberAllowed, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
 import type {
   BaselinePenalties,
   BaselineScrimmage,
@@ -30,37 +30,79 @@ const nonNeg = z.number().int().nonnegative();
 
 // ---------------------------------------------------------------- players (A2)
 
+const playerFields = {
+  id: z.string().min(1),
+  name: z.string().min(1),
+  position,
+  ratings: z.strictObject(Object.fromEntries(BASE_RATINGS.map((r) => [r, rating])) as Record<(typeof BASE_RATINGS)[number], typeof rating>),
+  skills: z.record(z.string(), rating),
+};
+
+function skillsMatch(p: { position: (typeof POSITIONS)[number]; skills: Record<string, number> }, ctx: z.RefinementCtx): void {
+  const want = POSITION_SKILLS[p.position] as readonly string[];
+  for (const s of Object.keys(p.skills)) {
+    if (!want.includes(s)) ctx.addIssue({ code: "custom", message: `${s} is not a ${p.position} skill` });
+  }
+  for (const s of want) {
+    if (!(s in p.skills)) ctx.addIssue({ code: "custom", message: `${p.position} is missing skill ${s}` });
+  }
+}
+
+/** Player schema version 2 (M2 milestone A): adds the jersey number, an integer 0-99. */
 export const playerSchema = z
+  .strictObject({ schemaVersion: z.literal(PLAYER_SCHEMA_VERSION), ...playerFields, number: z.number().int().min(0).max(99) })
+  .superRefine(skillsMatch);
+
+/** Player schema version 1 (M1), kept so old pools can be read and migrated. */
+export const playerV1Schema = z.strictObject({ schemaVersion: z.literal(1), ...playerFields }).superRefine(skillsMatch);
+
+function uniqueNumbers(pool: { players: readonly { id: string; number: number }[] }, ctx: z.RefinementCtx): void {
+  const seen = new Map<number, string>();
+  for (const p of pool.players) {
+    const had = seen.get(p.number);
+    if (had !== undefined) ctx.addIssue({ code: "custom", message: `${p.id} and ${had} both wear ${p.number}` });
+    seen.set(p.number, p.id);
+  }
+}
+
+/** A team pool, schema version 2: numbers unique within the team (A2). */
+export const teamPoolSchema = z
   .strictObject({
     schemaVersion: z.literal(PLAYER_SCHEMA_VERSION),
-    id: z.string().min(1),
     name: z.string().min(1),
-    position,
-    ratings: z.strictObject(Object.fromEntries(BASE_RATINGS.map((r) => [r, rating])) as Record<(typeof BASE_RATINGS)[number], typeof rating>),
-    skills: z.record(z.string(), rating),
+    players: z.array(playerSchema).min(1),
   })
-  .superRefine((p, ctx) => {
-    const want = POSITION_SKILLS[p.position] as readonly string[];
-    for (const s of Object.keys(p.skills)) {
-      if (!want.includes(s)) ctx.addIssue({ code: "custom", message: `${s} is not a ${p.position} skill` });
-    }
-    for (const s of want) {
-      if (!(s in p.skills)) ctx.addIssue({ code: "custom", message: `${p.position} is missing skill ${s}` });
-    }
-  });
+  .superRefine(uniqueNumbers);
 
-export const teamPoolSchema = z.strictObject({
-  schemaVersion: z.literal(PLAYER_SCHEMA_VERSION),
+/** A version 1 pool (no numbers), read only to migrate it (sim: migrateTeamPool). */
+export const teamPoolV1Schema = z.strictObject({
+  schemaVersion: z.literal(1),
   name: z.string().min(1),
-  players: z.array(playerSchema).min(1),
+  players: z.array(playerV1Schema).min(1),
 });
 
 export function parsePlayer(json: unknown): Player {
   return playerSchema.parse(json) as Player;
 }
 
-export function parseTeamPool(json: unknown): TeamPool {
-  return teamPoolSchema.parse(json) as TeamPool;
+/**
+ * A version 2 team pool. With a rule set, every number must also be one the rule set allows for
+ * the player's position (Rule 5-1-2, rules.jerseyNumbers).
+ */
+export function parseTeamPool(json: unknown, rules?: Pick<RuleSet, "jerseyNumbers">): TeamPool {
+  const pool = teamPoolSchema.parse(json) as TeamPool;
+  if (rules !== undefined) {
+    const bad = pool.players.filter((p) => !jerseyNumberAllowed(rules, p.position, p.number));
+    if (bad.length > 0) {
+      throw new z.ZodError(bad.map((p) => ({ code: "custom" as const, path: ["players", pool.players.indexOf(p), "number"], message: `${p.id} (${p.position}) may not wear ${p.number}`, input: p.number })));
+    }
+  }
+  return pool;
+}
+
+/** A version 1 team pool (M1, no numbers). Migrate it with the sim's migrateTeamPool. */
+export function parseTeamPoolV1(json: unknown): Omit<TeamPool, "players"> & { readonly players: readonly Omit<Player, "number">[] } {
+  return teamPoolV1Schema.parse(json) as Omit<TeamPool, "players"> & { readonly players: readonly Omit<Player, "number">[] };
 }
 
 // ---------------------------------------------------------------- designed files
