@@ -928,36 +928,61 @@ describe("task 3: approvals, dates and thresholds", () => {
     }
   });
 
-  it("every known deviation dated 2026-11-13 is one Joseph's step 5d decisions name, at its run value, and nothing else was dated then", () => {
+  // Amended 2026-11-14 (test-writer, coordinator): Joseph's later step 5d decisions changed these entries
+  // (DECISIONS.md "5d rerun values accepted (Joseph, 2026-11-13)": `absMargin.share.8-14` insample 27.98;
+  // "5d holdout run 13 misses accepted (Joseph, 2026-11-13)": `points.share.38+` new at 5.33,
+  // `total.mean` 44.1109, `twoPointTries.perGame` 0.3762). Each entry is pinned to the DECISIONS section
+  // that records it, and to the run it was accepted at: an entry accepted at the current run (the H1 rerun,
+  // holdout run 13) equals that run's value; an entry accepted at holdout run 11 keeps its run 11 value and
+  // the current holdout run must be at or better (strict, as the spec's at-or-better rule).
+  const DATED: [string, string, number, number, string, "current" | "earlier"][] = [
+    ["absMargin.share.8-14", "insample", 27.98, 22.7053, "### 5d rerun values accepted (Joseph, 2026-11-13)", "current"],
+    ["total.mean", "holdout", 44.1109, 45.9246, "### 5d holdout run 13 misses accepted (Joseph, 2026-11-13)", "current"],
+    ["twoPointTries.perGame", "holdout", 0.3762, 0.4835, "### 5d holdout run 13 misses accepted (Joseph, 2026-11-13)", "current"],
+    ["points.share.38+", "holdout", 5.33, 8.364, "### 5d holdout run 13 misses accepted (Joseph, 2026-11-13)", "current"],
+    ["absMargin.share.8-14", "holdout", 28.12, 18.0147, "### 5d holdout misses accepted (Joseph, 2026-11-13)", "earlier"],
+    ["fieldGoalAttempts.perGame", "holdout", 3.7309, 4.0496, "### 5d holdout misses accepted (Joseph, 2026-11-13)", "earlier"],
+  ];
+
+  it("every known deviation dated 2026-11-13 is one Joseph's step 5d decisions name, in its DECISIONS section, at the value of the run he accepted it at, and nothing else was dated then", () => {
     const tol = json<{ known_deviations: Deviation[] }>("data/game/tolerances.json").known_deviations;
-    const want: [string, string, number, number][] = [
-      ["absMargin.share.8-14", "insample", 28.12, 22.7053],
-      ["total.mean", "holdout", 44.1685, 45.9246],
-      ["absMargin.share.8-14", "holdout", 28.12, 18.0147],
-      ["fieldGoalAttempts.perGame", "holdout", 3.7309, 4.0496],
-    ];
-    const dated = tol.filter((d) => d.date === "2026-11-13").map((d) => [d.metric, d.scope, d.observed, d.target]);
-    expect(dated.sort()).toEqual([...want].sort());
-    for (const d of tol.filter((x) => x.date === "2026-11-13")) {
-      expect(d.approved_by, d.metric).toBe("Joseph");
-      expect(d.reason.trim(), d.metric).not.toBe("");
+    const dated = tol.filter((d) => d.date === "2026-11-13");
+    expect(dated.map((d) => [d.metric, d.scope, d.observed, d.target]).sort()).toEqual(DATED.map(([m, sc, o, t]) => [m, sc, o, t]).sort());
+    const ins = new Map(json<{ metrics: Metric[] }>("data/game/calibration.insample.json").metrics.map((m) => [m.id, m]));
+    const hold = new Map(json<{ metrics: Metric[] }>("data/game/calibration.json").metrics.map((m) => [m.id, m]));
+    for (const [metric, scope, observed, target, title, when] of DATED) {
+      const tag = `${metric} ${scope}`;
+      const d = tol.filter((x) => x.metric === metric && x.scope === scope);
+      expect(d, tag).toHaveLength(1);
+      expect([d[0]?.observed, d[0]?.target, d[0]?.date, d[0]?.approved_by, d[0]?.scope], tag).toEqual([observed, target, "2026-11-13", "Joseph", scope]);
+      expect(d[0]?.reason.trim(), tag).not.toBe("");
+      const sec = sec5d(title);
+      expect(sec, tag).toContain(`\`${metric}\``);
+      expect(sec, tag).toContain(String(observed));
+      expect(sec, tag).toMatch(new RegExp(`scope ${scope}`));
+      const m = (scope === "insample" ? ins : hold).get(metric);
+      expect(m, tag).toBeDefined();
+      if (when === "current") expect(m?.predicted, tag).toBeCloseTo(observed, 4);
+      else expect(Math.abs((m?.predicted ?? NaN) - (m?.actual ?? NaN)), `${tag}: current run at or better`).toBeLessThanOrEqual(Math.abs(observed - target) + 1e-4);
     }
-    const ins = new Map(json<{ metrics: Metric[] }>("data/game/calibration.insample.json").metrics.map((m) => [m.id, m.predicted]));
-    const hold = new Map(json<{ metrics: Metric[] }>("data/game/calibration.json").metrics.map((m) => [m.id, m.predicted]));
-    for (const [m, scope, obs] of want) expect((scope === "insample" ? ins : hold).get(m), `${m} ${scope}`).toBeCloseTo(obs, 4);
-    for (const [m] of want) expect(between(d5d, "### 5d misses accepted", "\n## ") + "", m).toContain(`\`${m}\``);
   });
 
-  it.runIf(history)("step 5d changed no other known deviation: every entry not dated 2026-11-13 is as it was at 4f25b28", () => {
-    const now = json<{ known_deviations: Deviation[] }>("data/game/tolerances.json").known_deviations.filter((d) => d.date !== "2026-11-13");
+  it.runIf(history)("step 5d changed no other known deviation: every entry not dated 2026-11-13 is as it was at 4f25b28; the only new entry is Joseph's points.share.38+", () => {
+    const all = json<{ known_deviations: Deviation[] }>("data/game/tolerances.json").known_deviations;
+    const now = all.filter((d) => d.date !== "2026-11-13");
     const was = (JSON.parse(git("show", "4f25b28:data/game/tolerances.json")) as { known_deviations: Deviation[] }).known_deviations;
     const key = (d: Deviation): string => `${d.metric}|${d.scope ?? ""}`;
     const wasBy = new Map(was.map((d) => [key(d), d]));
     for (const d of now) expect(d, key(d)).toEqual(wasBy.get(key(d)));
-    expect(new Set([...now.map(key), ...json<{ known_deviations: Deviation[] }>("data/game/tolerances.json").known_deviations.filter((d) => d.date === "2026-11-13").map(key)])).toEqual(new Set(was.map(key)));
+    expect(new Set(all.map(key))).toEqual(new Set([...was.map(key), "points.share.38+|holdout"]));
+    expect(wasBy.has("points.share.38+|holdout")).toBe(false);
     for (const f of ["data/caller/tolerances.json", "data/engine/tolerances.json"]) expect(git("diff", "4f25b28", "HEAD", "--", f), f).toBe("");
   });
 
+  // Amended 2026-11-14 (test-writer, coordinator): the file's bytes are pinned to the last sha256 DECISIONS
+  // records for it ("Game-level and component tolerances pre-registered", now `b71e299e…` after Joseph's run
+  // 13 acceptances, named in that decision's section), and with `known_deviations` emptied the bytes still
+  // hash to the pre-registered `b4fe3046…`.
   it("no tolerance threshold moved: the three tolerance files hash to their pre-registered content, and the checks files to their recorded sha256", () => {
     // Content hashes as in step5c.spec-check.test.ts (sha256 of JSON.stringify(file without known_deviations)).
     const CONTENT: Record<string, string> = {
@@ -973,9 +998,19 @@ describe("task 3: approvals, dates and thresholds", () => {
     expect(sha("data/game/step5d-checks.json")).toBe(CHECKS_SHA);
     expect(sha("data/game/step5c-checks.json")).toBe(CHECKS_5C_SHA);
     expect(sha("data/caller/latechecks.json")).toBe("06b6244077894771c7f4ee4f4b6b0ade0abc0e619376489d8025b8d0aa74b8f8");
-    // DECISIONS records the game tolerances file's new bytes after Joseph's step 5d holdout acceptances.
+    const PRE = "b4fe3046cbaa699d93f80b2cb63e6b0fca87acbe5d424daee0acace27ef020b5";
+    const reg = between(decisions, "### Game-level and component tolerances pre-registered", "\n### ");
+    expect(reg).toContain(PRE);
+    const recorded = [...reg.matchAll(/`([0-9a-f]{64})`/g)].map((m) => m[1] as string).filter((x) => x !== PRE);
     const h = sha("data/game/tolerances.json");
-    expect(h).toBe("4b53dccd61a36efe2c77ecd3ca28b16d1f2bcff7b3e1bad9c04c3787dfe0f61b");
-    expect(sec5d("### 5d holdout misses accepted (Joseph, 2026-11-13)")).toContain(h);
+    expect(h, "the last tolerances sha256 DECISIONS records").toBe(recorded[recorded.length - 1]);
+    expect(sec5d("### 5d holdout run 13 misses accepted (Joseph, 2026-11-13)")).toContain(`\`${h.slice(0, 8)}…\``);
+    // The pre-registered bytes: the file with its known_deviations array emptied (known_deviations is the last key).
+    const raw = read("data/game/tolerances.json");
+    const at = raw.indexOf('"known_deviations": [');
+    expect(at).toBeGreaterThan(0);
+    expect(raw.endsWith("]\n}\n")).toBe(true);
+    const emptied = `${raw.slice(0, at)}"known_deviations": []${raw.slice(raw.lastIndexOf("]") + 1)}`;
+    expect(createHash("sha256").update(emptied).digest("hex")).toBe(PRE);
   });
 });

@@ -473,20 +473,25 @@ describe("locked: tolerances untouched; only Joseph adds known deviations", () =
   // `total.mean` 44.1685, `absMargin.share.8-14` holdout 28.12, `fieldGoalAttempts.perGame` 3.7309). Each
   // entry is still pinned exactly (observed, target, date, approver) and to the DECISIONS section that
   // records it; the targets are unchanged. The five entries step 5d did not touch keep their 5c values.
+  // Amended again 2026-11-14 (test-writer, coordinator): Joseph's later step 5d decisions moved two of them,
+  // each now pinned to that later section: `absMargin.share.8-14` insample 27.98 ("5d rerun values accepted
+  // (Joseph, 2026-11-13)") and `total.mean` holdout 44.1109 ("5d holdout run 13 misses accepted (Joseph,
+  // 2026-11-13)"). Each 2026-11-13 entry's section must also give its scope.
   it("each step 5c game deviation matches Joseph's recorded decision (metric, scope, observed, target, date), with step 5d's updates", () => {
     // From DECISIONS.md: "5c holdout and C3 misses accepted", "5c checks accepted", "5c game holdout misses accepted",
     // and for the 2026-11-13 values "5d misses accepted" and "5d holdout misses accepted".
     const d5d = between(decisions, "## M1 step 5d", "\n## Publishing");
-    const ins5d = between(d5d, "### 5d misses accepted (Joseph, 2026-11-13)", "\n### ");
     const hold5d = between(d5d, "### 5d holdout misses accepted (Joseph, 2026-11-13)", "\n### ");
+    const rerun5d = between(d5d, "### 5d rerun values accepted (Joseph, 2026-11-13)", "\n### ");
+    const run13 = between(d5d, "### 5d holdout run 13 misses accepted (Joseph, 2026-11-13)", "\n### ");
     const want: [string, string, number, number, string, string][] = [
       ["coach.timeouts.rate.defense.c40", "holdout", 8.3444, 10.3528, "2026-11-12", d5c],
       ["diag.timeoutRate.offense.L.GF", "insample", 0.0391, 0.0722, "2026-11-12", d5c],
       ["diag.timeoutRate.defense.T.GF", "insample", 0.2007, 0.1741, "2026-11-12", d5c],
-      ["absMargin.share.8-14", "insample", 28.12, 22.7053, "2026-11-13", ins5d],
+      ["absMargin.share.8-14", "insample", 27.98, 22.7053, "2026-11-13", rerun5d],
       ["homeWin.rate", "holdout", 57.155, 53.1015, "2026-11-12", d5c],
       ["fieldGoalAttempts.perGame", "holdout", 3.7309, 4.0496, "2026-11-13", hold5d],
-      ["total.mean", "holdout", 44.1685, 45.9246, "2026-11-13", hold5d],
+      ["total.mean", "holdout", 44.1109, 45.9246, "2026-11-13", run13],
       ["absMargin.share.8-14", "holdout", 28.12, 18.0147, "2026-11-13", hold5d],
       ["absMargin.share.22+", "holdout", 10.81, 15.9926, "2026-11-12", d5c],
     ];
@@ -496,7 +501,10 @@ describe("locked: tolerances untouched; only Joseph adds known deviations", () =
       expect([d[0]?.observed, d[0]?.target, d[0]?.date, d[0]?.approved_by], `${metric} ${scope}`).toEqual([observed, target, date, "Joseph"]);
       expect(sec, `${metric} in its DECISIONS section`).toContain(metric);
       // A 2026-11-13 update names its new observed value in its section.
-      if (date === "2026-11-13") expect(sec, `${metric} ${scope} value`).toContain(String(observed));
+      if (date === "2026-11-13") {
+        expect(sec, `${metric} ${scope} value`).toContain(String(observed));
+        expect(sec, `${metric} ${scope} scope`).toContain(`scope ${scope}`);
+      }
     }
   });
 });
