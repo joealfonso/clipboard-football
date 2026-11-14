@@ -1431,6 +1431,10 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 ### Pins-only reruns after the run 13 acceptances (engineer, 2026-11-14)
 - Started only once the 15-minute load average was under 4 (load 2.7 / 1.7 / 1.4 at the start), in pin-safe order: C7 run 10 (both blocks identical to run 9), the in-sample summary (every metric, diagnostic and slice digest identical to the H1 rerun; 7.4 ms per game), and game holdout run 14, "approvals, report fix and pins only, metrics must match run 13": every metric, diagnostic and slice digest identical to run 13, 0 gated failures, 8.3 ms per game (85.8 s), a clean reading under the 25 ms gate.
 
+### End-of-half and end-of-game field goals deferred to after M2 (Joseph, 2026-11-14)
+- Decision: start M2 now. Fix the AI's missed field goals in a short round after M2: PLAYTEST_M1_5D new findings 1-3 (close games ending in range with no kick, first halves ending in range with no kick, early 50+ yard tries by tied teams), plus 4-5 (OT kneels far from the goal, OT spikes almost gone). Joseph chose "Start M2" on 2026-11-14.
+- Why: in M2 the player calls their own team's plays, so these affect only the AI opponent, and each fix round has cost hours.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
