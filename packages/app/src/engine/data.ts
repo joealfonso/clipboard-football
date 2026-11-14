@@ -29,7 +29,6 @@ import onsideUrl from "../../../../data/game/onside.json?url";
 import epUrl from "../../../../data/game/ep.json?url";
 import leagueUrl from "../../../../data/game/league.json?url";
 import tempoModesUrl from "../../../../data/game/tempo-modes.json?url";
-import participantsUrl from "../../../../data/engine/participants.json?url";
 import teamNamesUrl from "../../../../data/teams/names.json?url";
 import uiTemplatesUrl from "../../../../data/ui/templates.json?url";
 
