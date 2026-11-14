@@ -1494,6 +1494,12 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - Not measured yet: E9 on Joseph's machine. On this machine, under load from a parallel 10,000-game run, 30 random-bot games (5,760 answers) gave p50 0.17 ms and p99 8.7 ms from answer to next request; the slow answers were scattered (garbage collection, not game length).
 
 ### Code review fixes to E (engineer, 2026-11-14)
+- Flag 1, a request now carries the state it is decided in. The session's saved run is the start of the dead ball, but by the time a human defense or receiver is asked, the run-off, an AI timeout or the two-minute warning may have moved the clock. The UI would have shown, for example, 2:31 running where the real state is 2:00, stopped at the warning.
+  - Interface change: every `DecisionRequest` gains `state: RequestState | null` and `events: RequestEvent[]` (packages/shared/src/game.ts, schema in m2-schema.ts).
+  - `state` is the snapshot when asked: period, clock, clock running, phase, possession, spot, down, distance, goal to go, score, timeouts, safety kick. It is null only for the opening toss, before the game exists.
+  - `events` lists this dead ball's run-offs (seconds), timeouts (team, side, left), two-minute warning and end of period before the request.
+  - The loop adds both in one place (`ask` in stepGame; `requestState`, `requestEvents` in play.ts). The request builders now return `RequestBody` (a request without seq, state and events).
+  - Checked with 30 scripted-human games (5,760 requests): every request parses under the schema; in all 1,732 requests made after a run-off or timeout, the state's clock is the checkpoint's minus the run-offs, and it is stopped after a timeout or the warning. Outcomes are unchanged (outcome digests below).
 - Flag 5, the tempo-mode cells are data. The time and score Hurry-up and Run the clock read their cells with moved from `TEMPO_MODE_CELLS` in coach.ts to data/game/tempo-modes.json (designed, schema `tempoModesSchema`). Same values.
   - Interface change: `GameData.tempoModes` and `GameFiles.tempoModes`; `tempoModeView(view, mode, modes)` and `modeTempo(view, mode, modes, tables, config, rng)` take the modes.
   - The file is in the game's data hashes.

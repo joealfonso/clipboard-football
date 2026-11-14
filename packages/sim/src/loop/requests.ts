@@ -10,7 +10,11 @@ import { FORMATION_PLAYS } from "../caller/offense";
 import type { GameState, Team } from "../game/types";
 
 export type Unseq<T> = T extends unknown ? Omit<T, "seq"> : never;
+/** A request as the loop pauses with it: everything but its seq. */
 export type RequestDraft = Unseq<DecisionRequest>;
+type Strip<T> = T extends unknown ? Omit<T, "seq" | "state" | "events"> : never;
+/** A request as the builders make it; the loop adds the state and events it is asked in. */
+export type RequestBody = Strip<DecisionRequest>;
 
 const FORMATIONS = ["shotgun", "underCenter", "pistol", "empty", "heavy"] as const;
 const PACKAGES = ["base", "nickel", "dime", "specials"] as const;
@@ -69,7 +73,7 @@ function sameCallOption(last: OffenseCallChoice | null, legal: boolean): Request
 }
 
 /** First screen and menus for the human offense before a scrimmage snap. */
-export function offenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, sit: Situation, team: Team, tempo: Tempo, last: OffenseCallChoice | null, kickDepth: number): RequestDraft {
+export function offenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, sit: Situation, team: Team, tempo: Tempo, last: OffenseCallChoice | null, kickDepth: number): RequestBody {
   const a = availability(catalog);
   const kick = a.isAvailable("kick", sit) ? on("kick", "offense.kick") : off("kick", "kickNotNow", "offense.kick");
   const first = screen("offense.playType", [
@@ -94,7 +98,7 @@ export function offenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, s
 }
 
 /** The human offense's try: extra point or two (then Run or Pass only). */
-export function tryRequest(s: GameState, rules: RuleSet, catalog: Catalog, team: Team, last: OffenseCallChoice | null): RequestDraft {
+export function tryRequest(s: GameState, rules: RuleSet, catalog: Catalog, team: Team, last: OffenseCallChoice | null): RequestBody {
   const twoLegal = last !== null && last.formation !== undefined && FORMATION_PLAYS.includes(last.call);
   return {
     kind: "try",
@@ -116,7 +120,7 @@ export function tryRequest(s: GameState, rules: RuleSet, catalog: Catalog, team:
   };
 }
 
-export function defenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, team: Team, last: string | null, timeout: boolean): RequestDraft {
+export function defenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, team: Team, last: string | null, timeout: boolean): RequestBody {
   const first = screen("defense.package", [
     ...PACKAGES.map((p) => on(p, `defense.${p}`)),
     sameCallOption(last === null ? null : { call: last }, last !== null),
@@ -131,7 +135,7 @@ export function defenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, t
   };
 }
 
-export function kickoffRequest(s: GameState, rules: RuleSet, team: Team, onsideAllowed: boolean): RequestDraft {
+export function kickoffRequest(s: GameState, rules: RuleSet, team: Team, onsideAllowed: boolean): RequestBody {
   return {
     kind: "kickoff",
     team,
@@ -140,11 +144,11 @@ export function kickoffRequest(s: GameState, rules: RuleSet, team: Team, onsideA
   };
 }
 
-export function continueRequest(team: Team, about: Extract<DecisionRequest, { kind: "continue" }>["about"], timeout: RequestOption | null): RequestDraft {
+export function continueRequest(team: Team, about: Extract<DecisionRequest, { kind: "continue" }>["about"], timeout: RequestOption | null): RequestBody {
   return { kind: "continue", team, screens: [screen("continue", [on("continue"), ...(timeout === null ? [] : [timeout])])], about };
 }
 
-export function tossRequest(team: Team, overtime: boolean): RequestDraft {
+export function tossRequest(team: Team, overtime: boolean): RequestBody {
   return overtime
     ? { kind: "overtimeToss", team, screens: [screen("overtimeToss", [on("receive"), on("kick")])] }
     : { kind: "toss", team, screens: [screen("toss", [on("receive"), on("defer")])] };

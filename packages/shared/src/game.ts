@@ -382,9 +382,44 @@ export interface PenaltyPreview {
   readonly score: { readonly home: number; readonly away: number };
 }
 
+/**
+ * The game state a request is decided in (code review, M2 E). The session's saved state is the
+ * start of the dead ball; by a request, a run-off, a timeout or the two-minute warning may have
+ * moved it, so the UI shows this, not its own copy.
+ */
+export interface RequestState {
+  readonly period: number;
+  /** Seconds left in the period. */
+  readonly clock: number;
+  readonly clockRunning: boolean;
+  readonly phase: "kickoff" | "scrimmage" | "try" | "overtimeToss" | "final";
+  /** The team that snaps or kicks next. */
+  readonly possession: "home" | "away";
+  /** Yards from the possessing team's own goal line. */
+  readonly spot: number;
+  readonly down: number;
+  readonly distance: number;
+  readonly goalToGo: boolean;
+  readonly score: { readonly home: number; readonly away: number };
+  readonly timeouts: { readonly home: number; readonly away: number };
+  readonly safetyKick: boolean;
+}
+
+/** What happened in this dead ball before the request, in order (the loop's events, short form). */
+export type RequestEvent =
+  /** Seconds the clock ran before the snap (or before a timeout). */
+  | { readonly t: "runoff"; readonly seconds: number }
+  | { readonly t: "timeout"; readonly team: "home" | "away"; readonly side: "offense" | "defense"; readonly left: number }
+  | { readonly t: "twoMinuteWarning"; readonly period: number }
+  | { readonly t: "endPeriod"; readonly period: number };
+
 interface RequestBase {
   /** Increases with every request of a session; an answer names the request it answers. */
   readonly seq: number;
+  /** The state the decision is made in; null only for the opening toss, before the game exists. */
+  readonly state: RequestState | null;
+  /** This dead ball's events before the request: run-off, timeouts, the two-minute warning. */
+  readonly events: readonly RequestEvent[];
   /** The human's team. */
   readonly team: "home" | "away";
   /** screens[0] is the first screen; an option's `opens` names another screen here. */

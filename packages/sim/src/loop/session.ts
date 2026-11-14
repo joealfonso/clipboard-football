@@ -17,7 +17,7 @@ import { peekToss } from "../game/machine";
 import type { Team, TossChoice } from "../game/types";
 import { Rng, type RngState } from "../rng";
 import { gamePlayers, recordOf, startGame, stepGame, type GameKit, type GameRecord, type GameRun, type GameSetup, type Seat } from "./play";
-import { continueRequest, tossRequest, type RequestDraft } from "./requests";
+import { continueRequest, tossRequest, type RequestBody, type RequestDraft } from "./requests";
 
 export const SESSION_SCHEMA_VERSION = 1;
 
@@ -111,8 +111,10 @@ function advance(session: Session, setup: GameSetup, kit: GameKit): Session {
         let choice: TossChoice | undefined;
         if (seat !== null) {
           const winner = peekToss(rng);
-          if (winner === seat.team) choice = seat.ask(() => tossRequest(seat.team, false))[0] as TossChoice;
-          else seat.ask(() => continueRequest(seat.team, { what: "tossResult", winner, choice: "defer" }, null));
+          // Before the game exists there is no state; the request says so (state null).
+          const pre = (b: RequestBody): RequestDraft => ({ ...b, state: null, events: [] }) as RequestDraft;
+          if (winner === seat.team) choice = seat.ask(() => pre(tossRequest(seat.team, false)))[0] as TossChoice;
+          else seat.ask(() => pre(continueRequest(seat.team, { what: "tossResult", winner, choice: "defer" }, null)));
         }
         run = startGame(setup, kit.data, rng, choice);
       } else {

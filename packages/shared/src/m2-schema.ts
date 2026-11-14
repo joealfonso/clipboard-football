@@ -80,7 +80,27 @@ const preview = z.strictObject({
   distance: z.number().int(),
   score: z.strictObject({ home: count, away: count }),
 });
-const base = { seq: z.number().int().positive(), team, screens: z.array(screen).min(1) };
+const requestState = z.strictObject({
+  period: z.number().int().positive(),
+  clock: count,
+  clockRunning: z.boolean(),
+  phase: z.enum(["kickoff", "scrimmage", "try", "overtimeToss", "final"]),
+  possession: team,
+  spot: z.number().int(),
+  down: count,
+  distance: count,
+  goalToGo: z.boolean(),
+  score: z.strictObject({ home: count, away: count }),
+  timeouts: z.strictObject({ home: count, away: count }),
+  safetyKick: z.boolean(),
+});
+const requestEvent = z.discriminatedUnion("t", [
+  z.strictObject({ t: z.literal("runoff"), seconds: count }),
+  z.strictObject({ t: z.literal("timeout"), team, side: z.enum(["offense", "defense"]), left: count }),
+  z.strictObject({ t: z.literal("twoMinuteWarning"), period: z.number().int().positive() }),
+  z.strictObject({ t: z.literal("endPeriod"), period: z.number().int().positive() }),
+]);
+const base = { seq: z.number().int().positive(), state: requestState.nullable(), events: z.array(requestEvent), team, screens: z.array(screen).min(1) };
 const about = z.discriminatedUnion("what", [
   z.strictObject({ what: z.literal("tossResult"), winner: team, choice: z.enum(["receive", "kick", "defer"]) }),
   z.strictObject({ what: z.literal("theyKickOff"), onside: z.boolean(), safetyKick: z.boolean() }),

@@ -132,7 +132,9 @@ export type {
   ReasonCode,
   RequestKind,
   RequestOption,
+  RequestEvent,
   RequestScreen,
+  RequestState,
   SessionErrorCode,
   Tempo,
 } from "./game";

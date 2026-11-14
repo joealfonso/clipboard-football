@@ -13,7 +13,7 @@
 //                 instead, step 5c E); then offense and defense calls, resolvePlay, penalty
 //                 choice, applyPlay.
 
-import type { DecisionRequest, GameData, OffenseCallChoice, PlayResult, RuleSet, TeamPool, Tempo } from "../../../shared/src/types";
+import type { DecisionRequest, GameData, OffenseCallChoice, PlayResult, RequestEvent, RequestState, RuleSet, TeamPool, Tempo } from "../../../shared/src/types";
 import { FORMATION_PLAYS, type OffenseCall } from "../caller/offense";
 import { createEngine, type Players, type ResolvePlay } from "../engine/resolve";
 import type { PenaltyOption } from "../game/enforce";
@@ -24,7 +24,7 @@ import { toSituation } from "../game/situation";
 import type { GameState, GameType, Team, TossChoice } from "../game/types";
 import type { Rng } from "../rng";
 import { modeTempo, type CoachPolicies, type Side } from "./coach";
-import { continueRequest, defenseAnswer, defenseRequest, kickoffRequest, offenseAnswer, offenseRequest, penaltyOptionId, timeoutOption, tossRequest, tryRequest, type RequestDraft } from "./requests";
+import { continueRequest, defenseAnswer, defenseRequest, kickoffRequest, offenseAnswer, offenseRequest, penaltyOptionId, timeoutOption, tossRequest, tryRequest, type RequestBody, type RequestDraft } from "./requests";
 import { coachView, kickView, type LastSnap } from "./views";
 
 export const RECORD_SCHEMA_VERSION = 1;
@@ -187,7 +187,7 @@ function onsideAllowed(s: GameState, rules: RuleSet): boolean {
  * state each legal option leaves and picks one. Offsetting fouls have one option. Null when the
  * play carries no foul.
  */
-function penaltyChoice(s: GameState, rules: RuleSet, play: PlayResult, runoffTimeout: boolean, team: (t: Team) => TeamSetup, seat: Seat | null = null, calls: Calls | null = null): PenaltyOption | null {
+function penaltyChoice(s: GameState, rules: RuleSet, play: PlayResult, runoffTimeout: boolean, team: (t: Team) => TeamSetup, seat: HumanAsk | null = null, calls: Calls | null = null): PenaltyOption | null {
   const options = penaltyOptions(s, rules, play);
   if (options.length === 0) return null;
   if (options.length === 1) return options[0] as PenaltyOption;
@@ -213,6 +213,42 @@ function penaltyChoice(s: GameState, rules: RuleSet, play: PlayResult, runoffTim
     return hit.option;
   }
   return team(offended).coach.penalty(outcomes, offended);
+}
+
+/** The human's team and the loop's ask, which adds the state and events of the moment (M2 E). */
+interface HumanAsk {
+  readonly team: Team;
+  ask(make: () => RequestBody): readonly string[];
+}
+
+/** The state a request is decided in, for the request (code review, M2 E). */
+export function requestState(s: GameState): RequestState {
+  return {
+    period: s.period,
+    clock: s.clock,
+    clockRunning: s.clockRunning,
+    phase: s.phase,
+    possession: s.possession,
+    spot: s.spot,
+    down: s.down,
+    distance: s.distance,
+    goalToGo: s.goalToGo,
+    score: s.score,
+    timeouts: s.timeouts,
+    safetyKick: s.safetyKick,
+  };
+}
+
+/** The loop events since `from`, in the requests' short form (plays and tosses are left out). */
+export function requestEvents(events: readonly GameEvent[], from: number): RequestEvent[] {
+  const out: RequestEvent[] = [];
+  for (let i = from; i < events.length; i++) {
+    const e = events[i] as GameEvent;
+    if (e.t === "runoff") out.push({ t: "runoff", seconds: e.seconds });
+    else if (e.t === "timeout") out.push({ t: "timeout", team: e.team, side: e.side, left: e.left });
+    else if (e.t === "twoMinuteWarning" || e.t === "endPeriod") out.push({ t: e.t, period: e.period });
+  }
+  return out;
 }
 
 interface Calls {
@@ -279,13 +315,19 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   };
 
   // ---------------------------------------------------------------- M2 E: the human's decisions
+  const startLen = events.length;
+  /** Asks the seat, with the state and this dead ball's events as of now (code review fix). */
+  const ask = (make: () => RequestBody): readonly string[] => {
+    if (seat === null) throw new RangeError("no seat");
+    return seat.ask(() => ({ ...make(), state: requestState(s), events: requestEvents(events, startLen) }) as RequestDraft);
+  };
   let first: OffenseCallChoice | "timeout" | null = null;
   /** The human kicker's or try offense's first answer: its call, or a timeout (asked once). */
   const humanFirst = (): OffenseCallChoice | "timeout" => {
     if (first !== null || seat === null) return first ?? "timeout";
     const t = seat.team;
     if (s.phase === "kickoff") {
-      const p = seat.ask(() => kickoffRequest(s, rules, t, onsideAllowed(s, rules)));
+      const p = ask(() => kickoffRequest(s, rules, t, onsideAllowed(s, rules)));
       first = p[0] === "timeout" ? "timeout" : { call: p[0] as string };
     } else {
       first = humanTryAnswer();
@@ -295,7 +337,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   /** The try request's answer; after a timeout the request shows it off (timeoutTaken). */
   const humanTryAnswer = (): OffenseCallChoice | "timeout" => {
     if (seat === null) throw new RangeError("no seat");
-    const a = offenseAnswer(seat.ask(() => tryRequest(s, rules, catalog, seat.team, seat.lastOffense)), seat.lastOffense);
+    const a = offenseAnswer(ask(() => tryRequest(s, rules, catalog, seat.team, seat.lastOffense)), seat.lastOffense);
     if ("timeout" in a) return "timeout";
     if ("tempo" in a) throw new RangeError("no tempo on a try");
     return a.call;
@@ -305,7 +347,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     const f = humanFirst();
     if (f !== "timeout" || seat === null) return (f as OffenseCallChoice).call;
     const t = seat.team;
-    const p = seat.ask(() => kickoffRequest(s, rules, t, onsideAllowed(s, rules)));
+    const p = ask(() => kickoffRequest(s, rules, t, onsideAllowed(s, rules)));
     return p[0] as string;
   };
   const humanTryCall = (): OffenseCallChoice => {
@@ -320,7 +362,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     if (seat === null) throw new RangeError("no seat");
     for (;;) {
       const a = offenseAnswer(
-        seat.ask(() => offenseRequest(s, rules, catalog, toSituation(s, rules), seat.team, seat.tempo, seat.lastOffense, kit.data.engine.special.fieldGoals.kickDepth)),
+        ask(() => offenseRequest(s, rules, catalog, toSituation(s, rules), seat.team, seat.tempo, seat.lastOffense, kit.data.engine.special.fieldGoals.kickDepth)),
         seat.lastOffense,
       );
       if ("tempo" in a) {
@@ -338,18 +380,18 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   };
   const lateTimeout = (t: Team, about: () => Extract<DecisionRequest, { kind: "continue" }>["about"]): void => {
     if (seat === null) return;
-    const p = seat.ask(() => continueRequest(t, about(), timeoutOption(s, rules, t)));
+    const p = ask(() => continueRequest(t, about(), timeoutOption(s, rules, t)));
     if (p[0] !== "timeout") return;
     takeTimeout(t);
-    seat.ask(() => continueRequest(t, about(), timeoutOption(s, rules, t)));
+    ask(() => continueRequest(t, about(), timeoutOption(s, rules, t)));
   };
   const humanDefenseCall = (t: Team, allowTimeout: boolean): string => {
     if (seat === null) throw new RangeError("no seat");
-    const make = (): RequestDraft => defenseRequest(s, rules, catalog, t, seat.lastDefense, allowTimeout);
-    let a = defenseAnswer(seat.ask(make), seat.lastDefense);
+    const make = (): RequestBody => defenseRequest(s, rules, catalog, t, seat.lastDefense, allowTimeout);
+    let a = defenseAnswer(ask(make), seat.lastDefense);
     if ("timeout" in a) {
       takeTimeout(t);
-      a = defenseAnswer(seat.ask(make), seat.lastDefense);
+      a = defenseAnswer(ask(make), seat.lastDefense);
       if ("timeout" in a) throw new RangeError("a second timeout in one dead ball");
     }
     return a.preset;
@@ -371,7 +413,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     const applies = blocked !== null || (withTimeout !== null && withTimeout.timeouts[off] < without.timeouts[off]);
     if (!applies) return false;
     const clock = withTimeout?.clock ?? Math.min(s.clock, without.clock + rules.clock.runoffSeconds);
-    const [id] = seat.ask(() => ({
+    const [id] = ask(() => ({
       kind: "runoff",
       team: off,
       screens: [{ id: "runoff", options: [{ id: "runoff", legal: true }, blocked === null ? { id: "timeout", legal: true } : { id: "timeout", legal: false, reason: blocked }] }],
@@ -391,9 +433,9 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     if (seat !== null) {
       const winner = peekToss(rng);
       if (winner === seat.team) {
-        const [c] = seat.ask(() => tossRequest(seat.team, true));
+        const [c] = ask(() => tossRequest(seat.team, true));
         choice = c as TossChoice;
-      } else seat.ask(() => continueRequest(seat.team, { what: "tossResult", winner, choice: "receive" }, null));
+      } else ask(() => continueRequest(seat.team, { what: "tossResult", winner, choice: "receive" }, null));
     }
     input();
     const before = snapshot(s);
@@ -541,7 +583,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
 
   const play = kit.resolve(s, offense, defense, players, rng);
   const calls: Calls = { offense, defense };
-  const penalty = penaltyChoice(s, rules, play, runoffTimeout, team, seat, calls);
+  const penalty = penaltyChoice(s, rules, play, runoffTimeout, team, seat === null ? null : { team: seat.team, ask }, calls);
   if (seat !== null && human(s.possession) && s.phase === "scrimmage") runoffTimeout = humanRunoff(play, penalty, calls);
   // Same call repeats this side's last scrimmage or two-point call (a try's two-point play counts as its run or pass).
   if (seat !== null && human(s.possession) && s.phase === "scrimmage") seat.lastOffense = offense;
