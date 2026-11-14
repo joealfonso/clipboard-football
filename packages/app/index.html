@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clipboard Football</title>
+  </head>
+  <body>
+    <header id="top-bar" class="top-bar" aria-label="Scoreboard"></header>
+    <main class="layout">
+      <canvas id="field" class="field" aria-hidden="true"></canvas>
+      <section id="panel" class="panel" aria-label="Game panel"><p>Loading...</p></section>
+    </main>
+    <div id="live" class="visually-hidden" aria-live="polite"></div>
+    <div id="too-small" class="too-small" hidden><p>Make the window larger to play.</p></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

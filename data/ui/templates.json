@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "UI diagram templates and timing for the field animation (designed, not fitted; docs/specs/m2-playable-game-design.md, 'Rule for what may be drawn'). Alignments are [x, depth] in yards: x from the middle of the field, positive to the offense's right; depth off the ball, offense below the line and defense above it. Routes and drops are waypoints [in, up] from the alignment: 'in' toward the middle of the field, 'up' up the screen. Diagram movement never carries the ball; only engine facts do.",
+  "timing": {
+    "runoffMaxMs": 600,
+    "setMs": 800,
+    "liveMinMs": 2000,
+    "liveMaxMs": 4000,
+    "liveSecondsMin": 3,
+    "liveSecondsMax": 12,
+    "holdMs": 400,
+    "scoreHoldMs": 800,
+    "crossfadeMs": 200,
+    "routeAlpha": 0.4
+  },
+  "field": {
+    "markYards": 1.4,
+    "markMinPx": 14,
+    "losFromTop": 0.7,
+    "panEdgeYards": 5,
+    "clearOfBallYards": 2.5
+  },
+  "offense": {
+    "shotgun": { "QB1": [0, 5], "RB1": [-2, 5], "WR1": [-21, 1], "WR2": [21, 1], "WR3": [14, 1.5], "TE1": [-6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "underCenter": { "QB1": [0, 1.5], "RB1": [0, 7], "WR1": [-21, 1], "WR2": [21, 1], "TE1": [-6, 1], "TE2": [6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "pistol": { "QB1": [0, 4], "RB1": [0, 7], "WR1": [-21, 1], "WR2": [21, 1], "WR3": [-14, 1.5], "TE1": [6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "empty": { "QB1": [0, 5], "WR1": [-21, 1], "WR2": [21, 1], "WR3": [-14, 1.5], "WR4": [14, 1.5], "TE1": [-6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "heavy": { "QB1": [0, 1.5], "RB1": [0, 7], "TE1": [-7, 1], "TE2": [7, 1], "TE3": [9, 2.5], "OL1": [-5, 1], "OL2": [-3, 1], "OL3": [-1, 1], "OL4": [1, 1], "OL5": [3, 1], "OL6": [5, 1] }
+  },
+  "kick": {
+    "punt": { "P1": [0, 14], "S1": [0, 6], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1], "LB1": [-6, 1.5], "LB2": [6, 1.5], "TE1": [-22, 1], "TE2": [22, 1] },
+    "fieldGoal": { "K1": [-1.5, 8.5], "P1": [0, 7], "OL1": [-5, 1], "OL2": [-3, 1], "OL3": [-1, 1], "OL4": [1, 1], "OL5": [3, 1], "OL6": [5, 1], "TE1": [-7, 1], "TE2": [7, 1], "TE3": [-9, 1.5] },
+    "extraPoint": { "K1": [-1.5, 8.5], "P1": [0, 7], "OL1": [-5, 1], "OL2": [-3, 1], "OL3": [-1, 1], "OL4": [1, 1], "OL5": [3, 1], "OL6": [5, 1], "TE1": [-7, 1], "TE2": [7, 1], "TE3": [-9, 1.5] },
+    "kickoff": { "K1": [0, 6], "LB1": [-20, 1], "LB2": [-15, 1], "LB3": [-10, 1], "LB4": [-5, 1], "S1": [5, 1], "S2": [10, 1], "S3": [15, 1], "CB1": [-24, 1], "CB2": [20, 1], "CB3": [24, 1] }
+  },
+  "defense": {
+    "base": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [-4, 5], "LB2": [0, 5], "LB3": [4, 5], "CB1": [-21, 6], "CB2": [21, 6], "S1": [-9, 12], "S2": [9, 12] },
+    "nickel": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [-2.5, 5], "LB2": [2.5, 5], "CB1": [-21, 6], "CB2": [21, 6], "CB3": [14, 5], "S1": [-9, 12], "S2": [9, 12] },
+    "dime": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [0, 5], "CB1": [-21, 6], "CB2": [21, 6], "CB3": [14, 5], "CB4": [-14, 5], "S1": [-9, 12], "S2": [9, 12] },
+    "goalLine": { "DL1": [-6, 1], "DL2": [-3, 1], "DL3": [0, 1], "DL4": [3, 1], "DL5": [6, 1], "LB1": [-4, 3.5], "LB2": [0, 3.5], "LB3": [4, 3.5], "CB1": [-18, 3], "CB2": [18, 3], "S1": [0, 7] },
+    "prevent": { "DL1": [-3, 1], "DL2": [0, 1], "DL3": [3, 1], "LB1": [0, 8], "CB1": [-21, 10], "CB2": [21, 10], "CB3": [-10, 14], "CB4": [10, 14], "S1": [-12, 20], "S2": [0, 23], "S3": [12, 20] }
+  },
+  "returnUnits": {
+    "kickoff": { "DL1": [-12, 18], "DL2": [-4, 18], "DL3": [4, 18], "DL4": [12, 18], "LB1": [-10, 30], "LB2": [0, 30], "LB3": [10, 30], "CB1": [-18, 24], "CB2": [18, 24], "S1": [-4, 60], "S2": [4, 60] },
+    "punt": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [-4, 5], "LB2": [0, 5], "LB3": [4, 5], "CB1": [-21, 1.5], "CB2": [21, 1.5], "S1": [-6, 14], "S2": [0, 40] },
+    "fieldGoal": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [-4, 3], "LB2": [0, 3], "LB3": [4, 3], "CB1": [-9, 2], "CB2": [9, 2], "S1": [-3, 10], "S2": [3, 10] }
+  },
+  "routes": {
+    "run": { "OL": [[0, 2]], "TE": [[0, 1.5]], "WR": [[1, 4]], "QB": [[-1.5, -1]], "RB": [[-2, 1]] },
+    "shortPass": { "OL": [[0, -1.5]], "TE": [[0, 4], [-3, 6]], "WR": [[0, 5], [3, 6]], "RB": [[-3, 0], [-6, 2]], "QB": [[0, -2]] },
+    "intermediatePass": { "OL": [[0, -1.5]], "TE": [[0, 8], [3, 12]], "WR": [[0, 12], [5, 13]], "RB": [[-4, 1]], "QB": [[0, -3]] },
+    "deepPass": { "OL": [[0, -1.5]], "TE": [[0, 10]], "WR": [[0, 26]], "RB": [[-3, 0]], "QB": [[0, -4]] },
+    "screenPass": { "OL": [[0, 3]], "TE": [[-2, 4]], "WR": [[0, 6]], "RB": [[-6, -1]], "QB": [[0, -3]] },
+    "playAction": { "OL": [[0, 1], [0, 0]], "TE": [[0, 8], [-4, 12]], "WR": [[0, 14], [6, 16]], "RB": [[-1, -1]], "QB": [[1, -1], [0, -4]] },
+    "kick": { "OL": [[0, 0.5]], "TE": [[0, 1]], "LB": [[0, 1]], "S": [[0, 1]], "K": [[0, 1]], "P": [[0, 0]] },
+    "cover": { "K": [[0, 12]], "P": [[0, 6]], "LB": [[0, 22]], "S": [[0, 22]], "CB": [[0, 24]], "OL": [[0, 3]], "TE": [[0, 20]] }
+  },
+  "drops": {
+    "zone": { "DL": [[0, -3]], "LB": [[0, 4]], "CB": [[-2, 9]], "S": [[0, 6]] },
+    "man": { "DL": [[0, -3]], "LB": [[0, 3]], "CB": [[0, 6]], "S": [[0, 5]] },
+    "blitz": { "DL": [[0, -3]], "LB": [[0, -5]], "CB": [[0, 5]], "S": [[0, 3]] },
+    "run": { "DL": [[0, -2]], "LB": [[0, -2]], "CB": [[1, -1]], "S": [[0, -3]] },
+    "prevent": { "DL": [[0, -2]], "LB": [[0, 6]], "CB": [[0, 10]], "S": [[0, 6]] },
+    "kick": { "DL": [[0, -2]], "LB": [[0, -1]], "CB": [[0, 2]], "S": [[0, -2]] },
+    "return": { "DL": [[0, -6]], "LB": [[0, -6]], "CB": [[0, -4]], "S": [[0, -3]] }
+  },
+  "presetDrops": {
+    "baseCover3": "zone",
+    "baseCover2": "zone",
+    "runStuff": "run",
+    "nickelCover3": "zone",
+    "nickelCover4": "zone",
+    "nickelCover2": "zone",
+    "nickel2Man": "man",
+    "nickelCover1": "man",
+    "nickelCover1Blitz": "blitz",
+    "dimeCover4": "zone",
+    "dimeCover0Blitz": "blitz",
+    "goalLine": "run",
+    "prevent": "prevent"
+  },
+  "passDepth": { "shortPass": 6, "intermediatePass": 14, "deepPass": 28, "screenPass": -2, "playAction": 14 }
+}
