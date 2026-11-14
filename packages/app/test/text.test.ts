@@ -2,8 +2,9 @@
 // line naming only the players the engine named (H2), the calls line, event lines, reasons.
 
 import { describe, expect, it } from "vitest";
-import { callsLine, clockText, eventLine, nextText, penaltyChoiceText, penaltyText, periodText, playerRef, reasonText, resultLine, sideText, situationText, yardLineText, type TextCtx } from "../src/ui/text";
-import { readDetail, PARTICIPANT_ROLES, type ReasonCode } from "../src/engine/types";
+import { callsLine, clockText, continueText, eventLine, nextText, penaltyChoiceText, penaltyText, periodText, playerRef, reasonText, resultLine, sideText, situationText, yardLineText, type TextCtx } from "../src/ui/text";
+import { REASON_CODES } from "@clipboard-football/shared";
+import { readDetail, PARTICIPANT_ROLES } from "../src/engine/types";
 import { whyHeadline } from "../src/engine/headline";
 import { ALL_FIXTURES, COMPLETE, FALSE_START, FIELD_GOAL_GOOD, HOLDING_ON_RUN, INCOMPLETE, INTERCEPTION, KICKOFF_TOUCHBACK, PUNT_RETURNED, RUN, SACK, STANDOUT_RUN, TOUCHDOWN, UNNAMED_COMPLETE, fixturePlayers, snap } from "./fixtures";
 
@@ -90,7 +91,7 @@ describe("the result line names only players the engine named (H2)", () => {
     expect(resultLine(INTERCEPTION, ctx)).toMatch(/intercepted by #\d+ P\. S1\. Lanterns ball, 1st & 10 at OPP 48\./);
     expect(resultLine(SACK, ctx)).toMatch(/sacked by #\d+ P\. DL2 for a loss of 7\./);
     expect(resultLine(RUN, ctx)).toMatch(/^#\d+ P\. RB1 for 4\. Your ball, 3rd & 3 at OWN 44\.$/);
-    expect(resultLine(PUNT_RETURNED, ctx)).toMatch(/punts 45 yards, returned by #\d+ P\. S2\./);
+    expect(resultLine(PUNT_RETURNED, ctx)).toMatch(/punts 45 yards, returned by #\d+ P\. WR1\./);
     expect(resultLine(FIELD_GOAL_GOOD, ctx)).toMatch(/47-yard field goal is good\. Kickoff next\./);
     expect(resultLine(KICKOFF_TOUCHBACK, ctx)).toMatch(/^#\d+ P\. K1: kickoff/);
   });
@@ -132,15 +133,15 @@ describe("calls, events and reasons", () => {
   });
 
   it("every reason code has words", () => {
-    const codes: ReasonCode[] = ["kickWindow", "notOnTry", "onlyRunPassOnTry", "noTimeouts", "timeoutTaken", "noEarlierCall", "sameCallIllegal", "onsideNotAllowed", "notNow"];
-    for (const c of codes) expect(reasonText(c).length).toBeGreaterThan(3);
-    expect(reasonText("kickWindow")).toBe("4th down or last 2:00 only");
+    // Every code the engine can send has words of its own.
+    for (const c of REASON_CODES) expect(reasonText(c), c).not.toBe("not now");
+    expect(reasonText("kickNotNow")).toBe("4th down or last 2:00 only");
     expect(reasonText("noTimeouts")).toBe("No timeouts left");
   });
 
   it("penalty options show the state each leaves", () => {
-    expect(penaltyChoiceText({ option: { kind: "accept", foul: 0 }, after: snap({ down: 1, distance: 10, spot: 67 }) }, ctx, [{ penalty: "offensiveHolding", by: "defense" }])).toBe("Accept holding: 1st & 10 at OPP 33");
-    expect(penaltyChoiceText({ option: { kind: "decline" }, after: snap({ down: 3, distance: 2, spot: 52 }) }, ctx, [])).toBe("Decline: 3rd & 2 at OPP 48");
+    expect(penaltyChoiceText("accept:0", snap({ down: 1, distance: 10, spot: 67 }), ctx, [{ penalty: "offensiveHolding", by: "defense" }])).toBe("Accept holding: 1st & 10 at OPP 33");
+    expect(penaltyChoiceText("decline", snap({ down: 3, distance: 2, spot: 52 }), ctx, [])).toBe("Decline: 3rd & 2 at OPP 48");
   });
 
   it("next line after a change of possession names the team with the ball", () => {
@@ -153,9 +154,16 @@ describe("the why line", () => {
     expect(whyHeadline(COMPLETE.play)).toBe("A short completion, a common result here.");
   });
 
-  it("falls back to the engine's own why sentence (adapter), never UI text", () => {
-    const play = { ...COMPLETE.play, detail: { why: "From the engine." } };
-    expect(whyHeadline(play)).toBe("From the engine.");
+  it("is null with no headline, never the detail sentence or UI text", () => {
+    expect(whyHeadline({ ...COMPLETE.play, detail: { why: "The detail line, with x1.34." } })).toBeNull();
     expect(whyHeadline({ ...COMPLETE.play, detail: {} })).toBeNull();
+  });
+});
+
+describe("continue dead balls", () => {
+  it("say what the other team visibly lines up for, and the toss result", () => {
+    expect(continueText({ what: "theyLineUp", call: "punt" }, ctx)).toBe("The Lanterns line up to punt.");
+    expect(continueText({ what: "theyKickOff", onside: true, safetyKick: false }, ctx)).toBe("The Lanterns declare an onside kick.");
+    expect(continueText({ what: "tossResult", winner: "away", choice: "defer" }, ctx)).toBe("The Lanterns won the toss and chose to defer.");
   });
 });

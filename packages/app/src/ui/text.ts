@@ -4,7 +4,7 @@
 
 import type { PlayResult } from "@clipboard-football/shared";
 import type { Catalog } from "@clipboard-football/shared";
-import { readDetail, type GameEvent, type LineUp, type OffenseCallAnswer, type PenaltyChoice, type PlayEvent, type ReasonCode, type Snapshot, type Team, type Tempo } from "../engine/types";
+import { readDetail, type ContinueAbout, type GameEvent, type OffenseCallChoice, type PenaltyPreview, type PlayEvent, type ReasonCode, type Snapshot, type Team, type Tempo } from "../engine/types";
 
 export interface TeamText {
   readonly name: string;
@@ -274,7 +274,7 @@ export function resultLine(ev: PlayEvent, ctx: TextCtx): string {
   return out.join(" ");
 }
 
-function callLabel(o: OffenseCallAnswer, ctx: TextCtx): string {
+function callLabel(o: OffenseCallChoice, ctx: TextCtx): string {
   const leaf = o.call === "goForTwo" ? o.twoPointPlay : o.call;
   const name = ctx.labels[leaf ?? ""] ?? leaf ?? o.call;
   const form = o.formation === undefined ? "" : `${ctx.labels[o.formation] ?? o.formation}, `;
@@ -307,49 +307,48 @@ export function eventLine(ev: GameEvent, ctx: TextCtx): string | null {
   }
 }
 
-/** Text for an off choice's reason. */
+
+/** Text for an off choice's reason (the engine's ReasonCode). */
 export function reasonText(code: ReasonCode | undefined): string {
   switch (code) {
-    case "kickWindow":
+    case "kickNotNow":
       return "4th down or last 2:00 only";
     case "notOnTry":
       return "not on a try";
-    case "onlyRunPassOnTry":
-      return "only a run or pass on a two-point try";
     case "noTimeouts":
       return "No timeouts left";
     case "timeoutTaken":
       return "one timeout per dead ball";
+    case "timeoutNotAllowed":
+      return "the rules don't allow it here";
     case "noEarlierCall":
       return "no earlier call";
-    case "sameCallIllegal":
+    case "lastCallNotLegal":
       return "last call not allowed now";
     case "onsideNotAllowed":
       return "not allowed now";
-    case "notNow":
     case undefined:
       return "not now";
   }
 }
 
-export function lineUpText(l: LineUp, team: TeamText): string {
-  switch (l) {
-    case "kickoff":
-      return `The ${team.nickname} kick off.`;
-    case "onsideKick":
-      return `The ${team.nickname} declare an onside kick.`;
-    case "punt":
-      return `The ${team.nickname} line up to punt.`;
-    case "fieldGoal":
-      return `The ${team.nickname} line up for a field goal.`;
-    case "extraPoint":
-      return `The ${team.nickname} line up for the extra point.`;
-    case "kneel":
-      return `The ${team.nickname} line up to kneel.`;
-    case "spike":
-      return `The ${team.nickname} line up to spike it.`;
-    case "clock":
-      return "The clock is running.";
+/** What a "continue" dead ball says (design decision 17). */
+export function continueText(about: ContinueAbout, ctx: TextCtx): string {
+  switch (about.what) {
+    case "tossResult": {
+      const who = about.winner === ctx.human ? "You won the toss" : `The ${ctx.teams[about.winner].nickname} won the toss`;
+      return `${who} and chose to ${about.choice}.`;
+    }
+    case "theyKickOff": {
+      const them = ctx.teams[other(ctx.human)].nickname;
+      if (about.onside) return `The ${them} declare an onside kick.`;
+      return about.safetyKick ? `The ${them} free kick after the safety.` : `The ${them} kick off.`;
+    }
+    case "theyLineUp": {
+      const them = ctx.teams[other(ctx.human)].nickname;
+      const what: Readonly<Record<string, string>> = { punt: "to punt", fieldGoal: "for a field goal", extraPoint: "for the extra point", kneel: "to kneel", spike: "to spike it" };
+      return `The ${them} line up ${what[about.call] ?? `for ${ctx.labels[about.call] ?? about.call}`}.`;
+    }
   }
 }
 
@@ -357,19 +356,20 @@ export function tempoText(t: Tempo): string {
   return t === "hurryUp" ? "Hurry-up" : t === "runClock" ? "Run the clock" : "Normal";
 }
 
-/** A penalty option row: "Accept: 1st & 10 at OPP 33". */
-export function penaltyChoiceText(c: PenaltyChoice, ctx: TextCtx, fouls: PlayResult["fouls"]): string {
+/** A penalty option row: "Accept holding: 1st & 10 at OPP 33". Option ids are the engine's ("accept:0", "decline", "offset"). */
+export function penaltyChoiceText(option: string, after: PenaltyPreview, ctx: TextCtx, fouls: PlayResult["fouls"]): string {
   const where =
-    c.after.phase === "scrimmage"
-      ? `${ordinal(c.after.down)} & ${c.after.distance} at ${yardLineText(c.after.spot, c.after.possession, ctx.human)}${c.after.possession === ctx.human ? "" : `, ${ctx.teams[c.after.possession].nickname} ball`}`
-      : c.after.phase === "try"
+    after.phase === "scrimmage"
+      ? `${ordinal(after.down)} & ${after.distance} at ${yardLineText(after.spot, after.possession, ctx.human)}${after.possession === ctx.human ? "" : `, ${ctx.teams[after.possession].nickname} ball`}`
+      : after.phase === "try"
         ? "try next"
-        : c.after.phase === "kickoff"
+        : after.phase === "kickoff"
           ? "kickoff next"
-          : c.after.phase;
-  if (c.option.kind === "decline") return `Decline: ${where}`;
-  if (c.option.kind === "offset") return `Offset: ${where}`;
-  const f = fouls?.[c.option.foul];
+          : after.phase;
+  if (option === "decline") return `Decline: ${where}`;
+  if (option === "offset") return `Offset: ${where}`;
+  const m = /^accept:(\d+)$/.exec(option);
+  const f = m === null ? undefined : fouls?.[Number(m[1])];
   const name = f === undefined ? "" : ` ${(ctx.labels[f.penalty] ?? f.penalty).toLowerCase()}`;
   return `Accept${name}: ${where}`;
 }

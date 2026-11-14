@@ -1,10 +1,9 @@
 // The sim's Web Worker. Loads and checks the data, then hands every message to a Session. The UI
 // thread never imports the sim; it only sees what this worker posts.
 
-import { prepare } from "./adapter";
 import { DataError, loadData } from "./data";
 import type { FromWorker, ToWorker } from "./protocol";
-import { DEFAULT_LEAGUE_SEED, Session, uiDataOf } from "./session";
+import { DEFAULT_LEAGUE_SEED, Session, prepare, uiDataOf } from "./session";
 
 // The app's tsconfig has the DOM lib, not WebWorker; these are the two worker members used.
 const scope = self as unknown as { postMessage(m: FromWorker): void; onmessage: ((e: MessageEvent<ToWorker>) => void) | null };

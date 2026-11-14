@@ -17,6 +17,7 @@ import penaltiesUrl from "../../../../data/engine/baseline.penalties.json?url";
 import kickoffUrl from "../../../../data/engine/kickoff.json?url";
 import matchupUrl from "../../../../data/engine/matchup.centered.json?url";
 import personnelUrl from "../../../../data/engine/personnel.json?url";
+import participantsUrl from "../../../../data/engine/participants.json?url";
 import ratingsUrl from "../../../../data/players/ratings.json?url";
 import distributionsUrl from "../../../../data/players/distributions.json?url";
 import namesUrl from "../../../../data/players/names.json?url";
@@ -44,6 +45,7 @@ export const FILES: readonly (readonly [string, string])[] = [
   ["data/engine/kickoff.json", kickoffUrl],
   ["data/engine/matchup.centered.json", matchupUrl],
   ["data/engine/personnel.json", personnelUrl],
+  ["data/engine/participants.json", participantsUrl],
   ["data/players/ratings.json", ratingsUrl],
   ["data/players/distributions.json", distributionsUrl],
   ["data/players/names.json", namesUrl],
@@ -140,6 +142,7 @@ export async function loadData(progress: (file: string, done: number, total: num
     kickoff: json("data/engine/kickoff.json"),
     matchup: json("data/engine/matchup.centered.json"),
     personnel: json("data/engine/personnel.json"),
+    participants: json("data/engine/participants.json"),
     ratings: json("data/players/ratings.json"),
     distributions: json("data/players/distributions.json"),
     names: json("data/players/names.json"),

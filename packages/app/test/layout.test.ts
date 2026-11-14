@@ -1,18 +1,13 @@
 // Layout (L1), the seven-choice cap on every non-menu screen (F3), the UI templates covering
-// every unit the engine puts on the field, and the per-player box adapter (C4: no stat is a dash,
-// not 0).
+// every unit the engine puts on the field, and reading the engine's onField into slots.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { RuleSet } from "@clipboard-football/shared";
-import { playerBox } from "../src/engine/playerBox";
-import { numbersFor, onFieldFor, ratingRanks } from "../src/engine/roster";
+import { onFieldSlots } from "../src/engine/types";
 import { cameraAt, layoutFor, panCamera } from "../src/ui/layout";
 import * as S from "../src/ui/screens";
 import { parseTemplates, TemplateError } from "../src/ui/templates";
-import { COMPLETE, INTERCEPTION, RUN, SACK } from "./fixtures";
-import { prepared } from "./support";
 
 const read = (p: string): unknown => JSON.parse(readFileSync(join(import.meta.dirname, "../../..", p), "utf8"));
 const templatesRaw = read("data/ui/templates.json");
@@ -98,8 +93,14 @@ describe("UI templates", () => {
     for (const [f, slots] of Object.entries(personnel.offense)) covers(templates.offense[f], slots, f);
     for (const [k, slots] of Object.entries(personnel.kick)) covers(templates.kick[k], slots, k);
     for (const [p, slots] of Object.entries(personnel.packages)) covers(templates.defense[p], slots, p);
-    // The M1 engine fields the base package on every kick (the return units are milestone B).
-    for (const unit of ["kickoff", "punt", "fieldGoal"]) covers(templates.returnUnits[unit], personnel.packages["base"] as Record<string, number>, `return ${unit}`);
+    // The receiving units on kicks: participants.json's return units (kickoffs, onside kicks,
+    // punts), and the base package for field goals and extra points.
+    const participants = read("data/engine/participants.json") as { returnUnits: Record<string, Record<string, number>>; receivingUnit: Record<string, string> };
+    const ru = participants.returnUnits;
+    covers(templates.returnUnits["kickoff"], ru[participants.receivingUnit["kickoff"] as string] as Record<string, number>, "kickoff return");
+    covers(templates.returnUnits["kickoff"], ru[participants.receivingUnit["onsideKick"] as string] as Record<string, number>, "onside return");
+    covers(templates.returnUnits["punt"], ru[participants.receivingUnit["punt"] as string] as Record<string, number>, "punt return");
+    covers(templates.returnUnits["fieldGoal"], personnel.packages["base"] as Record<string, number>, "field goal defense");
   });
 
   it("every preset has a drop, every pass play a neutral depth", () => {
@@ -114,54 +115,20 @@ describe("UI templates", () => {
   });
 });
 
-describe("roster adapters", () => {
-  const p = prepared();
-  const league = p.league(2026);
 
-  it("placeholder jersey numbers are unique within each team and stable", () => {
-    for (const t of league) {
-      const n = numbersFor(t.pool);
-      expect(new Set(n.values()).size).toBe(t.pool.players.length);
-      for (const v of n.values()) expect(v >= 0 && v <= 99).toBe(true);
-      expect([...numbersFor(t.pool)]).toEqual([...n]);
-    }
+describe("the engine's onField as slots", () => {
+  it("numbers each position's ids in slot order, offense and defense", () => {
+    const f = onFieldSlots({ offense: { QB: ["q"], WR: ["w1", "w2"] }, defense: { CB: ["c1"] } });
+    expect(f?.offense).toEqual([
+      { slot: "QB1", position: "QB", id: "q" },
+      { slot: "WR1", position: "WR", id: "w1" },
+      { slot: "WR2", position: "WR", id: "w2" },
+    ]);
+    expect(f?.defense).toEqual([{ slot: "CB1", position: "CB", id: "c1" }]);
   });
 
-  it("rating ranks match a rank recomputed from the league (P1)", () => {
-    const pools = league.map((t) => t.pool);
-    const player = pools[3]?.players.find((x) => x.position === "WR");
-    if (player === undefined) throw new Error("no WR");
-    const peers = pools.flatMap((t) => t.players.filter((x) => x.position === "WR"));
-    for (const r of ratingRanks(pools, player)) {
-      const values = peers.map((x) => (x.ratings as Record<string, number>)[r.rating] ?? x.skills[r.rating] ?? 0).sort((a, b) => b - a);
-      expect(r.rank).toBe(values.indexOf(r.value) + 1);
-      expect(r.of).toBe(peers.length);
-    }
-  });
-
-  it("onField mirrors the engine's pool-order fill", () => {
-    const [a, b] = league;
-    const f = onFieldFor(p.data.engine.personnel, a?.pool ?? league[0]!.pool, b?.pool ?? league[0]!.pool, { group: "offense", name: "shotgun" }, "nickel");
-    expect(f?.offense.map((s) => s.slot)).toEqual(["QB1", "RB1", "WR1", "WR2", "WR3", "TE1", "OL1", "OL2", "OL3", "OL4", "OL5"]);
-    expect(f?.defense).toHaveLength(11);
-  });
-});
-
-describe("per-player box adapter (milestone C stand-in)", () => {
-  const rules = prepared().data.engine.rules as RuleSet;
-
-  it("credits only named players, and a player with no stat in a category has none (C4)", () => {
-    const box = playerBox([COMPLETE, RUN, SACK, INTERCEPTION], rules);
-    expect(box.get("H-QB1")?.passing).toEqual({ completions: 1, attempts: 2, yards: 7, touchdowns: 0, interceptions: 1, sacked: 1 });
-    expect(box.get("H-WR2")?.receiving).toEqual({ targets: 1, catches: 1, yards: 7, touchdowns: 0, long: 7 });
-    expect(box.get("H-RB1")?.rushing).toEqual({ attempts: 1, yards: 4, touchdowns: 0, long: 4 });
-    expect(box.get("H-RB1")?.receiving).toBeUndefined();
-    expect(box.get("A-DL2")?.defense?.sacks).toBe(1);
-    expect(box.get("A-S1")?.defense?.interceptions).toBe(1);
-  });
-
-  it("is empty when no play names its players (the M1 engine)", () => {
-    const none = playerBox([{ ...COMPLETE, play: { ...COMPLETE.play, detail: {} } }], rules);
-    expect(none.size).toBe(0);
+  it("drops a malformed onField instead of guessing", () => {
+    expect(onFieldSlots({ offense: { QB: "q" }, defense: {} })).toBeUndefined();
+    expect(onFieldSlots(null)).toBeUndefined();
   });
 });
