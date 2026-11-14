@@ -1466,6 +1466,12 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - For the lead (C1 conflict): a pass the defense intercepted and the offense got back is a completion with yards in the step 5 team box (box.ts reads only `turnover` and final possession, and such a play has neither) but has no receiver in B's crediting (interceptor and offensive recoverer). The player box does not invent a catch, so team completions exceed the sum of catches and player completions by those plays: 2 of 300 games checked (league seed 2026). Every other C1 sum matched in those 300 games: passing, receiving and rushing yards, attempts, interceptions thrown and made, sacks taken and made, field goals, punts. Fixing it in the team box would change step 5 counting, and the pipeline counts real games the same way (pipeline/game/actuals.py), so I left it.
 - Team challenges won and lost are not in the box: challenges are milestone G.
 
+### D: why headline (engineer, 2026-11-14)
+- `WhyTemplate.headline` is required (schema `whySchema`); why.json version 2 adds one per template. `detail.headline` is rendered in `finish` with the same slot rules (`renderHeadline`); `detail.why` is unchanged for every play (the outcome digest keeps it).
+- Headlines name players only where the role is always present for that template: the fouler on pre-snap and penalty lines, the kicker on kickoffs, onside kicks, field goals and extra points, the punter on punts, the quarterback on kneels and spikes. Runs, passes and returns leave naming to the UI's result line, which reads `participants`.
+- The headline avoids the word "matchup" (a trace factor id) and says "that defense" instead, so a pattern test for raw factor ids has no near-miss. "a fluke" stays, as the spec allows.
+- `render` and `slotsOf` now take only the fields they read (`Pick<WhyTemplate, ...>`), so existing callers with a text-only template still type-check.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

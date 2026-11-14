@@ -381,8 +381,13 @@ export interface WhyTemplate {
   readonly when: string;
   /** Optional: only for these play kinds. */
   readonly kinds?: readonly string[];
-  /** Text with {factor.field} slots. */
+  /** Text with {factor.field} slots: the detail line (detail.why), with the numbers. */
   readonly text: string;
+  /**
+   * M2 milestone D: the plain-words headline (detail.headline) the game shows, with the same slot
+   * rules: no multipliers, percentages or raw ids; it may name players from the role entries.
+   */
+  readonly headline: string;
   /** Fixed factor phrases in the text, by the factor they name (E2). */
   readonly factors: readonly string[];
   /** Step 5c G1: only for this case of `when` (matchup: up or down; fluke: its reason; baseline: common or plain). */

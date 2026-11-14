@@ -51,7 +51,7 @@ export interface Rendered {
 }
 
 /** Fills every slot from the trace. Throws EngineError("unboundSlot") on a slot with no value. */
-export function render(t: WhyTemplate, trace: readonly TraceEntry[]): Rendered {
+export function render(t: Pick<WhyTemplate, "id" | "text">, trace: readonly TraceEntry[]): Rendered {
   const text = t.text.replace(SLOT, (_all, factor: string, field: string) => {
     const e = trace.find((x) => x.factor === factor && x[field] !== undefined);
     if (e === undefined) fail("unboundSlot", `template ${t.id}: {${factor}.${field}} has no value in the trace`);
@@ -60,8 +60,18 @@ export function render(t: WhyTemplate, trace: readonly TraceEntry[]): Rendered {
   return { text, template: t.id };
 }
 
+/** M2 milestone D: the template's headline, filled from the trace like the text. Throws EngineError("unboundSlot"). */
+export function renderHeadline(t: WhyTemplate, trace: readonly TraceEntry[]): string {
+  return render({ ...t, text: t.headline }, trace).text;
+}
+
+/** The slots a template's headline uses, as [factor, field] pairs. */
+export function headlineSlotsOf(t: WhyTemplate): [string, string][] {
+  return [...t.headline.matchAll(SLOT)].map((m) => [m[1] as string, m[2] as string]);
+}
+
 /** The slots a template uses, as [factor, field] pairs. */
-export function slotsOf(t: WhyTemplate): [string, string][] {
+export function slotsOf(t: Pick<WhyTemplate, "text">): [string, string][] {
   return [...t.text.matchAll(SLOT)].map((m) => [m[1] as string, m[2] as string]);
 }
 

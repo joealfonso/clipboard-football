@@ -8,5 +8,5 @@ export { assignNumbers, byPosition, curveAt, generateTeam, migrateTeamPool, numb
 export type { UnnumberedPlayer } from "./players";
 export type { GeneratorData } from "./players";
 export { applyEffect, deviation, leagueMeans } from "./effects";
-export { TRACE_FIELDS, dominant, isFluke, render, slotsOf } from "./why";
+export { TRACE_FIELDS, dominant, headlineSlotsOf, isFluke, render, renderHeadline, slotsOf } from "./why";
 export type { TraceEntry, TraceFactor } from "./why";

@@ -170,8 +170,8 @@ export interface OnField {
 export interface PlayDetailM2 {
   readonly participants: Participants;
   readonly onField: OnField;
-  /** M2 milestone D: the why line's plain-words headline. */
-  readonly headline?: string;
+  /** M2 milestone D: the why line's plain-words headline (detail.why stays as the detail line). */
+  readonly headline: string;
 }
 
 export type PlayResult =

@@ -240,6 +240,7 @@ export const whySchema = z
         when: z.string().min(1),
         kinds: z.array(z.string()).optional(),
         text: z.string().min(1),
+        headline: z.string().min(1),
         factors: z.array(z.string()),
         variant: z.string().min(1).optional(),
       }),
@@ -247,7 +248,7 @@ export const whySchema = z
   })
   .superRefine((w, ctx) => {
     for (const t of w.templates) {
-      for (const m of t.text.matchAll(SLOT)) {
+      for (const m of [...t.text.matchAll(SLOT), ...t.headline.matchAll(SLOT)]) {
         if (!knownSlots.has(`${m[1]}.${m[2]}`)) ctx.addIssue({ code: "custom", message: `template ${t.id}: unknown trace field {${m[1]}.${m[2]}}` });
       }
       for (const f of t.factors) {

@@ -24,7 +24,7 @@ import { fail } from "./errors";
 import { createCredit, creditStream, type Unit } from "./participants";
 import { onField } from "./players";
 import { backoff, drawIndex, drawTuple, drawWeighted } from "./tables";
-import { dominant, isFluke, render, round2, templateFor, variantFor, type TraceEntry } from "./why";
+import { dominant, isFluke, render, renderHeadline, round2, templateFor, variantFor, type TraceEntry } from "./why";
 
 /** Both teams' player pools. The offense is the team in possession. */
 export interface Players {
@@ -309,7 +309,9 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     for (const e of cr.trace) ctx.trace.push(e);
     const t: WhyTemplate = templateFor(why, when, play.kind, variantFor(why, when, ctx.trace));
     const r = render(t, ctx.trace);
-    return { ...play, detail: { ...detail, why: r.text, whyTemplate: r.template, trace: ctx.trace, participants: cr.participants, onField: cr.onField } } as PlayResult;
+    // M2 D: the plain-words headline, bound to the same trace; an unbound slot throws (no fallback).
+    const headline = renderHeadline(t, ctx.trace);
+    return { ...play, detail: { ...detail, why: r.text, whyTemplate: r.template, trace: ctx.trace, participants: cr.participants, onField: cr.onField, headline } } as PlayResult;
   }
 
   function whenFor(ctx: Ctx, fouls: readonly Foul[] | undefined, fluke: boolean, fallback: string): string {
