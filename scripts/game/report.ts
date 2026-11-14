@@ -457,7 +457,8 @@ export function renderReport(summaries: Readonly<Record<string, Summary>>, coach
     lines.push("- 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md, after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: 0 gated failures, 3 accepted misses wider (post hoc).");
     lines.push("- 2026-11-13, step 5d, counted as step 5b run 12 in docs/DECISIONS.md, approvals and pins only, metrics must match run 11: Joseph's step 5d holdout known deviations and C7 run 8: 0 gated failures (post hoc; its speed reading was taken on a loaded machine).");
     lines.push("- 2026-11-13, step 5d, counted as step 5b run 13 in docs/DECISIONS.md, after the step 5d code review and spec check fixes, Joseph's rerun acceptances and C7 run 9: 1 gated failure (points.share.38+) and 2 accepted misses wider (post hoc).");
-    lines.push(`- 2026-11-13, step 5d, counted as step 5b run 14 in docs/DECISIONS.md (the run in section 2), approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 holdout acceptances, the gated-failure line's backticks and C7 run 10: ${n} gated failures (post hoc).`);
+    lines.push("- 2026-11-14, step 5d, counted as step 5b run 14 in docs/DECISIONS.md, approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 holdout acceptances, the gated-failure line's backticks and C7 run 10: 0 gated failures (post hoc).");
+    lines.push(`- 2026-11-14, M2, counted as step 5b run 15 in docs/DECISIONS.md (the run in section 2), M2 A-E pins only, metrics must match run 14: the jersey-number rules, the participants file, the why headlines and the M2 code change pinned hashes, not outcomes (in-sample outcome digests identical, docs/DECISIONS.md "M2"): ${n} gated failures (post hoc).`);
   }
   lines.push("");
   if (summaries["holdout"] !== undefined) lines.push(...section("2. Validation, 2024-2025 (holdout)", summaries["holdout"]));
