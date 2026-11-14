@@ -1,0 +1,17 @@
+{
+  "name": "@clipboard-football/app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@clipboard-football/shared": "workspace:*",
+    "@clipboard-football/sim": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "8.3.8"
+  }
+}
