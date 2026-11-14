@@ -1461,6 +1461,11 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - B6 (report of real position shares) is not built: it needs a pipeline step joining pbp receivers and rushers to roster positions. Not gated.
 - Byte-identity: all 10,000 in-sample outcome digests identical to the baseline; CLI golden changes only in its data-hash line (the new file).
 
+### C: per-player box score and rating ranks (engineer, 2026-11-14)
+- `playerBoxScore(record, rules)` and `ratingRanks(pools)` in packages/sim/src/loop/player-box.ts; types (`PlayerBoxScore`, `PlayerLine` and its lines, `RatingRanks`) in packages/shared/src/game.ts, schemas in packages/shared/src/m2-schema.ts. Every definition is designed (MODEL.md, Per-player box score): RULES.md cites no statistics convention yet. Kicking and punting are separate lines (`kicking`, `punting`) so each can be absent on its own.
+- For the lead (C1 conflict): a pass the defense intercepted and the offense got back is a completion with yards in the step 5 team box (box.ts reads only `turnover` and final possession, and such a play has neither) but has no receiver in B's crediting (interceptor and offensive recoverer). The player box does not invent a catch, so team completions exceed the sum of catches and player completions by those plays: 2 of 300 games checked (league seed 2026). Every other C1 sum matched in those 300 games: passing, receiving and rushing yards, attempts, interceptions thrown and made, sacks taken and made, field goals, punts. Fixing it in the team box would change step 5 counting, and the pipeline counts real games the same way (pipeline/game/actuals.py), so I left it.
+- Team challenges won and lost are not in the box: challenges are milestone G.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

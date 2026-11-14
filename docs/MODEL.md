@@ -94,6 +94,21 @@ Supported ids (15): the 12 of step 3 plus offensive pass interference, illegal c
 - Fouling player: drawn uniformly from the fouling side's on-field players at the positions the designed table allows for that penalty.
 - Stream: every credit draw comes from a per-play stream seeded from the outcome stream's state before the play's first draw (read, never advanced). Same seed, same participants; no outcome changes for any seed (proof: scripts/game/outcome-digests.ts, docs/DECISIONS.md "M2").
 
+## Per-player box score
+
+**Designed** (M2 milestone C; packages/sim/src/loop/player-box.ts, `playerBoxScore(record, rules)`). Computed from the event log only, from each play's `detail.participants`; decides nothing. No NFL statistics convention is cited in RULES.md yet, so every definition below is designed (none is claimed as an NFL convention). They follow the step 5 team box's counting rules (Box score above, DECISIONS.md), so player lines add up to the team box.
+
+- Which plays count: scrimmage plays that stand (`playStands`: no accepted foul, or one enforced after the down; never a pre-snap foul or offsetting fouls), punts and field goal tries that stand (`kickStands`). Two-point tries count for nobody. Extra points count for the kicker when they stand.
+- Passing (passer): attempts are passes and spikes, as in the team box; a completion is a caught pass with a receiver credited; yards are the play's physical yards; a touchdown is a completion that scores; an interception is one the defense keeps; sacked and sack yards from sacks.
+- Rushing (ball carrier): runs, scrambles and kneels; attempts, yards, touchdowns, long.
+- Receiving: a target on every pass with a target; catches, yards, touchdowns and long for the receiver of a completion.
+- Defense: one tackler per play (designed, so tackles run below real counts, which include assists; spec resolved 9), including the offense's tackler after an interception or a lost fumble and the coverage tackler on a kick return. A sack counts as a sack, not a tackle. Interceptions as the passer's; forced fumbles and recoveries from the fumble roles (a recovery by the offense counts too).
+- Kicking: field goals made and attempted, long (made only), extra points made and attempted. Punting: punts, gross yards, average.
+- A category a player has no stat in is absent (the UI shows a dash), never 0.
+- Known difference from the team box: a pass the defense intercepted and the offense got back (about 1 in 150 games) is a completion in the step 5 team box, which reads only who held the ball at the end, but no completion or catch here, because the interceptor and the offense's recoverer are credited, not a receiver. DECISIONS.md, M2 C.
+
+**Rating ranks** (computed; `ratingRanks(pools)`): for every player of the generated league (card ratings: after the team-strength shift, before home field), each base rating's and position skill's rank within his position, 1 the highest, with the count at the position. Ties go to the lower player id in string order, so ranks are 1..n with no repeats.
+
 ## Why sentence
 
 **Designed.** Each play records a structured trace (detail.trace): the call, the cell and backoff level, the class drawn with its baseline and final probability, the matchup and formation multipliers on that class, each rating effect on it, the fouls, the special-teams event, and the fluke flag. The sentence (detail.why) comes from a template in data/engine/why.json whose slots bind only to trace fields; a slot with no value throws, there is no fallback text. Order: a pre-snap foul, then a fluke, then a foul on the play, then the dominant factor (largest absolute log multiplier on the class that happened, ties by matchup, rating, formation; under 0.05 none dominates and the sentence says it was a common result). Kicks have their own templates.

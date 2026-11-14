@@ -109,3 +109,15 @@ export type {
   ExpectedPointsTable,
   TimeoutTable,
 } from "./game";
+export type {
+  DefenseLine,
+  KickingLine,
+  PassingLine,
+  PlayerBoxScore,
+  PlayerLine,
+  PuntingLine,
+  RatingRank,
+  RatingRanks,
+  ReceivingLine,
+  RushingLine,
+} from "./game";

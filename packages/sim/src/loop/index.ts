@@ -5,5 +5,6 @@ export { GameLoopError, RECORD_SCHEMA_VERSION, gamePlayers, playGame, prepareGam
 export type { GameEvent, GameKit, GameLoopErrorCode, GameRecord, GameRun, GameSetup, Snapshot, TeamSetup } from "./play";
 export { averageCoachFor, drawPairing, generateLeague, leagueFromSeed, normal, pickNames, setupGame, shiftPool, teamLabel } from "./league";
 export type { LeagueTeam } from "./league";
-export { acceptedFoul, boxScore, kickStands, penaltyYards, playStands } from "./box";
+export { acceptedFoul, boxScore, kickStands, penaltyYards, physicalYards, playStands } from "./box";
 export type { BoxScore, Drive, DriveResult, TeamBox } from "./box";
+export { playerBoxScore, ratingRanks } from "./player-box";

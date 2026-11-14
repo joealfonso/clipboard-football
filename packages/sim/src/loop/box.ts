@@ -119,7 +119,8 @@ export function kickStands(ev: Extract<GameEvent, { t: "play" }>, rules: RuleSet
   return acceptedFoul(ev, rules) === null;
 }
 
-function physicalYards(play: PlayResult, los: number): number {
+/** Yards the play gained from the line, as the team box counts them (also the per-player box, M2 C). */
+export function physicalYards(play: PlayResult, los: number): number {
   if (!("end" in play) || play.end === undefined) return 0;
   const detail = (play.detail ?? {}) as Record<string, unknown>;
   const y = detail["yards"];

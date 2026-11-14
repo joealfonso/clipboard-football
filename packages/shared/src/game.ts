@@ -211,3 +211,90 @@ export interface GameData {
   /** sha256 of each data file the game reads, by repo path. */
   readonly dataHashes: Readonly<Record<string, string>>;
 }
+
+// ---------------------------------------------------------------- M2 C: per-player box score, rating ranks
+
+// The per-player box score and league-wide rating ranks, as the UI reads them; zod schemas in
+// m2-schema.ts. Every stat is computed from a game record's event log (packages/sim/src/loop/
+// player-box.ts) and decides nothing. A category a player has no stat in is absent (the UI
+// shows a dash), never 0 (C4). Definitions: docs/MODEL.md, "Per-player box score".
+
+export interface PassingLine {
+  readonly completions: number;
+  readonly attempts: number;
+  readonly yards: number;
+  readonly touchdowns: number;
+  readonly interceptions: number;
+  /** Times sacked, and the yards lost. */
+  readonly sacked: number;
+  readonly sackYards: number;
+}
+
+export interface RushingLine {
+  readonly attempts: number;
+  readonly yards: number;
+  readonly touchdowns: number;
+  /** Longest run. */
+  readonly long: number;
+}
+
+export interface ReceivingLine {
+  readonly targets: number;
+  readonly catches: number;
+  readonly yards: number;
+  readonly touchdowns: number;
+  /** Longest catch; absent with no catch. */
+  readonly long?: number;
+}
+
+export interface DefenseLine {
+  readonly tackles: number;
+  readonly sacks: number;
+  readonly interceptions: number;
+  readonly forcedFumbles: number;
+  readonly recoveries: number;
+}
+
+export interface KickingLine {
+  readonly fieldGoalsMade: number;
+  readonly fieldGoalAttempts: number;
+  /** Longest field goal made; absent with none made. */
+  readonly long?: number;
+  readonly extraPointsMade: number;
+  readonly extraPointAttempts: number;
+}
+
+export interface PuntingLine {
+  readonly punts: number;
+  /** Gross yards. */
+  readonly yards: number;
+  /** yards / punts. */
+  readonly average: number;
+}
+
+export interface PlayerLine {
+  readonly id: string;
+  readonly team: "home" | "away";
+  readonly passing?: PassingLine;
+  readonly rushing?: RushingLine;
+  readonly receiving?: ReceivingLine;
+  readonly defense?: DefenseLine;
+  readonly kicking?: KickingLine;
+  readonly punting?: PuntingLine;
+}
+
+/** Players with at least one stat, by id, in order of their first stat in the game. */
+export interface PlayerBoxScore {
+  readonly players: Readonly<Record<string, PlayerLine>>;
+}
+
+/** One rating's rank within the player's position across the league: 1 is the highest. */
+export interface RatingRank {
+  readonly value: number;
+  readonly rank: number;
+  /** Players at the position in the league. */
+  readonly of: number;
+}
+
+/** Player id -> rating name (base ratings and the position's skills) -> rank (C6). */
+export type RatingRanks = Readonly<Record<string, Readonly<Record<string, RatingRank>>>>;
