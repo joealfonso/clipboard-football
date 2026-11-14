@@ -6,7 +6,7 @@ import { callsLine, clockText, continueText, eventLine, nextText, penaltyChoiceT
 import { REASON_CODES } from "@clipboard-football/shared";
 import { readDetail, PARTICIPANT_ROLES } from "../src/engine/types";
 import { whyHeadline } from "../src/engine/headline";
-import { ALL_FIXTURES, COMPLETE, FALSE_START, FIELD_GOAL_GOOD, HOLDING_ON_RUN, INCOMPLETE, INTERCEPTION, KICKOFF_TOUCHBACK, PUNT_RETURNED, RUN, SACK, STANDOUT_RUN, TOUCHDOWN, UNNAMED_COMPLETE, fixturePlayers, snap } from "./fixtures";
+import { ALL_FIXTURES, COMPLETE, FALSE_START, FIELD_GOAL_GOOD, HOLDING_ON_RUN, INCOMPLETE, INTERCEPTION, KICKOFF_RETURN, KICKOFF_TOUCHBACK, PUNT_RETURNED, RUN, SACK, STANDOUT_RUN, TOUCHDOWN, UNNAMED_COMPLETE, fixturePlayers, snap } from "./fixtures";
 
 const ctx: TextCtx = {
   human: "home",
@@ -93,7 +93,8 @@ describe("the result line names only players the engine named (H2)", () => {
     expect(resultLine(RUN, ctx)).toMatch(/^#\d+ P\. RB1 for 4\. Your ball, 3rd & 3 at OWN 44\.$/);
     expect(resultLine(PUNT_RETURNED, ctx)).toMatch(/punts 45 yards, returned by #\d+ P\. WR1\./);
     expect(resultLine(FIELD_GOAL_GOOD, ctx)).toMatch(/47-yard field goal is good\. Kickoff next\./);
-    expect(resultLine(KICKOFF_TOUCHBACK, ctx)).toMatch(/^#\d+ P\. K1: kickoff/);
+    expect(resultLine(KICKOFF_TOUCHBACK, ctx)).toMatch(/^#\d+ P\. K1 kicks off, touchback\. /);
+    expect(resultLine(KICKOFF_RETURN, ctx)).toMatch(/^#\d+ P\. K1 kicks off, returned by #\d+ P\. S1\. /);
   });
 
   it("a touchdown says so", () => {

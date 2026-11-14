@@ -114,7 +114,7 @@ export type TextSize = 100 | 125 | 150 | 200;
 export type MotionSetting = "system" | "on" | "off";
 export type MarkLabelSetting = "involved" | "all" | "none";
 
-export const MARK_LABEL_TEXT: Readonly<Record<MarkLabelSetting, string>> = { involved: "Players in the play", all: "All", none: "None" };
+export const MARK_LABEL_TEXT: Readonly<Record<MarkLabelSetting, string>> = { involved: "Named players during the play", all: "All", none: "None" };
 export const MOTION_TEXT: Readonly<Record<MotionSetting, string>> = { system: "Follow the system", on: "On", off: "Off" };
 
 export function settingsScreen(o: { readonly textSize: TextSize; readonly reducedMotion: MotionSetting; readonly markLabels: MarkLabelSetting }): ScreenModel {

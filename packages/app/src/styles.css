@@ -183,6 +183,7 @@ body {
   font-size: calc(18px * var(--text-scale));
 }
 .hint {
+  white-space: nowrap;
   color: var(--ink-soft);
   font-size: calc(14px * var(--text-scale));
   font-family: var(--font-mono);

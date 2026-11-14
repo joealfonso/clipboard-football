@@ -9,7 +9,7 @@ import type { SaveData } from "../engine/session";
 import { SimClient } from "../engine/client";
 import { whyHeadline } from "../engine/headline";
 import type { FromWorker, Matchup, SimErrorInfo, TeamSummary, UiData } from "../engine/protocol";
-import { readDetail, readSnapshot, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
+import { readDetail, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
 import { Animator } from "./animator";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
@@ -46,6 +46,7 @@ import {
   catalogLabels,
   clockText,
   eventLine,
+  requestEventLine,
   continueText,
   other,
   penaltyChoiceText,
@@ -336,17 +337,13 @@ export class App {
     }
     g.request = m.request;
     g.menu = m.request === null ? null : openMenu(m.request);
-    // The request's snapshot (when the engine sends one): show what happened before this decision,
-    // as the design asks for a human defense, which is asked after the run-off.
-    const snap = readSnapshot(m.request);
-    if (snap !== null && g.state !== null) {
+    // What happened in this dead ball before the decision (request.events): the run-off, timeouts,
+    // the two-minute warning. A human defense is asked after the run-off, so it shows before the snap.
+    if (m.request !== null && m.request.events.length > 0) {
       const ctx = this.textCtx(g);
-      const lines: string[] = [];
-      if (snap.aiTimeout) lines.push(`Timeout, ${ctx.teams[other(g.human)].nickname}.`);
-      if (snap.runoffSeconds > 0 && g.runoffShown === 0) lines.push(`Clock ran ${snap.runoffSeconds} s before the snap.`);
-      if (snap.twoMinuteWarning) lines.push("Two-minute warning.");
+      const lines = m.request.events.map((e) => requestEventLine(e, ctx));
       g.eventLines = [...g.eventLines, ...lines.filter((l) => !g.eventLines.includes(l))];
-      g.runoffShown = snap.runoffSeconds;
+      g.runoffShown = m.request.events.reduce((a, e) => a + (e.t === "runoff" ? e.seconds : 0), 0);
     }
     g.requestAt = performance.now();
     this.highlight = 0;
@@ -393,7 +390,7 @@ export class App {
     const tl = timeline(
       { event: ev, runoffSeconds: runoff, ...(prev === null || prev.trySpots === null ? {} : { tryKickSpot: prev.trySpots.kick }) },
       this.templates,
-      { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers() },
+      { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers(), pxPerYard: this.layoutNow.s },
     );
     const flip = g.framePossession !== null && g.framePossession !== ev.before.possession;
     if (flip) this.animator.idle(this.sceneFor(ev.before.possession, ev.before.spot, null), false, !this.reducedMotion());
@@ -869,12 +866,12 @@ export class App {
     el.textContent = parts.join(" ");
   }
 
-  /** The state the HUD shows: the open request's snapshot over the committed state, else the committed state. */
+  /** The state the HUD shows: the open request's state (the moment it is decided in) over the committed state. */
   private hudState(g: GameView): GameState | null {
     const s = g.state;
-    const snap = readSnapshot(g.request);
-    if (s === null || snap === null) return s;
-    return { ...s, clock: snap.clock, clockRunning: snap.clockRunning, period: snap.period, timeouts: snap.timeouts, down: snap.down, distance: snap.distance, spot: snap.spot };
+    const r = g.request?.state ?? null;
+    if (s === null || r === null) return s;
+    return { ...s, ...r };
   }
 
   private renderTopBar(): void {
@@ -971,10 +968,11 @@ export class App {
     const playText = h(
       "div",
       { class: "report" },
+      // DESIGN.md Layout: what happened, why, then the calls and the event lines.
       g.result === "" ? h("p", { class: "result soft" }, "No plays yet.") : h("p", { class: "result" }, g.result),
+      g.lastPlay === null ? null : h("p", { class: "why" }, g.why ?? "No explanation for this play.", " ", h("span", { class: "hint" }, "D:\u00a0details")),
       g.calls === "" ? null : h("p", { class: "calls" }, g.calls),
       ...g.eventLines.map((l) => h("p", { class: "event" }, l)),
-      g.lastPlay === null ? null : h("p", { class: "why" }, g.why ?? "No explanation for this play.", " ", h("span", { class: "hint" }, "D: details")),
     );
     const out: HTMLElement[] = [header, playText];
     if (g.menu !== null && g.request !== null && !this.animating) {
