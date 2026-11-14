@@ -1132,6 +1132,8 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 14 | 2026-11-14, step 5d | Approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 acceptances, the gated-failure line's backticks, C7 run 10 | Every metric, diagnostic and slice digest identical to run 13; 0 gated failures (`points.share.38+` now reads "accepted"); 8.3 ms per game on a quiet machine |
 | Engine | 10 | 2026-11-14, M2 | M2 A-E pins only, metrics must match run 9: the jersey-number rules, the why headlines and the engine code (the summary pins all three) | Every metric identical to run 9; the generated tables byte-identical |
 | Step 5 game | 15 | 2026-11-14, M2 | M2 A-E pins only, metrics must match run 14: the M2 data files and code (lead's call; in-sample outcome digests identical first) | Every metric, diagnostic and invariant count identical to run 14; 0 gated failures; slice digests now equal the in-sample summary's; 7.66 ms per game on a quiet machine |
+| Engine | 11 | 2026-11-14, M2 | M2 pins only, metrics must match run 10: the code review fixes changed shared code the summary's hash covers | Every metric identical to run 10; the generated tables byte-identical |
+| Step 5 game | 16 | 2026-11-14, M2 | M2 pins only, metrics must match run 15: the code review fixes (the requests' state and run-off seconds, data/game/tempo-modes.json) | Every metric, diagnostic and invariant count identical to run 15; 0 gated failures; 7.36 ms per game on a quiet machine |
 
 
 ## M1 step 5c: playtest fixes
@@ -1504,7 +1506,7 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
   - Interface change: `GameData.tempoModes` and `GameFiles.tempoModes`; `tempoModeView(view, mode, modes)` and `modeTempo(view, mode, modes, tables, config, rng)` take the modes.
   - The file is in the game's data hashes.
 - The UI's data loader (packages/app/src/engine/data.ts) now loads data/engine/participants.json and data/game/tempo-modes.json. It loaded neither, and its `as unknown as` cast hid that from the typecheck, so the browser build would have failed at load since milestone B. Two lines each; nothing else in the UI changed.
-- Pins: game.ts is in the engine validation's import graph (through types.ts), play.ts and coach.ts are in the game calibration's, and the new file is in its data hashes. So engine run 10 and game holdout run 15 are stale again. A pins-only engine run 11 and game holdout run 16 would re-pin them; not run, pending the lead. The in-sample summary is re-run.
+- Pins: game.ts is in the engine validation's import graph (through types.ts), play.ts and coach.ts are in the game calibration's, and the new file is in its data hashes. So engine run 10 and game holdout run 15 went stale. Re-pinned on the lead's go-ahead by engine run 11 and game holdout run 16, both pins only and post hoc, started at 15-minute load 3.94: engine metrics identical to run 10, with the generated tables byte-identical; in-sample summary identical; holdout metrics, diagnostics and invariants identical to run 15 (7.36 ms per game).
 
 ## Publishing
 
