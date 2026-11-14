@@ -1,6 +1,7 @@
 // The UI thread's handle on the sim worker. Says "Working..." when a reply takes over 300 ms
 // (no fake delays anywhere), and turns a worker crash into a sim error.
 
+import { isFromWorker } from "./messages";
 import type { FromWorker, ToWorker } from "./protocol";
 
 export const SLOW_MS = 300;
@@ -14,9 +15,15 @@ export class SimClient {
     private readonly onSlow: (slow: boolean) => void,
   ) {
     this.worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
-    this.worker.onmessage = (e: MessageEvent<FromWorker>) => {
-      if (e.data.t !== "progress") this.settle();
-      this.onMessage(e.data);
+    this.worker.onmessage = (e: MessageEvent<unknown>) => {
+      const m = e.data;
+      if (!isFromWorker(m)) {
+        this.settle();
+        this.onMessage({ t: "simError", error: { name: "WorkerError", message: "the sim worker sent a malformed message", seed: null, playCount: null } });
+        return;
+      }
+      if (m.t !== "progress") this.settle();
+      this.onMessage(m);
     };
     this.worker.onerror = (e) => {
       this.settle();

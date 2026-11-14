@@ -5,16 +5,16 @@
 
 import type { PlayResult, Position, TeamPool } from "@clipboard-football/shared";
 import type { BoxScore, TeamBox } from "@clipboard-football/sim";
-import type { SaveData } from "../engine/adapter";
+import type { SaveData } from "../engine/session";
 import { SimClient } from "../engine/client";
 import { whyHeadline } from "../engine/headline";
 import type { FromWorker, Matchup, SimErrorInfo, TeamSummary, UiData } from "../engine/protocol";
-import { readDetail, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
+import { readDetail, readSnapshot, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
 import { Animator } from "./animator";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
 import { layoutFor, type Layout } from "./layout";
-import { breadcrumb, current, isFirstScreen, openMenu, press, rows as menuRows, title as menuTitle, type MenuData, type MenuKey, type MenuState, type Row } from "./menu";
+import { breadcrumb, current, isFirstScreen, openMenu, press, rows as menuRows, title as menuTitle, type MenuData, type MenuExtra, type MenuKey, type MenuState, type Row } from "./menu";
 import {
   MARK_LABEL_TEXT,
   UNITS,
@@ -38,7 +38,7 @@ import {
   type ScreenRow,
   type Unit,
 } from "./screens";
-import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, storageAvailable, writeSave, type Settings } from "./storage";
+import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, setSaveAside, storageAvailable, writeSave, type Settings } from "./storage";
 import { parseTemplates, type Templates } from "./templates";
 import {
   abbrev,
@@ -46,7 +46,7 @@ import {
   catalogLabels,
   clockText,
   eventLine,
-  lineUpText,
+  continueText,
   other,
   penaltyChoiceText,
   penaltyText,
@@ -84,7 +84,8 @@ type Overlay =
 interface GameView {
   readonly matchup: Matchup;
   readonly human: Team;
-  state: GameState;
+  /** null until the opening toss is settled. */
+  state: GameState | null;
   request: DecisionRequest | null;
   menu: MenuState | null;
   events: GameEvent[];
@@ -99,6 +100,8 @@ interface GameView {
   /** The pending play a penalty request already showed, so the commit doesn't animate it twice. */
   shownPending: string | null;
   requestAt: number;
+  /** Run-off seconds a request snapshot already showed, so the snap doesn't count them down again. */
+  runoffShown: number;
 }
 
 const POSITION_UNIT: Readonly<Record<Position, Unit>> = { QB: "Offense", RB: "Offense", WR: "Offense", TE: "Offense", OL: "Offense", DL: "Defense", LB: "Defense", CB: "Defense", S: "Defense", K: "Special teams", P: "Special teams" };
@@ -133,7 +136,7 @@ export class App {
   private status = "";
   private highlight = 0;
   private box: { box: BoxScore; players: readonly PlayerLine[] } | null = null;
-  private ranks = new Map<string, readonly RatingRank[]>();
+  private ranks = new Map<string, Readonly<Record<string, RatingRank>>>();
   private clockOverride: number | null = null;
   private layoutNow: Layout;
   private queue: Promise<void> = Promise.resolve();
@@ -202,7 +205,7 @@ export class App {
         this.render();
         return;
       case "step":
-        this.queue = this.queue.then(() => this.onStep(m)).catch((e: unknown) => this.showSimError({ name: "Error", message: (e as Error).message, seed: this.seed, playCount: this.game?.state.playCount ?? null }));
+        this.queue = this.queue.then(() => this.onStep(m)).catch((e: unknown) => this.showSimError({ name: "Error", message: (e as Error).message, seed: this.seed, playCount: this.game?.state?.playCount ?? null }));
         return;
       case "answerError":
         // The run is unchanged: put the same request's menu back.
@@ -215,7 +218,7 @@ export class App {
         this.render();
         return;
       case "box":
-        this.box = { box: m.box, players: m.players };
+        this.box = { box: m.box, players: Object.values(m.players.players) };
         this.render();
         return;
       case "ranks":
@@ -231,13 +234,13 @@ export class App {
   private showSimError(info: SimErrorInfo): void {
     this.animator.stop();
     this.animating = false;
-    this.stack = [{ id: "title" }, { id: "simError", info: { ...info, seed: info.seed ?? this.game?.matchup.seed ?? null, playCount: info.playCount ?? this.game?.state.playCount ?? null } }];
+    this.stack = [{ id: "title" }, { id: "simError", info: { ...info, seed: info.seed ?? this.game?.matchup.seed ?? null, playCount: info.playCount ?? this.game?.state?.playCount ?? null } }];
     this.render();
   }
 
   private textCtx(g: GameView): TextCtx {
     const players = new Map<string, PlayerText>();
-    for (const t of [g.matchup.home, g.matchup.away]) for (const p of t.pool.players) players.set(p.id, { name: p.name, number: t.numbers[p.id] ?? 0 });
+    for (const t of [g.matchup.home, g.matchup.away]) for (const p of t.pool.players) players.set(p.id, { name: p.name, number: p.number });
     return {
       human: g.human,
       teams: { home: g.matchup.home, away: g.matchup.away },
@@ -250,7 +253,8 @@ export class App {
 
   private numbers(): Record<string, number> {
     const m = this.game?.matchup ?? this.matchup;
-    return m === null || m === undefined ? {} : { ...m.home.numbers, ...m.away.numbers };
+    if (m === null || m === undefined) return {};
+    return Object.fromEntries([...m.home.pool.players, ...m.away.pool.players].map((p) => [p.id, p.number]));
   }
 
   private reducedMotion(): boolean {
@@ -273,7 +277,7 @@ export class App {
   private async onStep(m: Extract<FromWorker, { t: "step" }>): Promise<void> {
     const fresh = this.game === null || m.resumed || this.game.matchup.seed !== m.matchup.seed;
     if (fresh) {
-      this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0 };
+      this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0, runoffShown: 0 };
       this.stack = [{ id: "game" }];
       if (!m.resumed) bumpLog((l) => l.gamesStarted++);
     }
@@ -287,7 +291,6 @@ export class App {
       const last = [...m.events].reverse().find((e): e is PlayEvent => e.t === "play");
       if (last !== undefined) this.setPlayText(g, last);
     } else {
-      if (fresh) await this.tossNotice(g, m.state);
       let prev = before;
       let runoff = 0;
       let pre: string[] = [];
@@ -308,26 +311,24 @@ export class App {
           const key = JSON.stringify(ev.play);
           g.eventLines = pre;
           pre = [];
-          if (g.shownPending !== key) await this.animate(g, ev, runoff, prev);
+          // A run-off the request's snapshot already showed before the snap isn't counted down again.
+          if (g.shownPending !== key) await this.animate(g, ev, Math.max(0, runoff - g.runoffShown), prev);
+          g.runoffShown = 0;
           g.shownPending = null;
           runoff = 0;
           this.setPlayText(g, ev);
           prev = { ...prev, ...ev.after } as GameState;
           // The scoreboard follows each play, not the end of the batch.
-          g.state = { ...g.state, ...ev.after };
+          if (g.state !== null) g.state = { ...g.state, ...ev.after };
           this.render();
           continue;
         }
         const line = eventLine(ev, ctx);
         if (line !== null) g.eventLines.push(line);
-        if (ev.t === "endPeriod" && this.ui !== null && ev.period === this.ui.rules.game.periodsPerHalf && m.state.phase !== "final") {
+        if (ev.t === "endPeriod" && this.ui !== null && ev.period === this.ui.rules.game.periodsPerHalf && m.state?.phase !== "final") {
           this.render();
           await this.wait((done) => ({ id: "halftime", done }));
           this.client.send({ t: "box" });
-        }
-        if (ev.t === "toss") {
-          this.render();
-          await this.wait((done) => ({ id: "notice", title: "Overtime coin toss", lines: [line ?? ""], done }));
         }
       }
       if (pre.length > 0) g.eventLines.push(...pre);
@@ -335,25 +336,28 @@ export class App {
     }
     g.request = m.request;
     g.menu = m.request === null ? null : openMenu(m.request);
+    // The request's snapshot (when the engine sends one): show what happened before this decision,
+    // as the design asks for a human defense, which is asked after the run-off.
+    const snap = readSnapshot(m.request);
+    if (snap !== null && g.state !== null) {
+      const ctx = this.textCtx(g);
+      const lines: string[] = [];
+      if (snap.aiTimeout) lines.push(`Timeout, ${ctx.teams[other(g.human)].nickname}.`);
+      if (snap.runoffSeconds > 0 && g.runoffShown === 0) lines.push(`Clock ran ${snap.runoffSeconds} s before the snap.`);
+      if (snap.twoMinuteWarning) lines.push("Two-minute warning.");
+      g.eventLines = [...g.eventLines, ...lines.filter((l) => !g.eventLines.includes(l))];
+      g.runoffShown = snap.runoffSeconds;
+    }
     g.requestAt = performance.now();
     this.highlight = 0;
-    if (m.request?.kind === "penaltyChoice") await this.showPending(g, m.request);
+    if (m.request?.kind === "penalty" || m.request?.kind === "runoff") await this.showPending(g, m.request);
     this.idleField(g);
-    if (m.request === null && g.state.phase === "final") {
+    if (m.request === null && g.state?.phase === "final") {
       bumpLog((l) => l.gamesFinished++);
       this.stack = [{ id: "game" }, { id: "end" }];
       this.client.send({ t: "box" });
     }
     this.render();
-  }
-
-  private async tossNotice(g: GameView, s: GameState): Promise<void> {
-    const t = this.textCtx(g).teams;
-    const receiver = s.phase === "kickoff" ? other(s.possession) : s.possession;
-    const won = s.toss.winner === g.human ? "You won the toss" : `The ${t[s.toss.winner].nickname} won the toss`;
-    const lines = [`${won} and chose to ${s.toss.choice}.`, receiver === g.human ? "You receive." : `The ${t[receiver].nickname} receive. You kick off.`];
-    // The M1 loop makes the toss choice by the rule set's designed default; milestone E asks the human.
-    await this.wait((done) => ({ id: "notice", title: "Coin toss", lines, done }));
   }
 
   /** Pushes an overlay and resolves when its Continue is picked. */
@@ -384,10 +388,10 @@ export class App {
     this.root.live.textContent = [g.result, g.calls, ...g.eventLines, g.why ?? "No explanation for this play."].filter((x) => x !== "").join(" ");
   }
 
-  private async animate(g: GameView, ev: PlayEvent, runoff: number, prev: GameState): Promise<void> {
+  private async animate(g: GameView, ev: PlayEvent, runoff: number, prev: GameState | null): Promise<void> {
     if (this.templates === null || this.ui === null) return;
     const tl = timeline(
-      { event: ev, runoffSeconds: runoff, ...(prev.trySpots === null ? {} : { tryKickSpot: prev.trySpots.kick }) },
+      { event: ev, runoffSeconds: runoff, ...(prev === null || prev.trySpots === null ? {} : { tryKickSpot: prev.trySpots.kick }) },
       this.templates,
       { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers() },
     );
@@ -408,17 +412,19 @@ export class App {
     this.animating = false;
   }
 
-  /** A penalty choice comes after the snap: show the play first, then ask. */
-  private async showPending(g: GameView, req: Extract<DecisionRequest, { kind: "penaltyChoice" }>): Promise<void> {
-    const key = JSON.stringify(req.pending.play);
-    if (g.shownPending === key) return;
-    const ev: PlayEvent = { t: "play", before: req.pending.before, offense: req.pending.offense, defense: req.pending.defense, play: req.pending.play, penalty: null, runoffTimeout: false, after: req.pending.before };
+  /** A penalty choice or a ten-second run-off comes after the snap: show the play first, then ask. */
+  private async showPending(g: GameView, req: Extract<DecisionRequest, { kind: "penalty" | "runoff" }>): Promise<void> {
+    const key = JSON.stringify(req.play);
+    if (g.shownPending === key || g.state === null) return;
+    const before = { period: g.state.period, clock: g.state.clock, phase: g.state.phase, possession: g.state.possession, spot: g.state.spot, down: g.state.down, distance: g.state.distance, goalToGo: g.state.goalToGo, score: g.state.score, timeouts: g.state.timeouts, clockRunning: g.state.clockRunning, safetyKick: g.state.safetyKick };
+    const ev: PlayEvent = { t: "play", before, offense: req.offenseCall, defense: req.defenseCall, play: req.play, penalty: null, runoffTimeout: false, after: before };
     g.eventLines = [];
     await this.animate(g, ev, 0, g.state);
     g.shownPending = key;
     const ctx = this.textCtx(g);
     g.lastPlay = ev;
-    g.result = `${playText(ev, ctx)}. ${penaltyText(ev, ctx)}`;
+    const flag = penaltyText(ev, ctx);
+    g.result = `${playText(ev, ctx).replace(/^./, (c) => c.toUpperCase())}.${flag === "" ? "" : ` ${flag}`}`;
     g.calls = callsLine(ev, ctx);
     g.why = whyHeadline(ev.play);
     this.announce(g);
@@ -426,7 +432,7 @@ export class App {
 
   private idleField(g: GameView): void {
     const s = g.state;
-    if (s.phase === "final" || s.phase === "overtimeToss") return;
+    if (s === null || s.phase === "final" || s.phase === "overtimeToss") return;
     const flip = g.framePossession !== null && g.framePossession !== s.possession;
     if (g.framePossession === null || flip) {
       this.animator.idle(this.sceneFor(s.possession, s.spot, s.phase === "scrimmage" && !s.goalToGo ? s.spot + s.distance : null), false, flip && !this.reducedMotion());
@@ -522,11 +528,13 @@ export class App {
     return { catalog: (this.ui as UiData).catalog, labels: this.labels };
   }
 
-  private menuExtra(g: GameView): Parameters<typeof menuRows>[2] {
+  private menuExtra(g: GameView): MenuExtra {
     const req = g.request;
-    if (req?.kind !== "penaltyChoice") return {};
+    const left = g.state === null ? undefined : g.state.timeouts[g.human];
+    const base: MenuExtra = left === undefined ? {} : { timeoutsLeft: left };
+    if (req?.kind !== "penalty") return base;
     const ctx = this.textCtx(g);
-    return { penaltyLabels: req.choices.map((c) => penaltyChoiceText(c, ctx, req.pending.play.fouls)) };
+    return { ...base, penaltyLabels: Object.fromEntries(req.outcomes.map((o) => [o.option, penaltyChoiceText(o.option, o.after, ctx, req.play.fouls)])) };
   }
 
   private pick(key: string): void {
@@ -563,17 +571,16 @@ export class App {
         this.openOverlay({ id: "pause" });
         return;
       case "submit": {
-        const req = g.request as DecisionRequest;
-        if (effect.answer.kind === "offense" || effect.answer.kind === "defense") {
-          const row = menuRows(g.menu, this.menuData()).find((r) => r.key === key);
-          if (row?.same === true) bumpLog((l) => l.sameCalls++);
-        }
-        if (effect.answer.kind !== "tempo") {
+        const path = effect.answer.path;
+        const row = menuRows(g.menu, this.menuData()).find((r) => r.key === key);
+        if (row?.option === "sameCall") bumpLog((l) => l.sameCalls++);
+        const tempo = path[0] === "clock" && ["hurryUp", "normal", "runClock"].includes(path[1] ?? "");
+        if (!tempo) {
           const secs = (performance.now() - g.requestAt) / 1000;
           bumpLog((l) => l.deadBallSeconds.push(Math.round(secs * 10) / 10));
-          g.menu = null;
         }
-        this.client.send({ t: "answer", seq: req.seq, answer: effect.answer });
+        g.menu = null;
+        this.client.send({ t: "answer", answer: effect.answer });
         break;
       }
       case "none":
@@ -721,6 +728,16 @@ export class App {
       case "copy":
         this.copyDetails(top);
         return;
+      case "newGameAside":
+        // Keep the save that can't be resumed (for a bug report), then start fresh.
+        void setSaveAside()
+          .catch(() => null)
+          .then((key) => {
+            this.hasSave = false;
+            this.status = key === null ? "" : `The old save is kept aside as ${key}.`;
+            this.act({ id: "title" }, { key: "1", label: "New game", on: true, action: "newGame" });
+          });
+        return;
       case "deleteSave":
         void deleteSave().finally(() => {
           this.hasSave = false;
@@ -755,7 +772,7 @@ export class App {
     if (top.id === "simError") text = JSON.stringify({ error: top.info, save: this.game?.save ?? null });
     else if (this.game?.lastPlay !== null && this.game !== null) {
       const g = this.game;
-      text = JSON.stringify({ seed: g.matchup.seed, leagueSeed: g.matchup.leagueSeed, playNumber: g.state.playCount, event: g.lastPlay });
+      text = JSON.stringify({ seed: g.matchup.seed, leagueSeed: g.matchup.leagueSeed, playNumber: g.state?.playCount ?? null, event: g.lastPlay });
     }
     navigator.clipboard
       .writeText(text)
@@ -852,6 +869,14 @@ export class App {
     el.textContent = parts.join(" ");
   }
 
+  /** The state the HUD shows: the open request's snapshot over the committed state, else the committed state. */
+  private hudState(g: GameView): GameState | null {
+    const s = g.state;
+    const snap = readSnapshot(g.request);
+    if (s === null || snap === null) return s;
+    return { ...s, clock: snap.clock, clockRunning: snap.clockRunning, period: snap.period, timeouts: snap.timeouts, down: snap.down, distance: snap.distance, spot: snap.spot };
+  }
+
   private renderTopBar(): void {
     const bar = this.root.topBar;
     const g = this.game;
@@ -859,7 +884,12 @@ export class App {
       bar.replaceChildren(h("span", { class: "brand" }, "Clipboard Football"));
       return;
     }
-    const s = g.state;
+    const s = this.hudState(g);
+    if (s === null) {
+      // Before the opening toss is settled.
+      bar.replaceChildren(...(["away", "home"] as const).map((t) => h("span", { class: "team" }, swatch(swatchFor(g.matchup[t].index)), h("span", { class: "abbr" }, abbrev(g.matchup[t]), t === g.human ? " (you)" : ""), h("span", { class: "score mono" }, "0"))), h("span", { class: "time" }, "Coin toss"));
+      return;
+    }
     const perHalf = this.ui?.rules.timeouts.perHalf ?? 3;
     const team = (t: Team): HTMLElement => {
       const info = g.matchup[t];
@@ -933,8 +963,11 @@ export class App {
   private gamePanel(): HTMLElement[] {
     const g = this.game;
     if (g === null || this.ui === null) return [];
-    const s = g.request?.view ?? g.state;
-    const header = h("div", { class: "situation" }, h("div", { class: "dd mono" }, situationText(s, g.human)), h("div", { class: "side" }, sideText(s, g.human)));
+    const s = this.hudState(g);
+    const header =
+      s === null
+        ? h("div", { class: "situation" }, h("div", { class: "dd mono" }, "Coin toss"))
+        : h("div", { class: "situation" }, h("div", { class: "dd mono" }, situationText(s, g.human)), h("div", { class: "side" }, sideText(s, g.human)));
     const playText = h(
       "div",
       { class: "report" },
@@ -948,10 +981,10 @@ export class App {
       const m = g.menu;
       const crumbs = breadcrumb(m, this.menuData());
       const req = g.request;
-      if (req.kind === "continue") out.push(h("p", { class: "lineup" }, lineUpText(req.lineUp, g.matchup[other(g.human)])));
-      out.push(h("h2", {}, menuTitle(m, this.menuData()), crumbs === "" ? "" : `: ${crumbs}`));
-      out.push(this.rowsGroup(menuTitle(m, this.menuData()), menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }))));
-      if (current(m) === "offense.clock" && req.kind === "offenseCall") out.push(h("p", { class: "soft" }, `Clock ${g.state.clockRunning ? "running" : "stopped"}. Tempo: ${tempoText(req.tempo)} (resets each drive).`));
+      if (req.kind === "continue") out.push(h("p", { class: "lineup" }, continueText(req.about, this.textCtx(g))));
+      out.push(h("h2", {}, menuTitle(m), crumbs === "" ? "" : `: ${crumbs}`));
+      out.push(this.rowsGroup(menuTitle(m), menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }))));
+      if (current(m) === "offense.clock" && req.kind === "offenseCall") out.push(h("p", { class: "soft" }, `Clock ${req.clockRunning ? "running" : "stopped"}. Tempo: ${tempoText(req.tempo)} (resets each drive).`));
     } else if (this.animating) {
       out.push(h("p", { class: "soft" }, "Space: skip. S: speed (", this.settings.speed, ")."));
     }
@@ -1033,7 +1066,7 @@ export class App {
     const players = t.pool.players.filter((p) => POSITION_UNIT[p.position] === top.unit);
     const table = h("table", { class: "roster", "aria-label": `${t.name} ${top.unit}` }, h("tr", {}, ...["#", "Name", "Pos", "Spd", "Str", "Agi", "Awr"].map((c) => h("th", {}, c))));
     players.forEach((p, i) => {
-      const tr = h("tr", { class: i === top.sel ? "sel" : "", "aria-selected": i === top.sel ? "true" : "false" }, h("td", { class: "mono" }, String(t.numbers[p.id] ?? "")), h("td", {}, p.name), h("td", {}, p.position), ...["speed", "strength", "agility", "awareness"].map((r) => h("td", { class: "mono" }, String((p.ratings as Record<string, number>)[r]))));
+      const tr = h("tr", { class: i === top.sel ? "sel" : "", "aria-selected": i === top.sel ? "true" : "false" }, h("td", { class: "mono" }, String(p.number)), h("td", {}, p.name), h("td", {}, p.position), ...["speed", "strength", "agility", "awareness"].map((r) => h("td", { class: "mono" }, String((p.ratings as Record<string, number>)[r]))));
       tr.addEventListener("click", () => {
         top.sel = i;
         this.openCard(players.map((x) => x.id), i);
@@ -1060,13 +1093,13 @@ export class App {
     const ranks = this.ranks.get(id);
     const plural = POSITION_PLURAL[p.position] ?? `${p.position}s`;
     const bars = [...Object.entries(p.ratings), ...Object.entries(p.skills)].map(([k, v]) => {
-      const r = ranks?.find((x) => x.rating === k);
+      const r = ranks?.[k];
       const fill = r === undefined ? 0 : r.of <= 1 ? 1 : (r.of - r.rank) / (r.of - 1);
       return bar(RATING_NAME[k] ?? k, v, fill);
     });
     const line = this.box?.players.find((l) => l.id === id);
     return [
-      h("div", { class: "card" }, h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${team.numbers[id] ?? ""}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)), h("p", { class: "soft" }, `Compared with other ${plural}${ranks === undefined ? " (loading)" : ""}`), ...bars),
+      h("div", { class: "card" }, h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)), h("p", { class: "soft" }, `Compared with other ${plural}${ranks === undefined ? " (loading)" : ""}`), ...bars),
       h("p", {}, `Today: ${line === undefined ? "no stats" : statLine(line)}`),
     ];
   }
@@ -1076,12 +1109,12 @@ export class App {
     const ranks = this.ranks.get(id);
     if (found === null || ranks === undefined) return [h("p", { class: "soft" }, "Loading ranks...")];
     const plural = POSITION_PLURAL[found.p.position] ?? `${found.p.position}s`;
-    return [h("p", {}, `#${found.team.numbers[id] ?? ""} ${found.p.name}, ${found.p.position}`), ...ranks.map((r) => h("p", { class: "mono" }, `${RATING_NAME[r.rating] ?? r.rating} ${r.value}: ${ordinalRank(r.rank)} of ${r.of} ${plural}`)), h("p", { class: "soft" }, "Ranks are across the whole generated league. Ties share the higher rank.")];
+    return [h("p", {}, `#${found.p.number} ${found.p.name}, ${found.p.position}`), ...Object.entries(ranks).map(([rating, r]) => h("p", { class: "mono" }, `${RATING_NAME[rating] ?? rating} ${r.value}: ${ordinalRank(r.rank)} of ${r.of} ${plural}`)), h("p", { class: "soft" }, "Ranks are across the whole generated league. Ties share the higher rank.")];
   }
 
   private halftimeBody(): HTMLElement[] {
     const g = this.game;
-    if (g === null) return [];
+    if (g === null || g.state === null) return [];
     const s = g.state;
     const t = g.matchup;
     const receiver = s.toss.secondHalfReceiver;
@@ -1108,12 +1141,12 @@ export class App {
 
   private nameOf(id: string): string {
     const f = this.playerById(id);
-    return f === null ? id : `#${f.team.numbers[id] ?? ""} ${f.p.name}`;
+    return f === null ? id : `#${f.p.number} ${f.p.name}`;
   }
 
   private endBody(): HTMLElement[] {
     const g = this.game;
-    if (g === null) return [];
+    if (g === null || g.state === null) return [];
     const s = g.state;
     const t = g.matchup;
     const winner = s.result?.winner ?? null;
@@ -1141,7 +1174,7 @@ export class App {
       "table",
       { class: "box" },
       h("tr", {}, h("th", {}, ""), ...Array.from({ length: box.periods }, (_, i) => h("th", {}, periodText(i + 1, reg))), h("th", {}, "Final")),
-      ...(["away", "home"] as const).map((side) => h("tr", {}, h("th", {}, swatch(swatchFor(t[side].index)), ` ${t[side].nickname}`), ...box[side].byPeriod.map((x) => h("td", { class: "mono" }, String(x))), h("td", { class: "mono" }, String(g.state.score[side])))),
+      ...(["away", "home"] as const).map((side) => h("tr", {}, h("th", {}, swatch(swatchFor(t[side].index)), ` ${t[side].nickname}`), ...box[side].byPeriod.map((x) => h("td", { class: "mono" }, String(x))), h("td", { class: "mono" }, String(g.state?.score[side] ?? 0)))),
     );
     const out: HTMLElement[] = [teams, byQ];
     if (!g.events.some((e) => e.t === "play")) return [...out, h("p", { class: "soft" }, "No plays yet.")];
@@ -1184,7 +1217,8 @@ export class App {
         out.push(table(["Player", "Tkl", "Sk", "INT", "FF", "FR"], players.filter((l) => l.defense !== undefined).map((l) => [who(l), dash(l.defense?.tackles), dash(l.defense?.sacks), dash(l.defense?.interceptions), dash(l.defense?.forcedFumbles), dash(l.defense?.recoveries)])));
         break;
       case "Kicking":
-        out.push(table(["Player", "FG", "Long", "XP", "Punts", "Avg"], players.filter((l) => l.kicking !== undefined).map((l) => { const k = l.kicking as NonNullable<PlayerLine["kicking"]>; return [who(l), `${k.fieldGoalsMade}/${k.fieldGoalAttempts}`, k.fieldGoalsMade > 0 ? String(k.long) : "-", `${k.extraPointsMade}/${k.extraPointAttempts}`, String(k.punts), k.punts > 0 ? (k.puntYards / k.punts).toFixed(1) : "-"]; })));
+        out.push(h("h3", {}, "Kicking"), table(["Player", "FG", "Long", "XP"], players.filter((l) => l.kicking !== undefined).map((l) => [who(l), `${l.kicking?.fieldGoalsMade}/${l.kicking?.fieldGoalAttempts}`, dash(l.kicking?.long), `${l.kicking?.extraPointsMade}/${l.kicking?.extraPointAttempts}`])));
+        out.push(h("h3", {}, "Punting"), table(["Player", "Punts", "Yds", "Avg"], players.filter((l) => l.punting !== undefined).map((l) => [who(l), dash(l.punting?.punts), dash(l.punting?.yards), l.punting === undefined ? "-" : l.punting.average.toFixed(1)])));
         break;
       case "Drives": {
         const res: Record<string, string> = { touchdown: "Touchdown", fieldGoal: "Field goal", missedFieldGoal: "Missed FG", punt: "Punt", turnover: "Turnover", downs: "Downs", endOfHalf: "End of half", safety: "Safety" };
@@ -1204,7 +1238,7 @@ export class App {
     if (d.why !== undefined && d.why !== g.why) out.push(h("p", {}, d.why));
     const items = (d.trace ?? []).map((e) => h("li", {}, traceText(e)));
     out.push(items.length === 0 ? h("p", { class: "soft" }, "The engine recorded no factors for this play.") : h("ul", { class: "trace" }, ...items));
-    out.push(h("p", { class: "soft mono" }, `Seed ${g.matchup.seed}, play ${g.state.playCount}.`));
+    out.push(h("p", { class: "soft mono" }, `Seed ${g.matchup.seed}, play ${g.state?.playCount ?? 0}.`));
     return out;
   }
 }
@@ -1253,7 +1287,8 @@ export function statLine(l: PlayerLine): string {
   if (l.rushing !== undefined) parts.push(`${l.rushing.attempts} carries, ${l.rushing.yards} yds`);
   if (l.receiving !== undefined) parts.push(`${l.receiving.catches} catches, ${l.receiving.yards} yds`);
   if (l.defense !== undefined) parts.push(`${l.defense.tackles} tackles, ${l.defense.sacks} sacks, ${l.defense.interceptions} INT`);
-  if (l.kicking !== undefined) parts.push(`FG ${l.kicking.fieldGoalsMade}/${l.kicking.fieldGoalAttempts}, ${l.kicking.punts} punts`);
+  if (l.kicking !== undefined) parts.push(`FG ${l.kicking.fieldGoalsMade}/${l.kicking.fieldGoalAttempts}, XP ${l.kicking.extraPointsMade}/${l.kicking.extraPointAttempts}`);
+  if (l.punting !== undefined) parts.push(`${l.punting.punts} punts, ${l.punting.average.toFixed(1)} avg`);
   return parts.length === 0 ? "no stats" : parts.join("; ");
 }
 

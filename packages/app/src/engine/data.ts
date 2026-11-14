@@ -17,6 +17,7 @@ import penaltiesUrl from "../../../../data/engine/baseline.penalties.json?url";
 import kickoffUrl from "../../../../data/engine/kickoff.json?url";
 import matchupUrl from "../../../../data/engine/matchup.centered.json?url";
 import personnelUrl from "../../../../data/engine/personnel.json?url";
+import participantsUrl from "../../../../data/engine/participants.json?url";
 import ratingsUrl from "../../../../data/players/ratings.json?url";
 import distributionsUrl from "../../../../data/players/distributions.json?url";
 import namesUrl from "../../../../data/players/names.json?url";

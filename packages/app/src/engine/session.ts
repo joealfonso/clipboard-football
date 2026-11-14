@@ -1,15 +1,100 @@
 // The worker's side of the protocol, without the worker: it takes messages and sends replies
 // through a callback, so tests can drive it in Node and read every message the UI would get.
+// The game itself is the engine's step-wise loop (packages/sim loop/session.ts): startSession,
+// answerSession, replaySession, sessionRecord. A save is the seed plus the engine's answer log.
 
-import { boxScore, GameLoopError, GameRuleError, EngineError, type GameType, type LeagueTeam } from "@clipboard-football/sim";
-import type { TeamPool } from "@clipboard-football/shared";
-import { AdapterError, SAVE_SCHEMA_VERSION, StepLoop, matchupOf, type Prepared, type SaveData, type StepResult } from "./adapter";
-import { playerBox } from "./playerBox";
+import { decisionAnswerSchema, decisionRequestSchema, type GameData, type TeamPool } from "@clipboard-football/shared";
+import {
+  EngineError,
+  GameLoopError,
+  GameRuleError,
+  answerSession,
+  averageCoachFor,
+  boxScore,
+  leagueFromSeed,
+  playerBoxScore,
+  prepareGame,
+  ratingRanks,
+  replaySession,
+  sessionRecord,
+  setupGame,
+  startSession,
+  type GameKit,
+  type GameSetup,
+  type GameType,
+  type LeagueTeam,
+  type Session as EngineSession,
+} from "@clipboard-football/sim";
 import type { FromWorker, Matchup, TeamSummary, ToWorker, UiData } from "./protocol";
-import { numbersFor, ratingRanks } from "./roster";
-import type { Team } from "./types";
+import type { DecisionAnswer, RatingRanks, Team } from "./types";
 
 export const DEFAULT_LEAGUE_SEED = 2026;
+/**
+ * Save versions: 1 held the M1 adapter's answers; 2 the engine's answer paths; 3 adds `codeHash`.
+ * Only the current version resumes; an older one reads as "from an older version".
+ */
+export const SAVE_SCHEMA_VERSION = 3;
+
+/** Everything that rebuilds a game: plain JSON for IndexedDB. */
+export interface SaveData {
+  readonly schemaVersion: number;
+  /** sha256 over every data file's hash; a save from other data can't be resumed. */
+  readonly dataHash: string;
+  /**
+   * sha256 over the sim and shared sources the build was made from (vite.config.ts). The same
+   * answers replayed by different engine code can give a different game, so a mismatch reads as older.
+   */
+  readonly codeHash: string;
+  readonly leagueSeed: number;
+  readonly seed: number;
+  readonly human: Team;
+  readonly gameType: GameType;
+  readonly log: readonly DecisionAnswer[];
+}
+
+/** The data, the engine and the generated leagues: built once per data load. */
+export interface Prepared {
+  readonly data: GameData;
+  readonly kit: GameKit;
+  readonly dataHash: string;
+  readonly codeHash: string;
+  league(leagueSeed: number): readonly LeagueTeam[];
+  ranks(leagueSeed: number): RatingRanks;
+}
+
+export function prepare(data: GameData, dataHash: string, codeHash: string): Prepared {
+  const leagues = new Map<number, readonly LeagueTeam[]>();
+  const ranks = new Map<number, RatingRanks>();
+  const league = (seed: number): readonly LeagueTeam[] => {
+    let l = leagues.get(seed);
+    if (l === undefined) {
+      l = leagueFromSeed(data, seed).teams;
+      leagues.set(seed, l);
+    }
+    return l;
+  };
+  return {
+    data,
+    kit: prepareGame(data),
+    dataHash,
+    codeHash,
+    league,
+    ranks(seed) {
+      let r = ranks.get(seed);
+      if (r === undefined) {
+        r = ratingRanks(league(seed).map((t) => t.pool));
+        ranks.set(seed, r);
+      }
+      return r;
+    },
+  };
+}
+
+/** The setup of one game: which league teams meet, from the seed (the M1 pairing rule). */
+export function matchupOf(p: Prepared, leagueSeed: number, seed: number, gameType: GameType = "regularSeason"): GameSetup {
+  const coach = averageCoachFor(p.data);
+  return setupGame(p.league(leagueSeed), leagueSeed, seed, () => coach, gameType);
+}
 
 export function uiDataOf(p: Prepared, uiTemplates: unknown): UiData {
   const r = p.data.engine.rules;
@@ -27,27 +112,42 @@ function summary(teams: readonly LeagueTeam[], name: string, p: Prepared): TeamS
   const index = teams.findIndex((t) => t.name === name);
   const t = teams[index] as LeagueTeam;
   const nm = p.data.teamNames.teams.find((n) => `${n.place} ${n.nickname}` === t.name);
-  return { index, name: t.name, place: nm?.place ?? t.name, nickname: nm?.nickname ?? t.name, pool: t.pool, numbers: Object.fromEntries(numbersFor(t.pool)) };
+  return { index, name: t.name, place: nm?.place ?? t.name, nickname: nm?.nickname ?? t.name, pool: t.pool };
 }
 
-function isSave(v: unknown): v is SaveData {
-  if (typeof v !== "object" || v === null) return false;
+/** What a stored save is: older (another version, data or code), damaged (unreadable), or usable. */
+export function checkSave(v: unknown, dataHash: string, codeHash: string): { ok: true; save: SaveData } | { ok: false; reason: "older" | "damaged" } {
+  if (typeof v !== "object" || v === null || Array.isArray(v)) return { ok: false, reason: "damaged" };
   const s = v as Record<string, unknown>;
-  return (
-    typeof s["schemaVersion"] === "number" &&
-    typeof s["dataHash"] === "string" &&
+  if (typeof s["schemaVersion"] !== "number") return { ok: false, reason: "damaged" };
+  // A save from another version, other data or other engine code is not replayed (it could give a different game).
+  if (s["schemaVersion"] !== SAVE_SCHEMA_VERSION || s["dataHash"] !== dataHash || s["codeHash"] !== codeHash) {
+    return typeof s["dataHash"] === "string" ? { ok: false, reason: "older" } : { ok: false, reason: "damaged" };
+  }
+  const shapeOk =
     Number.isSafeInteger(s["leagueSeed"]) &&
+    (s["leagueSeed"] as number) >= 0 &&
     Number.isSafeInteger(s["seed"]) &&
+    (s["seed"] as number) >= 0 &&
     (s["human"] === "home" || s["human"] === "away") &&
     (s["gameType"] === "regularSeason" || s["gameType"] === "postseason") &&
     Array.isArray(s["log"]) &&
-    s["log"].every((a) => typeof a === "object" && a !== null && typeof (a as { kind?: unknown }).kind === "string")
-  );
+    // Every answer through the shared zod schema.
+    s["log"].every((a) => decisionAnswerSchema.safeParse(a).success);
+  return shapeOk ? { ok: true, save: v as SaveData } : { ok: false, reason: "damaged" };
+}
+
+interface Game {
+  readonly setup: GameSetup;
+  readonly matchup: Matchup;
+  readonly human: Team;
+  session: EngineSession;
+  /** Events already sent to the UI. */
+  reported: number;
 }
 
 export class Session {
-  private loop: StepLoop | null = null;
-  private matchup: Matchup | null = null;
+  private game: Game | null = null;
 
   constructor(
     private readonly p: Prepared,
@@ -60,9 +160,27 @@ export class Session {
     return { leagueSeed, seed, gameType, home: summary(teams, setup.home.name, this.p), away: summary(teams, setup.away.name, this.p) };
   }
 
-  private step(r: StepResult, resumed: boolean): void {
-    const loop = this.loop as StepLoop;
-    this.send({ t: "step", matchup: this.matchup as Matchup, human: loop.seat.human, events: r.events, request: r.request, state: r.state, save: loop.save(), resumed });
+  private save(g: Game): SaveData {
+    return { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: this.p.dataHash, codeHash: this.p.codeHash, leagueSeed: g.matchup.leagueSeed, seed: g.matchup.seed, human: g.human, gameType: g.matchup.gameType, log: g.session.inputs };
+  }
+
+  private step(g: Game, resumed: boolean): void {
+    const run = g.session.run;
+    const events = run === null ? [] : resumed ? run.events : run.events.slice(g.reported);
+    g.reported = run?.events.length ?? 0;
+    // The engine's request against its own schema before it crosses to the UI.
+    const req = g.session.request;
+    if (req !== null) {
+      const r = decisionRequestSchema.safeParse(req);
+      if (!r.success) throw new Error(`the engine sent a request its schema rejects: ${r.error.message}`);
+    }
+    this.send({ t: "step", matchup: g.matchup, human: g.human, events, request: g.session.request, state: run?.state ?? null, save: this.save(g), resumed });
+  }
+
+  private begin(leagueSeed: number, seed: number, human: Team, gameType: GameType, log: readonly DecisionAnswer[] | null): Game {
+    const setup = matchupOf(this.p, leagueSeed, seed, gameType);
+    const session = log === null ? startSession(setup, this.p.kit, human) : replaySession(setup, this.p.kit, human, log);
+    return { setup, matchup: this.matchupFor(leagueSeed, seed, gameType), human, session, reported: 0 };
   }
 
   private simError(e: unknown): void {
@@ -70,7 +188,7 @@ export class Session {
     const err = e as Error;
     this.send({
       t: "simError",
-      error: { name: known ? err.name : "Error", message: err.message ?? String(e), seed: this.loop?.seat.seed ?? null, playCount: this.loop?.state.playCount ?? null },
+      error: { name: known ? err.name : "Error", message: err.message ?? String(e), seed: this.game?.matchup.seed ?? null, playCount: this.game?.session.run?.state.playCount ?? null },
     });
   }
 
@@ -94,54 +212,46 @@ export class Session {
           this.send({ t: "matchup", matchup: was });
           return;
         }
-        case "newGame": {
-          this.matchup = this.matchupFor(m.leagueSeed, m.seed, "regularSeason");
-          const { loop, first } = StepLoop.begin(this.p, { leagueSeed: m.leagueSeed, seed: m.seed, human: m.human, gameType: "regularSeason" });
-          this.loop = loop;
-          this.step(first, false);
+        case "newGame":
+          this.game = this.begin(m.leagueSeed, m.seed, m.human, "regularSeason", null);
+          this.step(this.game, false);
           return;
-        }
         case "resume": {
-          const s = m.save;
-          if (!isSave(s)) return this.send({ t: "saveError", reason: "damaged" });
-          if (s.schemaVersion !== SAVE_SCHEMA_VERSION || s.dataHash !== this.p.dataHash) return this.send({ t: "saveError", reason: "older" });
+          const checked = checkSave(m.save, this.p.dataHash, this.p.codeHash);
+          if (!checked.ok) return this.send({ t: "saveError", reason: checked.reason });
+          const s = checked.save;
+          let g: Game;
           try {
-            const { loop, first } = StepLoop.begin(this.p, { leagueSeed: s.leagueSeed, seed: s.seed, human: s.human, gameType: s.gameType }, s.log);
-            this.loop = loop;
-            this.matchup = this.matchupFor(s.leagueSeed, s.seed, s.gameType);
-            this.step(first, true);
-          } catch (e) {
-            if (e instanceof AdapterError) return this.send({ t: "saveError", reason: "damaged" });
-            throw e;
+            g = this.begin(s.leagueSeed, s.seed, s.human, s.gameType, s.log);
+          } catch {
+            // Any failure to replay the log (a rejected answer, an engine error on the way) means
+            // this save can't be resumed: damaged, never a sim error the UI would retry forever.
+            return this.send({ t: "saveError", reason: "damaged" });
           }
+          this.game = g;
+          this.step(g, true);
           return;
         }
         case "answer": {
-          const loop = this.loop;
-          if (loop === null || loop.pending === null || loop.pending.seq !== m.seq) {
-            this.send({ t: "answerError", code: "staleRequest", message: "that request is no longer pending" });
-            return;
-          }
-          try {
-            this.step(loop.answer(m.answer), false);
-          } catch (e) {
-            if (e instanceof AdapterError) return this.send({ t: "answerError", code: e.code, message: e.message });
-            throw e;
-          }
+          const g = this.game;
+          if (g === null) return this.send({ t: "answerError", code: "noRequest", message: "no game" });
+          const r = answerSession(g.session, g.setup, this.p.kit, m.answer);
+          if (!r.ok) return this.send({ t: "answerError", code: r.error.code, message: r.error.message });
+          g.session = r.session;
+          this.step(g, false);
           return;
         }
         case "box": {
-          const loop = this.loop;
-          if (loop === null) return;
+          const g = this.game;
+          if (g === null || g.session.run === null) return;
+          const record = sessionRecord(g.session, g.setup, this.p.kit);
           const rules = this.p.data.engine.rules;
-          this.send({ t: "box", box: boxScore(loop.record(), rules), players: [...playerBox(loop.events, rules).values()] });
+          this.send({ t: "box", box: boxScore(record, rules), players: playerBoxScore(record, rules) });
           return;
         }
         case "ranks": {
-          const teams = this.p.league(m.leagueSeed);
-          const pools: TeamPool[] = teams.map((t) => t.pool);
-          const player = pools.flatMap((t) => t.players).find((pl) => pl.id === m.playerId);
-          if (player !== undefined) this.send({ t: "ranks", playerId: m.playerId, ranks: ratingRanks(pools, player) });
+          const ranks = this.p.ranks(m.leagueSeed)[m.playerId];
+          if (ranks !== undefined) this.send({ t: "ranks", playerId: m.playerId, ranks });
           return;
         }
       }
@@ -151,4 +261,4 @@ export class Session {
   }
 }
 
-export type { Team };
+export type { TeamPool };

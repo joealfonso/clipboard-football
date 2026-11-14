@@ -1,59 +1,102 @@
-// The engine interface the app codes against, as docs/specs/m2-engine-and-game-loop.md (milestones
-// A to G) and docs/specs/m2-playable-game-design.md ("Needs from the engine") name it. Every
-// shape here that the specs leave open is an assumption, marked ASSUMED, so the real engine can
-// replace adapter.ts and the shapes can be checked in one place. Plain types only: the UI thread
-// and the worker both import this file, and nothing here pulls in the sim.
+// What the app reads from the engine. The M2 engine (milestones A to E) now defines the requests,
+// answers, participants, onField, headline, jersey numbers and the per-player box; they are
+// re-exported from packages/shared and packages/sim here. What stays local:
+// - readDetail, which reads a PlayResult's `detail` defensively and turns `onField` (position ->
+//   ids) into the slot list the field timeline draws from;
+// - the hooks for milestones not built yet (standout plays, F; close calls, G), marked ASSUMED.
+// Plain types plus one pure reader; the UI thread and the worker both import this file.
 
-import type { PlayResult, Player, Position, TeamPool } from "@clipboard-football/shared";
-import type { GameEvent, GameState, PenaltyOption, Snapshot, Team } from "@clipboard-football/sim";
+import type { OnField as EngineOnField, Participants, PlayResult, Position } from "@clipboard-football/shared";
+// From the zod-free module directly: the package root also exports the zod schemas, which would
+// pull zod into the UI thread's bundle.
+import { PARTICIPANT_ROLES } from "../../../shared/src/play";
+import type { GameEvent, GameState, Snapshot, Team } from "@clipboard-football/sim";
 
-export type { GameEvent, GameState, PenaltyOption, Snapshot, Team };
+export type {
+  ContinueAbout,
+  DecisionAnswer,
+  DecisionRequest,
+  OffenseCallChoice,
+  ParticipantRole,
+  Participants,
+  PassingLine,
+  PenaltyPreview,
+  PlayerBoxScore,
+  PlayerLine,
+  RatingRank,
+  RatingRanks,
+  ReasonCode,
+  RequestKind,
+  RequestOption,
+  RequestScreen,
+  Tempo,
+} from "@clipboard-football/shared";
+export { PARTICIPANT_ROLES };
+export type { GameEvent, GameState, Snapshot, Team };
 export type PlayEvent = Extract<GameEvent, { t: "play" }>;
 
-// ---------------------------------------------------------------- players (milestone A)
-
-/** Player schema version 2 adds `number` (milestone A). Version 1 players have none. */
-export type NumberedPlayer = Player & { readonly number?: number };
-
-// ---------------------------------------------------------------- who made the play (milestone B)
-
-/** Roles in `detail.participants`, in the order the spec lists them. A role that didn't happen is absent. */
-export const PARTICIPANT_ROLES = [
-  "passer",
-  "target",
-  "receiver",
-  "ballCarrier",
-  "tackler",
-  "sacker",
-  "interceptor",
-  "fumbleForcer",
-  "fumbleRecoverer",
-  "kicker",
-  "punter",
-  "returner",
-] as const;
-export type ParticipantRole = (typeof PARTICIPANT_ROLES)[number];
-
-/** `detail.participants`: player ids by role, plus one fouling player per foul (`foulers[i]` for `fouls[i]`, ASSUMED). */
-export type Participants = Readonly<Partial<Record<ParticipantRole, string>>> & { readonly foulers?: readonly string[] };
-
-/** One player on the field for a play. ASSUMED shape: the spec says "both sides' players by slot". */
+/** One player on the field for a play, in the order the timeline draws: position plus slot index. */
 export interface OnFieldSlot {
-  /** Slot label, for example "WR2"; position plus its index in pool order. */
+  /** "WR2": the position and its 1-based index in the engine's slot order. */
   readonly slot: string;
   readonly position: Position;
   readonly id: string;
 }
 
-/** `detail.onField`, sides relative to the play (the offense snapped or kicked). */
-export interface OnField {
+/** `detail.onField` as slot lists (offense is the team that snapped or kicked). */
+export interface OnFieldSlots {
   readonly offense: readonly OnFieldSlot[];
   readonly defense: readonly OnFieldSlot[];
 }
 
-// ---------------------------------------------------------------- standout plays (milestone F, hook)
+// ---------------------------------------------------------------- request snapshot (coming in the engine)
 
-/** The trace's `standout` entry. Field names as the spec lists them; the key names are ASSUMED. */
+/**
+ * ASSUMED until the engine ships it: the state a DecisionRequest is asked in, so the HUD can show
+ * the clock a human defense sees after the run-off. Field names are the app's guess from the
+ * coordinator's description (clock, running, quarter, timeouts, down, distance, spot, the run-off
+ * just applied, whether a two-minute warning or an AI timeout happened). Read with readSnapshot,
+ * which drops it when any field is missing or malformed, so the HUD falls back to the committed state.
+ */
+export interface RequestSnapshot {
+  readonly clock: number;
+  readonly clockRunning: boolean;
+  readonly period: number;
+  readonly timeouts: { readonly home: number; readonly away: number };
+  readonly down: number;
+  readonly distance: number;
+  readonly spot: number;
+  /** Seconds of run-off applied before this request (0 for none). */
+  readonly runoffSeconds: number;
+  readonly twoMinuteWarning: boolean;
+  /** The AI's team called a timeout in this dead ball before the request. */
+  readonly aiTimeout: boolean;
+}
+
+export function readSnapshot(req: unknown): RequestSnapshot | null {
+  if (typeof req !== "object" || req === null) return null;
+  const s = (req as Record<string, unknown>)["snapshot"];
+  if (typeof s !== "object" || s === null) return null;
+  const o = s as Record<string, unknown>;
+  const n = (k: string): number | undefined => num(o[k]);
+  const b = (k: string): boolean | undefined => (typeof o[k] === "boolean" ? (o[k] as boolean) : undefined);
+  const t = o["timeouts"] as Record<string, unknown> | undefined;
+  const clock = n("clock") ?? n("clockSeconds");
+  const period = n("period") ?? n("quarter");
+  const running = b("clockRunning") ?? b("running");
+  const runoff = n("runoffSeconds") ?? n("runoff") ?? 0;
+  const home = num(t?.["home"]);
+  const away = num(t?.["away"]);
+  const down = n("down");
+  const distance = n("distance");
+  const spot = n("spot");
+  if (clock === undefined || period === undefined || running === undefined || home === undefined || away === undefined || down === undefined || distance === undefined || spot === undefined) return null;
+  return { clock, clockRunning: running, period, timeouts: { home, away }, down, distance, spot, runoffSeconds: runoff, twoMinuteWarning: b("twoMinuteWarning") ?? false, aiTimeout: b("aiTimeout") ?? false };
+}
+
+// ---------------------------------------------------------------- hooks for milestones F and G
+
+/** ASSUMED until milestone F: the trace's `standout` entry (field names from the spec). */
 export interface Standout {
   readonly player: string;
   readonly number: number;
@@ -63,37 +106,29 @@ export interface Standout {
   readonly multiplier: number;
 }
 
-// ---------------------------------------------------------------- challenges (milestone G, hook)
-
-/** `detail.closeCall` as the UI may see it: never the verdict (spec G6). ASSUMED key names. */
+/** ASSUMED until milestone G: `detail.closeCall` as the UI may see it, never the verdict. */
 export interface CloseCall {
   readonly kind: string;
-  /** Key of the prompt's question ("downBeforeFumble"); the text lives in UI copy. */
   readonly question: string;
 }
 
-/** One trace entry; the factor names and fields are TRACE_FIELDS in packages/shared. */
 export type TraceEntry = { readonly factor: string } & Readonly<Record<string, string | number | boolean>>;
 
 /** What the UI reads from a PlayResult's `detail`, each field checked and dropped when malformed. */
 export interface PlayDetail {
-  /** The step 4 sentence, with multipliers: the details view's detail line. */
   readonly why?: string;
-  /** Milestone D: the plain-words headline, the why line on screen. ASSUMED key `headline`. */
   readonly headline?: string;
   readonly trace?: readonly TraceEntry[];
   readonly participants?: Participants;
-  readonly onField?: OnField;
+  readonly onField?: OnFieldSlots;
   readonly standout?: Standout;
   readonly closeCall?: CloseCall;
-  readonly classProbabilities?: readonly number[];
   readonly class?: string;
   readonly yards?: number;
   readonly gross?: number;
-  readonly returnYards?: number;
   readonly distance?: number;
   readonly fluke?: boolean;
-  /** Future pipeline milestone (spec need 3, out of scope for M2): absent today, drawn neutral. */
+  /** Future pipeline milestone (spec need 3): absent today, drawn neutral. */
   readonly passLocation?: "left" | "middle" | "right";
   readonly airYards?: number;
   readonly runLocation?: "left" | "middle" | "right";
@@ -103,6 +138,8 @@ export interface PlayDetail {
 const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 const num = (v: unknown): number | undefined => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
 const side = (v: unknown): "left" | "middle" | "right" | undefined => (v === "left" || v === "middle" || v === "right" ? v : undefined);
+
+const POSITION_ORDER: readonly Position[] = ["QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K", "P"];
 
 function participantsOf(v: unknown): Participants | undefined {
   if (typeof v !== "object" || v === null) return undefined;
@@ -114,12 +151,20 @@ function participantsOf(v: unknown): Participants | undefined {
 }
 
 function slotsOf(v: unknown): OnFieldSlot[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const ok = v.every((x) => typeof x === "object" && x !== null && typeof (x as OnFieldSlot).id === "string" && typeof (x as OnFieldSlot).position === "string" && typeof (x as OnFieldSlot).slot === "string");
-  return ok ? (v as OnFieldSlot[]) : undefined;
+  if (typeof v !== "object" || v === null || Array.isArray(v)) return undefined;
+  const o = v as Record<string, unknown>;
+  const out: OnFieldSlot[] = [];
+  for (const pos of POSITION_ORDER) {
+    const ids = o[pos];
+    if (ids === undefined) continue;
+    if (!Array.isArray(ids) || !ids.every((x) => typeof x === "string")) return undefined;
+    ids.forEach((id: string, i) => out.push({ slot: `${pos}${i + 1}`, position: pos, id }));
+  }
+  return out;
 }
 
-function onFieldOf(v: unknown): OnField | undefined {
+/** The engine's onField (position -> ids in slot order) as slot lists. */
+export function onFieldSlots(v: EngineOnField | unknown): OnFieldSlots | undefined {
   if (typeof v !== "object" || v === null) return undefined;
   const o = v as Record<string, unknown>;
   const offense = slotsOf(o["offense"]);
@@ -150,15 +195,13 @@ export function readDetail(play: PlayResult): PlayDetail {
   put("headline", str(d["headline"]));
   put("trace", trace);
   put("participants", participantsOf(d["participants"]));
-  put("onField", onFieldOf(d["onField"]));
+  put("onField", onFieldSlots(d["onField"]));
   put("standout", standoutOf(trace, d["standout"]));
   const cc = d["closeCall"] as Record<string, unknown> | undefined;
-  if (cc !== undefined && typeof cc === "object" && cc !== null && typeof cc["kind"] === "string" && typeof cc["question"] === "string") put("closeCall", { kind: cc["kind"], question: cc["question"] });
-  if (Array.isArray(d["classProbabilities"])) put("classProbabilities", d["classProbabilities"]);
+  if (typeof cc === "object" && cc !== null && typeof cc["kind"] === "string" && typeof cc["question"] === "string") put("closeCall", { kind: cc["kind"], question: cc["question"] });
   put("class", str(d["class"]));
   put("yards", num(d["yards"]));
   put("gross", num(d["gross"]));
-  put("returnYards", num(d["returnYards"]));
   put("distance", num(d["distance"]));
   if (typeof d["fluke"] === "boolean") put("fluke", d["fluke"]);
   put("passLocation", side(d["passLocation"]));
@@ -166,193 +209,4 @@ export function readDetail(play: PlayResult): PlayDetail {
   put("runLocation", side(d["runLocation"]));
   put("fumbleSpot", num(d["fumbleSpot"]));
   return out as PlayDetail;
-}
-
-// ---------------------------------------------------------------- the step-wise loop (milestone E)
-
-export type Tempo = "hurryUp" | "normal" | "runClock";
-
-/**
- * Why an option is off. ASSUMED codes: the spec says "a reason code for each option that is
- * off" without naming them. The UI's text for each is in ui/text.ts.
- */
-export type ReasonCode =
-  | "kickWindow"
-  | "notOnTry"
-  | "onlyRunPassOnTry"
-  | "noTimeouts"
-  | "timeoutTaken"
-  | "noEarlierCall"
-  | "sameCallIllegal"
-  | "onsideNotAllowed"
-  | "notNow";
-
-export interface Option {
-  readonly id: string;
-  readonly on: boolean;
-  readonly reason?: ReasonCode;
-}
-
-/** A call as the loop takes it: the step 2 OffenseCall, or a defense preset id. */
-export interface OffenseCallAnswer {
-  readonly call: string;
-  readonly formation?: string;
-  readonly twoPointPlay?: string;
-}
-
-export interface SameCall {
-  readonly on: boolean;
-  readonly reason?: ReasonCode;
-  /** The exact call Same call submits (decision 10, F6). */
-  readonly offense?: OffenseCallAnswer;
-  readonly defense?: string;
-}
-
-export interface TimeoutOption {
-  readonly on: boolean;
-  /** Timeouts the human's team has left. */
-  readonly left: number;
-  readonly reason?: ReasonCode;
-}
-
-/** A penalty option with the state it leaves (step 5 revision 11 previews). */
-export interface PenaltyChoice {
-  readonly option: PenaltyOption;
-  readonly after: Pick<GameState, "phase" | "possession" | "spot" | "down" | "distance" | "score">;
-}
-
-/** The snap that already happened, sent with a request that comes after it (penalty, challenge). */
-export interface PendingPlay {
-  readonly before: Snapshot;
-  readonly offense: OffenseCallAnswer;
-  readonly defense: string | null;
-  readonly play: PlayResult;
-}
-
-/**
- * What a "continue" dead ball shows: the opponent lines up to kick, kneel or spike (the only part
- * of its call you can see before the snap, design decision 17), or "clock": nothing to call and
- * the clock runs, but you could still stop it with a timeout.
- */
-export type LineUp = "kickoff" | "onsideKick" | "punt" | "fieldGoal" | "extraPoint" | "kneel" | "spike" | "clock";
-
-interface RequestBase {
-  /** Increments with each request; an answer names the request it answers. */
-  readonly seq: number;
-  /** The human's team. */
-  readonly team: Team;
-  /** The game as the human sees it at this dead ball (before any run-off). */
-  readonly view: Snapshot;
-  /** T on the first screen of this request. */
-  readonly timeout: TimeoutOption;
-}
-
-export type DecisionRequest =
-  | (RequestBase & {
-      readonly kind: "offenseCall";
-      /** Every leaf call in catalog order with availability: plays, kicks, clock plays. */
-      readonly calls: readonly Option[];
-      readonly sameCall: SameCall;
-      readonly tempo: Tempo;
-      /** Field goal distance from this spot, in yards, for the Kick menu ("Field goal (47 yd)"). */
-      readonly fieldGoalDistance: number;
-    })
-  | (RequestBase & {
-      readonly kind: "try";
-      /** extraPoint and goForTwo. */
-      readonly options: readonly Option[];
-      /** The two-point plays (run and pass leaves) and Same call for the two-point Play type screen. */
-      readonly calls: readonly Option[];
-      readonly sameCall: SameCall;
-    })
-  | (RequestBase & { readonly kind: "defenseCall"; readonly calls: readonly Option[]; readonly sameCall: SameCall; readonly twoPoint: boolean })
-  | (RequestBase & { readonly kind: "kickoffType"; readonly options: readonly Option[]; readonly safetyKick: boolean })
-  | (RequestBase & { readonly kind: "continue"; readonly lineUp: LineUp })
-  | (RequestBase & { readonly kind: "penaltyChoice"; readonly choices: readonly PenaltyChoice[]; readonly pending: PendingPlay })
-  // Hooks for kinds the adapter never sends yet (coin toss choice, overtime choice, ten-second
-  // run-off, challenge). The screens exist; the M2 loop (milestones E and G) will send them.
-  | (RequestBase & { readonly kind: "coinToss"; readonly options: readonly Option[] })
-  | (RequestBase & { readonly kind: "overtimeChoice"; readonly options: readonly Option[] })
-  | (RequestBase & { readonly kind: "runoff"; readonly seconds: number; readonly clockAfter: number })
-  | (RequestBase & { readonly kind: "challenge"; readonly closeCall: CloseCall; readonly pending: PendingPlay });
-
-export type RequestKind = DecisionRequest["kind"];
-
-export type Answer =
-  | { readonly kind: "offense"; readonly call: OffenseCallAnswer }
-  | { readonly kind: "defense"; readonly call: string }
-  | { readonly kind: "timeout" }
-  | { readonly kind: "continue" }
-  | { readonly kind: "penalty"; readonly index: number }
-  | { readonly kind: "tempo"; readonly tempo: Tempo }
-  // Hooks (never accepted by the adapter yet).
-  | { readonly kind: "toss"; readonly choice: string }
-  | { readonly kind: "runoff"; readonly useTimeout: boolean }
-  | { readonly kind: "challenge"; readonly throwFlag: boolean };
-
-// ---------------------------------------------------------------- per-player box score (milestone C)
-
-/** A stat line value: absent means "no stat" (shown as a dash), distinct from 0 (spec C4). */
-export interface PassingLine {
-  completions: number;
-  attempts: number;
-  yards: number;
-  touchdowns: number;
-  interceptions: number;
-  sacked: number;
-}
-export interface RushingLine {
-  attempts: number;
-  yards: number;
-  touchdowns: number;
-  long: number;
-}
-export interface ReceivingLine {
-  targets: number;
-  catches: number;
-  yards: number;
-  touchdowns: number;
-  long: number;
-}
-export interface DefenseLine {
-  tackles: number;
-  sacks: number;
-  interceptions: number;
-  forcedFumbles: number;
-  recoveries: number;
-}
-export interface KickingLine {
-  fieldGoalsMade: number;
-  fieldGoalAttempts: number;
-  long: number;
-  extraPointsMade: number;
-  extraPointAttempts: number;
-  punts: number;
-  puntYards: number;
-}
-
-export interface PlayerLine {
-  readonly id: string;
-  readonly team: Team;
-  passing?: PassingLine;
-  rushing?: RushingLine;
-  receiving?: ReceivingLine;
-  defense?: DefenseLine;
-  kicking?: KickingLine;
-}
-
-/** League-wide rank of one rating at the player's position (spec need 11, milestone C6). */
-export interface RatingRank {
-  readonly rating: string;
-  readonly value: number;
-  /** 1 is best. Ties share the best rank (ASSUMED tie rule until C6 documents one). */
-  readonly rank: number;
-  readonly of: number;
-}
-
-export interface TeamInfo {
-  readonly name: string;
-  readonly place: string;
-  readonly nickname: string;
-  readonly pool: TeamPool;
 }

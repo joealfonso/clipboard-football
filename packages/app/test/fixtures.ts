@@ -1,13 +1,13 @@
-// PlayResult fixtures shaped exactly like docs/specs/m2-engine-and-game-loop.md: `detail` carries
-// `participants` (player ids by role, absent roles left out), `onField` (both sides by slot), the
-// step 4 `why` and `trace`, and a `headline` (milestone D). Used where the M1 engine doesn't yet
-// name players.
+// PlayResult fixtures shaped like the engine's (packages/shared play.ts): `detail` carries
+// `participants` (player ids by role, absent roles left out), `onField` (position -> ids in slot
+// order), the step 4 `why` and `trace`, and the `headline`. They pin cases a simulated game
+// reaches only rarely (an interception, a fumble lost, a standout).
 
-import type { PlayResult } from "@clipboard-football/shared";
-import type { OnField, OnFieldSlot, Participants, PlayEvent, Snapshot } from "../src/engine/types";
+import type { OnField, PlayResult } from "@clipboard-football/shared";
+import { onFieldSlots, type Participants, type PlayEvent, type Snapshot } from "../src/engine/types";
 
-const slots = (prefix: string, spec: readonly [string, number][]): OnFieldSlot[] =>
-  spec.flatMap(([pos, n]) => Array.from({ length: n }, (_, i) => ({ slot: `${pos}${i + 1}`, position: pos as OnFieldSlot["position"], id: `${prefix}-${pos}${i + 1}` })));
+const slots = (prefix: string, spec: readonly [string, number][]): Record<string, string[]> =>
+  Object.fromEntries(spec.map(([pos, n]) => [pos, Array.from({ length: n }, (_, i) => `${prefix}-${pos}${i + 1}`)]));
 
 /** Shotgun against Nickel: home has the ball. */
 export const SHOTGUN_VS_NICKEL: OnField = {
@@ -17,12 +17,12 @@ export const SHOTGUN_VS_NICKEL: OnField = {
 
 export const PUNT_UNIT: OnField = {
   offense: slots("H", [["P", 1], ["OL", 5], ["TE", 2], ["LB", 2], ["S", 1]]),
-  defense: slots("A", [["DL", 4], ["LB", 3], ["CB", 2], ["S", 2]]),
+  defense: slots("A", [["WR", 1], ["DL", 3], ["LB", 3], ["CB", 3], ["S", 1]]),
 };
 
 export const KICKOFF_UNIT: OnField = {
   offense: slots("H", [["K", 1], ["LB", 4], ["S", 3], ["CB", 3]]),
-  defense: slots("A", [["DL", 4], ["LB", 3], ["CB", 2], ["S", 2]]),
+  defense: slots("A", [["RB", 1], ["WR", 2], ["TE", 2], ["LB", 3], ["CB", 2], ["S", 1]]),
 };
 
 export const FG_UNIT: OnField = {
@@ -104,12 +104,12 @@ export const FUMBLE_LOST: PlayEvent = ev(
 );
 
 export const PUNT_RETURNED: PlayEvent = ev(
-  { kind: "punt", seconds: 10, crossedLine: true, touchedByReceivers: true, end: { spot: 80, possession: "defense" }, detail: detail({ punter: "H-P1", returner: "A-S2", tackler: "H-LB1" }, PUNT_UNIT, { gross: 45, returnYards: 5, class: "returnedShort" }) },
+  { kind: "punt", seconds: 10, crossedLine: true, touchedByReceivers: true, end: { spot: 80, possession: "defense" }, detail: detail({ punter: "H-P1", returner: "A-WR1", tackler: "H-LB1" }, PUNT_UNIT, { gross: 45, returnYards: 5, class: "returnedShort" }) },
   { offense: { call: "punt" }, defense: null, before: { down: 4 }, after: { possession: "away", spot: 20, down: 1, distance: 10 } },
 );
 
 export const FAIR_CATCH: PlayEvent = ev(
-  { kind: "punt", seconds: 7, crossedLine: true, touchedByReceivers: false, fairCatch: true, end: { spot: 88, possession: "defense" }, detail: detail({ punter: "H-P1", returner: "A-S2" }, PUNT_UNIT, { gross: 48, class: "fairCatchShort" }) },
+  { kind: "punt", seconds: 7, crossedLine: true, touchedByReceivers: false, fairCatch: true, end: { spot: 88, possession: "defense" }, detail: detail({ punter: "H-P1", returner: "A-WR1" }, PUNT_UNIT, { gross: 48, class: "fairCatchShort" }) },
   { offense: { call: "punt" }, defense: null, before: { down: 4 }, after: { possession: "away", spot: 12, down: 1, distance: 10 } },
 );
 
@@ -191,6 +191,9 @@ export const ALL_FIXTURES: Readonly<Record<string, PlayEvent>> = {
 export function fixturePlayers(): Map<string, { name: string; number: number }> {
   const m = new Map<string, { name: string; number: number }>();
   let n = 1;
-  for (const f of [SHOTGUN_VS_NICKEL, PUNT_UNIT, KICKOFF_UNIT, FG_UNIT]) for (const s of [...f.offense, ...f.defense]) if (!m.has(s.id)) m.set(s.id, { name: `Pat ${s.slot}`, number: n++ % 100 });
+  for (const f of [SHOTGUN_VS_NICKEL, PUNT_UNIT, KICKOFF_UNIT, FG_UNIT]) {
+    const sl = onFieldSlots(f);
+    for (const s of [...(sl?.offense ?? []), ...(sl?.defense ?? [])]) if (!m.has(s.id)) m.set(s.id, { name: `Pat ${s.slot}`, number: n++ % 100 });
+  }
   return m;
 }

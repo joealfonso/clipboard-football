@@ -1,20 +1,19 @@
 // Messages between the UI thread and the sim worker. Everything is plain JSON (structured clone).
-// The worker never sends the opponent's call before the snap: requests carry only the dead ball,
-// the human's own options and history, and what lining up shows (spec F5, E6).
+// Requests are the engine's DecisionRequest; the engine guarantees none carries the opponent's
+// call for the coming snap, except a kick, kneel or spike it visibly lines up for (spec F5, E6).
 
 import type { Catalog, GameData, TeamPool } from "@clipboard-football/shared";
 import type { BoxScore, GameType } from "@clipboard-football/sim";
-import type { SaveData } from "./adapter";
-import type { Answer, DecisionRequest, GameEvent, GameState, PlayerLine, RatingRank, Team } from "./types";
+import type { SaveData } from "./session";
+import type { DecisionAnswer, DecisionRequest, GameEvent, GameState, PlayerBoxScore, RatingRank, Team } from "./types";
 
 export interface TeamSummary {
   readonly index: number;
   readonly name: string;
   readonly place: string;
   readonly nickname: string;
+  /** Players carry their jersey `number` (player schema version 2). */
   readonly pool: TeamPool;
-  /** Jersey number by player id (milestone A, or the adapter's placeholder). */
-  readonly numbers: Readonly<Record<string, number>>;
 }
 
 /** What the UI needs from the data files: labels and rule values for text, and the UI templates. */
@@ -44,7 +43,7 @@ export type ToWorker =
   | { readonly t: "rematch"; readonly leagueSeed: number; readonly seed: number }
   | { readonly t: "newGame"; readonly leagueSeed: number; readonly seed: number; readonly human: Team }
   | { readonly t: "resume"; readonly save: unknown }
-  | { readonly t: "answer"; readonly seq: number; readonly answer: Answer }
+  | { readonly t: "answer"; readonly answer: DecisionAnswer }
   | { readonly t: "box" }
   | { readonly t: "ranks"; readonly playerId: string; readonly leagueSeed: number };
 
@@ -61,13 +60,14 @@ export type FromWorker =
       readonly human: Team;
       readonly events: readonly GameEvent[];
       readonly request: DecisionRequest | null;
-      readonly state: GameState;
+      /** The committed game state (the start of the current dead ball); null before the opening toss is settled. */
+      readonly state: GameState | null;
       readonly save: SaveData;
       /** True for a resumed game: `events` is the whole log so far. */
       readonly resumed: boolean;
     }
   | { readonly t: "answerError"; readonly code: string; readonly message: string }
   | { readonly t: "saveError"; readonly reason: "older" | "damaged" }
-  | { readonly t: "box"; readonly box: BoxScore; readonly players: readonly PlayerLine[] }
-  | { readonly t: "ranks"; readonly playerId: string; readonly ranks: readonly RatingRank[] }
+  | { readonly t: "box"; readonly box: BoxScore; readonly players: PlayerBoxScore }
+  | { readonly t: "ranks"; readonly playerId: string; readonly ranks: Readonly<Record<string, RatingRank>> }
   | { readonly t: "simError"; readonly error: SimErrorInfo };

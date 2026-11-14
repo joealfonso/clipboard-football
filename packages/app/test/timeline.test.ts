@@ -7,12 +7,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
-import { StepLoop } from "../src/engine/adapter";
 import { readDetail, type PlayEvent } from "../src/engine/types";
 import { parseTemplates } from "../src/ui/templates";
 import { MID_X, at, timeline, type Timeline, type TimelineCtx } from "../src/ui/timeline";
 import { ALL_FIXTURES, COMPLETE, FALSE_START, FIELD_GOAL_MISS, INCOMPLETE, INTERCEPTION, KICKOFF_RETURN, RUN_OUT_OF_BOUNDS, SACK, UNNAMED_COMPLETE } from "./fixtures";
-import { prepared, scriptedAnswer } from "./support";
+import { playGame } from "./support";
 
 const templates = parseTemplates(JSON.parse(readFileSync(join(import.meta.dirname, "../../../data/ui/templates.json"), "utf8")));
 const personnel = JSON.parse(readFileSync(join(import.meta.dirname, "../../../data/engine/personnel.json"), "utf8")) as { presetPackage: Record<string, string> };
@@ -26,14 +25,18 @@ function engineHolder(ev: PlayEvent): string | null {
   const parts = readDetail(p).participants ?? {};
   const end = "end" in p ? p.end : undefined;
   const fumbled = readDetail(p).class === "fumble" || readDetail(p).class === "fumbleCatch" || ("turnover" in p && p.turnover === "fumble");
-  switch (p.kind) {
+  const leaf = ev.offense.twoPointPlay ?? "";
+  // A two-point try is drawn as the run or pass it was.
+  const kind = p.kind === "twoPoint" ? (["insideRun", "outsideRun", "qbSneak"].includes(leaf) ? "run" : "pass") : p.kind;
+  if (p.kind === "twoPoint" && kind === "pass") return p.incomplete === true ? null : fumbled ? (parts.fumbleRecoverer ?? null) : (parts.receiver ?? null);
+  switch (kind) {
     case "run":
     case "scramble":
     case "kneel":
       return fumbled ? (parts.fumbleRecoverer ?? null) : (parts.ballCarrier ?? (p.kind === "run" ? null : (parts.passer ?? null)));
     case "pass":
-      if (p.incomplete === true) return null;
-      if (p.turnover === "interception") return end?.possession === "defense" ? (parts.interceptor ?? null) : (parts.fumbleRecoverer ?? null);
+      if ("incomplete" in p && p.incomplete === true) return null;
+      if ("turnover" in p && p.turnover === "interception") return end?.possession === "defense" ? (parts.interceptor ?? null) : (parts.fumbleRecoverer ?? null);
       return fumbled ? (parts.fumbleRecoverer ?? null) : (parts.receiver ?? null);
     case "sack":
       return fumbled ? (parts.fumbleRecoverer ?? null) : (parts.passer ?? null);
@@ -233,19 +236,20 @@ describe("unknown facts are drawn neutral and never named (A3)", () => {
 });
 
 describe("timeline over simulated games (A2, A3, A4)", () => {
-  it("every play of 12 games through the adapter and the real engine", { timeout: 60_000 }, () => {
-    const p = prepared();
+  it("every play of 12 games through the engine's step-wise loop, players named", { timeout: 120_000 }, () => {
     let plays = 0;
+    let named = 0;
     for (let seed = 1; seed <= 12; seed++) {
-      const { loop, first } = StepLoop.begin(p, { leagueSeed: 2026, seed, human: seed % 2 === 0 ? "home" : "away", gameType: "regularSeason" });
-      let req = first.request;
-      while (req !== null) req = loop.answer(scriptedAnswer(req, seed)).request;
-      for (const ev of loop.events) {
+      const g = playGame(seed, seed % 2 === 0 ? "home" : "away", seed);
+      for (const ev of g.events) {
         if (ev.t !== "play") continue;
         checkPlay(ev, `seed ${seed} play ${plays}`);
+        if (build(ev).holder !== null) named++;
         plays++;
       }
     }
     expect(plays).toBeGreaterThan(1000);
+    // With the engine naming players, most plays end with a named ball holder.
+    expect(named / plays).toBeGreaterThan(0.5);
   });
 });
