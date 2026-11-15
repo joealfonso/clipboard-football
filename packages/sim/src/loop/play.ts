@@ -13,19 +13,20 @@
 //                 instead, step 5c E); then offense and defense calls, resolvePlay, penalty
 //                 choice, applyPlay.
 
-import type { DecisionRequest, GameData, OffenseCallChoice, PlayResult, RequestEvent, RequestState, RuleSet, Standout, TeamPool, Tempo, WhyTemplates } from "../../../shared/src/types";
+import type { CloseCall, DecisionRequest, GameData, OffenseCallChoice, PlayResult, RequestEvent, RequestState, RuleSet, Standout, TeamPool, Tempo, WhyTemplates } from "../../../shared/src/types";
 import { render, renderHeadline, templateFor, type TraceEntry } from "../engine/why";
 import { kickStands, playStands } from "./box";
 import { FORMATION_PLAYS, type OffenseCall } from "../caller/offense";
 import { createEngine, type Players, type ResolvePlay } from "../engine/resolve";
 import type { PenaltyOption } from "../game/enforce";
 import { other } from "../game/frame";
-import { applyPlay, callTimeout, newGame, peekToss, penaltyOptions, runPreSnap, startOvertime } from "../game/machine";
+import { applyPlay, callTimeout, chargeTimeout, newGame, peekToss, penaltyOptions, reviewRunoff, runPreSnap, startOvertime } from "../game/machine";
+import { isOvertime } from "../game/periods";
 import { GameRuleError } from "../game/errors";
 import { toSituation } from "../game/situation";
 import type { GameState, GameType, Team, TossChoice } from "../game/types";
 import type { Rng } from "../rng";
-import { modeTempo, type CoachPolicies, type Side } from "./coach";
+import { modeTempo, stateValue, type CoachPolicies, type Side } from "./coach";
 import { continueRequest, defenseAnswer, defenseRequest, kickoffRequest, offenseAnswer, offenseRequest, penaltyOptionId, timeoutOption, tossRequest, tryRequest, type RequestBody, type RequestDraft } from "./requests";
 import { coachView, kickView, type LastSnap } from "./views";
 
@@ -91,6 +92,17 @@ export type GameEvent =
       /** M2 F: a standout play, when the engine's candidate stands after penalty enforcement (absent otherwise). */
       readonly standout?: Standout;
     }
+  /** M2 G: a close call reviewed (by a coach's challenge or the Replay Official), before the play it ruled on. */
+  | {
+      readonly t: "review";
+      readonly before: Snapshot;
+      readonly kind: string;
+      readonly by: "booth" | Team;
+      readonly verdict: "stands" | "reversed";
+      /** The ruling on the field; the play event that follows is the play as it stands after review. */
+      readonly ruled: PlayResult;
+      readonly timeoutCharged: boolean;
+    }
   | { readonly t: "twoMinuteWarning"; readonly period: number }
   | { readonly t: "endPeriod"; readonly period: number; readonly score: { readonly home: number; readonly away: number } };
 
@@ -118,17 +130,27 @@ export interface GameRun {
   readonly snaps: number;
   /** The last scrimmage snap, for the tempo bin "previous snap was a kneel". */
   readonly lastSnap: LastSnap | null;
+  /** M2 G: each team's challenges so far (present only when the game plays close calls). */
+  readonly challenges?: Readonly<Record<Team, ChallengeCount>>;
+}
+
+export interface ChallengeCount {
+  readonly used: number;
+  readonly won: number;
 }
 
 /** The engine and what the loop reads, prepared once per process. */
 export interface GameKit {
   readonly data: GameData;
   readonly resolve: ResolvePlay;
+  /** M2 G: the engine marks close calls and the loop reviews them. */
+  readonly closeCalls?: boolean;
 }
 
 /** `standouts` overrides data/engine/standouts.json `enabled` (the F1 standouts-off run, the byte-identity proof). */
-export function prepareGame(data: GameData, options: { readonly standouts?: boolean } = {}): GameKit {
-  return { data, resolve: createEngine(data.engine, { standouts: options.standouts ?? data.engine.standouts.enabled }) };
+export function prepareGame(data: GameData, options: { readonly standouts?: boolean; readonly closeCalls?: boolean } = {}): GameKit {
+  const closeCalls = options.closeCalls ?? data.challengePolicy.enabled;
+  return { data, resolve: createEngine(data.engine, { standouts: options.standouts ?? data.engine.standouts.enabled, closeCalls }), ...(closeCalls ? { closeCalls } : {}) };
 }
 
 function snapshot(s: GameState): Snapshot {
@@ -434,6 +456,83 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     return id === "timeout";
   };
 
+  // ---------------------------------------------------------------- M2 G: reviews
+  /** Carries the challenge counts through every return (only present when the game plays close calls). */
+  let keptChallenges = run.challenges;
+  const keep = (r: GameRun): GameRun => (keptChallenges === undefined ? r : { ...r, challenges: keptChallenges });
+  const policy = kit.data.challengePolicy;
+  /** Whether the rules give this close call to the Replay Official (no coach decision). */
+  const booth = (cc: CloseCall, ruledPlay: PlayResult): boolean => {
+    const rp = rules.replay;
+    if (rp.officialOnlyInOvertime && isOvertime(s.period, rules)) return true;
+    if (rp.officialOnlyAfterTwoMinuteWarning && s.twoMinuteWarningDone) return true;
+    if (rp.officialReviewsTurnovers && (cc.kind === "fumbleToDown" || cc.kind === "interceptionToIncomplete")) return true;
+    const scored = "end" in ruledPlay && ruledPlay.end !== undefined && ((ruledPlay.end.possession === "offense" && ruledPlay.end.spot >= 100) || (ruledPlay.end.possession === "defense" && ruledPlay.end.spot <= 0));
+    if (rp.officialReviewsScoringPlays && scored) return true;
+    const short = "end" in ruledPlay && ruledPlay.end !== undefined && ruledPlay.end.spot < s.spot + s.distance;
+    return rp.officialReviewsFourthDownLineToGain && cc.kind === "spotLineToGain" && s.down === 4 && short;
+  };
+  const challengesLeft = (c: ChallengeCount): number => {
+    const ch = rules.challenges;
+    return Math.max(0, Math.min(ch.max, ch.perGame + (c.won > 0 ? ch.extraIfOneSucceeds : 0)) - c.used);
+  };
+  const review = (ruledPlay: PlayResult, cl: Calls, counts: Readonly<Record<Team, ChallengeCount>>): {
+    play: PlayResult; event: Extract<GameEvent, { t: "review" }>; challenges: Readonly<Record<Team, ChallengeCount>>; charge: Team | null; afterWarning: boolean;
+  } | null => {
+    const cc = (ruledPlay.detail ?? {})["closeCall"] as CloseCall | undefined;
+    if (cc === undefined) return null;
+    const question = policy.questions[cc.kind] ?? cc.question;
+    let by: "booth" | Team | null = null;
+    if (booth(cc, ruledPlay)) by = "booth";
+    else if (!(isOvertime(s.period, rules) && !rules.challenges.inOvertime)) {
+      // The team the ruling went against: the one a reversal helps (lead plus expected points).
+      const tables = kit.data.tables;
+      const dims = kit.data.config.dimensions;
+      const view = (x: GameState) => ({ phase: x.phase, possession: x.possession, spot: x.spot, down: x.down, distance: x.distance, score: x.score });
+      const ruledAfter = view(applyPlay(s, rules, ruledPlay, { runoffTimeout }));
+      const altAfter = view(applyPlay(s, rules, cc.alternative, { runoffTimeout }));
+      const off = s.possession;
+      const swingOff = stateValue(altAfter, off, tables, dims) - stateValue(ruledAfter, off, tables, dims);
+      const t = swingOff > 0 ? off : swingOff < 0 ? other(off) : null;
+      const counts0 = t === null ? null : counts[t];
+      const can = t !== null && counts0 !== null && challengesLeft(counts0) > 0 && (!rules.challenges.needsTimeout || s.timeouts[t] > 0);
+      if (t !== null && counts0 !== null && can) {
+        const swing = t === off ? swingOff : -swingOff;
+        const rate = (kit.data.engine.closeCalls.kinds[cc.kind]?.reversalPer10000 ?? 0) / 10_000;
+        if (human(t)) {
+          // The ruling on the field, without the verdict (G6).
+          const { verdict: _v, ...shown } = cc;
+          void _v;
+          const p = ask(() => ({
+            kind: "challenge", team: t, screens: [{ id: "challenge", options: [{ id: "throwFlag", legal: true }, { id: "letStand", legal: true }] }],
+            closeCall: { kind: cc.kind, question }, play: { ...ruledPlay, detail: { ...ruledPlay.detail, closeCall: shown } } as PlayResult,
+            offenseCall: cl.offense, defenseCall: cl.defense, challengesLeft: challengesLeft(counts0), timeoutsLeft: s.timeouts[t], failedCostsTimeout: rules.challenges.failedCostsTimeout,
+          }));
+          if (p[0] === "throwFlag") by = t;
+        } else if (team(t).coach.challenge?.({ kind: cc.kind, question, reversalRate: rate, valueSwing: swing, timeoutsLeft: s.timeouts[t], challengesLeft: challengesLeft(counts0) }) === true) by = t;
+      }
+    }
+    if (by === null) return null;
+    const reversed = cc.verdict === "reversed";
+    const who = (b: "booth" | Team): "you" | "them" | "booth" => (b === "booth" ? "booth" : seat !== null && b === seat.team ? "you" : "them");
+    if (seat !== null) ask(() => continueRequest(seat.team, { what: "underReview", kind: cc.kind, question, by: who(by) }, null));
+    let next = counts;
+    let charge: Team | null = null;
+    if (by !== "booth") {
+      const c = counts[by];
+      next = { ...counts, [by]: { used: c.used + 1, won: c.won + (reversed ? 1 : 0) } };
+      if (!reversed && rules.challenges.failedCostsTimeout) charge = by;
+    }
+    const used = reversed ? cc.alternative : ruledPlay;
+    if (seat !== null) ask(() => continueRequest(seat.team, { what: "reviewResult", kind: cc.kind, by: who(by), verdict: cc.verdict, play: used, timeoutCharged: charge !== null }, null));
+    keptChallenges = next;
+    input();
+    return {
+      play: used, challenges: next, charge, afterWarning: s.twoMinuteWarningDone,
+      event: { t: "review", before: snapshot(s), kind: cc.kind, by, verdict: cc.verdict, ruled: ruledPlay, timeoutCharged: charge !== null },
+    };
+  };
+
   if (s.phase === "overtimeToss") {
     // M2 E: a human toss winner chooses (receive or kick); otherwise the designed default stands
     // and a human sees the result. The winner is read from a copy of the stream (no draw).
@@ -554,7 +653,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
         // the cells of dead balls with a timeout. A run-off that stops the clock makes the timeout moot.
         if (s.clockRunning && !ranOff) {
           ranOff = true;
-          if (!runoff(true)) return { state: s, events, inputs, snaps, lastSnap: null };
+          if (!runoff(true)) return keep({ state: s, events, inputs, snaps, lastSnap: null });
           if (!s.clockRunning) continue;
         }
         input();
@@ -562,7 +661,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
         advance(callTimeout(s, rules, t), (next) => ({ t: "timeout", before, team: t, side, left: next.timeouts[t] }));
       }
     }
-    if (!ranOff && !runoff(false)) return { state: s, events, inputs, snaps, lastSnap: null };
+    if (!ranOff && !runoff(false)) return keep({ state: s, events, inputs, snaps, lastSnap: null });
     const sit = toSituation(s, rules);
     const off = team(s.possession);
     const d = other(s.possession);
@@ -589,8 +688,12 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     return run;
   }
 
-  const play = kit.resolve(s, offense, defense, players, rng);
+  const ruled = kit.resolve(s, offense, defense, players, rng);
   const calls: Calls = { offense, defense };
+  // M2 G: a close call is reviewed (booth or challenge) before the penalty choice (Rule 15-7-3).
+  const counts = run.challenges ?? (kit.closeCalls === true ? { home: { used: 0, won: 0 }, away: { used: 0, won: 0 } } : undefined);
+  const rv = counts === undefined ? null : review(ruled, calls, counts);
+  const play = rv === null ? ruled : rv.play;
   const penalty = penaltyChoice(s, rules, play, runoffTimeout, team, seat === null ? null : { team: seat.team, ask }, calls);
   if (seat !== null && human(s.possession) && s.phase === "scrimmage") runoffTimeout = humanRunoff(play, penalty, calls);
   // Same call repeats this side's last scrimmage or two-point call (a try's two-point play counts as its run or pass).
@@ -600,7 +703,9 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   input();
   const before = snapshot(s);
   const offenseTeam = s.possession;
-  const next = applyPlay(s, rules, play, { ...(penalty === null ? {} : { penalty }), runoffTimeout });
+  let next = applyPlay(s, rules, play, { ...(penalty === null ? {} : { penalty }), runoffTimeout });
+  if (rv !== null && rv.charge !== null && next.period === s.period && next.phase !== "final") next = chargeTimeout(next, rules, rv.charge);
+  if (rv !== null && rv.event.verdict === "reversed" && rv.afterWarning && rules.replay.reversalRunoffAfterTwoMinuteWarning) next = reviewRunoff(next, rules);
   const usedTimeout = runoffTimeout && next.timeouts[offenseTeam] < s.timeouts[offenseTeam] && play.kind !== "kickoff";
   const after = snapshot(next);
   const ev0: Extract<GameEvent, { t: "play" }> = { t: "play", before, offense, defense, play, penalty, runoffTimeout: usedTimeout, after };
@@ -612,9 +717,10 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
       possession: offenseTeam,
       period: before.period,
     };
+  if (rv !== null) events.push(rv.event);
   events.push(ev);
   stateEvents(s, next, events);
-  return { state: next, events, inputs, snaps, lastSnap };
+  return keep({ state: next, events, inputs, snaps, lastSnap });
 }
 
 /**

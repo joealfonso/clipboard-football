@@ -8,6 +8,7 @@ import type {
   BaselinePenalties,
   BaselineScrimmage,
   BaselineSpecial,
+  CloseCallRates,
   Distributions,
   EngineConfig,
   EngineData,
@@ -450,6 +451,14 @@ export function checkStandoutClasses(s: StandoutsConfig, scrimmage: Pick<Baselin
   return s;
 }
 
+// ---------------------------------------------------------------- M2 G: close calls
+
+const closeCallKinds = ["completionToIncomplete", "fumbleToDown", "interceptionToIncomplete", "touchdownToShort", "spotLineToGain"] as const;
+export const closeCallRatesSchema = z.looseObject({
+  generated: z.literal(true),
+  kinds: z.record(z.enum(closeCallKinds), z.looseObject({ reviewPer1000000: nonNeg.max(1_000_000), reversalPer10000: nonNeg.max(10_000) })),
+});
+
 export interface EngineFiles {
   readonly config: unknown;
   readonly scrimmage: unknown;
@@ -460,6 +469,7 @@ export interface EngineFiles {
   readonly personnel: unknown;
   readonly participants: unknown;
   readonly standouts: unknown;
+  readonly closeCalls: unknown;
   readonly ratings: unknown;
   readonly distributions: unknown;
   readonly names: unknown;
@@ -479,6 +489,7 @@ export function parseEngineData(files: EngineFiles, rules: RuleSet, caller: Call
     matchup: matchupCenteredSchema.parse(files.matchup) as unknown as MatchupCentered,
     personnel: personnelSchema.parse(files.personnel) as unknown as Personnel,
     participants: participantsSchema.parse(files.participants) as unknown as ParticipantsConfig,
+    closeCalls: closeCallRatesSchema.parse(files.closeCalls) as unknown as CloseCallRates,
     standouts: checkStandoutClasses(standoutsSchema.parse(files.standouts) as unknown as StandoutsConfig, baselineScrimmageSchema.parse(files.scrimmage) as unknown as BaselineScrimmage),
     ratings: ratingsSchema.parse(files.ratings) as unknown as RatingsConfig,
     distributions: distributionsSchema.parse(files.distributions) as unknown as Distributions,

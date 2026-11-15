@@ -9,7 +9,7 @@
 // drawn separately at fitted rates and paired with a physical play by the designed pairing
 // table. Every draw goes through the Rng passed in, in a fixed order.
 
-import type { BallEnd, Foul, PlayResult, PlaySide, Situation } from "../../../shared/src/types";
+import type { BallEnd, Foul, Participants, PlayResult, PlaySide, Situation } from "../../../shared/src/types";
 import type { Dimension } from "../../../shared/src/types";
 import type { EngineData, PairingRule, RatingEffect, TeamPool, WhyTemplate } from "../../../shared/src/engine";
 import { binSituation, type BinLabels } from "../caller/bins";
@@ -23,6 +23,7 @@ import { applyEffect, leagueMeans, type Field } from "./effects";
 import { fail } from "./errors";
 import { createCredit, creditStream, type Unit } from "./participants";
 import { cardsOf, standoutsFor, type Applied, type CardLookup } from "./standouts";
+import { altParticipants, markCloseCall, reviewStream } from "./closecalls";
 import { onField } from "./players";
 import { backoff, drawIndex, drawTuple, drawWeighted } from "./tables";
 import { dominant, isFluke, render, renderHeadline, round2, templateFor, variantFor, type TraceEntry } from "./why";
@@ -57,6 +58,11 @@ export interface EngineOptions {
    * (and its step 4 validation) is unchanged; the game turns it on with standouts.enabled (prepareGame).
    */
   readonly standouts?: boolean;
+  /**
+   * M2 G: mark close calls (data/game/challenges.json). Default off, so the engine alone and the
+   * calibrated baseline are unchanged; the game turns it on (prepareGame closeCalls).
+   */
+  readonly closeCalls?: boolean;
   /** Scripts only (M2 F centering): sees every standout kind applied to a class draw. */
   readonly observeStandouts?: (applied: readonly Applied[]) => void;
 }
@@ -170,6 +176,7 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
   const credit = createCredit(data.participants);
   const creditFor = options.creditStream ?? creditStream;
   const standoutsOn = options.standouts === true;
+  const closeCallsOn = options.closeCalls === true;
   const so = data.standouts;
   const why = data.why;
   const label = (k: string): string => why.labels[k] ?? k;
@@ -192,6 +199,8 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     /** M2 F: card ratings, and the standout kinds applied to this play's class draw. */
     readonly card: CardLookup;
     readonly applied: Applied[];
+    /** M2 G: the review stream (close calls and verdicts), seeded like the credit stream. */
+    readonly review: Rng;
   }
 
   /** M2 F: the standout factors for a class draw, recorded on the play; all 1 with standouts off. */
@@ -635,7 +644,18 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     detail["sampledClass"] = cd.cls;
     detail["sampledYards"] = y;
     detail["fluke"] = fluke !== null;
-    return finish(play, ctx, whenFor(ctx, play.fouls, fluke !== null, "scrimmage"), detail);
+    const out = finish(play, ctx, whenFor(ctx, play.fouls, fluke !== null, "scrimmage"), detail);
+    if (!closeCallsOn || onTry) return out;
+    // M2 G: a close call on the ruled play (review stream; no outcome draw).
+    const flags = pool[at + 1] as number;
+    const fumbleSpot = (flags & FUM_LOST) !== 0 ? los + (pool[at + 2] as number) : null;
+    const cc = markCloseCall(data.closeCalls, { play: out, family: family as "run" | "pass", los, distance: ctx.state.distance, fumbleSpot }, ctx.review);
+    if (cc === null) return out;
+    const d0 = out.detail as Record<string, unknown>;
+    const trace = [...(d0["trace"] as TraceEntry[]), { factor: "review" as const, kind: cc.kind, question: cc.kind }];
+    const t = templateFor(why, "reversed", cc.edit.alt.kind, cc.kind);
+    const altDetail = { ...d0, class: cc.edit.cls, yards: cc.edit.yards, trace, participants: altParticipants(cc.kind, d0["participants"] as Participants), why: render(t, trace).text, whyTemplate: t.id, headline: renderHeadline(t, trace) };
+    return { ...out, detail: { ...d0, closeCall: { kind: cc.kind, question: cc.kind, alternative: { ...cc.edit.alt, detail: altDetail }, verdict: cc.verdict } } } as PlayResult;
   }
 
   // ------------------------------------------------------------ kicks
@@ -985,6 +1005,7 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     const P = data.personnel;
     // Seeded before this play's first outcome draw; reads the outcome stream, never advances it.
     const creditRng = creditFor(rng);
+    const reviewRng = reviewStream(rng);
     const cards = players.cards;
     const card: CardLookup = cards === undefined ? (p) => p : (p) => cardsOf(cards.home).get(p.id) ?? cardsOf(cards.away).get(p.id) ?? p;
     const ctxFor = (offSlots: string, offGroup: "offense" | "kick", pkg: string, leaf: string = call): Ctx => {
@@ -995,7 +1016,7 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
       const unitName = offGroup === "kick" ? data.participants.receivingUnit[leaf] : undefined;
       const rs = unitName === undefined ? undefined : data.participants.returnUnits[unitName];
       const receiving = unitName === undefined || rs === undefined ? null : { name: unitName, unit: onField(defPool, rs, unitName) };
-      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale, leaf, receiving, credit: creditRng, card, applied: [] };
+      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale, leaf, receiving, credit: creditRng, card, applied: [], review: reviewRng };
     };
     const needDefense = (): { preset: string; pkg: string } => {
       if (defenseCall === null) return fail("missingDefenseCall", `${call} needs a defensive preset`);

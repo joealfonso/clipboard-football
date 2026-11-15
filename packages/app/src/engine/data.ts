@@ -19,6 +19,8 @@ import matchupUrl from "../../../../data/engine/matchup.centered.json?url";
 import personnelUrl from "../../../../data/engine/personnel.json?url";
 import participantsUrl from "../../../../data/engine/participants.json?url";
 import standoutsUrl from "../../../../data/engine/standouts.json?url";
+import closeCallsUrl from "../../../../data/game/challenges.json?url";
+import challengePolicyUrl from "../../../../data/game/challenge-policy.json?url";
 import ratingsUrl from "../../../../data/players/ratings.json?url";
 import distributionsUrl from "../../../../data/players/distributions.json?url";
 import namesUrl from "../../../../data/players/names.json?url";
@@ -49,6 +51,8 @@ export const FILES: readonly (readonly [string, string])[] = [
   ["data/engine/personnel.json", personnelUrl],
   ["data/engine/participants.json", participantsUrl],
   ["data/engine/standouts.json", standoutsUrl],
+  ["data/game/challenges.json", closeCallsUrl],
+  ["data/game/challenge-policy.json", challengePolicyUrl],
   ["data/players/ratings.json", ratingsUrl],
   ["data/players/distributions.json", distributionsUrl],
   ["data/players/names.json", namesUrl],
@@ -148,6 +152,7 @@ export async function loadData(progress: (file: string, done: number, total: num
     personnel: json("data/engine/personnel.json"),
     participants: json("data/engine/participants.json"),
     standouts: json("data/engine/standouts.json"),
+    closeCalls: json("data/game/challenges.json"),
     ratings: json("data/players/ratings.json"),
     distributions: json("data/players/distributions.json"),
     names: json("data/players/names.json"),
@@ -163,6 +168,7 @@ export async function loadData(progress: (file: string, done: number, total: num
     league: json("data/game/league.json"),
     teamNames: json("data/teams/names.json"),
     tempoModes: json("data/game/tempo-modes.json"),
+    challengePolicy: json("data/game/challenge-policy.json"),
   } as unknown as Parameters<typeof parseGameData>[0];
   const simHashes = Object.fromEntries(Object.entries(hashes).filter(([f]) => !f.startsWith("data/ui/")));
   const data = check("data/game", () => parseGameData(gameFiles, engine, hashes[rulesFile] as string, simHashes));

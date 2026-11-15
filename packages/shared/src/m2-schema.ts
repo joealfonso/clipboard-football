@@ -52,7 +52,8 @@ export const playerLineSchema = z.strictObject({
   punting: punting.optional(),
 });
 
-export const playerBoxScoreSchema = z.strictObject({ players: z.record(id, playerLineSchema) });
+const wonLost = z.strictObject({ won: count, lost: count });
+export const playerBoxScoreSchema = z.strictObject({ players: z.record(id, playerLineSchema), challenges: z.strictObject({ home: wonLost, away: wonLost }).optional() });
 
 export const ratingRanksSchema = z.record(id, z.record(z.string(), z.strictObject({ value: z.number().int(), rank: z.number().int().positive(), of: z.number().int().positive() })));
 
@@ -105,6 +106,8 @@ const about = z.discriminatedUnion("what", [
   z.strictObject({ what: z.literal("tossResult"), winner: team, choice: z.enum(["receive", "kick", "defer"]) }),
   z.strictObject({ what: z.literal("theyKickOff"), onside: z.boolean(), safetyKick: z.boolean() }),
   z.strictObject({ what: z.literal("theyLineUp"), call: id }),
+  z.strictObject({ what: z.literal("underReview"), kind: id, question: z.string().min(1), by: z.enum(["you", "them", "booth"]) }),
+  z.strictObject({ what: z.literal("reviewResult"), kind: id, by: z.enum(["you", "them", "booth"]), verdict: z.enum(["stands", "reversed"]), play: z.looseObject({ kind: z.string() }), timeoutCharged: z.boolean() }),
 ]);
 /** The PlayResult is checked as an object here; its own shape is the sim's contract (play.ts). */
 const play = z.looseObject({ kind: z.string() });
@@ -119,6 +122,18 @@ export const decisionRequestSchema = z.discriminatedUnion("kind", [
   z.strictObject({ ...base, kind: z.literal("penalty"), play, offenseCall, defenseCall: id.nullable(), outcomes: z.array(z.strictObject({ option: id, after: preview })).min(2) }),
   z.strictObject({ ...base, kind: z.literal("runoff"), play, offenseCall, defenseCall: id.nullable(), clock: count, clockAfter: count }),
   z.strictObject({ ...base, kind: z.literal("continue"), about }),
+  z.strictObject({
+    ...base,
+    kind: z.literal("challenge"),
+    closeCall: z.strictObject({ kind: id, question: z.string().min(1) }),
+    // The ruling on the field: its closeCall must not carry the verdict (G6).
+    play: z.looseObject({ kind: z.string(), detail: z.looseObject({ closeCall: z.looseObject({ kind: id }).refine((c) => !("verdict" in c), { message: "a challenge request shows the verdict" }) }) }),
+    offenseCall,
+    defenseCall: id.nullable(),
+    challengesLeft: z.number().int().positive(),
+    timeoutsLeft: count,
+    failedCostsTimeout: z.boolean(),
+  }),
 ]);
 
 export const decisionAnswerSchema = z.strictObject({ seq: z.number().int().positive(), path: z.array(id).min(1) });

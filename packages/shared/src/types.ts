@@ -44,6 +44,8 @@ export type {
   OnsideKickPlay,
   ParticipantRole,
   Participants,
+  CloseCall,
+  CloseCallKind,
   PlayDetailM2,
   Standout,
   PlayResult,
@@ -53,7 +55,7 @@ export type {
   ScrimmagePlay,
   TwoPointPlay,
 } from "./play";
-export { PARTICIPANT_ROLES } from "./play";
+export { CLOSE_CALL_KINDS, PARTICIPANT_ROLES } from "./play";
 export type {
   BaseRating,
   BaselinePenalties,
@@ -76,6 +78,7 @@ export type {
   ParticipantsConfig,
   Personnel,
   Player,
+  CloseCallRates,
   PositionShares,
   StandoutKind,
   StandoutKindId,
@@ -109,6 +112,7 @@ export type {
   TeamName,
   TeamNames,
   TempoTable,
+  ChallengePolicy,
   TempoModeCell,
   TempoModes,
   SpecialTimeoutRole,

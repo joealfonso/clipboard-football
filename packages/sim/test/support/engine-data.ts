@@ -16,6 +16,7 @@ export const ENGINE_FILES = {
   personnel: "data/engine/personnel.json",
   participants: "data/engine/participants.json",
   standouts: "data/engine/standouts.json",
+  closeCalls: "data/game/challenges.json",
   ratings: "data/players/ratings.json",
   distributions: "data/players/distributions.json",
   names: "data/players/names.json",

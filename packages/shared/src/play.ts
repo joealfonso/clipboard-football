@@ -184,6 +184,25 @@ export interface Standout {
   readonly headline: string;
 }
 
+// ---------------------------------------------------------------- M2 G: close calls
+
+/** The five close-call kinds (spec resolved 4): the ruling on the field, then what a reversal makes it. */
+export const CLOSE_CALL_KINDS = ["completionToIncomplete", "fumbleToDown", "interceptionToIncomplete", "touchdownToShort", "spotLineToGain"] as const;
+export type CloseCallKind = (typeof CLOSE_CALL_KINDS)[number];
+
+/**
+ * detail.closeCall (M2 G): the engine marked the ruled play as a close call. `alternative` is the
+ * play a reversal makes it (a deterministic edit, no new outcome draw); `verdict` is what a review
+ * finds, drawn at resolve time. No request and no AI policy ever sees the verdict before a review.
+ */
+export interface CloseCall {
+  readonly kind: CloseCallKind;
+  /** Key of the prompt (data/game/challenge-policy.json questions). */
+  readonly question: string;
+  readonly alternative: PlayResult;
+  readonly verdict: "stands" | "reversed";
+}
+
 /** The detail fields M2 adds that the UI reads. Every PlayResult from resolvePlay has them. */
 export interface PlayDetailM2 {
   readonly participants: Participants;

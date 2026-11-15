@@ -153,6 +153,13 @@ export interface StandoutsConfig {
   readonly centering: Readonly<Record<StandoutKindId, number>>;
 }
 
+// ---------------------------------------------------------------- fitted: close calls (M2 G)
+
+/** data/game/challenges.json, the parts the engine reads: per kind, how often a ruled play is a close call and how often a review reverses it. */
+export interface CloseCallRates {
+  readonly kinds: Readonly<Record<string, { readonly reviewPer1000000: number; readonly reversalPer10000: number }>>;
+}
+
 // ---------------------------------------------------------------- designed: ratings
 
 export interface RatingInput {
@@ -400,6 +407,8 @@ export const TRACE_FIELDS = {
    * factor above 1). A candidate: the loop makes it a standout only if the play stands.
    */
   standoutCandidate: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "applied"],
+  /** M2 G: the close call a reversal undid, for the reversed line. */
+  review: ["kind", "question"],
   /** The loop's final standout (GameEvent `standout`), the slots of the standout why line. */
   standout: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "applied"],
   call: ["label", "leaf", "kind"],
@@ -462,6 +471,8 @@ export interface EngineData {
   readonly participants: ParticipantsConfig;
   /** M2 milestone F: standout plays (designed, centered). */
   readonly standouts: StandoutsConfig;
+  /** M2 milestone G: close-call and reversal rates (fitted, data/game/challenges.json). */
+  readonly closeCalls: CloseCallRates;
   readonly ratings: RatingsConfig;
   readonly distributions: Distributions;
   readonly names: Names;

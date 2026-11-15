@@ -1629,6 +1629,43 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 
 - Result (2016-2023): Replay Official reviews are 100% of the turnover reviews (fumbles, interceptions), as Rule 15-1-2 (e) requires; coaches challenge completions and spots. For G7, coach challenges of the five kinds come to 0.1499 per team-game (season range 0.1121 to 0.1895, 4,190 team-games), with 43.9% reversed (season range 32.9% to 51.4%, 628 challenges).
 
+### G3 to G8: close calls, challenges and reviews (engineer, 2026-11-14; G7 failed, stopped)
+- Built:
+  - Engine (packages/sim/src/engine/closecalls.ts, resolve.ts). On a foul-free scrimmage play that is one of the five kinds as ruled, resolvePlay marks a close call at the fitted rate for plays ruled that way (data/game/challenges.json `reviewPer1000000`). It also draws the verdict at the fitted reversal rate. Both draws come from a per-play review stream, never the outcome stream.
+  - The alternative (`detail.closeCall.alternative`) is a deterministic edit: an incomplete pass at the line, down at the fumble spot, down at the 1, or the spot moved across the line to gain. It carries its own class, yards, participants and a "reversed" why line.
+  - Off by default: `EngineOptions.closeCalls`; `prepareGame(data, { closeCalls })`, default `challengePolicy.enabled` (false).
+  - Loop (loop/play.ts `review`): booth or coach review from rule-set data only.
+    - The Replay Official reviews in overtime, after the two-minute warning, every turnover kind, every ruled scoring play, and a fourth down ruled short.
+    - Otherwise the team the ruling went against (its lead plus expected points, reversed vs ruled) may challenge, if it has a challenge left (perGame, plus extraIfOneSucceeds after a win, max) and a timeout (needsTimeout).
+    - A failed challenge charges a timeout (failedCostsTimeout; `chargeTimeout`). A reversal applies the alternative to the pre-play state. After the warning, a reversal that leaves the clock running brings the run-off (`reviewRunoff`).
+    - The review comes before the penalty choice (replay.penaltyChoiceAfterReview).
+    - A `review` event goes before the play event, and the play event is the play as it stands. `GameRun.challenges` counts, present only with close calls on.
+  - AI policy (designed, data/game/challenge-policy.json): challenge when reversalRate x valueSwing - (1 - reversalRate) x timeoutCost (0.35) > threshold (0). It sees the kind, the question, the fitted rate and the value swing, never the verdict.
+  - Human: a `challenge` request (Throw the flag, Let it stand; the ruled play shown without the verdict), then `continue` requests `underReview` and `reviewResult` for every review. The player box has team challenges won and lost.
+- Interface changes:
+  - `EngineData.closeCalls`, `EngineFiles.closeCalls`, `GameData.challengePolicy`, `GameFiles.challengePolicy`.
+  - `CloseCall`, `CLOSE_CALL_KINDS`; GameEvent `review`; `GameRun.challenges`; `GameKit.closeCalls`.
+  - `CoachPolicies.challenge?` and `ChallengeView`.
+  - DecisionRequest `challenge`; ContinueAbout `underReview` and `reviewResult`.
+  - `PlayerBoxScore.challenges`; machine `chargeTimeout` and `reviewRunoff`.
+  - Schemas updated; the UI loader loads challenges.json and challenge-policy.json; the UI's continue text and event lines cover the new cases.
+  - The UI had only a `detail.closeCall {kind, question}` hook, so the request shapes are new here.
+- Designed simplifications:
+  - Close calls only on foul-free scrimmage plays, so a review never meets a penalty choice. The spec's edge case of a close call with a defensive foul and an untimed down is unreachable.
+  - The post-review run-off is always taken (the rule lets either team avoid it with a timeout).
+  - Rule 15-6-2 (a timeout returned after a reversal) is not modeled.
+  - A failed challenge on a play that ends the half charges no timeout.
+- Checks:
+  - Close calls and standouts off: all 10,000 in-sample outcome digests are identical to 04f0f5d, and the in-sample summary metrics are identical.
+  - G3: 1,628,110 engine calls of the on run, each shadowed with close calls off from a copy of the stream; 0 mismatches, 7,650 close calls.
+  - G8 (scripts/game/g8-reach.ts, games in test/fixtures/m2-g8-games.json, each replayed from its seed and input log alone): 5 games in league 2026 (seeds 1, 12, 30, 110, 115) reach a human challenge that stands and one reversed, an AI challenge both ways, and a Replay Official review.
+- G7 (scripts/game/challenges.ts, docs/CHALLENGE_REPORT.md, against data/game/m2-challenge-tolerances.json): FAIL, stopped under the stop rule.
+  - Inside: challenges per team-game 0.135 (band 0.112 to 0.189); reversal share 0.457 (band 0.329 to 0.514); every run class share; points per team-game -0.20 (0.3); turnovers -0.047 (0.05); no status flip.
+  - Outside: the pass family's incompletion share, +0.216 pp against 0.2 (30.92% off, 31.14% on).
+  - Cause: the risk spec resolved 3 named. The fitted pools hold real final rulings, so every sim reversal of a completion (1,258) or an interception (354) adds an incompletion on top. Turnovers fall the same way, inside their tolerance.
+  - The first G7 attempt crashed on a reversal that ended the game (`reviewRunoff` on a final state), before any metric was computed. Fixed, then this single run.
+- For the lead: close calls are off in the app too (`PLAY_CLOSE_CALLS = false`) until a decision. No tolerance, rate or policy value was changed after the run.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

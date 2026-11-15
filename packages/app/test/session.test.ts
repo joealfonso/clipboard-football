@@ -112,7 +112,7 @@ describe("answers and saves", () => {
     }
   });
 
-  const good: SaveData = { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: "test-data-hash", codeHash: "test-code-hash", standouts: true, leagueSeed: 2026, seed: 36, human: "home", gameType: "regularSeason", log: [] };
+  const good: SaveData = { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: "test-data-hash", codeHash: "test-code-hash", standouts: true, closeCalls: false, leagueSeed: 2026, seed: 36, human: "home", gameType: "regularSeason", log: [] };
 
   it("reads a save from other data, other engine code or an earlier version as older", () => {
     const sent: FromWorker[] = [];

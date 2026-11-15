@@ -3,7 +3,7 @@
 // same shares with the same arithmetic; data/game/golden.json pins the two together). Share
 // functions take no Rng; each decision then uses one draw. Play calls stay the step 2 callers'.
 
-import type { CallerData, CoachTables, CoachView, DecisionDim, DecisionLevel, GameConfig, KickView, Situation, SpecialTimeoutRole, TempoModes } from "../../../shared/src/types";
+import type { CallerData, ChallengePolicy, CoachTables, CoachView, DecisionDim, DecisionLevel, GameConfig, KickView, Situation, SpecialTimeoutRole, TempoModes } from "../../../shared/src/types";
 import { chooseDefenseCall } from "../caller/defense";
 import { binSituation } from "../caller/bins";
 import { chooseOffenseCall, type CallerMasks, type OffenseCall } from "../caller/offense";
@@ -251,6 +251,27 @@ export interface CoachPolicies {
   runoffTimeout(view: CoachView): boolean;
   /** Call a timeout rather than let a drawn run-off end the period (step 5c E); asked only then. */
   clockOut?(view: CoachView): boolean;
+  /** M2 G: challenge a close call that went against this team; asked only when the rules allow it. */
+  challenge?(view: ChallengeView): boolean;
+}
+
+/**
+ * M2 G: what a coach sees of a close call before deciding to challenge: its kind and question, the
+ * fitted reversal rate for the kind, and what a reversal is worth to him. Never the verdict.
+ */
+export interface ChallengeView {
+  readonly kind: string;
+  readonly question: string;
+  readonly reversalRate: number;
+  /** His lead plus expected points of the next snap if reversed, minus the same as ruled. */
+  readonly valueSwing: number;
+  readonly timeoutsLeft: number;
+  readonly challengesLeft: number;
+}
+
+/** The average coach's challenge rule (designed, data/game/challenge-policy.json ai). */
+export function wouldChallenge(view: ChallengeView, ai: ChallengePolicy["ai"]): boolean {
+  return view.reversalRate * view.valueSwing - (1 - view.reversalRate) * ai.timeoutCost > ai.threshold;
 }
 
 export interface CoachData {
@@ -260,6 +281,8 @@ export interface CoachData {
   readonly perDeadBall: number;
   /** The engine's field-goal data; when present, tries are masked where it makes them 0 (step 5c B). */
   readonly fieldGoals?: FieldGoalRange;
+  /** M2 G: the challenge rule. */
+  readonly challengePolicy?: ChallengePolicy;
 }
 
 /** The average coach: step 2 calls, fitted tempo, timeouts and onside, designed run-off rule. */
@@ -329,6 +352,7 @@ export function averageCoach(d: CoachData): CoachPolicies {
       const inFinal = view.quarter <= 2 ? view.secondsLeftInHalf <= final : view.secondsLeftInGame <= final;
       return inFinal && view.scoreDiff <= 0 && view.offenseTimeouts > 0 && view.offenseTimeoutsThisDeadBall < d.perDeadBall;
     },
+    ...(d.challengePolicy === undefined ? {} : { challenge: (view: ChallengeView) => wouldChallenge(view, (d.challengePolicy as ChallengePolicy).ai) }),
     clockOut(view) {
       const r = rules?.clockOut;
       if (r === undefined || view.quarter < 4) return false;

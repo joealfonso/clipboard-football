@@ -156,6 +156,35 @@ export function runPreSnap(s: GameState, rules: RuleSet, seconds: number): GameS
   return checked(s, d, rules);
 }
 
+/**
+ * M2 G: a failed challenge charges the challenger a timeout (Rule 15-1-1 (e), rule set
+ * challenges.failedCostsTimeout). The review already stopped play, so nothing else changes.
+ */
+export function chargeTimeout(s: GameState, rules: RuleSet, team: Team): GameState {
+  live(s);
+  if (s.timeouts[team] <= 0) reject("noTimeouts", `${team} has no timeout to charge for a failed challenge`);
+  const d = draftOf(s);
+  d.timeouts = { ...s.timeouts, [team]: s.timeouts[team] - 1 };
+  return checked(s, d, rules);
+}
+
+/**
+ * M2 G: after the two-minute warning, a changed ruling that leaves the clock running brings a
+ * run-off neither team may decline (Rule 15-5-2; rule set replay.reversalRunoff*).
+ */
+export function reviewRunoff(s: GameState, rules: RuleSet): GameState {
+  // Only a scrimmage down with the clock running has one (a reversal that ended the game or the half has none).
+  if (s.phase !== "scrimmage" || !s.clockRunning) return s;
+  const d = draftOf(s);
+  d.clock = Math.max(0, s.clock - rules.replay.reversalRunoffSeconds);
+  d.playClock = rules.replay.reversalRunoffPlayClock;
+  if (d.clock === 0) {
+    d.clockRunning = false;
+    periodEndCheck(d, rules);
+  }
+  return checked(s, d, rules);
+}
+
 export function callTimeout(s: GameState, rules: RuleSet, team: Team): GameState {
   live(s);
   if (s.phase === "overtimeToss") reject("wrongPhase", "no timeouts before the overtime toss");

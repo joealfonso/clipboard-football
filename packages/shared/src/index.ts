@@ -18,6 +18,7 @@ export {
   parseTeamPoolV1,
   participantsSchema,
   standoutsSchema,
+  closeCallRatesSchema,
   personnelSchema,
   playerSchema,
   ratingsSchema,
@@ -27,7 +28,7 @@ export {
   whySchema,
 } from "./engine-schema";
 export type { EngineFiles } from "./engine-schema";
-export { gameConfigSchema, leagueSettingsSchema, onsideTableSchema, parseGameData, rateTableSchema, teamNamesSchema, standoutTolerancesSchema, tempoModesSchema, tempoTableSchema, timeoutTableSchema } from "./game-schema";
+export { gameConfigSchema, leagueSettingsSchema, onsideTableSchema, parseGameData, rateTableSchema, teamNamesSchema, challengePolicySchema, standoutTolerancesSchema, tempoModesSchema, tempoTableSchema, timeoutTableSchema } from "./game-schema";
 export type { GameFiles } from "./game-schema";
 export {
   decisionAnswerSchema,

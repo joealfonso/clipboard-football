@@ -214,6 +214,18 @@ export interface TempoModes {
   readonly modes: { readonly hurryUp: TempoModeCell; readonly runClock: TempoModeCell };
 }
 
+/** data/game/challenge-policy.json (designed, M2 G). */
+export interface ChallengePolicy {
+  readonly schemaVersion: number;
+  readonly designed: true;
+  /** The calibrated baseline has no close calls; the app turns them on. */
+  readonly enabled: boolean;
+  /** Prompt per close-call kind (the request's question key is the kind). */
+  readonly questions: Readonly<Record<string, string>>;
+  /** The average coach: challenge when rate x swing - (1 - rate) x timeoutCost > threshold. */
+  readonly ai: { readonly timeoutCost: number; readonly threshold: number };
+}
+
 /** Everything the full-game loop reads, validated by game-schema.ts before it reaches the sim. */
 export interface GameData {
   readonly engine: EngineData;
@@ -223,6 +235,8 @@ export interface GameData {
   readonly teamNames: TeamNames;
   /** M2 E: the human offense's tempo modes (designed). */
   readonly tempoModes: TempoModes;
+  /** M2 G: close calls and the AI challenge policy (designed). */
+  readonly challengePolicy: ChallengePolicy;
   /** sha256 of the rule set file's bytes. */
   readonly rulesHash: string;
   /** sha256 of each data file the game reads, by repo path. */
@@ -303,6 +317,8 @@ export interface PlayerLine {
 /** Players with at least one stat, by id, in order of their first stat in the game. */
 export interface PlayerBoxScore {
   readonly players: Readonly<Record<string, PlayerLine>>;
+  /** M2 G: coach's challenges won (reversed) and lost, per team; present once a team has challenged. */
+  readonly challenges?: { readonly home: { readonly won: number; readonly lost: number }; readonly away: { readonly won: number; readonly lost: number } };
 }
 
 /** One rating's rank within the player's position across the league: 1 is the highest. */
@@ -431,7 +447,19 @@ export type ContinueAbout =
   | { readonly what: "tossResult"; readonly winner: "home" | "away"; readonly choice: "receive" | "kick" | "defer" }
   | { readonly what: "theyKickOff"; readonly onside: boolean; readonly safetyKick: boolean }
   /** The other team lines up for a kick, a kneel or a spike (visible before the snap). */
-  | { readonly what: "theyLineUp"; readonly call: string };
+  | { readonly what: "theyLineUp"; readonly call: string }
+  /** M2 G: a review starts: by your challenge, theirs, or the Replay Official (the rules call for it). */
+  | { readonly what: "underReview"; readonly kind: string; readonly question: string; readonly by: "you" | "them" | "booth" }
+  /** M2 G: what the review found, and what it cost. `play` is the play as it now stands. */
+  | {
+      readonly what: "reviewResult";
+      readonly kind: string;
+      readonly by: "you" | "them" | "booth";
+      readonly verdict: "stands" | "reversed";
+      readonly play: PlayResult;
+      /** A failed challenge charged the challenger a timeout. */
+      readonly timeoutCharged: boolean;
+    };
 
 /**
  * A decision the loop is waiting for (spec E; design "Needs from the engine" 1). Nothing here
@@ -471,7 +499,22 @@ export type DecisionRequest =
       readonly clock: number;
       readonly clockAfter: number;
     })
-  | (RequestBase & { readonly kind: "continue"; readonly about: ContinueAbout });
+  | (RequestBase & { readonly kind: "continue"; readonly about: ContinueAbout })
+  /**
+   * M2 G: a close call went against you and the rules let you challenge it. `play` is the ruling
+   * on the field (its closeCall carries no verdict); the risk numbers come from the rule set.
+   */
+  | (RequestBase & {
+      readonly kind: "challenge";
+      readonly closeCall: { readonly kind: string; readonly question: string };
+      readonly play: PlayResult;
+      readonly offenseCall: OffenseCallChoice;
+      readonly defenseCall: string | null;
+      readonly challengesLeft: number;
+      readonly timeoutsLeft: number;
+      /** What a failed challenge costs, from the rule set. */
+      readonly failedCostsTimeout: boolean;
+    });
 
 export type RequestKind = DecisionRequest["kind"];
 

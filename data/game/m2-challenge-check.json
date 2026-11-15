@@ -1,0 +1,188 @@
+{
+ "generated": true,
+ "tolerancesSha256": "abd445ad784d4c301c9e76a1c7a31d66382cd1eb25cdb15794a332146cff9409",
+ "games": 10000,
+ "pass": false,
+ "checks": [
+  {
+   "id": "challenges.perTeamGame",
+   "off": null,
+   "on": 0.1351,
+   "target": "0.112132 to 0.189453 (actual 0.149881)",
+   "pass": true
+  },
+  {
+   "id": "challenges.reversalShare",
+   "off": null,
+   "on": 0.45743893412287195,
+   "target": "0.328947 to 0.513514 (actual 0.43949)",
+   "pass": true
+  },
+  {
+   "id": "classShare.run.r1_3",
+   "off": 36.80880276165072,
+   "on": 36.82624858193751,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.run.r4_9",
+   "off": 33.997136356504,
+   "on": 33.971870350815905,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.run.loss",
+   "off": 17.86168209634395,
+   "on": 17.912729785004064,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.run.r10_19",
+   "off": 8.327710654322924,
+   "on": 8.316813804960962,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.run.fumble",
+   "off": 0.6358857680841048,
+   "on": 0.60726440535586,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.run.r20",
+   "off": 2.368782363094304,
+   "on": 2.3650730719256994,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.c1_9",
+   "off": 28.94809241459841,
+   "on": 28.886702574799962,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.c10_19",
+   "off": 16.107572205907434,
+   "on": 16.04010087487157,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.c20",
+   "off": 7.589385193198497,
+   "on": 7.554157975030355,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.inc",
+   "off": 30.92184296389985,
+   "on": 31.137457579625767,
+   "target": "within 0.2 pp",
+   "pass": false
+  },
+  {
+   "id": "classShare.pass.sack",
+   "off": 6.49078231728647,
+   "on": 6.523241694946916,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.scramble",
+   "off": 4.433376115564308,
+   "on": 4.422553628693296,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.int",
+   "off": 2.0501859221977536,
+   "on": 2.0044210591861513,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.c0",
+   "off": 2.7920073995416366,
+   "on": 2.7853918241539275,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "classShare.pass.fumbleCatch",
+   "off": 0.6667554678056451,
+   "on": 0.6459727886920514,
+   "target": "within 0.2 pp",
+   "pass": true
+  },
+  {
+   "id": "points.perTeamGame.mean",
+   "off": 22.05545,
+   "on": 21.85325,
+   "target": "within 0.3",
+   "pass": true
+  },
+  {
+   "id": "turnovers.perTeamGame",
+   "off": 1.20685,
+   "on": 1.16005,
+   "target": "within 0.05",
+   "pass": true
+  }
+ ],
+ "flips": [],
+ "statusChanges": [],
+ "g3": {
+  "engineCalls": 1628110,
+  "closeCalls": 7650,
+  "mismatches": 0,
+  "examples": []
+ },
+ "reviews": {
+  "coach": 2702,
+  "coachReversed": 1236,
+  "booth": 3724,
+  "boothReversed": 2159,
+  "timeoutsCharged": 1466,
+  "perGame": 0.6426,
+  "byKind": {
+   "completionToIncomplete": {
+    "coach": 2187,
+    "booth": 598,
+    "reversed": 1258
+   },
+   "fumbleToDown": {
+    "coach": 0,
+    "booth": 969,
+    "reversed": 603
+   },
+   "interceptionToIncomplete": {
+    "coach": 0,
+    "booth": 596,
+    "reversed": 354
+   },
+   "touchdownToShort": {
+    "coach": 0,
+    "booth": 1418,
+    "reversed": 882
+   },
+   "spotLineToGain": {
+    "coach": 515,
+    "booth": 143,
+    "reversed": 298
+   }
+  }
+ },
+ "perf": {
+  "msPerGameOff": 12.595580809099978,
+  "msPerGameOn": 13.903180573800041
+ }
+}

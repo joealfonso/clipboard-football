@@ -317,6 +317,11 @@ export function eventLine(ev: GameEvent, ctx: TextCtx): string | null {
       return ev.period < ctx.regulationPeriods ? `End of the ${periodText(ev.period, ctx.regulationPeriods)} quarter.` : ev.period === ctx.regulationPeriods ? "End of regulation." : "End of overtime.";
     case "toss":
       return `Overtime coin toss: the ${ctx.teams[ev.winner].nickname} win and choose to ${ev.choice}. The ${ctx.teams[ev.receiver].nickname} receive.`;
+    case "review": {
+      // M2 G: "They throw the challenge flag" (design: an event line with no key), then the verdict.
+      const who = ev.by === "booth" ? "Under review by the replay official" : ev.by === ctx.human ? "You throw the challenge flag" : `The ${ctx.teams[ev.by].nickname} throw the challenge flag`;
+      return `${who}. Ruling ${ev.verdict === "reversed" ? "reversed" : "stands"}.${ev.timeoutCharged ? " The challenge cost a timeout." : ""}`;
+    }
     case "play":
       return null;
   }
@@ -378,6 +383,13 @@ export function continueText(about: ContinueAbout, ctx: TextCtx): string {
       const what: Readonly<Record<string, string>> = { punt: "to punt", fieldGoal: "for a field goal", extraPoint: "for the extra point", kneel: "to kneel", spike: "to spike it" };
       return `The ${them} line up ${what[about.call] ?? `for ${ctx.labels[about.call] ?? about.call}`}.`;
     }
+    // M2 G: the review screens (design "Under review", "Review result").
+    case "underReview": {
+      const who = about.by === "you" ? "your challenge" : about.by === "them" ? `the ${ctx.teams[other(ctx.human)].nickname}' challenge` : "the replay official";
+      return `Under review (${who}): ${about.question}`;
+    }
+    case "reviewResult":
+      return `Ruling ${about.verdict === "stands" ? "stands" : "reversed"}.${about.timeoutCharged ? " The challenge cost a timeout." : ""}`;
   }
 }
 

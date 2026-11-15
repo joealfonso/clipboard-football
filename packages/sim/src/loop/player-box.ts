@@ -54,7 +54,13 @@ export function playerBoxScore(record: GameRecord, rules: RuleSet): PlayerBoxSco
   const kicking = (l: Lines): Mutable<KickingLine> => (l.kicking ??= { fieldGoalsMade: 0, fieldGoalAttempts: 0, extraPointsMade: 0, extraPointAttempts: 0 });
   const punting = (l: Lines): Mutable<PuntingLine> => (l.punting ??= { punts: 0, yards: 0, average: 0 });
 
+  const ch = { home: { won: 0, lost: 0 }, away: { won: 0, lost: 0 } };
+  let challenged = false;
   for (const ev of record.events) {
+    if (ev.t === "review" && ev.by !== "booth") {
+      challenged = true;
+      ch[ev.by][ev.verdict === "reversed" ? "won" : "lost"]++;
+    }
     if (ev.t !== "play") continue;
     const { play, before } = ev;
     const parts = detailOf(play).participants;
@@ -176,7 +182,7 @@ export function playerBoxScore(record: GameRecord, rules: RuleSet): PlayerBoxSco
     if (l.punting !== undefined) out.punting = l.punting;
     players[id] = out;
   }
-  return { players };
+  return challenged ? { players, challenges: ch } : { players };
 }
 
 /**
