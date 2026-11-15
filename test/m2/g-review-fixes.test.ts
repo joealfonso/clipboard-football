@@ -178,10 +178,13 @@ describe("fix 4: a failed challenge with no timeout left costs the rule set's ya
     expect([n.spot, n.timeouts.home]).toEqual([40, 1]);
   });
 
+  // Played at collection, like the other game samples here, so a busy machine doesn't hit the per-test timeout.
+  const hot = hotData(data, rules);
+  const played = games(hot, 40, challenger(hot));
+
   it("games under that rule set run, and teams at 0 timeouts challenge and lose", () => {
-    const hot = hotData(data, rules);
     let atZero = 0;
-    for (const g of games(hot, 40, challenger(hot))) {
+    for (const g of played) {
       for (const { review, play } of reviewsOf(g)) {
         if (review.by === "booth" || review.verdict !== "stands" || review.before.timeouts[review.by] > 0) continue;
         atZero++;
