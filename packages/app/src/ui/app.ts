@@ -14,6 +14,7 @@ import { Animator } from "./animator";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
 import { layoutFor, type Layout } from "./layout";
+import { deepestUnit, FocusTrail, overlayBackground, overlaysShown, placeOverlay, unitDepth, type Guard, type Placement } from "./overlay";
 import { breadcrumb, current, isFirstScreen, openMenu, press, rows as menuRows, title as menuTitle, type MenuData, type MenuExtra, type MenuKey, type MenuState, type Row } from "./menu";
 import {
   MARK_LABEL_TEXT,
@@ -155,11 +156,16 @@ export class App {
   private ranks = new Map<string, Readonly<Record<string, RatingRank>>>();
   private clockOverride: number | null = null;
   private layoutNow: Layout;
+  /** Where the panel overlay sits now (recomputed every render). */
+  private placement: Placement | null = null;
+  /** Focus goes back here when a screen or the player card closes (the full-screen amendment). */
+  private readonly screenTrail = new FocusTrail<Overlay, number>();
+  private readonly cardTrail = new FocusTrail<"markCard", Element | null>();
   private queue: Promise<void> = Promise.resolve();
   private readonly reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   constructor(
-    private readonly root: { topBar: HTMLElement; panel: HTMLElement; canvas: HTMLCanvasElement; live: HTMLElement; small: HTMLElement },
+    private readonly root: { topBar: HTMLElement; panel: HTMLElement; canvas: HTMLCanvasElement; live: HTMLElement; small: HTMLElement; markCard: HTMLElement; main: HTMLElement },
   ) {
     this.settings = loadSettings();
     this.layoutNow = layoutFor(window.innerWidth, window.innerHeight);
@@ -175,7 +181,13 @@ export class App {
     window.addEventListener("resize", () => this.onResize());
     // Hover a mark for his player card; leaving the field closes it.
     root.canvas.addEventListener("mousemove", (e) => this.onFieldHover(e));
-    root.canvas.addEventListener("mouseleave", () => this.closeMarkCard());
+    root.canvas.addEventListener("mouseleave", (e) => {
+      // Moving onto the card itself (it sits over the field) keeps it open.
+      if (!(e.relatedTarget instanceof Node && root.markCard.contains(e.relatedTarget))) this.closeMarkCard();
+    });
+    root.markCard.addEventListener("mouseleave", (e) => {
+      if (e.relatedTarget !== root.canvas) this.closeMarkCard();
+    });
     this.reducedQuery.addEventListener("change", () => this.render());
     this.applyTextSize();
     this.onResize();
@@ -515,10 +527,8 @@ export class App {
     this.layoutNow = layoutFor(window.innerWidth, window.innerHeight, this.templates?.field);
     const l = this.layoutNow;
     this.root.small.hidden = !l.tooSmall;
-    this.root.panel.style.left = `${l.panel.left}px`;
-    this.root.panel.style.width = `${l.panel.width}px`;
-    this.root.canvas.style.width = `${l.field.width}px`;
     this.animator.redraw();
+    this.render();
   }
 
   private onKey(e: KeyboardEvent): void {
@@ -544,6 +554,7 @@ export class App {
         saveSettings(this.settings);
         this.status = `Animation speed: ${this.settings.speed}`;
         this.renderStatus();
+        this.renderTopBar();
       }
       e.preventDefault();
       return;
@@ -570,8 +581,8 @@ export class App {
     } else if (k === "ArrowDown" || k === "ArrowUp") {
       if (this.top()?.id === "roster") this.moveRosterSelection(k === "ArrowDown" ? 1 : -1);
       else if (list.length > 0) {
-        // Up and down move within a column of the 3-column card grid; elsewhere one row.
-        const step = this.onCardScreen() ? 3 : 1;
+        // Up and down move within a column of the card grid (as many columns as fit); elsewhere one row.
+        const step = this.onCardScreen() ? this.gridColumns() : 1;
         const n = list.length;
         this.highlight = Math.max(0, Math.min(n - 1, this.highlight + (k === "ArrowDown" ? step : -step)));
       }
@@ -665,14 +676,15 @@ export class App {
   private openOverlay(o: Overlay): void {
     if (o.id === "details") bumpLog((l) => l.detailsOpens++);
     if (o.id === "box" || o.id === "card") this.client.send({ t: "box" });
+    this.screenTrail.open(o, this.highlight);
     this.stack.push(o);
     this.highlight = 0;
     this.render();
   }
 
   private back(): void {
-    if (this.stack.length > 1) this.stack.pop();
-    this.highlight = 0;
+    const closed = this.stack.length > 1 ? this.stack.pop() : undefined;
+    this.highlight = closed === undefined ? 0 : (this.screenTrail.close(closed) ?? 0);
     this.render();
   }
 
@@ -887,9 +899,89 @@ export class App {
     return this.top()?.id === "game" && m !== null && m !== undefined && cardKind(current(m)) !== null;
   }
 
-  /** Compact fallback: small height or large text drops the art (spec, Layout of cards). */
+  /** Compact fallback: an overlay too short for art, or large text, drops the art (spec, Layout of cards). */
   private compact(): boolean {
-    return this.layoutNow.panel.height < 520 || this.settings.textSize >= 150;
+    return (this.placement?.compact ?? false) || this.settings.textSize >= 150;
+  }
+
+  /** Cards in the grid's first row: the columns that fit the overlay now. */
+  private gridColumns(): number {
+    const cards = [...this.root.panel.querySelectorAll<HTMLElement>(".cards .card")];
+    const top = cards[0]?.offsetTop;
+    return Math.max(1, cards.filter((c) => c.offsetTop === top).length);
+  }
+
+  /**
+   * What the overlay must leave visible (full-screen amendment): the line of scrimmage, the line to
+   * gain and your lineup at the set. Your lineup's depth covers every unit the current call screen
+   * can put on the field, so the overlay doesn't move as the focus moves. Null off the field.
+   */
+  private guard(): Guard | null {
+    const g = this.game;
+    const t = this.templates;
+    if (g === null || t === null || this.stack[0]?.id !== "game") return null;
+    const s = this.hudState(g);
+    if (s === null || s.phase === "final") return null;
+    const side = s.possession === g.human ? "offense" : "defense";
+    const req = g.request;
+    let depth = 0;
+    if (g.menu !== null && req !== null && (req.kind === "offenseCall" || req.kind === "try" || req.kind === "defenseCall")) {
+      const m = g.menu;
+      const units = menuRows(m, this.menuData()).flatMap((r) => {
+        const c = r.option === undefined ? null : this.countsFor(m, r.option);
+        return c === null ? [] : [unitDepth(t, c.side, c.unit, c.call)];
+      });
+      const f = m.picks.includes("formation") ? m.picks[m.picks.indexOf("formation") + 1] : undefined;
+      if (f !== undefined) units.push(unitDepth(t, "offense", f, null));
+      depth = units.length > 0 ? Math.max(...units) : deepestUnit(t, side);
+    }
+    const preview = this.previewFrame;
+    if (preview !== null) {
+      // The lineup actually shown, in case it sits deeper than its template (never shallower).
+      const own = preview.marks.filter((x) => !x.huddle && x.side === (side === "offense" ? "O" : "X"));
+      for (const x of own) depth = Math.max(depth, Math.abs((x.keys[0]?.y ?? s.spot) - s.spot));
+    }
+    return { los: s.spot, lineToGain: s.phase === "scrimmage" && !s.goalToGo ? s.spot + s.distance : null, side, depth };
+  }
+
+  /** Places the panel and the player card over the field, and hides the panel during the live play. */
+  private placeOverlays(): void {
+    const l = this.layoutNow;
+    const markYards = l.markPx / Math.max(1e-9, l.s);
+    const shown = overlaysShown({ animating: this.animating, markCard: this.markCard !== null });
+    const p = placeOverlay(l, this.animator.cameraY(), this.loading !== null || this.fatal !== null ? null : this.guard(), markYards, this.animator.ballX());
+    this.placement = p;
+    const panel = this.root.panel;
+    const hadFocus = panel.contains(document.activeElement);
+    panel.hidden = !shown.panel;
+    if (!shown.panel && hadFocus) this.root.main.focus({ preventScroll: true });
+    this.position(panel, p.left, p.width, p.top, p.maxHeight, p.anchor);
+    panel.classList.toggle("wide", p.where !== "sheet" && p.width >= 760);
+    panel.classList.toggle("compact", p.compact);
+    const card = this.root.markCard;
+    card.hidden = !shown.markCard;
+    if (shown.markCard) {
+      // Beside the panel's stretch, on the side away from the player; full height while the play is paused.
+      const w = Math.min(360, l.field.width - 16);
+      const hit = this.animator.marks().find((x) => x.id === this.markCard);
+      const left = hit !== undefined && hit.x < l.field.width / 2 ? l.field.width - 8 - w : 8;
+      if (shown.panel) this.position(card, left, w, p.top, p.maxHeight, p.anchor);
+      else this.position(card, left, w, l.field.top + 8, l.field.height - 16, "top");
+    }
+  }
+
+  private position(el: HTMLElement, left: number, width: number, top: number, maxHeight: number, anchor: "top" | "bottom"): void {
+    el.style.left = `${left}px`;
+    el.style.width = `${width}px`;
+    el.style.maxHeight = `${maxHeight}px`;
+    el.style.background = overlayBackground();
+    if (anchor === "top") {
+      el.style.top = `${top}px`;
+      el.style.bottom = "auto";
+    } else {
+      el.style.top = "auto";
+      el.style.bottom = `${window.innerHeight - (top + maxHeight)}px`;
+    }
   }
 
   private countsFor(m: MenuState, optionId: string): { counts: Readonly<Partial<Record<string, number>>>; side: "offense" | "defense"; unit: string; call: string | null } | null {
@@ -940,7 +1032,7 @@ export class App {
       const name = [r.key, r.label, personnel].filter((x) => x !== null).join(", ");
       const b = h(
         "button",
-        { class: `card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
+        { class: `card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
         h("span", { class: "card-label" }, h("span", { class: "key mono" }, r.key), " ", r.label, r.on ? "" : ` (${r.reason ?? "not now"})`),
       );
       const art = h("span", { class: "card-art", "aria-hidden": "true" });
@@ -1028,12 +1120,14 @@ export class App {
   }
 
   private openMarkCard(id: string): void {
+    if (this.markCard === null) this.cardTrail.open("markCard", document.activeElement);
     this.markCard = id;
     this.animator.pause();
     this.requestRanks(id);
     if (this.game !== null && this.box === null) this.client.send({ t: "box" });
     this.render();
     this.animator.redraw();
+    this.root.markCard.querySelector<HTMLElement>(".mark-card")?.focus({ preventScroll: true });
   }
 
   private closeMarkCard(): void {
@@ -1042,6 +1136,9 @@ export class App {
     this.animator.resume();
     this.render();
     this.animator.redraw();
+    const back = this.cardTrail.close("markCard");
+    if (back instanceof HTMLElement && back.isConnected) back.focus({ preventScroll: true });
+    else if (this.root.panel.hidden) this.root.main.focus({ preventScroll: true });
   }
 
   /** M cycles the player cards over the marks on the field, offense and defense alike. */
@@ -1070,7 +1167,7 @@ export class App {
     return [
       h(
         "section",
-        { class: "mark-card", role: "dialog", "aria-label": `${p.name}, #${p.number}, ${p.position}`, "aria-live": "polite" },
+        { class: "mark-card", role: "dialog", tabindex: "-1", "aria-label": `${p.name}, #${p.number}, ${p.position}`, "aria-live": "polite" },
         h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)),
         h("h3", {}, "Ratings"),
         h("ul", { class: "ratings" }, ...ratings),
@@ -1131,12 +1228,15 @@ export class App {
   private render(): void {
     this.renderTopBar();
     const p = this.root.panel;
-    p.replaceChildren(...this.markCardContent(), ...this.panelContent());
+    p.replaceChildren(...this.panelContent());
+    this.root.markCard.replaceChildren(...this.markCardContent());
     this.updatePreview();
+    this.placeOverlays();
     this.renderStatus();
-    // Keep keyboard focus on the highlighted row, so screen readers follow the menu.
-    const btn = p.querySelectorAll<HTMLButtonElement>("button.row")[this.highlight];
-    if (btn !== undefined && document.activeElement !== btn) btn.focus({ preventScroll: true });
+    // Keep keyboard focus on the highlighted row or card, so screen readers follow the menu; the
+    // player card keeps focus while it is open.
+    const btn = p.querySelector<HTMLButtonElement>(`button[data-i="${this.highlight}"]`);
+    if (btn !== null && !p.hidden && this.markCard === null && document.activeElement !== btn) btn.focus({ preventScroll: true });
     if (this.stack.length > 0 && this.game === null && this.templates !== null) {
       this.animator.idle(this.sceneFor("home", 25, null), false, false);
     }
@@ -1195,6 +1295,8 @@ export class App {
         lateHalf ? h("span", { class: "late-note" }, "under 2:00") : null,
         tempo,
       ),
+      // No overlay during the live play, so the skip and speed keys show here.
+      ...(this.animating ? [h("span", { class: "play-keys" }, `Space: skip. S: speed (${this.settings.speed}).`)] : []),
     );
   }
 
@@ -1202,7 +1304,7 @@ export class App {
     const keyText = r.key === "Esc" ? "Esc" : r.key === "Space" ? "Space" : r.key === "Left" ? "←" : r.key === "Right" ? "→" : r.key;
     const b = h(
       "button",
-      { class: `row${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "aria-disabled": r.on ? undefined : "true" },
+      { class: `row${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "aria-disabled": r.on ? undefined : "true" },
       h("span", { class: "key mono" }, keyText),
       h("span", { class: "label" }, r.label),
       r.note === undefined ? null : h("span", { class: "note" }, `(${r.note})`),
@@ -1257,7 +1359,7 @@ export class App {
       g.calls === "" ? null : h("p", { class: "calls" }, g.calls),
       ...g.eventLines.map((l) => h("p", { class: "event" }, l)),
     );
-    const out: HTMLElement[] = [header, playText];
+    const out: HTMLElement[] = [];
     if (g.menu !== null && g.request !== null && !this.animating) {
       const m = g.menu;
       const crumbs = breadcrumb(m, this.menuData());
@@ -1267,11 +1369,9 @@ export class App {
       const list = menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }));
       out.push(this.onCardScreen() && !this.compact() ? this.cardGrid(m, list) : this.rowsGroup(menuTitle(m), this.compact() ? this.withPersonnel(m, list) : list));
       if (current(m) === "offense.clock" && req.kind === "offenseCall") out.push(h("p", { class: "soft" }, `Clock ${req.clockRunning ? "running" : "stopped"}. Tempo: ${tempoText(req.tempo)} (resets each drive).`));
-    } else if (this.animating) {
-      out.push(h("p", { class: "soft" }, "Space: skip. S: speed (", this.settings.speed, ")."));
     }
     out.push(h("p", { class: "status", role: "status" }));
-    return out;
+    return [h("div", { class: "ov-report" }, header, playText), h("div", { class: "ov-menu" }, ...out)];
   }
 
   private screenBody(top: Overlay): HTMLElement[] {

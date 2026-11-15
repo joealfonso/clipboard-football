@@ -29,5 +29,5 @@ if (missing.length > 0) {
   p.textContent = `It needs ${missing.join(", ")}.`;
   panel.append(h1, p);
 } else {
-  new App({ topBar: byId("top-bar"), panel: byId("panel"), canvas: byId("field") as HTMLCanvasElement, live: byId("live"), small: byId("too-small") });
+  new App({ topBar: byId("top-bar"), panel: byId("panel"), canvas: byId("field") as HTMLCanvasElement, live: byId("live"), small: byId("too-small"), markCard: byId("mark-card"), main: byId("layout") });
 }

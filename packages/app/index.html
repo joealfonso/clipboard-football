@@ -7,9 +7,10 @@
   </head>
   <body>
     <header id="top-bar" class="top-bar" aria-label="Scoreboard"></header>
-    <main class="layout">
+    <main id="layout" class="layout" tabindex="-1" aria-label="Field">
       <canvas id="field" class="field" aria-hidden="true"></canvas>
-      <section id="panel" class="panel" aria-label="Game panel"><p>Loading...</p></section>
+      <section id="panel" class="panel overlay" aria-label="Game panel"><p>Loading...</p></section>
+      <section id="mark-card" class="overlay mark-card-overlay" hidden></section>
     </main>
     <div id="live" class="visually-hidden" aria-live="polite"></div>
     <div id="too-small" class="too-small" hidden><p>Make the window larger to play.</p></div>

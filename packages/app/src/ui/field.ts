@@ -30,9 +30,11 @@ export interface FrameOpts {
   readonly textScale: number;
 }
 
-/** Field-to-canvas mapping; the canvas covers the field column only. */
+/** Field-to-canvas mapping; the canvas covers the window under the top bar, the column centered in it. */
 export interface View {
   readonly s: number;
+  /** Canvas x of the column's left edge (a yard outside the left sideline). */
+  readonly ox: number;
   readonly width: number;
   readonly height: number;
   readonly cameraY: number;
@@ -40,10 +42,10 @@ export interface View {
 }
 
 export function viewOf(l: Layout, cameraY: number): View {
-  return { s: l.s, width: l.field.width, height: l.field.height, cameraY, markPx: l.markPx };
+  return { s: l.s, ox: l.column.left, width: l.field.width, height: l.field.height, cameraY, markPx: l.markPx };
 }
 
-const X = (v: View, x: number): number => (1 + x) * v.s;
+const X = (v: View, x: number): number => v.ox + (1 + x) * v.s;
 const Y = (v: View, y: number): number => (v.cameraY - y) * v.s;
 
 export function drawField(g: CanvasRenderingContext2D, v: View, scene: FieldScene, textScale: number): void {
@@ -298,7 +300,7 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
   g.textBaseline = "bottom";
   for (const l of tl.labels) {
     if (t < l.t) continue;
-    const lx = Math.min(Math.max(X(v, l.at.x), 60), v.width - 60);
+    const lx = Math.min(Math.max(X(v, l.at.x), X(v, -1) + 60), X(v, FIELD_WIDTH_YARDS + 1) - 60);
     const ly = Y(v, l.at.y) - r - 10;
     const w = g.measureText(l.text).width + 8;
     g.fillStyle = COLOR.paper;
