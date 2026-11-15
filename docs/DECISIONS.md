@@ -1443,6 +1443,13 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 
 Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions of 2026-11-12). UI side: docs/specs/m2-playable-game-design.md.
 
+### Standout tolerances pre-registered before any F code or run (spec F, resolved 15)
+- Date: 2026-11-14.
+- Decision: data/game/m2-standout-tolerances.json is frozen. It was committed alone in 1b43ff3 at 2026-11-14 17:47:23 -0800, with sha256 `495c327463c764798a10484d4e187027d1d3aacad9d3906f78bd5548b91dd724`. The lead recorded this hash before any standout code or sim run. Any later change to the file is a post-registration revision and is logged here.
+- Lead's calls:
+  - The F1 values are the spec's proposals as written.
+  - The F2 minimum relative effect of 0.10 per kind is confirmed. The spec gave no number; 0.10 is five times step 4 D6's 0.02 floor, because a standout is meant to be visible.
+
 ### How "byte-identical" is proved for milestones A to E (engineer, 2026-11-14)
 - The spec's outcome digest is the step 5 per-game digest with the fields M2 adds left out (spec, Milestones). `scripts/game/outcome-digests.ts` replays the in-sample run (10 leagues x 1,000 games), drops the M2 detail keys (`participants`, `onField`, `headline`) and the M2 trace factors (one per role, `fouler`, later `standout`), and sets the three provenance hashes the record carries (`rules.hash`, `dataHashes`, `final.rules.hash`) to the baseline's. Those hashes change by design: M2 adds data (the jersey-number rules in A, a participants file in B, the headlines in D). Every other byte of every record must match.
 - Baseline: test/fixtures/m2-baseline-digests.json, written by the same script on the tree at `04f0f5d` (the last M1 commit). Its 1,000 slice digests equal the slice in that commit's data/game/calibration.insample.json, so at the baseline the outcome digest is the raw digest. It also holds, per league, a digest of the generated players with `number` and `schemaVersion` left out (A4).
