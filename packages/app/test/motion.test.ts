@@ -151,8 +151,16 @@ describe("easing, settle, ball and paths", () => {
       // the escort and the pursuers chase at equal top speed, so (as in real football) they need
       // not end closer. Named in the report as a limit of M5 as written.
       if (ev.play.end.possession !== "offense") continue;
+      // Lead decision (2026-11-15, spec "Note on M5"): plays that end out of bounds are skipped; the
+      // carrier runs to the sideline away from the defenders after the read.
+      if ("outOfBounds" in ev.play && ev.play.outOfBounds === true) continue;
       const tl = build(ev);
-      if (tl.read > tl.liveEnd - 400) continue;
+      // Lead-approved (2026-11-15, revision 2026-11-14 slower pace): the play must leave a defender
+      // time to react and reach speed after the read, from motion.json (reactionMs + accelMs, the
+      // slowest of the defenders counted below), in place of the flat 400 ms.
+      const counted = tl.marks.filter((m) => m.side === "X" && !m.fact && m.position !== "DL");
+      const window = Math.max(...counted.map((m) => (motion.reactionMs[m.position] ?? motion.reactionMs["other"] ?? 0) + (motion.accelMs[m.position] ?? 0)));
+      if (tl.read > tl.liveEnd - window) continue;
       // Contained plays: the ball moves at most 15 yards after the read. On a breakaway the runner
       // outruns pursuers at equal speed, so they need not end closer (named in the report).
       const br0 = at(tl.ball, tl.read);

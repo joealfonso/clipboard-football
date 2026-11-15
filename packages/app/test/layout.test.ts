@@ -281,12 +281,21 @@ describe("UI templates", () => {
     expect(() => parseMotion({ ...(motionRaw as object), maxStartMs: 151 })).toThrow(MotionError);
   });
 
-  it("every defense preset has zones or man targets, one or the other, never empty", () => {
+  it("every defense preset has zones or man targets, one or the other, never empty (nickelCover1: man plus its deep-middle S1)", () => {
     const catalog = read("data/calls/catalog.json") as { screens: { id: string; choices: { id: string }[] }[] };
     for (const s of catalog.screens.filter((x) => x.id.startsWith("defense.") && x.id !== "defense.package"))
       for (const c of s.choices) {
         const z = Object.keys(templates.zones[c.id] ?? {}).length;
         const m = Object.keys(templates.manTargets[c.id] ?? {}).length;
+        if (c.id === "nickelCover1") {
+          // Spec revision 2026-11-14, R9 (safety rotation): Cover 1 is man with one deep-middle zone,
+          // zones.nickelCover1.S1 = [-9, 12, 9, 24, "deep"], the same deep middle as Cover 3. The free
+          // safety has that zone and no man target; the rest stay man.
+          expect(templates.zones["nickelCover1"]).toEqual({ S1: [-9, 12, 9, 24, "deep"] });
+          expect(templates.manTargets["nickelCover1"]?.["S1"]).toBeUndefined();
+          expect(m, c.id).toBeGreaterThan(0);
+          continue;
+        }
         expect(z > 0 !== m > 0, c.id).toBe(true);
       }
   });

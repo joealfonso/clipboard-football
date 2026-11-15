@@ -23,15 +23,44 @@ const SKILLS = {
 
 export type Pair = readonly [number, number];
 export type Alignment = Readonly<Record<string, Pair>>;
-export type Waypoints = Readonly<Record<string, readonly Pair[]>>;
+
+/** A waypoint (version 2): a pair, or a pair with a pause there (ms) and a pace for the leg into it. */
+export interface WaypointObj {
+  readonly p: Pair;
+  readonly pauseMs?: number;
+  readonly pace?: number;
+}
+export type WaypointValue = Pair | WaypointObj;
+/** What a receiver does after his last waypoint until the read (spec revision 2026-11-14, R5). */
+export type Finish = "sit" | "continue" | "block" | "stalk";
+/** The mirror axis (R3): toward the middle, toward the strong side, or toward the run's play side. */
+export type Axis = "in" | "strong" | "play";
+export interface RouteObj {
+  readonly pts: readonly WaypointValue[];
+  readonly finish?: Finish;
+  readonly axis?: Axis;
+}
+/** A bare array means { finish: "sit", axis: "in" }, as in version 1. */
+export type RouteValue = readonly WaypointValue[] | RouteObj;
+export type Waypoints = Readonly<Record<string, RouteValue>>;
+
+/** A route value with its defaults filled in. */
+export interface Route {
+  readonly pts: readonly { readonly p: Pair; readonly pauseMs: number; readonly pace: number }[];
+  readonly finish: Finish;
+  readonly axis: Axis;
+}
+
+export function routeOf(v: RouteValue | undefined): Route | undefined {
+  if (v === undefined) return undefined;
+  const obj: RouteObj = Array.isArray(v) ? { pts: v as readonly WaypointValue[] } : (v as RouteObj);
+  const pts = obj.pts.map((w) => (Array.isArray(w) ? { p: w as Pair, pauseMs: 0, pace: 1 } : { p: (w as WaypointObj).p, pauseMs: (w as WaypointObj).pauseMs ?? 0, pace: (w as WaypointObj).pace ?? 1 }));
+  return { pts, finish: obj.finish ?? "sit", axis: obj.axis ?? "in" };
+}
 
 export interface Timing {
   readonly runoffMaxMs: number;
   readonly setMs: number;
-  readonly liveMinMs: number;
-  readonly liveMaxMs: number;
-  readonly liveSecondsMin: number;
-  readonly liveSecondsMax: number;
   readonly holdMs: number;
   readonly scoreHoldMs: number;
   readonly crossfadeMs: number;
@@ -46,12 +75,30 @@ export interface Templates {
   readonly kick: Readonly<Record<string, Alignment>>;
   readonly defense: Readonly<Record<string, Alignment>>;
   readonly returnUnits: Readonly<Record<string, Alignment>>;
+  /**
+   * Per play (the run leaves split): routes keyed `role:position`, then the receiver role (s1 to
+   * w3, R1), then the position.
+   */
   readonly routes: Readonly<Record<string, Waypoints>>;
+  /**
+   * Per drop set, keyed by slot then position: a zone or man defender's moves before his landmark
+   * or his trail (the pedal); the whole drop for a defender with neither.
+   */
   readonly drops: Readonly<Record<string, Waypoints>>;
   readonly presetDrops: Readonly<Record<string, string>>;
   readonly passDepth: Readonly<Record<string, number>>;
-  /** OL and DL movement by play family: they stop at contact (path.block), whatever the call. */
-  readonly lineContact: Readonly<Record<"run" | "pass" | "kick", Waypoints>>;
+  /** A screen's catch may follow a route that sits behind the screen depth, no deeper than this past the line (negative: behind it). */
+  readonly screenFloorYards: number;
+  /**
+   * OL and DL movement by play family (run, pass, kick) and by leaf (falling back to the family):
+   * they stop at contact (path.block), whatever the call. `OLT` and `DLE`, the outermost each side,
+   * fall back to `OL` and `DL`.
+   */
+  readonly lineContact: Readonly<Record<string, Waypoints>>;
+  /** A non-rushing LB, S or CB's read step before his drop, by offense family (run, pass, playAction), then position. */
+  readonly readStep: Readonly<Record<string, Waypoints>>;
+  /** Per handoff run: where the QB and the back meet, [toward the play side, depth off the ball]. */
+  readonly mesh: Readonly<Record<string, Pair>>;
   /** DESIGN.md Spacing: line marks at least minPx apart, spread out from the center; maxDepth picks the line. */
   readonly lineSpacing: { readonly minPx: number; readonly maxDepth: number };
   /** Per-preset overrides of the package alignment (two-high, single-high, no deep safety). */
@@ -97,19 +144,41 @@ function groupOf(v: unknown, path: string, leaf: (x: unknown) => boolean): void 
   }
 }
 
+const onlyKeys = (o: Record<string, unknown>, keys: readonly string[]): boolean => Object.keys(o).every((k) => keys.includes(k));
+
+/** A waypoint: a pair, or { p: pair, pauseMs?: ms >= 0, pace?: (0, 1] }. */
+export function isWaypoint(x: unknown): boolean {
+  if (isPair(x)) return true;
+  if (!isObj(x) || !onlyKeys(x, ["p", "pauseMs", "pace"]) || !isPair(x["p"])) return false;
+  if (x["pauseMs"] !== undefined && !(isNum(x["pauseMs"]) && x["pauseMs"] >= 0)) return false;
+  return x["pace"] === undefined || (isNum(x["pace"]) && x["pace"] > 0 && x["pace"] <= 1);
+}
+
+/** A route value: a list of at least one waypoint, or { pts: [at least one], finish?, axis? }. */
+export function isRouteValue(x: unknown): boolean {
+  if (Array.isArray(x)) return x.length > 0 && x.every(isWaypoint);
+  if (!isObj(x) || !onlyKeys(x, ["pts", "finish", "axis"])) return false;
+  const pts = x["pts"];
+  if (!Array.isArray(pts) || pts.length === 0 || !pts.every(isWaypoint)) return false;
+  if (x["finish"] !== undefined && !["sit", "continue", "block", "stalk"].includes(x["finish"] as string)) return false;
+  return x["axis"] === undefined || ["in", "strong", "play"].includes(x["axis"] as string);
+}
+
 export function parseTemplates(v: unknown): Templates {
-  if (!isObj(v) || v["designed"] !== true || !isNum(v["version"])) throw new TemplateError("needs version and designed: true");
-  numbers(v["timing"], "timing", ["runoffMaxMs", "setMs", "liveMinMs", "liveMaxMs", "liveSecondsMin", "liveSecondsMax", "holdMs", "scoreHoldMs", "crossfadeMs", "routeAlpha"]);
+  if (!isObj(v) || v["designed"] !== true || v["version"] !== 2) throw new TemplateError("needs version 2 and designed: true");
+  numbers(v["timing"], "timing", ["runoffMaxMs", "setMs", "holdMs", "scoreHoldMs", "crossfadeMs", "routeAlpha"]);
   numbers(v["field"], "field", ["markYards", "markMinPx", "losFromTop", "panEdgeYards", "clearOfBallYards", "linemanClearYards"]);
   for (const k of ["offense", "kick", "defense", "returnUnits"]) groupOf(v[k], k, isPair);
-  for (const k of ["routes", "drops"]) groupOf(v[k], k, (x) => Array.isArray(x) && x.every(isPair));
+  for (const k of ["routes", "drops", "readStep"]) groupOf(v[k], k, isRouteValue);
   if (!isObj(v["presetDrops"]) || !Object.values(v["presetDrops"]).every((x) => typeof x === "string")) throw new TemplateError("presetDrops must map presets to drop names");
   const lc = v["lineContact"];
   if (!isObj(lc)) throw new TemplateError("lineContact must be an object");
-  for (const k of ["run", "pass", "kick"]) {
-    const g = lc[k];
-    if (!isObj(g) || !Object.values(g).every((x) => Array.isArray(x) && x.every(isPair))) throw new TemplateError(`lineContact.${k} is malformed`);
+  for (const k of ["run", "pass", "kick"]) if (!isObj(lc[k])) throw new TemplateError(`lineContact.${k} is missing`);
+  for (const [k, g] of Object.entries(lc)) {
+    if (k === "note") continue;
+    if (!isObj(g) || !Object.values(g).every(isRouteValue)) throw new TemplateError(`lineContact.${k} is malformed`);
   }
+  if (!isObj(v["mesh"]) || !Object.values(v["mesh"]).every(isPair)) throw new TemplateError("mesh must map run plays to [play side, depth]");
   numbers(v["lineSpacing"], "lineSpacing", ["minPx", "maxDepth"]);
   groupOf(v["presetAlignment"], "presetAlignment", isPair);
   groupOf(v["manTargets"], "manTargets", isPair);
@@ -128,8 +197,7 @@ export function parseTemplates(v: unknown): Templates {
     }
   }
   if (!isObj(v["passDepth"]) || !Object.values(v["passDepth"]).every(isNum)) throw new TemplateError("passDepth must map pass plays to yards");
-  const t = v["timing"] as Record<string, number>;
-  if ((t["liveMinMs"] as number) > (t["liveMaxMs"] as number)) throw new TemplateError("timing.liveMinMs is above liveMaxMs");
+  if (!isNum(v["screenFloorYards"]) || v["screenFloorYards"] > 0) throw new TemplateError("screenFloorYards must be a number of yards behind the line (0 or less)");
   return v as unknown as Templates;
 }
 
@@ -159,8 +227,38 @@ export interface Motion {
   readonly settleMaxYards: number;
   readonly live: { readonly minMs: number; readonly maxMs: number; readonly kneelMs: number; readonly spikeMs: number };
   readonly preSnap: { readonly lineUpMs: number; readonly runoffMaxMs: number; readonly setMs: number; readonly glideMs: number };
-  readonly fillet: { readonly roundRadius: number; readonly sharpRadius: number; readonly sharpDeg: number };
+  /** Breaks: radii, the turn that makes a break sharp, the speed at the arc, and the plant and re-acceleration ramps (yards). */
+  readonly fillet: { readonly roundRadius: number; readonly sharpRadius: number; readonly sharpDeg: number; readonly roundPace: number; readonly sharpPace: number; readonly plantYards: number; readonly reaccelYards: number };
   readonly huddle: { readonly offenseBehind: number; readonly defensePast: number; readonly markGapPx: number };
+  /** A route is run at routePace x top speed; a `continue` finish at continuePace x top. */
+  readonly routePace: number;
+  readonly continuePace: number;
+  /** A `sit` finish (and a pause) drifts at most maxYards, from sit pace; a `block` finish at most blockMaxYards. */
+  readonly sit: { readonly pace: number; readonly maxYards: number; readonly blockMaxYards: number; readonly pauseLegShare: number };
+  /** The throw waits for the target's route at most this long after the drop ends (R8). */
+  readonly throwHold: { readonly maxMs: number; readonly searchMs: number };
+  readonly man: { readonly cushionYards: number; readonly pressCushionYards: number; readonly lagMs: number };
+  readonly zoneDrift: { readonly maxYards: number; readonly pace: number };
+  /** A stalk block: the shadow point's distance and lag behind his man; once that close to him he is engaged and moves with him. */
+  readonly stalk: { readonly contactYards: number; readonly lagMs: number };
+  /** How far engaged linemen drift toward the play side on each run. */
+  readonly runDrift: Readonly<Record<string, number>>;
+  /** The play-action fake: the QB reaches the fake point at this time after the snap. */
+  readonly fakeMs: number;
+  readonly sidelineMarginYards: number;
+  /**
+   * The pocket: each engaged OL-DL pair is pushed back together on a pass by at most `yards`, from
+   * `pace` x lineman speed; on a run, after the handoff, toward where the run ended (no winner drawn).
+   */
+  readonly pocket: { readonly yards: number; readonly pace: number };
+  /** The sacker's path around his blocker: outYards to the outside, the turn at depthShare of the way back, only when he is more than minYards from the QB. */
+  readonly sackArc: { readonly outYards: number; readonly depthShare: number; readonly minYards: number };
+  /** The target's bend to the catch: a lead-in along his heading of at most leadYards and leadShare of the distance left. */
+  readonly bend: { readonly leadYards: number; readonly leadShare: number };
+  /** The sack comes no sooner than minDelayMs after the drop end (then later if the sacker needs longer). */
+  readonly sack: { readonly minDelayMs: number };
+  /** A loose ball rolls this far while its recoverer gets to it. */
+  readonly fumble: { readonly rollYards: number };
 }
 
 export class MotionError extends Error {
@@ -176,9 +274,10 @@ export function parseMotion(v: unknown): Motion {
   const bad = (m: string): never => {
     throw new MotionError(m);
   };
-  if (!isObj(v) || v["designed"] !== true || !isNum(v["version"])) bad("needs version and designed: true");
+  if (!isObj(v) || v["designed"] !== true || v["version"] !== 2) bad("needs version 2 and designed: true");
   const o = v as Record<string, unknown>;
-  for (const k of ["keyMs", "decelMs", "slotOffsetMs", "maxStartMs", "hitchMs", "handoffMs", "convergeMs", "settleMs", "settleMaxYards"]) if (!isNum(o[k])) bad(`${k} must be a number`);
+  for (const k of ["keyMs", "decelMs", "slotOffsetMs", "maxStartMs", "hitchMs", "handoffMs", "convergeMs", "settleMs", "settleMaxYards", "fakeMs", "sidelineMarginYards"]) if (!isNum(o[k])) bad(`${k} must be a number`);
+  for (const k of ["routePace", "continuePace"]) if (!isNum(o[k]) || (o[k] as number) <= 0 || (o[k] as number) > 1) bad(`${k} must be a pace in (0, 1]`);
   for (const k of ["speed", "accelMs", "startMs"]) {
     const g = o[k];
     if (!isObj(g)) bad(`${k} must be an object`);
@@ -197,8 +296,33 @@ export function parseMotion(v: unknown): Motion {
   sub("release", ["carrierPastLineYards", "afterThrowMs"]);
   sub("live", ["minMs", "maxMs", "kneelMs", "spikeMs"]);
   sub("preSnap", ["lineUpMs", "runoffMaxMs", "setMs", "glideMs"]);
-  sub("fillet", ["roundRadius", "sharpRadius", "sharpDeg"]);
+  sub("fillet", ["roundRadius", "sharpRadius", "sharpDeg", "roundPace", "sharpPace", "plantYards", "reaccelYards"]);
   sub("huddle", ["offenseBehind", "defensePast", "markGapPx"]);
+  sub("sit", ["pace", "maxYards", "blockMaxYards", "pauseLegShare"]);
+  sub("throwHold", ["maxMs", "searchMs"]);
+  sub("man", ["cushionYards", "pressCushionYards", "lagMs"]);
+  sub("zoneDrift", ["maxYards", "pace"]);
+  sub("stalk", ["contactYards", "lagMs"]);
+  sub("runDrift", ["insideRun", "outsideRun", "qbSneak"]);
+  sub("pocket", ["yards", "pace"]);
+  sub("sackArc", ["outYards", "depthShare", "minYards"]);
+  sub("bend", ["leadYards", "leadShare"]);
+  sub("sack", ["minDelayMs"]);
+  sub("fumble", ["rollYards"]);
+  const pace = (k: string, x: string): void => {
+    const n = (o[k] as Record<string, number>)[x] as number;
+    if (n <= 0 || n > 1) bad(`${k}.${x} must be a pace in (0, 1]`);
+  };
+  pace("fillet", "roundPace");
+  pace("fillet", "sharpPace");
+  pace("sit", "pace");
+  pace("zoneDrift", "pace");
+  pace("pocket", "pace");
+  pace("sit", "pauseLegShare");
+  pace("sackArc", "depthShare");
+  pace("bend", "leadShare");
+  for (const [k, x] of [["fillet", "plantYards"], ["fillet", "reaccelYards"], ["sit", "maxYards"], ["sit", "blockMaxYards"], ["throwHold", "maxMs"], ["man", "cushionYards"], ["man", "pressCushionYards"], ["man", "lagMs"], ["zoneDrift", "maxYards"], ["stalk", "contactYards"], ["stalk", "lagMs"], ["pocket", "yards"], ["throwHold", "searchMs"], ["sackArc", "outYards"], ["sackArc", "minYards"], ["bend", "leadYards"], ["sack", "minDelayMs"], ["fumble", "rollYards"]] as const)
+    if (((o[k] as Record<string, number>)[x] as number) < 0) bad(`${k}.${x} must not be negative`);
   const live = o["live"] as Record<string, number>;
   if ((live["minMs"] as number) > (live["maxMs"] as number)) bad("live.minMs is above live.maxMs");
   if ((o["maxStartMs"] as number) > 150) bad("maxStartMs is over 150 (Joseph: every player moves within 150 ms of the snap)");

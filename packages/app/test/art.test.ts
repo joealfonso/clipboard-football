@@ -98,15 +98,75 @@ describe("blocks: linemen stop at contact", () => {
     for (const ev of [RUN, COMPLETE]) expect(beaten(timeline({ event: ev, runoffSeconds: 0 }, templates, ctx))).toEqual([]);
   });
 
-  it("on every run, pass and kick of two simulated games", () => {
+  /** A screen call, a two-point screen included (revision 2026-11-14: the interior OL release into a convoy). */
+  const isScreen = (ev: PlayEvent): boolean => ev.offense.call === "screenPass" || (ev.offense.call === "goForTwo" && ev.offense.twoPointPlay === "screenPass");
+
+  /**
+   * Coordinator-approved (2026-11-15): a pocket push and no minY clamp now let a DL end behind his
+   * OL on purpose, so only named DL, or DL after their release (the read), may end behind an OL.
+   * Before the read (the throw on a pass, the handoff on a run), an unnamed DL never passes an OL
+   * within a mark's width across, on any drawn key.
+   */
+  function passedBeforeRead(tl: Timeline): string[] {
+    const read = tl.paths.find((p) => p.kind === "ball")?.start ?? tl.read;
+    const ol = tl.marks.filter((m) => m.position === "OL" && !m.fact);
+    const dl = tl.marks.filter((m) => m.position === "DL" && !m.fact && !tl.involved.includes(m.playerId));
+    const out: string[] = [];
+    for (const d of dl)
+      for (let t = tl.snapAt; t <= Math.min(read, tl.liveEnd); t += motion.keyMs) {
+        const p = at(d.keys, t);
+        const o = ol.find((m) => Math.abs(at(m.keys, t).x - p.x) < 1.4 && p.y < at(m.keys, t).y);
+        if (o !== undefined) {
+          out.push(`${d.slot} behind ${o.slot} at ${(t - tl.snapAt).toFixed(0)} ms`);
+          break;
+        }
+      }
+    return out;
+  }
+
+  it("on every run, pass and kick of two simulated games (unnamed DL, before the read)", () => {
     const bad: string[] = [];
     for (const seed of [61, 62]) {
       for (const ev of playGame(seed, seed % 2 === 0 ? "home" : "away").events) {
         if (ev.t !== "play" || ev.play.kind === "noPlay" || ev.play.kind === "kickoff" || ev.play.kind === "onsideKick") continue;
-        const b = beaten(timeline({ event: ev, runoffSeconds: 0 }, templates, ctx));
+        // Lead-approved (2026-11-15): on screens the interior linemen release (spec revision
+        // 2026-11-14, screenPass.OL), so an X may end past his O; the ring test below covers screens.
+        if (isScreen(ev)) continue;
+        const b = passedBeforeRead(timeline({ event: ev, runoffSeconds: 0 }, templates, ctx));
         if (b.length > 0) bad.push(`${ev.play.kind} ${ev.offense.call}: ${b.join(", ")}`);
       }
     }
+    expect(bad).toEqual([]);
+  });
+
+  it("on screens, unnamed DL never come inside the 2.5 yd ring of the ball", () => {
+    // Spec revision 2026-11-14, pass line: screenPass.DL rush "to the ring around the QB, never closer".
+    const ring = motion.pursuit.ringYards;
+    expect(ring).toBe(2.5);
+    const screens: PlayEvent[] = [];
+    for (const seed of [61, 62, 63, 64, 65, 66])
+      for (const ev of playGame(seed, seed % 2 === 0 ? "home" : "away", seed).events) if (ev.t === "play" && ev.play.kind !== "noPlay" && isScreen(ev)) screens.push(ev);
+    // Shaped screens too, so the check never runs on an empty sample: a completion, an incompletion and a two-point try.
+    const shaped: PlayEvent = { ...COMPLETE, offense: { call: "screenPass", formation: "shotgun" } };
+    screens.push(shaped, { ...COMPLETE, offense: { call: "goForTwo", formation: "shotgun", twoPointPlay: "screenPass" } as PlayEvent["offense"] });
+    const bad: string[] = [];
+    for (const ev of screens) {
+      const tl = timeline({ event: ev, runoffSeconds: 0 }, templates, ctx);
+      for (const m of tl.marks) {
+        if (m.position !== "DL" || m.fact || tl.involved.includes(m.playerId)) continue;
+        // On every drawn key (the global key grid), as A3 checks the ring.
+        for (let t = Math.ceil(tl.snapWindowEnd / motion.keyMs) * motion.keyMs; t < tl.liveEnd - 1; t += motion.keyMs) {
+          const a = at(m.keys, t);
+          const b = at(tl.ball, Math.min(t, tl.liveEnd - 1));
+          const r = Math.hypot(a.x - b.x, a.y - b.y);
+          if (r < ring - 1e-6) {
+            bad.push(`${ev.play.kind} ${ev.offense.call}: ${m.slot} ${r.toFixed(2)} yd at ${(t - tl.snapAt).toFixed(0)} ms`);
+            break;
+          }
+        }
+      }
+    }
+    expect(screens.length).toBeGreaterThan(2);
     expect(bad).toEqual([]);
   });
 

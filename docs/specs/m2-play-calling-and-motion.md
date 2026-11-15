@@ -190,7 +190,13 @@ The AI never sees your call (m2 engine spec, item 7). If you saw its alignment b
 
 **Defenders reacting and pursuing.**
 - Before the read, defenders run their preset's drop: zone defenders go to their zone landmark (the center of their `art.zone`), man defenders mirror their generic receiver spot, and rushers rush.
-- The **read** is the handoff, the throw or the QB crossing the line on a scramble, plus a reaction delay: 150 ms for LB, 200 ms for DB, 250 ms for DL.
+- The **read**, where pursuit starts, is one of these, plus a reaction delay (150 ms for LB, 200 ms for DB, 250 ms for DL):
+  - the handoff on runs;
+  - the catch on completions and interceptions;
+  - the throw on incompletions;
+  - the QB crossing the line on a scramble.
+
+  (Amended 2026-11-15, lead: this matches the code's `plan.read`.)
 - After the read, each diagram defender steers toward the point where the ball will be 400 ms ahead. It turns at most 180 degrees per second and slows as it nears the 2.5 yd ring (contract 3).
 - DL stay engaged until the carrier is 3 yd past the line, or 400 ms after the throw. Then they disengage upfield and pursue at lineman speed. They never pass below the OL they faced (existing block rule).
 
@@ -225,7 +231,7 @@ The AI never sees your call (m2 engine spec, item 7). If you saw its alignment b
 - On a touchdown the carrier decelerates to rest at `end.spot`. Out of bounds, he runs to the sideline spot and stops on it.
 
 **Sacks.**
-- The sacker's rush curves around the OL marks, never through them, and reaches the QB at the drop end plus 600 ms. The QB may step up 0.5 yd in that window.
+- The sacker's rush curves around the OL marks, never through them, and reaches the QB at max(drop end + `sack.minDelayMs`, the sacker's arrival). `sack.minDelayMs` is a designed value in `data/ui/motion.json`, 600 ms to start. The sacker's arrival is estimated as in docs/DECISIONS.md, "Sack time from the sacker's arrival (lead, 2026-11-15; designed)". The QB may step up 0.5 yd in that window. (Amended 2026-11-15: was "the drop end plus 600 ms".)
 - Fumbles: the ball pops 1 to 2 yd at 0.8 scale (it is low) and the recoverer arrives, as the timeline does now.
 
 **Kicks.**
@@ -513,3 +519,266 @@ Joseph: "the field can be the full screen and the menu can appear over it since 
 - The 7-choice limit, the keys and the accessibility rules are unchanged. Overlay text keeps 4.5:1 contrast over the field, so use an opaque enough paper backing. Focus moves into the overlay when it opens and back when it closes.
 - At small windows the overlay may cover more of the field, but the "Make the window larger" floor is lowered wherever the field still fits.
 - Layout tests change from the two-column table to the overlay rules: the overlay never covers the line of scrimmage, the line to gain or your lineup at the set; no overlay shows during the live play; focus order holds.
+
+## Revision 2026-11-14: real routes and slower pace
+
+Status: draft, for build after Joseph confirms the schema change (R-Open 1). Amends "Motion" and "Data and modules" above where they conflict. Everything else in this file stands. Every template and number in this section is **designed, not fitted**. Nothing here is derived from tracking data, and none of it may be called data-derived.
+
+### Problem
+
+Joseph (playtest, 2026-11-14): "the movement of the players is still odd. everything moves in a linear fashion. it should represent real plays. maybe slow it down a little."
+
+What I verified in the code and data:
+
+1. **Every player of a position runs the same route.** `templates.json` `routes` is keyed by play class and position group, and `waypoints()` (art.ts) mirrors one list toward the middle. On a deep pass every WR runs `[0, 26]`, one straight segment, so the whole field moves in parallel lines. Short and intermediate have two points, but both WRs still make the same break.
+2. **One-segment routes have nothing to curve.** `fillet()` (motion.ts) only rounds interior points. `drive()` ramps speed at the two ends only.
+3. **Routes are stretched to fill time.** `diagramKeys()` (timeline.ts) runs every unnamed route over `max(read, natural)`. When the route is short and the read is late, he jogs the whole route at one slow, even speed. That even speed is the "linear" look as much as the straight lines are.
+4. **Runs are flat too.** `lineContact.run` is `[0, 0.3]` for every OL, with no lateral step. Every WR runs `[1, 4]` and stops. The outside run stretches toward the RB's own side (`rb0.x <= MID_X`, timeline.ts line 381), not toward the engine's `runLocation`, so a shotgun outside run to the right goes left first and then cuts all the way across. That is a bug, and this revision fixes it.
+5. **Defense is one straight leg each.** Zone defenders go straight to their zone centre and man defenders go straight to a fixed spot 4 yd off the generic receiver. `drops` are single points. There is no backpedal, no read step, no rotation, and the DL rush straight ahead.
+6. **The pace runs faster than real.** Top speeds are 15 yd/s for WR, RB, CB and S, against real top speeds that I believe are about 10 to 11 yd/s. That number is **unverified**: [gap: primary source, NFL Next Gen Stats ball-carrier top speeds, nextgenstats.nfl.com]. I could not open a primary source in this session, so the new speeds below are designed values toward that range, not cited facts. The break slowdowns (0.55 and 0.85) are hard-coded in motion.ts line 90, which breaks the rule that tuning lives in data.
+
+### User and assumption
+
+Same user as above: Joseph and players like him, who know football and have watched real plays from the all-22 or a broadcast. The assumption that carries this revision: **"real" means recognisable concepts (receivers on one play doing different, complementary things, with a plant at each break), not biomechanics.** Test: G3 below. Joseph watches 20 plays at 1x and names any route or movement that still looks wrong. If he says "linear" again, ask which player and which moment.
+
+### Decisions
+
+**Term: "the read" (amended 2026-11-15).** In this revision, "the read" means the **throw** on every pass play (completion, incompletion or interception) and the **handoff** on handoff runs. On a QB sneak it is the code's sneak read (60% of his travel to the line), and on a scramble it is the QB crossing the line. It is never the catch. The code's `plan.read` in timeline.ts is different: it is the throw on incompletions but the **catch** on completions and interceptions (timeline.ts, the complete and interception branches), and pursuit starts there. Every R-C criterion below uses this revision's read (the throw or the handoff), computed from the timeline's throw time and `handoffMs`, not from `plan.read`. M5 and M10 keep `plan.read` unchanged. The lead settled this on 2026-11-15 (R-Open 7, closed): `plan.read` stays as the catch on completions and interceptions, and the "Motion" text now says so.
+
+R1. **Routes are keyed by receiver role, not by position.** The role is the receiver's alignment, numbered the way coaches number them: on each side, eligible receivers (WR and TE) are counted from the sideline in. #1 is the widest. The **strong side** is the side with more receivers. On a tie it is the side with more TEs, and on a second tie it is the offense's right. Roles are `s1`, `s2`, `s3` (strong) and `w1`, `w2`, `w3` (weak). Backs, the QB and linemen keep position keys. Why: this is how a concept gives each receiver a different job, and it mirrors itself to the formation with no per-formation tables. Rejected: hand-written routes per formation and class (25 tables that drift apart). Rejected: picking route variants at random or by seed, because the UI has no randomness (contract 4) and because different art for the same call suggests a choice that changes nothing (decision 3). Final.
+
+Roles in shipped formations (derived by the rule above, and a test asserts them):
+
+| Formation | Strong side | s1 | s2 | s3 | w1 | w2 |
+|---|---|---|---|---|---|---|
+| shotgun | left (2-2 tie, TE side) | WR1 | TE1 | | WR2 | WR3 |
+| underCenter | right (2-2, TE tie, right) | WR2 | TE2 | | WR1 | TE1 |
+| pistol | right (2-2 tie, TE side) | WR2 | TE1 | | WR1 | WR3 |
+| empty | left (3-2) | WR1 | WR3 | TE1 | WR2 | WR4 |
+| heavy | right (2-1) | TE3 | TE2 | | TE1 | |
+
+R2. **One concept per pass class.** Every role gets its own route, with a stem, a break and a finish, and the routes complement each other. The engine still picks the target. The concept never names one, and every route is drawn the same way. Final in structure. Routes are open to playtest.
+
+R3. **Each template states its own mirror axis.** `in` means toward the middle of the field, as today, and is used for receivers and pass-protection linemen. `strong` means toward the strong side, for backs and the QB on passes and for the play-action fake. `play` means toward the run's play side, for run blocking, the run QB carry-out and the defense's run read step. The play side is the side of the engine's `runLocation`. When `runLocation` is middle or missing, it is the strong side. Nothing about the play side is ever taken from the end spot. Final.
+
+R4. **Cards and the set preview draw `play`-axis templates with the lateral part removed.** The play side is the engine's decision, so a card can't know it, the same reason outside-run art forks (decision 4). The card shows each blocker's step up to its contact depth. From the snap, the live play adds the lateral step toward the engine's side. Coverage cards also leave out the defense's read step, which depends on the offense's call. Everything else on a card is the same drawing as the field (decision 5). Rejected: drawing runs to the strong side on cards, because it would promise a side the engine doesn't. Final.
+
+R5. **Routes run at their own pace, then finish.** No unnamed route is stretched to fill time. A receiver runs his route at `routePace` × top speed. After his last waypoint he does what his `finish` says until the read:
+- `sit`: settles and drifts at most `sit.maxYards`, at `sit.pace`, so he never stands frozen (Joseph's "all 22 move" amendment);
+- `continue`: keeps the last direction at `continuePace`, and turns upfield along the sideline margin if he reaches it;
+- `block`: holds his spot in pass protection and shuffles at most 0.5 yd;
+- `stalk`: shadows his assigned defender (R9).
+
+After the read, everyone pursues as today. Why: speed that changes, fast stem then plant then finish, is what reads as a person running a route. Final.
+
+R6. **A visible plant at every break.** Before each fillet, speed ramps down over `plantYards` to `sharpPace` (a break over `sharpDeg`) or `roundPace`, holds through the arc, then ramps back up over `reaccelYards`. The numbers move from code into `motion.json`. Final in structure. Values are open to playtest.
+
+R7. **The target leaves his template at the throw, never before** (amended 2026-11-15). The target runs his template exactly until the throw (code review: decision 9 and P3 forbid an earlier departure), then curves to the catch point and arrives at catch time. This replaces both "until its last break" and the first draft of R7 ("the template point nearest the catch point"). Why: on a multi-break route, "the last break" can be a corner pointing away from the ball, and the bend would draw as a hook. Final.
+
+The catch point itself is set by two lead decisions, both designed and display only, both in docs/DECISIONS.md (2026-11-15):
+- **"Neutral catch depth when the engine gives no air yards".** With no `airYards`, which is every completion today, the catch is at the class's `passDepth` past the line, capped at the gain and kept between the line and the dead spot.
+- **"Neutral catch x inside the engine's pass third".** The catch x is the point of the engine's `passLocation` third nearest the target's template position at the throw, or the third's nearest edge. With no `passLocation`, which is every completion today, it is his x at the throw, inside the sideline margin.
+
+These replace the air-yards catch point that the first draft's worked examples assumed. The worked live times below now use the neutral depth.
+
+R8. **The throw waits for the route, up to a limit.** Throw time = max(drop end + hitch, the target's arrival at natural pace minus flight time), with the wait capped at `throwHold.maxMs` after the drop end. Past the cap the target speeds up, as the existing "speed rises with no cap" rule allows. Why: at real speeds a deep route takes about 3 s, and throwing at the 0.9 s drop end would force the receiver to run 15 yd/s. The engine gives no throw time in ms, so this changes no fact (decision 10). Sacks keep their own timing. Final.
+
+R9. **Defense behaviours, all from the calls only before the read:**
+- **Read step.** A non-rushing LB, S or CB first takes a short step from `readStep[offense family]` at a reduced pace (downhill and toward the play side on runs, a short hop then the drop on passes, a bite toward the fake on play action), then runs his drop.
+- **Backpedal then break.** Zone and man CBs, and two-high safeties whose landmark is deep, open with a `pace` 0.55 pedal segment, then break at an angle to their landmark at full pace. A safety whose landmark is under (the down safety in a rotation) skips the pedal and goes straight to it.
+- **Zone sink.** After reaching his landmark, a zone defender drifts toward the nearest receiver's *template* position, staying inside his zone rect and at most `zoneDrift.maxYards` from the landmark.
+- **Man trail.** A man defender is assigned the receiver nearest his `manTargets` spot at the set. He trails that receiver's *template* route `man.lagMs` behind, with `man.cushionYards` of cushion (`pressCushionYards` in blitz presets).
+- **Safety rotation.** baseCover3, nickelCover3 and nickelCover1 now align two-high at the set (their S1 and S2 entries in `presetAlignment` are deleted). At the snap, S1 rotates to the deep middle and S2 spins down to his assignment. nickelCover1 gains `zones.nickelCover1.S1 = [-9, 12, 9, 24, "deep"]`, the same deep middle as Cover 3, so its free safety has a landmark to rotate to; today he only backpedals straight. Blitz presets and runStuff keep their current alignment.
+- **Edge rush arc.** The outermost DL on each side (`DLE`) rushes on an arc outside the tackle, and the tackle (`OLT`, the outermost OL each side) kick-slides out to meet him. Interior DL rush straight. Blitzing LBs take a slight arc through the gap.
+- **Stalk targets.** On runs and screens, a WR's assigned defender is the nearest CB or S at the set on his side. If that defender is a named player, the WR releases and pursues instead, so a block never sits in the tackler's path.
+
+Before the read, nothing in the defense depends on the target, the catch point or the result, only on the two calls and (on runs) the play side. Why: a defender drifting toward the real target before the throw would tell the player who gets the ball. Final.
+
+R10. **Run game:**
+- **Line.** OL and TE take a zone step toward the play side: inside run 1.0 yd lateral, outside run 1.8 yd, QB sneak 0. DL mirror the step so the pair stays in contact, and engaged pairs drift together by `runDrift[leaf]`. Nobody is drawn winning a block (unchanged).
+- **Mesh.** QB and RB meet at a `mesh` point from data (play side, depth off the ball) at `handoffMs`.
+- **QB.** After the handoff he carries out a fake away from the play side.
+- **Outside run.** The carrier stretches toward the play side (the bug fix in Problem 4), then turns upfield on the existing 2 yd radius.
+- **WRs.** They stalk: a 3 yd release, then they shadow a point at `stalk.contactYards` from their defender, `stalk.lagMs` behind his motion. While the defender runs at top speed the lag opens the gap by about his speed × the lag (1.6 yd at current values), and R-C8 allows for it.
+
+Final in structure. Values are open.
+
+R11. **Slower pace, real-ish speeds.** The new numbers are in the table below. Accel ramps are about twice as long. The live clamp rises to 1.8 to 7.0 s, so long plays are no longer compressed. 2x and skip are unchanged: 2x is the same timeline at double rate, and skip shows the final frame. Kneel 900 ms and spike 700 ms stay fixed. Open to playtest.
+
+Not done, on purpose:
+- No rating-scaled speed (decision 12 stands).
+- No facing glyph for the backpedal: marks stay O and X, and the backpedal reads as a slow segment followed by an angled break.
+- No change to kick coverage or return lanes (R-Open 4): Joseph's note was about scrimmage plays.
+- No engine change.
+
+### Route concepts (designed)
+
+Units: `[in, up]` yards from the alignment, where `up` is upfield for the offense and away from the line for the defense. "pause" means a sit of that many ms at that waypoint. "Band" is the class's depth band (decision 4). Sideline and end-line clamps are under States.
+
+| Class (concept) | s1 | s2 | s3 | w1 | w2 | RB (axis strong) | QB (axis strong) |
+|---|---|---|---|---|---|---|---|
+| shortPass (slant-flat strong, hitch-out weak) | slant `[0,3] [5,8]` continue | flat `[-1,2] [-7,4]` continue | stick `[0,5] [-1,6]` sit | hitch `[0,6] [0.8,5]` sit | speed out `[0,2.5] [-4,3]` continue | swing weak `[-2,-0.5] [-6,1.5] [-8,4]` continue | 3-step `[0,-1.5]` sit |
+| intermediatePass (dig-curl strong, comeback-in weak) | dig `[-0.5,4] [0,14] [7,14.5]` continue | curl `[0,11] [0.8,9.5]` sit | shallow `[0,2] [6,4] [14,5]` continue | comeback `[0,13] [-3,11.5]` sit | square-in `[0,10] [6,10.5]` continue | check-release `[1,0.5] pause 600, [-4,2]` sit | `[0,-2]` sit |
+| deepPass (go + seam-post strong, Mills weak) | go `[-1,2] [-1.5,30]` continue | seam-post `[0,12] [5,22]` continue (a straight seam stem, then a 27-degree bend to the post; amended 2026-11-15) | hook outlet `[0,10] [0.8,8.5]` sit | post `[0,12] [6,24]` continue | dig `[0,15] [7,15.5]` continue | pass pro `[1,1]` block | `[0,-3] [0,-2.5]` (drop, step up) sit |
+| screenPass (RB slow screen strong, clear-outs weak) | stalk `[0,4]` stalk | bubble `[-1,-1] [-4,0]` sit; TE (`s2:TE`) arc block `[-2,2]` stalk | stalk `[-2,3]` stalk | go clear `[-1,2] [-1.5,18]` continue | dig clear `[0,8] [5,9]` continue | screen `[1,0.5] pause 500, [5,-0.5]` sit | drift `[0,-3]` sit |
+| playAction (run fake strong, boot weak, flood) | deep over `[0,6] [14,16]` continue | TE leak `[0,1] pause 250, [6,3] [14,5]` continue | dig `[0,10] [6,10.5]` continue | go clear `[-1,2] [-1.5,24]` continue | sail `[0,7] [-5,12]` continue | fake and fill `[2,1.5] [3,3]` block | fake `[1,-0.5] pause 150`, boot `[-5,-3]` sit |
+
+Runs (axis `play` for line, TE and QB, so positive is toward the play side):
+
+| Leaf | OL and TE step (`lineContact[leaf]`) | DL (`lineContact[leaf]`) | TE (`routes[leaf].TE`) | WR | RB not carrying | QB (carry-out from the mesh) | `mesh` [play, depth] |
+|---|---|---|---|---|---|---|---|
+| insideRun | `[1.0, 0.3]`, drift 1.0 | `[1.0, -0.3]` | `[1.2, 0.8]` block | stalk `[0,3]` stalk | | `[-3.5, -1.5]` sit | `[1.0, 4.5]` |
+| outsideRun | `[1.8, 0.2]`, drift 1.5 | `[1.8, -0.2]` | reach `[2, 0.5] [3, 1.5]` block | stalk `[0,3]` stalk | | `[-3.5, -1.5]` sit | `[2.5, 4.5]` |
+| qbSneak | `[0, 0.3]`, drift 0 | `[0, -0.3]` | `[0, 0.5]` block | stalk `[0,3]` stalk | push `[0, 1.5]` block | carrier (fact) | none |
+
+Pass line (`lineContact`, axis `in`):
+- `pass.OL` stays `[0,-1.5]`. `pass.OLT` kick-slide `[-1.2,-1.8]`. `pass.DL` stays `[0,-2.1]`. `pass.DLE` arc `[-1.5,-0.5] [-1.7,-2.1]`.
+- `screenPass.OL`: `[0,-1] pause 400, [4,1.5]` (axis strong; interior linemen release into a convoy). `screenPass.OLT`: `[0,-1.5]` (they stay in).
+- `screenPass.DL`: `[0,-2.6] [0,-4]`, to the ring around the QB, never closer.
+- `playAction.OL` and `.OLT`: `[0.8,1] [0.8,0.6]` (axis strong, the run fake).
+
+Defense (`readStep`, axis `play` on runs and `strong` on play action; the pedal segments go in `drops`):
+
+| | LB | S | CB |
+|---|---|---|---|
+| readStep.run | `[0,-0.8]` pace 0.5, `[1.5,-1.5]` pace 0.6 | `[0,-1]` pace 0.5 | `[0,1.5]` pace 0.5 |
+| readStep.pass | `[0,-0.5]` pace 0.4 | none | none |
+| readStep.playAction | `[0.5,-1.5]` pace 0.6 (bite) | `[0,-1]` pace 0.5 | none |
+| drops.zone (before the landmark) | none | two-high: `[0,2]` pace 0.55 | `[0,3]` pace 0.55 |
+| drops.man (before the trail) | none | none | `[0,1.5]` pace 0.55 |
+| drops.blitz | arc `[0.8,-2] [0.5,-6]` | as today | as today |
+
+### Pace: `data/ui/motion.json` (designed starting values)
+
+| Key | Was | Now |
+|---|---|---|
+| `speed` WR, CB | 15 | 10.5 |
+| `speed` RB, S | 15 | 10 |
+| `speed` TE, LB | 13 | 9.5 |
+| `speed` QB | 11 | 8.5 |
+| `speed` OL, DL | 6 | 5 |
+| `speed` K, P | 10 | 8 |
+| `accelMs` WR, RB, CB, S | 300 | 650 |
+| `accelMs` TE, LB | 300 | 600 |
+| `accelMs` QB, K, P | 250 | 450 |
+| `accelMs` OL, DL | 150 | 300 |
+| `decelMs` | 250 | 350 |
+| `dropMs` short, intermediate, deep, screen, play action | 450, 700, 900, 800, 950 | 600, 950, 1250, 1100, 1400 |
+| `handoffMs` | 380 | 550 |
+| `flight` baseMs, perYardMs, minMs, maxMs | 220, 14, 300, 1000 | 250, 22, 350, 1500 |
+| `live` minMs, maxMs | 1500, 4000 | 1800, 7000 |
+| `startMs`, `maxStartMs` 150, `snapMs`, kicks, `preSnap`, `settleMs`, holds | | unchanged |
+
+New keys:
+- `routePace` 0.9, `continuePace` 0.75
+- `fillet.roundPace` 0.8, `fillet.sharpPace` 0.45, `fillet.plantYards` 1.2, `fillet.reaccelYards` 2.0
+- `sit` {pace 0.25, maxYards 1.0}
+- `throwHold.maxMs` 1200
+- `man` {cushionYards 1.5, pressCushionYards 1.0, lagMs 150}
+- `zoneDrift` {maxYards 2.5, pace 0.5}
+- `stalk` {contactYards 1.4, lagMs 150}
+- `runDrift` {insideRun 1.0, outsideRun 1.5, qbSneak 0}
+- `fakeMs` 450 (the play-action fake time, now data)
+- `sidelineMarginYards` 1.5
+
+Worked live times at 1x, for the engineer's sanity check:
+
+| Play | Live, about |
+|---|---|
+| Inside run +4 | 550 handoff + 850 carry + 300 converge = 1700, floored to 1800 |
+| Short pass, neutral depth 6 + 4 after the catch | catch at 1250 (slant arrival), + 400 + 300 = 1950 |
+| Deep pass, neutral depth 28 + 5 after the catch | throw about 2530 (hold capped), catch about 3400, + 500 + 300 = 4200 |
+| Sack, intermediate | 950 + 600 + 300 = 1850 |
+| 60-yard touchdown run | about 7100, compressed 2% to 7000 |
+
+### Schema change (ask first: Joseph to confirm)
+
+`data/ui/templates.json`, version 1 to 2:
+1. **A route value can be an object** `{ "pts": [...], "finish": "sit"|"continue"|"block"|"stalk", "axis": "in"|"strong"|"play" }`. A bare array still means `{ finish: "sit", axis: "in" }`, so the existing entries stay valid.
+2. **A waypoint can be an object** `{ "p": [in, up], "pauseMs"?: n, "pace"?: f }` as well as a pair.
+3. **The `routes[class]` lookup chain** is `role:position` (for example `s2:TE`), then the role (`s1` to `w3`), then the position. The shared `routes.run` key splits into `insideRun`, `outsideRun` and `qbSneak`, and `routeKey()` returns the leaf.
+4. **`lineContact`** gains per-leaf keys (`insideRun`, `outsideRun`, `qbSneak`, `screenPass`, `playAction`) that fall back to the family keys, plus the `OLT` and `DLE` position keys.
+5. **New top-level keys:** `readStep` (by offense family, then position) and `mesh` (by run leaf).
+6. **Data removal, not schema:**
+   - `routes.*.OL` entries go: they are dead today, since both art.ts and timeline.ts read `lineContact` for linemen.
+   - The S1 and S2 `presetAlignment` entries for baseCover3, nickelCover3 and nickelCover1 go (the safety rotation). This replaces "Cover 3 and Cover 1 are single-high with a rotated safety" in "Data and modules".
+   - Added: `zones.nickelCover1.S1` deep middle (R9). This is a new entry in an existing map, not a schema change.
+
+`data/ui/motion.json`, version 1 to 2: the new required keys listed above. `parseMotion` validates them.
+
+Possibly: `templates.json` `timing.liveMinMs` and `timing.liveMaxMs` (2000 and 4000) look like leftovers from before `motion.json`. The engineer confirms whether anything still reads them. If nothing does, they are removed in this change, which is also a schema change (R-Open 5).
+
+No change to `packages/sim`, the PlayResult, `data/engine` or any engine type.
+
+### Hard rules kept
+
+- **Fact anchors fixed (decision 10).** Throw time and target path are timeline choices between anchors, never facts. The ball is at `end.spot`, the holder and tackler are at the ball, the catch is at the catch point.
+- **No reveal (decisions 4 and 9, P3).** Cards draw every route alike, with no ball, no target and no side (R4). Before the read, defense motion depends on the calls and the run side only (R9, criterion R-C9).
+- **Card art equals field routes (decision 5),** except the two documented omissions in R4.
+- **Data, not code:** every route, step and speed is in JSON, including the break paces that are hard-coded today.
+- **At most seven choices per screen:** this revision touches no menu.
+- **No engine changes.**
+
+### States
+
+| State | Behaviour |
+|---|---|
+| A formation lacks a role (heavy has no w2 or s3) | That role's template is unused. No fallback is needed. |
+| A mark resolves no template | Unreachable in shipped data (R-C1). At runtime: the existing check-down default. `timeline()` adds a warning naming the file and key to `tl.warnings`, and the app logs each distinct warning once per session. Nothing appears on screen. |
+| A route would cross the sideline | Waypoints clamp to `sidelineMarginYards` inside the line. The break still happens, and a `continue` finish turns upfield along the margin. |
+| Goal to go or red zone | Waypoints past the end line minus 1 yd clamp to that depth. A go becomes a fade that sits at the back line. Zones clamp the same way. |
+| Run with `runLocation` middle or missing | Play side = strong side. |
+| The target is a back in pass pro, or a stalking WR | He leaves his template at the throw (R7), releasing from the block, and arrives at the catch. |
+| Screen thrown to the weak side | The convoy has still gone strong, as the call drew it. The ball goes where the engine says. Accepted: the diagram is the call. |
+| Stalk defender is named (tackler, interceptor) | The WR releases and pursues instead of shadowing. |
+| Sack | Routes run until the sack time, then pursuit as today. |
+| Live time clamped (floor or cap) | Uniform scaling as today. R-C9 only applies to unclamped plays. |
+| No play, kneel, spike | Unchanged. |
+| 2x, skip, reduced motion | Unchanged. The final frame draws the new paths. |
+| Template or motion data invalid | The existing "Game data failed its check: [file]" state. |
+| Loading, permission denied | Not applicable, as above. |
+
+### Acceptance criteria
+
+These add to K1 to M11. M2, M4 and M9 are amended as noted.
+
+| # | Criterion | How it fails |
+|---|---|---|
+| R-C1 | For every formation × offense class and every package × preset in the catalog, every mark resolves a template through the lookup chain (extends K2). | A mark with no template. |
+| R-C2 | Roles derived by the R1 rule equal the table in R1 for the five shipped formations. Mirroring a formation's alignment left to right swaps the strong side and mirrors every resolved path to within 1e-6 yd. | Wrong role, or asymmetry. |
+| R-C3 | In every (formation, pass class) with 2 or more receivers, no two receivers' resolved routes are the same. Compared on a common side, they differ by more than 2 yd at some waypoint, or they have a different waypoint count. | Two identical routes. |
+| R-C4 | Every receiver route in short, intermediate, deep and play action has at least 2 waypoints and at least one turn of 20 degrees or more, except a `stalk` or `block` finish. Turns are measured between consecutive segments of the polyline [alignment, waypoint 1, waypoint 2, ...], so the release from the alignment counts. In every (formation, pass class) at least 2 routes reach a point inside the class's depth band. | A one-segment route, or a concept that misses its band. |
+| R-C5 (amended 2026-11-15) | **No unnamed receiver's route is stretched.** Split his route at its rests (his start and each `pauseMs` waypoint) into stretches, ending at his last waypoint. Mean speed is not used, because the `accelMs` ramp from rest, the `sharpPace` plant and the `sit` finish pull the mean down on short routes. The bound is on peak speed per stretch, where `top` is his group's `speed`:<br>- stretch polyline 6 yd or longer: peak at least 0.85 × `routePace` × top (8.0 yd/s for a WR at current values);<br>- 2 to 6 yd: peak at least 0.6 × `routePace` × top (5.7 yd/s);<br>- under 2 yd: no bound.<br>**Nobody frozen before the read.** From each mark's start time to the read (the throw or the handoff), every unnamed mark on both sides has speed above 0. `sit` and `block` finishes move at `sit.pace`. The bound applies only in that window. After the read, pursuers may brake to rest at the 2.5 yd ring (contract 3), named players stop at their anchors, and the settle applies (M7). | A jogged route, or a mark frozen before the read. |
+| R-C6 (amends M4; amended 2026-11-15) | **Apex.** At each break over `sharpDeg`, speed at the arc apex is at most 1.1 × `sharpPace` × `routePace` × top. Round breaks use `roundPace`.<br>**Plant.** On a long stem (at least L = `plantYards` + 0.5 × `routePace` × top × `accelMs` / 1000 from the previous rest; 4.3 yd for a WR at current values), speed falls monotonically over the `plantYards` before the arc. On a shorter stem he never reaches cruise, so the plant is measured against that stem's own peak: speed at the apex is no higher than the stem's peak, so he never speeds up into the break. That covers the 2.2 yd round-break stem and the 1.4 yd screen stem.<br>**Re-accel.** Speed rises over the `reaccelYards` after the arc, with one exception (lead, 2026-11-15): when the leg after the break is his last one and ends in a `sit` or `block` finish, R5's finish pace wins and the rise isn't required.<br>No pace constant remains in motion.ts. | A corner at speed, a speed-up into a break, or a hard-coded pace. |
+| R-C7 (amended 2026-11-15) | Target: from his start to the throw, his path equals his template track (within 0.1 yd). After the throw he reaches the catch point at catch time. The catch point follows the two 2026-11-15 DECISIONS.md entries (neutral catch depth, neutral catch x), not air yards. Throw time follows R8. Over 1,000 simulated games, the target's peak speed is at most 1.15 × top on at least 95% of completions. Report the share in PERF.md. | Hook artefacts, early throws, or sprinting receivers. |
+| R-C8 | Runs, at engage end: every OL and inline TE has moved toward the play side by at least 0.7 yd (insideRun) or 1.4 yd (outsideRun), and by at most 0.5 yd on qbSneak. Engaged pairs stay within contact distance (M6). The QB moves at least 2.5 yd away from the play side after the handoff. On an outside run, the carrier's x motion from mesh to line has the sign of the play side. **Stalk (amended 2026-11-15).** Each WR releases at least 2 yd upfield. On plays where his assigned defender is never named, B = `stalk.contactYards` + v × `stalk.lagMs` / 1000 + 0.5 yd, with v the defender's group `speed`: 3.5 yd against a CB at current values. Two checks (amended 2026-11-15):
+- **Hold.** The window starts the first time he comes within B and ends at the whistle. In every window of 300 ms or longer, he is within B for at least 60% of it.
+- **Approach.** Over all plays with at least 1,000 ms from his release end to the whistle, on at least 80% of them he comes within B before the whistle, or is closer to his defender at the whistle than at his release end.
+
+Why this option: the misses come from how it was measured, not from bad behaviour. The corner starts 7 to 9 yd off and backpedals, and on short runs only about 300 ms are left, so the old window charged the WR for his approach. A window that starts once he has closed tests the stalk itself. The approach check stops a WR who never closes from passing by having no window. Rejected: a new approach phase, which adds code and data for behaviour that the feed-forward in `follow()` already gives. Rejected: dropping short plays alone, because the approach time would still count against him on longer ones. Why B: the 150 ms lag behind a defender at top speed keeps the WR about 1.5 yd back of contact, so contact + 0.3 yd was met only 0 to 21% of the time. If either check misses, that is a FLAG to tune `stalk.lagMs` in data, not to loosen B or the shares. | A flat line, a wrong-way stretch, or a WR who stops or drifts off his man. |
+| R-C9 | **No pre-read leak.** Two events with identical calls (and the same play side on runs) but different targets, catch points or results, both unclamped, give identical defender positions at every t from the snap to the read (the throw, or the handoff; not `plan.read`). | Any defender reacting to the target early. |
+| R-C10 (amended 2026-11-15) | Defense. "Deep" and "shallow" are yards past the line, and \|x\| is measured from the middle of the field.<br>(a) **Pedal.** Zone and man CBs move at most 0.65 × top over their pedal segment. When the pedal ends before the read, the next segment changes direction by at least 30 degrees. Exempt (lead, 2026-11-15): a man defender trailing a vertical route, meaning one that stays within 15 degrees of straight upfield after its break.<br>(b) **Rotation, pass plays in baseCover3, nickelCover3 and nickelCover1.**<br>- At the set, both safeties are 10 yd or deeper with \|x\| ≥ 7.<br>- At the read (the throw), each safety has moved at least 1 yd from his set spot. His displacement has a positive component toward his assignment point: his zone landmark, or for the man safety, his receiver's template trail point at that time.<br>- On plays whose throw is at least 2,000 ms after the snap, at snap + 2,000 ms the deep-middle safety is 14 yd or deeper with \|x\| ≤ 3. On play action, the check runs at snap + 2,300 ms (and only when the throw is at least that late) instead (lead, 2026-11-15), because his 1 yd bite toward the fake costs time. All other numbers stay the same.<br>- In the two zone presets only, the down safety is also 9 yd or shallower at that time. In nickelCover1 he trails his receiver, who may be deep.<br>Quick reads are covered by the direction check, not by position: on a short pass or a run there isn't time to rotate about 7 yd at 10 yd/s with a 650 ms ramp. Runs are exempt from (b), because the read step and pursuit take over at the handoff.<br>(c) **LB read step.** Each non-rushing LB moves at most 1.5 yd in the 300 ms after his start. On runs he never moves away from the line in that window.<br>(d) **Edge rush.** On pass plays, the outermost DL on each side moves at least 1 yd outward (away from the middle) before contact. | A straight drop, no rotation, or no arc. |
+| R-C11 | Cards and the set preview: `play`-axis templates draw with lateral 0. Coverage cards show no read step. P3 still passes. Every other card path equals the field path for that call. | A side on a run card, or card and field drifting apart. |
+| R-C12 (amends M9) | Live time is 1.8 to 7.0 s at 1x (from `motion.json`). Kneel and spike are fixed. 2x halves every phase. Skip and reduced motion show only the final post-settle frame. | Out of range. |
+| R-C13 | `motion.json` holds the values in the Pace table. `parseMotion` and `parseTemplates` reject a malformed route object, waypoint object, `readStep`, `mesh` or any new motion key (extends the layout.test "malformed file" case). | Missing validation. |
+| R-C14 | No diff under `packages/sim` or `data/engine`. Engine and calibration tests pass unchanged. | Any engine change. |
+| R-C15 | M11 still holds: `timeline()` takes 20 ms or less per play (median and p95 over 1,000 plays in PERF.md). | Over budget. |
+| G3 | Joseph watches at least 20 plays at 1x (runs, each pass class, at least one Cover 3 and one man look) and says whether they read as real plays and whether the pace is right. Each named problem goes in the playtest log. | Not run. |
+
+Existing tests that change: M2's easing bound reads the new `accelMs`. M4's 55% becomes `fillet.sharpPace`. A4 and M9 read the new `live` bounds. Any test that relies on `routeKey()` returning `"run"`. None is weakened.
+
+Note on M5 (lead, 2026-11-15; designed): the M5 check that "at least half of the diagram defenders end the play closer to the ball than they were at the read" skips plays that end out of bounds. On those plays the carrier runs to the sideline, away from the defenders, after the read. Why: the neutral catch point (DECISIONS.md, 2026-11-15) now puts a real run after the catch. Defenders 10 to 40 yd off can't gain ground in 850 ms on a carrier heading for the sideline at about 10 yd/s. The rest of M5 (the 2.5 yd ring and the corridor) still applies to those plays.
+
+Art-director checks:
+- card legibility with five distinct routes at 160 × 120 px and at the 120 × 72 floor;
+- the DESIGN.md "Motion" line about straight segments, already marked revised above, now also covers multi-break routes and the plant.
+
+### Open (R-Open)
+
+1. **Schema change approval (Joseph).** Both files go to version 2, as listed above. Without it, none of R1 to R10 can live in data.
+2. **Speeds against a primary source.** Check NFL Next Gen Stats top speeds before anyone calls the 10 to 10.5 yd/s values "real". Until then they are designed.
+3. **Safety rotation shows two-high at the set for Cover 3 and Cover 1.** No decision falls between the set and the snap, so I recommend it. It does make their look harder to read after the snap.
+4. **Kickoff and punt coverage lanes** are still straight lines. They need a later revision if Joseph sees the same problem there.
+5. **The legacy `templates.timing.live*` keys:** remove them if nothing reads them.
+6. **The 7.0 s cap.** Is a long touchdown at 1x too long? 2x is one key away. Ask after G3.
+7. **Closed 2026-11-15 (lead): `plan.read` stays as the catch on completions and interceptions.** The code is unchanged. The "Defenders reacting and pursuing" sentence in "Motion" now says pursuit starts at the handoff on runs, at the catch on completions and interceptions, at the throw on incompletions, and when the QB crosses the line on a scramble. The R-C criteria still measure to the throw or the handoff (see "Term: the read"), and that window ends before or at pursuit start, so no criterion changes.

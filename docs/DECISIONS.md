@@ -1712,6 +1712,35 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - How: a weighted mean of the player's card ratings, rounded, with per-position weights in data/ui/templates.json `overallWeights`. Designed, not fitted. Ratings a position doesn't use count zero (a kicker's speed doesn't move his overall). parseTemplates rejects a missing position, a rating the position doesn't have, or a weight that isn't positive.
 - Display only: the engine never reads the overall.
 
+### Neutral catch depth when the engine gives no air yards (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only.
+- Decision: on a completion whose PlayResult carries no `airYards` (none do today), the field draws the catch at the class's `passDepth` from data/ui/templates.json, measured past the line of scrimmage: the same neutral depth an incompletion already uses. It is capped at the gain and kept between the line and the dead spot; a screen's depth behind the line (-2) stands. The receiver then runs after the catch to the dead spot. With `airYards` present, the catch stays at the air yards.
+- Why: the catch used to sit at the dead spot, so on longer gains the target had to cover the whole gain before the catch inside the throw hold, and on 32% of 30,136 completions (1,000 games) he ran faster than 1.15 x his top speed (revision 2026-11-14, R-C7).
+- What it never changes: the engine's facts. The dead spot, the tackler, the throw and the catch stay anchored (decision 10); only where between the line and the dead spot the ball is caught is the timeline's choice, from the call's class alone.
+- Amended 2026-11-15 (lead): when the target's route never comes within 0.5 yd of this depth in the window a throw can reach (drop end + hitch + the shortest flight, to drop end + throwHold + the longest flight), the catch depth follows his route instead: the reachable track point nearest this depth, kept inside the band between the line and the dead spot, so a screen's -2 still applies when his route sits behind it. With `airYards` present the catch stays at the air yards. Why: a swing that stays shallow, a screen back sitting deep or a stalking receiver otherwise had to sprint to a depth his route never reaches (R-C7).
+- Amended 2026-11-15 (lead), screens: real screens are caught 3 to 7 yd behind the line, so on a screen the catch depth may follow a route that sits behind the screen depth (-2): the floor is the route's own depth, but no deeper than `screenFloorYards` (data/ui/templates.json, designed, -8). The catch still sits between that floor and the dead spot. The throw hold is not lengthened.
+- Amended 2026-11-15 (lead), backfield routes: real swings and check-downs are often caught behind the line. On any class, when the target's route never reaches the class depth in the window a throw can reach and his reachable track point nearest it is still behind the line, the catch depth may follow his route behind the line, down to `screenFloorYards` (-8). It stays between that floor and the dead spot. The throw hold is not lengthened.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the complete-pass branch).
+
+### Neutral catch x on the target's route (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Accepted by the lead on 2026-11-15.
+- Decision: on a completion, the catch's x is the x of the target's template track where it first comes within 0.5 yd of the catch depth, in the window a throw can reach (from drop end + hitch + the shortest flight; a point counts only if his arrival there minus that throw's flight is within the throw hold, so R8 can time it without lengthening the hold). When his route never reaches that depth, it is the x of his reachable track point nearest it, and the depth follows that point (see "Neutral catch depth", amended). The x stays inside the engine's `passLocation` third when there is one (the third's nearest edge when his route is outside it), else inside the field: `sidelineMarginYards` (1.5 yd) from each sideline. R8 then times the throw for that point, and the receiver runs after the catch to the dead spot.
+- The engine sends no `passLocation`, `runLocation` or `airYards` on any play today (the other session's debugger, 12,671 plays, league 2026), so the field clamp is the rule that applies. On runs the play side then falls back to the strong side (R3).
+- Why: with the catch at a fixed x, and the target allowed to leave his route only at or after the throw (decision 9, P3), targets overran their top speed on most completions, and Joseph saw receivers who never got to the ball.
+- What it never changes: the engine's facts. The third, when sent, is the engine's and the catch stays inside it; the dead spot, the tackler, the throw and the catch stay anchored. It is computed from the calls only (his template, which every receiver runs alike), so nothing drawn before the throw changes.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the complete-pass branch).
+
+### Sack time from the sacker's arrival (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only.
+- Decision: the sack happens at max(the drop end + 600 ms, the sacker's arrival). His arrival is estimated from where his unnamed track is at the drop end (a lineman at the end of his line step, others at their set spot), at his top speed with half his acceleration and half the deceleration, around his blocker's outside shoulder (2 x `sackArc.outYards` added to the distance). The QB settles in the pocket until then. The live time grows to fit, within the 7.0 s cap.
+- Amends docs/specs/m2-play-calling-and-motion.md, Motion, Sacks: "reaches the QB at the drop end plus 600 ms".
+- Why: with the sacker converging only from the drop end (R9), a lineman at 5 yd/s could not cover the 5 to 8 yd to the QB in 600 ms and was drawn at 18 to 32 yd/s.
+- What it never changes: the engine's facts. The sacker on the QB, the sack spot and the dead spot stay; only when the sack is drawn moves.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the sack block).
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

@@ -153,6 +153,8 @@ export class App {
   private previewArmed = false;
   private previewFrame: Timeline | null = null;
   private previewKey = "";
+  /** Data warnings from timeline() (States: a mark with no template), each logged once per session. */
+  private readonly warned = new Set<string>();
   private box: { box: BoxScore; players: readonly PlayerLine[] } | null = null;
   private ranks = new Map<string, Readonly<Record<string, RatingRank>>>();
   private clockOverride: number | null = null;
@@ -454,6 +456,11 @@ export class App {
       this.templates,
       { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers(), pxPerYard: this.layoutNow.s, markPx: this.layoutNow.markPx, motion: this.motion as Motion },
     );
+    for (const w of tl.warnings ?? []) {
+      if (this.warned.has(w)) continue;
+      this.warned.add(w);
+      console.warn(w);
+    }
     const flip = g.framePossession !== null && g.framePossession !== ev.before.possession;
     if (flip) this.animator.idle(this.sceneFor(ev.before.possession, ev.before.spot, null), false, !this.reducedMotion());
     g.framePossession = ev.before.possession;

@@ -1,14 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "designed": true,
-  "note": "UI diagram templates and timing for the field animation (designed, not fitted; docs/specs/m2-playable-game-design.md, 'Rule for what may be drawn'). Alignments are [x, depth] in yards: x from the middle of the field, positive to the offense's right; depth off the ball, offense below the line and defense above it. Routes and drops are waypoints [in, up] from the alignment: 'in' toward the middle of the field, 'up' up the screen. Diagram movement never carries the ball; only engine facts do.",
+  "note": "UI diagram templates and timing for the field animation (designed, not fitted; docs/specs/m2-playable-game-design.md, 'Rule for what may be drawn'). Alignments are [x, depth] in yards: x from the middle of the field, positive to the offense's right; depth off the ball, offense below the line and defense above it. Routes, drops, line steps and read steps are waypoints [in, up] from the alignment: 'up' is up the screen (upfield for the offense, away from the line for the defense) and 'in' is along the template's axis: 'in' (the default) toward the middle of the field, 'strong' toward the strong side, 'play' toward the run's play side (the engine's runLocation; the strong side when it is middle or missing). Version 2 (docs/specs/m2-play-calling-and-motion.md, revision 2026-11-14, real routes and slower pace): a route is a list of waypoints or { pts, finish: sit | continue | block | stalk, axis }; a waypoint is [in, up] or { p, pauseMs, pace }. Pass routes are keyed by receiver role (s1 to s3 on the strong side, w1 to w3 on the weak side, counted from the sideline in; 'role:position' first, then the role, then the position). Every route and number here is designed, not fitted. Diagram movement never carries the ball; only engine facts do.",
   "timing": {
     "runoffMaxMs": 600,
     "setMs": 800,
-    "liveMinMs": 2000,
-    "liveMaxMs": 4000,
-    "liveSecondsMin": 3,
-    "liveSecondsMax": 12,
     "holdMs": 400,
     "scoreHoldMs": 800,
     "crossfadeMs": 200,
@@ -813,7 +809,7 @@
     }
   },
   "lineContact": {
-    "note": "Linemen on both sides stop where their marks meet (centers one mark apart, 1.4 yd), on runs, pass sets and kicks. Who won a block is not drawn: the engine doesn't decide it.",
+    "note": "Linemen on both sides stop where their marks meet (centers one mark apart, 1.4 yd), on runs, pass sets and kicks. Who won a block is not drawn: the engine doesn't decide it. By leaf first (insideRun, outsideRun, qbSneak, screenPass, playAction), then the family (run, pass, kick); OLT and DLE are the outermost OL and DL on each side and fall back to OL and DL. Run steps are on the play axis: a zone step toward the play side, which the DL mirror.",
     "run": {
       "OL": [
         [
@@ -840,6 +836,22 @@
           0,
           -2.1
         ]
+      ],
+      "OLT": [
+        [
+          -1.2,
+          -1.8
+        ]
+      ],
+      "DLE": [
+        [
+          -1.5,
+          -0.5
+        ],
+        [
+          -1.7,
+          -2.1
+        ]
       ]
     },
     "kick": {
@@ -855,6 +867,140 @@
           -0.3
         ]
       ]
+    },
+    "insideRun": {
+      "OL": {
+        "pts": [
+          [
+            1.0,
+            0.3
+          ]
+        ],
+        "axis": "play"
+      },
+      "DL": {
+        "pts": [
+          [
+            1.0,
+            -0.3
+          ]
+        ],
+        "axis": "play"
+      }
+    },
+    "outsideRun": {
+      "OL": {
+        "pts": [
+          [
+            1.8,
+            0.2
+          ]
+        ],
+        "axis": "play"
+      },
+      "DL": {
+        "pts": [
+          [
+            1.8,
+            -0.2
+          ]
+        ],
+        "axis": "play"
+      }
+    },
+    "qbSneak": {
+      "OL": {
+        "pts": [
+          [
+            0,
+            0.3
+          ]
+        ],
+        "axis": "play"
+      },
+      "DL": {
+        "pts": [
+          [
+            0,
+            -0.3
+          ]
+        ],
+        "axis": "play"
+      }
+    },
+    "screenPass": {
+      "OL": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -1
+            ],
+            "pauseMs": 400
+          },
+          [
+            4,
+            1.5
+          ]
+        ],
+        "axis": "strong"
+      },
+      "OLT": [
+        [
+          0,
+          -1.5
+        ]
+      ],
+      "DL": [
+        [
+          0,
+          -2.6
+        ],
+        [
+          0,
+          -4
+        ]
+      ]
+    },
+    "playAction": {
+      "OL": {
+        "pts": [
+          [
+            0.8,
+            1
+          ],
+          [
+            0.8,
+            0.6
+          ]
+        ],
+        "axis": "strong"
+      },
+      "OLT": [
+        [
+          -1.2,
+          -1.8
+        ]
+      ],
+      "DL": {
+        "pts": [
+          [
+            0.8,
+            -0.6
+          ]
+        ],
+        "axis": "strong"
+      },
+      "DLE": [
+        [
+          -1.5,
+          -0.5
+        ],
+        [
+          -1.7,
+          -2.1
+        ]
+      ]
     }
   },
   "lineSpacing": {
@@ -862,233 +1008,622 @@
     "maxDepth": 1.5
   },
   "routes": {
-    "run": {
-      "OL": [
-        [
-          0,
-          2
-        ]
-      ],
-      "TE": [
-        [
-          0,
-          1.5
-        ]
-      ],
-      "WR": [
-        [
-          1,
-          4
-        ]
-      ],
-      "QB": [
-        [
-          -1.5,
-          -1
-        ]
-      ],
-      "RB": [
-        [
-          -2,
-          1
-        ]
-      ]
+    "insideRun": {
+      "TE": {
+        "pts": [
+          [
+            1.2,
+            0.8
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      },
+      "WR": {
+        "pts": [
+          [
+            0,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "QB": {
+        "pts": [
+          [
+            -3.5,
+            -1.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "play"
+      },
+      "RB": {
+        "pts": [
+          [
+            1,
+            2.5
+          ],
+          [
+            1,
+            7
+          ]
+        ],
+        "finish": "continue",
+        "axis": "play"
+      }
+    },
+    "outsideRun": {
+      "TE": {
+        "pts": [
+          [
+            2,
+            0.5
+          ],
+          [
+            3,
+            1.5
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      },
+      "WR": {
+        "pts": [
+          [
+            0,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "QB": {
+        "pts": [
+          [
+            -3.5,
+            -1.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "play"
+      },
+      "RB": {
+        "pts": [
+          [
+            2.5,
+            2.5
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            9,
+            8
+          ]
+        ],
+        "finish": "continue",
+        "axis": "play"
+      }
+    },
+    "qbSneak": {
+      "TE": {
+        "pts": [
+          [
+            0,
+            0.5
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      },
+      "WR": {
+        "pts": [
+          [
+            0,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "RB": {
+        "pts": [
+          [
+            0,
+            1.5
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      }
     },
     "shortPass": {
-      "OL": [
-        [
-          0,
-          -1.5
-        ]
-      ],
-      "TE": [
-        [
-          0,
-          4
+      "s1": {
+        "pts": [
+          [
+            0,
+            3
+          ],
+          [
+            5,
+            8
+          ]
         ],
-        [
-          -3,
-          6
-        ]
-      ],
-      "WR": [
-        [
-          0,
-          5
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -7,
+            4
+          ]
         ],
-        [
-          3,
-          6
-        ]
-      ],
-      "RB": [
-        [
-          -3,
-          0
+        "finish": "continue"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            5
+          ],
+          [
+            -1,
+            6
+          ]
         ],
-        [
-          -6,
-          2
-        ]
-      ],
-      "QB": [
-        [
-          0,
-          -2
-        ]
-      ]
+        "finish": "sit"
+      },
+      "w1": {
+        "pts": [
+          [
+            0,
+            6
+          ],
+          [
+            0.8,
+            5
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            2.5
+          ],
+          [
+            -4,
+            3
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          [
+            -2,
+            1.5
+          ],
+          [
+            -6,
+            2
+          ],
+          [
+            -8,
+            4
+          ]
+        ],
+        "finish": "continue",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            0,
+            -1.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
     },
     "intermediatePass": {
-      "OL": [
-        [
-          0,
-          -1.5
-        ]
-      ],
-      "TE": [
-        [
-          0,
-          8
+      "s1": {
+        "pts": [
+          [
+            -0.5,
+            4
+          ],
+          [
+            0,
+            14
+          ],
+          [
+            7,
+            14.5
+          ]
         ],
-        [
-          3,
-          12
-        ]
-      ],
-      "WR": [
-        [
-          0,
-          12
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          [
+            0,
+            11
+          ],
+          [
+            0.8,
+            9.5
+          ]
         ],
-        [
-          5,
-          13
-        ]
-      ],
-      "RB": [
-        [
-          -4,
-          1
-        ]
-      ],
-      "QB": [
-        [
-          0,
-          -3
-        ]
-      ]
+        "finish": "sit"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            2
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            14,
+            5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w1": {
+        "pts": [
+          [
+            0,
+            13
+          ],
+          [
+            -3,
+            11.5
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            10
+          ],
+          [
+            6,
+            10.5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          {
+            "p": [
+              1,
+              0.5
+            ],
+            "pauseMs": 600
+          },
+          [
+            -4,
+            2
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            0,
+            -2
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
     },
     "deepPass": {
-      "OL": [
-        [
-          0,
-          -1.5
-        ]
-      ],
-      "TE": [
-        [
-          0,
-          10
-        ]
-      ],
-      "WR": [
-        [
-          0,
-          26
-        ]
-      ],
-      "RB": [
-        [
-          -3,
-          0
-        ]
-      ],
-      "QB": [
-        [
-          0,
-          -4
-        ]
-      ]
+      "s1": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -1.5,
+            30
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          [
+            0,
+            12
+          ],
+          [
+            5,
+            22
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            10
+          ],
+          [
+            0.8,
+            8.5
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w1": {
+        "pts": [
+          [
+            0,
+            12
+          ],
+          [
+            6,
+            24
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            15
+          ],
+          [
+            7,
+            15.5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          [
+            1,
+            1
+          ]
+        ],
+        "finish": "block",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            0,
+            -3
+          ],
+          [
+            0,
+            -2.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
     },
     "screenPass": {
-      "OL": [
-        [
-          0,
-          3
-        ]
-      ],
-      "TE": [
-        [
-          -2,
-          4
-        ]
-      ],
-      "WR": [
-        [
-          0,
-          6
-        ]
-      ],
-      "RB": [
-        [
-          -6,
-          -1
-        ]
-      ],
-      "QB": [
-        [
-          0,
-          -3
-        ]
-      ]
+      "s1": {
+        "pts": [
+          [
+            0,
+            4
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "s2": {
+        "pts": [
+          [
+            -1,
+            -1
+          ],
+          [
+            -4,
+            0
+          ]
+        ],
+        "finish": "sit"
+      },
+      "s2:TE": {
+        "pts": [
+          [
+            -2,
+            2
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "s3": {
+        "pts": [
+          [
+            -2,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "w1": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -1.5,
+            18
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            8
+          ],
+          [
+            5,
+            9
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          {
+            "p": [
+              1,
+              0.5
+            ],
+            "pauseMs": 500
+          },
+          [
+            5,
+            -0.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            0,
+            -3
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
     },
     "playAction": {
-      "OL": [
-        [
-          0,
-          1
+      "s1": {
+        "pts": [
+          [
+            0,
+            6
+          ],
+          [
+            14,
+            16
+          ]
         ],
-        [
-          0,
-          0
-        ]
-      ],
-      "TE": [
-        [
-          0,
-          8
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          {
+            "p": [
+              0,
+              1
+            ],
+            "pauseMs": 250
+          },
+          [
+            6,
+            3
+          ],
+          [
+            14,
+            5
+          ]
         ],
-        [
-          -4,
-          12
-        ]
-      ],
-      "WR": [
-        [
-          0,
-          14
+        "finish": "continue"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            10
+          ],
+          [
+            6,
+            10.5
+          ]
         ],
-        [
-          6,
-          16
-        ]
-      ],
-      "RB": [
-        [
-          -1,
-          -1
-        ]
-      ],
-      "QB": [
-        [
-          1,
-          -1
+        "finish": "continue"
+      },
+      "w1": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -1.5,
+            24
+          ]
         ],
-        [
-          0,
-          -4
-        ]
-      ]
+        "finish": "continue"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            7
+          ],
+          [
+            -5,
+            12
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          [
+            2,
+            1.5
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "finish": "block",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          {
+            "p": [
+              1,
+              -0.5
+            ],
+            "pauseMs": 150
+          },
+          [
+            -5,
+            -3
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
     },
     "kick": {
       "OL": [
@@ -1125,6 +1660,18 @@
         [
           0,
           0
+        ]
+      ],
+      "RB": [
+        [
+          0,
+          1
+        ]
+      ],
+      "WR": [
+        [
+          0,
+          1
         ]
       ]
     },
@@ -1181,23 +1728,23 @@
           -3
         ]
       ],
-      "LB": [
-        [
-          0,
-          4
-        ]
-      ],
       "CB": [
-        [
-          -2,
-          9
-        ]
+        {
+          "p": [
+            -1,
+            3
+          ],
+          "pace": 0.55
+        }
       ],
       "S": [
-        [
-          0,
-          6
-        ]
+        {
+          "p": [
+            0,
+            2
+          ],
+          "pace": 0.55
+        }
       ]
     },
     "man": {
@@ -1207,19 +1754,16 @@
           -3
         ]
       ],
-      "LB": [
-        [
-          0,
-          3
-        ]
-      ],
       "CB": [
-        [
-          0,
-          6
-        ]
+        {
+          "p": [
+            -1,
+            1.5
+          ],
+          "pace": 0.55
+        }
       ],
-      "S": [
+      "S1": [
         [
           0,
           5
@@ -1235,8 +1779,12 @@
       ],
       "LB": [
         [
-          0,
-          -5
+          0.8,
+          -2
+        ],
+        [
+          0.5,
+          -6
         ]
       ],
       "CB": [
@@ -1285,23 +1833,23 @@
           -2
         ]
       ],
-      "LB": [
-        [
-          0,
-          6
-        ]
-      ],
       "CB": [
-        [
-          0,
-          10
-        ]
+        {
+          "p": [
+            -1,
+            3
+          ],
+          "pace": 0.55
+        }
       ],
       "S": [
-        [
-          0,
-          6
-        ]
+        {
+          "p": [
+            0,
+            2
+          ],
+          "pace": 0.55
+        }
       ]
     },
     "kick": {
@@ -1373,17 +1921,163 @@
           -4
         ]
       ]
+    },
+    "cover3": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            3
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S1": [
+        [
+          7,
+          2
+        ]
+      ]
+    },
+    "cover1": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            1.5
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S1": [
+        [
+          7,
+          4
+        ]
+      ],
+      "S2": [
+        [
+          1,
+          -6
+        ]
+      ]
     }
   },
+  "readStep": {
+    "run": {
+      "LB": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -0.8
+            ],
+            "pace": 0.5
+          },
+          {
+            "p": [
+              1.5,
+              -1.5
+            ],
+            "pace": 0.6
+          }
+        ],
+        "axis": "play"
+      },
+      "S": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -1
+            ],
+            "pace": 0.5
+          }
+        ],
+        "axis": "play"
+      },
+      "CB": {
+        "pts": [
+          {
+            "p": [
+              0,
+              1.5
+            ],
+            "pace": 0.5
+          }
+        ],
+        "axis": "play"
+      }
+    },
+    "pass": {
+      "LB": [
+        {
+          "p": [
+            0,
+            -0.5
+          ],
+          "pace": 0.4
+        }
+      ]
+    },
+    "playAction": {
+      "LB": {
+        "pts": [
+          {
+            "p": [
+              0.5,
+              -1.5
+            ],
+            "pace": 0.6
+          }
+        ],
+        "axis": "strong"
+      },
+      "S": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -1
+            ],
+            "pace": 0.5
+          }
+        ],
+        "axis": "strong"
+      }
+    }
+  },
+  "mesh": {
+    "insideRun": [
+      1.0,
+      4.5
+    ],
+    "outsideRun": [
+      2.5,
+      4.5
+    ]
+  },
   "presetDrops": {
-    "baseCover3": "zone",
+    "baseCover3": "cover3",
     "baseCover2": "zone",
     "runStuff": "run",
-    "nickelCover3": "zone",
+    "nickelCover3": "cover3",
     "nickelCover4": "zone",
     "nickelCover2": "zone",
     "nickel2Man": "man",
-    "nickelCover1": "man",
+    "nickelCover1": "cover1",
     "nickelCover1Blitz": "blitz",
     "dimeCover4": "zone",
     "dimeCover0Blitz": "blitz",
@@ -1397,6 +2091,7 @@
     "screenPass": -2,
     "playAction": 14
   },
+  "screenFloorYards": -8,
   "presetAlignment": {
     "baseCover2": {
       "S1": [
@@ -1464,36 +2159,6 @@
         8
       ]
     },
-    "baseCover3": {
-      "S1": [
-        0,
-        14
-      ],
-      "S2": [
-        8,
-        6
-      ]
-    },
-    "nickelCover3": {
-      "S1": [
-        0,
-        14
-      ],
-      "S2": [
-        8,
-        6
-      ]
-    },
-    "nickelCover1": {
-      "S1": [
-        0,
-        14
-      ],
-      "S2": [
-        8,
-        6
-      ]
-    },
     "nickelCover1Blitz": {
       "S1": [
         0,
@@ -1522,6 +2187,36 @@
       "S2": [
         6,
         6
+      ]
+    },
+    "baseCover3": {
+      "S1": [
+        -7,
+        12
+      ],
+      "S2": [
+        7,
+        12
+      ]
+    },
+    "nickelCover3": {
+      "S1": [
+        -7,
+        12
+      ],
+      "S2": [
+        7,
+        12
+      ]
+    },
+    "nickelCover1": {
+      "S1": [
+        -7,
+        12
+      ],
+      "S2": [
+        7,
+        12
       ]
     }
   },
@@ -1888,6 +2583,15 @@
         6,
         12,
         "under"
+      ]
+    },
+    "nickelCover1": {
+      "S1": [
+        -9,
+        12,
+        9,
+        24,
+        "deep"
       ]
     }
   },
