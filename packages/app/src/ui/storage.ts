@@ -9,11 +9,13 @@ export interface Settings {
   reducedMotion: MotionSetting;
   markLabels: MarkLabelSetting;
   speed: SpeedSetting;
+  /** Each mark's key rating beside its number (Joseph's amendment); on by default. */
+  ratingLabels: boolean;
 }
 
 const SETTINGS_KEY = "clipboard-football.settings";
 const LOG_KEY = "clipboard-football.log";
-export const DEFAULT_SETTINGS: Settings = { textSize: 100, reducedMotion: "system", markLabels: "involved", speed: "1x" };
+export const DEFAULT_SETTINGS: Settings = { textSize: 100, reducedMotion: "system", markLabels: "involved", speed: "1x", ratingLabels: true };
 
 export function loadSettings(): Settings {
   try {
@@ -25,6 +27,7 @@ export function loadSettings(): Settings {
       reducedMotion: v.reducedMotion === "on" || v.reducedMotion === "off" ? v.reducedMotion : "system",
       markLabels: v.markLabels === "all" || v.markLabels === "none" ? v.markLabels : "involved",
       speed: v.speed === "2x" || v.speed === "skip" ? v.speed : "1x",
+      ratingLabels: v.ratingLabels !== false,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -117,6 +120,8 @@ export async function setSaveAside(now: Date = new Date()): Promise<string | nul
 /** Counts for the gate playtest (design "How the gate is tested"); kept in this browser only. */
 export interface PlayLog {
   gamesStarted: number;
+  /** Every game's seed and league seed, so any game can be replayed (CLAUDE.md: log the seed with every game). Last 200. */
+  games?: { seed: number; leagueSeed: number; at: string }[];
   gamesFinished: number;
   detailsOpens: number;
   challenges: number;
@@ -132,6 +137,7 @@ export function bumpLog(f: (l: PlayLog) => void): void {
     const l: PlayLog = raw === null ? { gamesStarted: 0, gamesFinished: 0, detailsOpens: 0, challenges: 0, sameCalls: 0, escBackOuts: 0, deadBallSeconds: [] } : (JSON.parse(raw) as PlayLog);
     f(l);
     if (l.deadBallSeconds.length > 500) l.deadBallSeconds = l.deadBallSeconds.slice(-500);
+    if (l.games !== undefined && l.games.length > 200) l.games = l.games.slice(-200);
     localStorage.setItem(LOG_KEY, JSON.stringify(l));
   } catch {
     // The log is a convenience for the playtest; losing it never blocks play.

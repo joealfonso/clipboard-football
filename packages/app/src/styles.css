@@ -344,3 +344,71 @@ td.mono {
     animation: none !important;
   }
 }
+
+/* ---------------------------------------------------------------- play cards (card.*) */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 6px 0;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 4px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--paper-shade);
+  cursor: pointer;
+  text-align: left;
+}
+/* card.focus: a 2 px ink outline and a shaded label line only, never a fill over the art (zones use paperShade). */
+.card.hl,
+.card:hover,
+.card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+.card.hl .card-label,
+.card:hover .card-label {
+  background: var(--paper-shade);
+}
+.card.off {
+  color: var(--ink-soft);
+}
+.card-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+}
+.card-personnel {
+  color: var(--ink-soft);
+  font-size: calc(14px * var(--text-scale));
+}
+@media (max-height: 640px) {
+  .card-art svg {
+    max-height: 72px;
+  }
+}
+:root[style*="--text-scale: 2"] .cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* ---------------------------------------------------------------- the player card over a mark */
+.mark-card {
+  border: 1px solid var(--ink);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: var(--paper);
+}
+.mark-card ul {
+  margin: 2px 0;
+  padding-left: 1.2em;
+}
+.mark-card .ratings {
+  columns: 2;
+}

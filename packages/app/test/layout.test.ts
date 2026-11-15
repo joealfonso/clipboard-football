@@ -7,11 +7,12 @@ import { describe, expect, it } from "vitest";
 import { onFieldSlots } from "../src/engine/types";
 import { cameraAt, layoutFor, panCamera } from "../src/ui/layout";
 import * as S from "../src/ui/screens";
-import { parseTemplates, TemplateError } from "../src/ui/templates";
+import { MotionError, parseMotion, parseTemplates, TemplateError } from "../src/ui/templates";
 
 const read = (p: string): unknown => JSON.parse(readFileSync(join(import.meta.dirname, "../../..", p), "utf8"));
 const templatesRaw = read("data/ui/templates.json");
 const templates = parseTemplates(templatesRaw);
+const motionRaw = read("data/ui/motion.json");
 
 describe("layout (L1)", () => {
   it.each([
@@ -77,7 +78,8 @@ describe("every non-menu screen has at most seven choices (F3)", () => {
   it("counts match the design's screen table", () => {
     expect(S.pregameScreen().rows).toHaveLength(6);
     expect(S.pauseScreen({ hasPlay: true, speed: "1x" }).rows).toHaveLength(7);
-    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all" }).rows).toHaveLength(4);
+    // Text size, motion, mark labels, rating labels (Joseph's amendment), Back.
+    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", ratingLabels: true }).rows).toHaveLength(5);
     expect(S.boxScreen("Team").rows).toHaveLength(6);
     expect(S.endScreen().rows).toHaveLength(4);
     expect(S.titleScreen({ hasSave: false, storage: true }).rows[1]).toMatchObject({ on: false, reason: "no saved game" });
@@ -112,6 +114,20 @@ describe("UI templates", () => {
   it("a malformed file is refused with the file named", () => {
     expect(() => parseTemplates({ ...(templatesRaw as object), timing: { setMs: "slow" } })).toThrow(TemplateError);
     expect(() => parseTemplates({})).toThrow(/data\/ui\/templates\.json/);
+    for (const k of ["presetAlignment", "zones", "manTargets", "depthBands", "keyRating"]) expect(() => parseTemplates({ ...(templatesRaw as object), [k]: "x" }), k).toThrow(TemplateError);
+    expect(parseMotion(motionRaw).maxStartMs).toBeLessThanOrEqual(150);
+    expect(() => parseMotion({})).toThrow(MotionError);
+    expect(() => parseMotion({ ...(motionRaw as object), maxStartMs: 151 })).toThrow(MotionError);
+  });
+
+  it("every defense preset has zones or man targets, one or the other, never empty", () => {
+    const catalog = read("data/calls/catalog.json") as { screens: { id: string; choices: { id: string }[] }[] };
+    for (const s of catalog.screens.filter((x) => x.id.startsWith("defense.") && x.id !== "defense.package"))
+      for (const c of s.choices) {
+        const z = Object.keys(templates.zones[c.id] ?? {}).length;
+        const m = Object.keys(templates.manTargets[c.id] ?? {}).length;
+        expect(z > 0 !== m > 0, c.id).toBe(true);
+      }
   });
 });
 

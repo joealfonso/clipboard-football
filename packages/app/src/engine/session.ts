@@ -33,7 +33,7 @@ export const DEFAULT_LEAGUE_SEED = 2026;
  * Save versions: 1 held the M1 adapter's answers; 2 the engine's answer paths; 3 adds `codeHash`;
  * 4 adds `standouts`. Only the current version resumes; an older one reads as "from an older version".
  */
-export const SAVE_SCHEMA_VERSION = 4;
+export const SAVE_SCHEMA_VERSION = 5;
 
 /**
  * M2 F (lead's call): the playable game runs with standout plays, a centered designed layer that

@@ -14,7 +14,7 @@ import type { PlayResult } from "@clipboard-football/shared";
 import { whyHeadline } from "../src/engine/headline";
 import type { PlayEvent } from "../src/engine/types";
 import { layoutFor } from "../src/ui/layout";
-import { numberShown, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
+import { numberShown, pathPrimitives, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
 import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { at, timeline, type Timeline } from "../src/ui/timeline";
 import { COMPLETE, RUN, snap } from "./fixtures";
@@ -109,8 +109,17 @@ describe("blocks: linemen stop at contact", () => {
     expect(bad).toEqual([]);
   });
 
-  it("offensive linemen use the block tick, not an arrowhead (field.ts draws OL ends as path.block)", () => {
-    expect(readFileSync(join(import.meta.dirname, "../src/ui/field.ts"), "utf8")).toMatch(/m\.position === "OL"\) blockTick/);
+  it("offensive linemen end in the block tick, other offensive players in an arrowhead, defenders in neither", () => {
+    const edge = (small.markPx / 2 + 1) / small.s;
+    for (const ev of [COMPLETE, RUN]) {
+      const tl = timeline({ event: ev, runoffSeconds: 0 }, templates, ctx);
+      const prims = pathPrimitives(tl, tl.total, edge);
+      expect(prims.some((p) => p.slot.startsWith("OL"))).toBe(true);
+      for (const p of prims) {
+        if (p.side === "X") expect(p.end, p.slot).toBe("none");
+        else expect(p.end, p.slot).toBe(p.slot.startsWith("OL") ? "block" : "arrow");
+      }
+    }
   });
 });
 
@@ -152,6 +161,9 @@ describe("jersey numbers", () => {
     expect(numberShown("involved", "whistle", false)).toBe(true);
     expect(numberShown("none", "whistle", true)).toBe(false);
     expect(numberShown("all", "live", false)).toBe(true);
+    // Before the snap: your lined-up players show numbers, the huddle never does.
+    expect(numberShown("involved", "lineup", false)).toBe(true);
+    expect(numberShown("all", "lineup", false, true)).toBe(false);
   });
 
   const mk = (id: string, x: number, y: number, over: Partial<MarkPx> = {}): MarkPx => ({ id, side: "O", x, y, ringed: false, named: false, number: 22, show: true, ...over });
