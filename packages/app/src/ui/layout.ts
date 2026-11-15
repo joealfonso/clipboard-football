@@ -4,7 +4,8 @@
 // full-screen field, menus over it"): the field takes the whole window under the top bar, and the
 // menus are overlays over it (ui/overlay.ts places them). The field stays portrait (DESIGN.md
 // decision 3). The scale is the largest that still shows the full width (sideline to sideline plus
-// a yard of margin each side) and at least VISIBLE_YARDS of field length; the column is centered.
+// a yard of margin each side) and at least VISIBLE_YARDS of field length. With a wide enough margin
+// the column sits flush left and overlays go in the margin (SIDE_MARGIN_MIN); otherwise it is centered.
 
 /**
  * The smallest window the field still fits in: at 800x520 the scale is 9.44 px per yard, so marks
@@ -17,6 +18,12 @@ export const FIELD_WIDTH_YARDS = 53.3;
 export const COLUMN_YARDS = FIELD_WIDTH_YARDS + 2;
 /** Field length the canvas always shows, so there is room above or below the line for an overlay. */
 export const VISIBLE_YARDS = 50;
+/**
+ * Spare width beside the field at which overlays go in a side margin and cover nothing: the column
+ * moves flush left and the spare width is one margin on the right (field left, menus right, as in
+ * the design's decision 5). Narrower than this, the column is centered and overlays sit over it.
+ */
+export const SIDE_MARGIN_MIN = 300;
 
 export interface Box {
   readonly left: number;
@@ -29,8 +36,10 @@ export interface Layout {
   readonly tooSmall: boolean;
   /** The canvas: the whole window under the top bar, in window px. */
   readonly field: Box;
-  /** The field column (sideline to sideline plus a yard each side), centered, in canvas px. */
+  /** The field column (sideline to sideline plus a yard each side), in canvas px: flush left with a side margin, else centered. */
   readonly column: Box;
+  /** The margin right of the column, in window px, when it is at least SIDE_MARGIN_MIN wide; else null. */
+  readonly side: Box | null;
   /** Pixels per yard. */
   readonly s: number;
   /** Yards of field length the canvas shows. */
@@ -49,10 +58,13 @@ export function layoutFor(width: number, height: number, style: FieldStyle = { m
   const fieldHeight = Math.max(0, height - TOP_BAR);
   const s = Math.max(0, Math.min(width / COLUMN_YARDS, fieldHeight / VISIBLE_YARDS));
   const columnWidth = Math.floor(COLUMN_YARDS * s);
+  const spare = width - columnWidth;
+  const sided = spare >= SIDE_MARGIN_MIN;
   return {
     tooSmall,
     field: { left: 0, top: TOP_BAR, width, height: fieldHeight },
-    column: { left: Math.floor((width - columnWidth) / 2), top: 0, width: columnWidth, height: fieldHeight },
+    column: { left: sided ? 0 : Math.floor(spare / 2), top: 0, width: columnWidth, height: fieldHeight },
+    side: sided ? { left: columnWidth, top: TOP_BAR, width: spare, height: fieldHeight } : null,
     s,
     visibleYards: s > 0 ? fieldHeight / s : 0,
     markPx: Math.max(style.markMinPx, style.markYards * s),

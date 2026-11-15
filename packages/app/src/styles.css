@@ -145,8 +145,9 @@ body {
   border: 1px solid var(--line, #7e837a);
   z-index: 2;
 }
+/* A hidden overlay stays hidden whatever other class it has (.panel.wide sets display: grid). */
 .overlay[hidden] {
-  display: none;
+  display: none !important;
 }
 .mark-card-overlay {
   z-index: 3;

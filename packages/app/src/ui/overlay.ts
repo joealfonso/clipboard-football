@@ -14,8 +14,8 @@ export const OVERLAY_MARGIN = 8;
 export const OVERLAY_MAX_WIDTH = 980;
 /** Screens that aren't over a play (title, pregame, settings): a centered sheet this wide at most. */
 export const SHEET_MAX_WIDTH = 720;
-/** Under this height the calling overlay drops the card art for text rows (the compact fallback). */
-export const CARD_MIN_HEIGHT = 300;
+/** Card art on call screens from this window width up; narrower (or text at 150% and up) falls back to text rows. */
+export const CARD_MIN_WINDOW_WIDTH = 1024;
 /** Paper backing opacity over the field. contrast.test checks text over the darkest field pixel. */
 export const OVERLAY_ALPHA = 0.94;
 /** Clear space kept around a protected line or lineup, in yards. */
@@ -96,22 +96,27 @@ export interface Placement {
   readonly top: number;
   readonly maxHeight: number;
   readonly anchor: "top" | "bottom";
-  readonly where: "above" | "below" | "between" | "sheet";
-  /** Too short for card art: text rows. */
+  readonly where: "side" | "above" | "below" | "between" | "sheet";
+  /** Text rows instead of card art (window narrower than CARD_MIN_WINDOW_WIDTH). */
   readonly compact: boolean;
 }
 
 /**
- * Where an overlay goes. Over a play (a guard): in the tallest stretch of the canvas the protected
- * ranges leave free, on the side away from the ball. Elsewhere: a centered sheet.
+ * Where an overlay goes. With a side margin (layout.side): in it, full height, covering nothing.
+ * Otherwise over a play (a guard): in the tallest stretch of the canvas the protected ranges leave
+ * free, on the side away from the ball. Otherwise: a centered sheet.
  */
 export function placeOverlay(l: Layout, camera: number, guard: Guard | null, markYards: number, ballX: number | null = null): Placement {
   const m = OVERLAY_MARGIN;
   const top0 = l.field.top + m;
   const bottom0 = l.field.top + l.field.height - m;
+  const compact = l.field.width < CARD_MIN_WINDOW_WIDTH;
+  if (l.side !== null) {
+    return { left: l.side.left + m, width: l.side.width - 2 * m, top: top0, maxHeight: bottom0 - top0, anchor: "top", where: "side", compact };
+  }
   if (guard === null) {
     const width = Math.min(l.field.width - 2 * m, SHEET_MAX_WIDTH);
-    return { left: Math.round((l.field.width - width) / 2), width, top: top0, maxHeight: bottom0 - top0, anchor: "top", where: "sheet", compact: bottom0 - top0 < CARD_MIN_HEIGHT };
+    return { left: Math.round((l.field.width - width) / 2), width, top: top0, maxHeight: bottom0 - top0, anchor: "top", where: "sheet", compact };
   }
   const yPx = (y: number): number => l.field.top + (camera - y) * l.s;
   // Protected stretches in window px, top to bottom, merged.
@@ -137,17 +142,22 @@ export function placeOverlay(l: Layout, camera: number, guard: Guard | null, mar
   const ballLeft = ballX !== null && ballX < l.field.width / 2;
   const left = ballLeft ? l.field.width - m - width : m;
   const maxHeight = Math.max(0, best.b - best.a);
-  return { left: Math.round(left), width, top: best.a, maxHeight, anchor: best.anchor, where: best.where, compact: maxHeight < CARD_MIN_HEIGHT };
+  return { left: Math.round(left), width, top: best.a, maxHeight, anchor: best.anchor, where: best.where, compact };
 }
 
 // ---------------------------------------------------------------- when overlays show
 
+/** Every overlay element (index.html ids). The app sets each one's visibility from overlaysShown. */
+export const OVERLAY_IDS = ["panel", "mark-card"] as const;
+export type OverlayId = (typeof OVERLAY_IDS)[number];
+
 /**
- * No overlay during the live play. The player card is the one exception, and only because opening
- * it pauses the play (Joseph's ratings amendment: a card at every phase, the animation paused).
+ * No overlay during the live play: every overlay element is hidden. The player card is the one
+ * exception, and only because opening it pauses the play (Joseph's ratings amendment: a card at
+ * every phase, the animation paused).
  */
-export function overlaysShown(o: { readonly animating: boolean; readonly markCard: boolean }): { readonly panel: boolean; readonly markCard: boolean } {
-  return { panel: !o.animating, markCard: o.markCard };
+export function overlaysShown(o: { readonly animating: boolean; readonly markCard: boolean }): Readonly<Record<OverlayId, boolean>> {
+  return { panel: !o.animating, "mark-card": o.markCard };
 }
 
 // ---------------------------------------------------------------- focus

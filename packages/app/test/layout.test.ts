@@ -6,8 +6,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { onFieldSlots } from "../src/engine/types";
 import type { PlayEvent } from "../src/engine/types";
-import { cameraAt, COLUMN_YARDS, layoutFor, MIN_HEIGHT, MIN_WIDTH, panCamera, screenX, screenY, TOP_BAR, VISIBLE_YARDS } from "../src/ui/layout";
-import { blend, contrast, FocusTrail, OVERLAY_ALPHA, OVERLAY_MARGIN, overlaysShown, placeOverlay, rgbOf, unitDepth } from "../src/ui/overlay";
+import { cameraAt, COLUMN_YARDS, layoutFor, MIN_HEIGHT, MIN_WIDTH, panCamera, screenX, screenY, SIDE_MARGIN_MIN, TOP_BAR, VISIBLE_YARDS } from "../src/ui/layout";
+import { blend, CARD_MIN_WINDOW_WIDTH, contrast, FocusTrail, OVERLAY_ALPHA, OVERLAY_IDS, OVERLAY_MARGIN, overlaysShown, placeOverlay, rgbOf, unitDepth } from "../src/ui/overlay";
 import { at, timeline } from "../src/ui/timeline";
 import { COLOR } from "../src/ui/tokens";
 import { playGame } from "./support";
@@ -26,14 +26,22 @@ describe("layout (L1, the full-screen field)", () => {
     [1280, 720],
     [1440, 900],
     [1920, 1080],
-  ])("%ix%i: the field fills the window under the top bar, the column centered, sideline to sideline in view", (w, hgt) => {
+  ])("%ix%i: the field fills the window under the top bar, sideline to sideline in view", (w, hgt) => {
     const l = layoutFor(w, hgt, templates.field);
     expect(l.tooSmall).toBe(false);
     expect(l.field).toEqual({ left: 0, top: TOP_BAR, width: w, height: hgt - TOP_BAR });
-    // The whole width of the field shows, centered, and at least VISIBLE_YARDS of its length.
+    // The whole width of the field shows, and at least VISIBLE_YARDS of its length.
     expect(l.column.width).toBeLessThanOrEqual(w);
     expect(l.column.width).toBeGreaterThanOrEqual(Math.floor(COLUMN_YARDS * l.s));
-    expect(Math.abs(l.column.left * 2 + l.column.width - w)).toBeLessThanOrEqual(1);
+    const spare = w - l.column.width;
+    if (spare >= SIDE_MARGIN_MIN) {
+      // A margin wide enough for the overlays: the column flush left, the margin all on the right.
+      expect(l.column.left).toBe(0);
+      expect(l.side).toEqual({ left: l.column.width, top: TOP_BAR, width: spare, height: hgt - TOP_BAR });
+    } else {
+      expect(l.side).toBeNull();
+      expect(Math.abs(l.column.left * 2 + l.column.width - w)).toBeLessThanOrEqual(1);
+    }
     expect(l.visibleYards).toBeGreaterThanOrEqual(VISIBLE_YARDS - 1e-9);
     expect(screenX(l, -1)).toBe(l.column.left);
     // Marks at least 14 px; interior line marks 2 yards apart leave a gap.
@@ -66,19 +74,43 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
   const sets = games.flatMap(({ g, human }) =>
     g.events.filter((e): e is PlayEvent => e.t === "play" && e.before.phase === "scrimmage" && e.offense.formation !== undefined && e.defense !== null).map((ev) => ({ ev, human })),
   );
-  const windows = [
+  // Margins under SIDE_MARGIN_MIN, so the overlay goes over the field: the floor and two tall windows.
+  const overField = [
     [800, 520],
+    [1024, 900],
+    [1280, 1024],
+  ] as const;
+  // Margins wide enough: the overlay goes beside the field.
+  const beside = [
     [1024, 600],
     [1280, 720],
+    [1440, 900],
     [1920, 1080],
   ] as const;
+
+  it("the windows above are the right kind", () => {
+    for (const [w, hgt] of overField) expect(layoutFor(w, hgt).side, `${w}x${hgt}`).toBeNull();
+    for (const [w, hgt] of beside) expect(layoutFor(w, hgt).side, `${w}x${hgt}`).not.toBeNull();
+  });
+
+  it.each(beside)("%ix%i: with a wide margin the overlay sits in it and covers no part of the field", (w, hgt) => {
+    const l = layoutFor(w, hgt, templates.field);
+    const g = { los: 40, lineToGain: 50, side: "defense" as const, depth: 23 };
+    for (const p of [placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, 0), placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, w), placeOverlay(l, 0, null, 1.4)]) {
+      expect(p.where).toBe("side");
+      expect(p.left).toBeGreaterThanOrEqual(l.column.left + l.column.width);
+      expect(p.left + p.width).toBeLessThanOrEqual(w);
+      expect(p.width).toBeGreaterThanOrEqual(SIDE_MARGIN_MIN - 2 * OVERLAY_MARGIN);
+      expect(p.maxHeight).toBe(l.field.height - 2 * OVERLAY_MARGIN);
+    }
+  });
 
   it("there are sets on both sides of the ball to check", () => {
     expect(sets.filter((s) => s.ev.before.possession === s.human).length).toBeGreaterThan(50);
     expect(sets.filter((s) => s.ev.before.possession !== s.human).length).toBeGreaterThan(50);
   });
 
-  it.each(windows)("%ix%i: never covers the line of scrimmage, the line to gain or your lineup at the set", (w, hgt) => {
+  it.each(overField)("%ix%i: over the field it never covers the line of scrimmage, the line to gain or your lineup at the set", (w, hgt) => {
     const l = layoutFor(w, hgt, templates.field);
     const markYards = l.markPx / l.s;
     const heights: number[] = [];
@@ -90,6 +122,7 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
       const ltg = ev.before.goalToGo ? null : ev.before.spot + ev.before.distance;
       const camera = cameraAt(tl.los, l.visibleYards, templates.field.losFromTop);
       const p = placeOverlay(l, camera, { los: tl.los, lineToGain: ltg, side, depth }, markYards, w / 2);
+      expect(p.where).not.toBe("side");
       const top = p.top;
       const bottom = p.top + p.maxHeight;
       const y = (fy: number): number => l.field.top + screenY(l, camera, fy);
@@ -109,34 +142,48 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(100);
   });
 
-  it("off the field (title, pregame, settings) the overlay is a centered sheet", () => {
-    const l = layoutFor(1280, 720);
+  it("off the field (title, pregame, settings) with narrow margins the overlay is a centered sheet", () => {
+    const l = layoutFor(1280, 1024);
     const p = placeOverlay(l, 0, null, 1.4);
     expect(p.where).toBe("sheet");
-    expect(p.left * 2 + p.width).toBe(1280);
+    expect(Math.abs(p.left * 2 + p.width - 1280)).toBeLessThanOrEqual(1);
   });
 
-  it("sits on the side away from the ball", () => {
-    const l = layoutFor(1920, 1080);
+  it("over the field, sits on the side away from the ball", () => {
+    const l = layoutFor(1920, 1600);
+    expect(l.side).toBeNull();
     const g = { los: 40, lineToGain: 50, side: "offense" as const, depth: 7 };
     const leftBall = placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, 300);
     const rightBall = placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, 1600);
     expect(leftBall.left + leftBall.width).toBe(1920 - OVERLAY_MARGIN);
+    expect(leftBall.where).not.toBe("side");
     expect(rightBall.left).toBe(OVERLAY_MARGIN);
   });
 
-  it("a short stretch drops the card art (compact), a tall one keeps it", () => {
+  it("card art from 1024 wide up, whichever way the overlay is placed; text rows below that", () => {
     const g = { los: 40, lineToGain: 50, side: "offense" as const, depth: 7 };
-    const small = layoutFor(800, 520);
-    const big = layoutFor(1920, 1080);
-    expect(placeOverlay(small, cameraAt(40, small.visibleYards), g, 1.4).compact).toBe(true);
-    expect(placeOverlay(big, cameraAt(40, big.visibleYards), g, 1.4).compact).toBe(false);
+    for (const [w, hgt] of [...overField, ...beside, [1023, 600] as const]) {
+      const l = layoutFor(w, hgt);
+      expect(placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4).compact, `${w}x${hgt}`).toBe(w < CARD_MIN_WINDOW_WIDTH);
+      expect(placeOverlay(l, 0, null, 1.4).compact, `${w}x${hgt} sheet`).toBe(w < CARD_MIN_WINDOW_WIDTH);
+    }
+    expect(CARD_MIN_WINDOW_WIDTH).toBe(1024);
   });
 
-  it("no overlay during the live play; the player card only with the play paused for it", () => {
-    expect(overlaysShown({ animating: true, markCard: false })).toEqual({ panel: false, markCard: false });
-    expect(overlaysShown({ animating: false, markCard: false })).toEqual({ panel: true, markCard: false });
-    expect(overlaysShown({ animating: true, markCard: true })).toEqual({ panel: false, markCard: true });
+  it("no overlay during the live play: every overlay element is hidden; the player card only with the play paused for it", () => {
+    // Every overlay element in the page is one the rule covers.
+    const html = readFileSync(join(import.meta.dirname, "../index.html"), "utf8");
+    const ids = [...html.matchAll(/<[^>]*\bid="([^"]+)"[^>]*\bclass="[^"]*\boverlay\b[^"]*"/g)].map((m) => m[1]);
+    expect(ids.length).toBeGreaterThanOrEqual(2);
+    expect([...ids].sort()).toEqual([...OVERLAY_IDS].sort());
+    const live = overlaysShown({ animating: true, markCard: false });
+    for (const id of OVERLAY_IDS) expect(live[id], id).toBe(false);
+    expect(overlaysShown({ animating: false, markCard: false })).toEqual({ panel: true, "mark-card": false });
+    expect(overlaysShown({ animating: true, markCard: true })).toEqual({ panel: false, "mark-card": true });
+    // A hidden overlay stays hidden whatever class it has: the bug where .panel.wide (display: grid)
+    // outranked [hidden] and left the result and why lines over the live play.
+    const css = readFileSync(join(import.meta.dirname, "../src/styles.css"), "utf8");
+    expect(css).toMatch(/\.overlay\[hidden\]\s*\{\s*display:\s*none\s*!important;?\s*\}/);
   });
 
   it("text on the paper backing keeps 4.5:1 over the darkest field pixel", () => {

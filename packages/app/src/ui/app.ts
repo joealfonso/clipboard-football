@@ -14,7 +14,7 @@ import { Animator } from "./animator";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
 import { layoutFor, type Layout } from "./layout";
-import { deepestUnit, FocusTrail, overlayBackground, overlaysShown, placeOverlay, unitDepth, type Guard, type Placement } from "./overlay";
+import { deepestUnit, FocusTrail, OVERLAY_IDS, overlayBackground, overlaysShown, placeOverlay, unitDepth, type Guard, type OverlayId, type Placement } from "./overlay";
 import { breadcrumb, current, isFirstScreen, openMenu, press, rows as menuRows, title as menuTitle, type MenuData, type MenuExtra, type MenuKey, type MenuState, type Row } from "./menu";
 import {
   MARK_LABEL_TEXT,
@@ -953,20 +953,30 @@ export class App {
     this.placement = p;
     const panel = this.root.panel;
     const hadFocus = panel.contains(document.activeElement);
-    panel.hidden = !shown.panel;
+    // Every overlay element, shown or hidden by the one rule. Inline display too, so no class rule
+    // (.panel.wide is a grid) can show a hidden overlay.
+    const els: Record<OverlayId, HTMLElement> = { panel, "mark-card": this.root.markCard };
+    for (const id of OVERLAY_IDS) {
+      els[id].hidden = !shown[id];
+      els[id].style.display = shown[id] ? "" : "none";
+    }
     if (!shown.panel && hadFocus) this.root.main.focus({ preventScroll: true });
     this.position(panel, p.left, p.width, p.top, p.maxHeight, p.anchor);
     panel.classList.toggle("wide", p.where !== "sheet" && p.width >= 760);
     panel.classList.toggle("compact", p.compact);
     const card = this.root.markCard;
-    card.hidden = !shown.markCard;
-    if (shown.markCard) {
-      // Beside the panel's stretch, on the side away from the player; full height while the play is paused.
-      const w = Math.min(360, l.field.width - 16);
-      const hit = this.animator.marks().find((x) => x.id === this.markCard);
-      const left = hit !== undefined && hit.x < l.field.width / 2 ? l.field.width - 8 - w : 8;
-      if (shown.panel) this.position(card, left, w, p.top, p.maxHeight, p.anchor);
-      else this.position(card, left, w, l.field.top + 8, l.field.height - 16, "top");
+    if (shown["mark-card"]) {
+      if (p.where === "side") {
+        // In the side margin, over the panel: it covers nothing on the field.
+        this.position(card, p.left, Math.min(360, p.width), p.top, p.maxHeight, "top");
+      } else {
+        // Beside the panel's stretch, on the side away from the player; full height while the play is paused.
+        const w = Math.min(360, l.field.width - 16);
+        const hit = this.animator.marks().find((x) => x.id === this.markCard);
+        const left = hit !== undefined && hit.x < l.field.width / 2 ? l.field.width - 8 - w : 8;
+        if (shown.panel) this.position(card, left, w, p.top, p.maxHeight, p.anchor);
+        else this.position(card, left, w, l.field.top + 8, l.field.height - 16, "top");
+      }
     }
   }
 
