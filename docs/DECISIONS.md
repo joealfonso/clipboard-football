@@ -1552,6 +1552,64 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - The pins-only engine run 12 and game holdout run 17 wait until G is done, then run once at the end of M2.
 - Sack and LB: no linebacker can be elite for sacks until a later milestone gives linebackers a Pass Rush rating. The kind stays as pre-registered.
 
+### G1 and G2: challenge rules and close-call rates (engineer, 2026-11-14)
+- G1: the cited challenge and replay values are in data/rules/nfl-2026.json as `challenges.*` (11 leaves) and `replay.*` (18 leaves), one leaf per RULES.md row (the existing rule-set test checks it). The review-then-penalty order is `replay.penaltyChoiceAfterReview` (Rule 15-7-3, Item 3): a coach may remake an accept-or-decline choice after the review, so the review comes first and the penalty choice follows it, as the design wants.
+- G2: `uv run --project pipeline python -m pipeline.challenges` (pipeline/challenges/build.py) writes data/game/challenges.json, byte-identical on rerun (checked twice). It loads only the training seasons from data/game/config.json (2016-2023), drops any row from 2024 on or outside the regular season, and fails if a holdout season reaches the fit. pipeline/tests/test_challenges.py shows 2024-2026 rows never land.
+- Fitted, per kind: how often plays ruled that way on the field were reviewed (reviews / ruled plays) and how often a review reversed them; also coach challenges against Replay Official reviews. The ruled plays are the unreviewed plays of that result plus the reviews of that ruling, because a reviewed play's final columns describe the corrected play.
+- The kind is read from the review sentence ("<team> challenged | The Replay Official reviewed the <ruling> ruling, and the play was REVERSED | Upheld"); the phrase-to-kind map is designed:
+  - "pass completion" -> completion ruled, really incomplete;
+  - "fumble" or "runner was not down by contact", when the ruled fumble was recovered by the defense -> fumble lost ruled, really down;
+  - "interception" or "pass interception" -> interception ruled, really incomplete;
+  - "runner broke the plane", or "runner was not down by contact" on a ruled touchdown -> touchdown ruled, really down short;
+  - "first down" or "short of the line to gain" -> spot at the line to gain;
+  - only run and pass plays count. Every other ruling (incomplete ruled, really a catch; short of the goal line; out of bounds; penalties; kicks) is a review of something the game doesn't model.
+- Hand-checked sample: 40 reviewed plays, drawn by seed 20261114 from all 2016-2023 regular-season reviews, read against their full descriptions. Ids only here, because the descriptions name real players. Two readings were wrong in the first pass and are fixed (rows marked Fixed). Three are right rulings whose real reversal differs from the game's single alternative per kind: those are a known imprecision of the five-kind design (spec resolved 4), not a misread.
+
+| Game, play | Ruling phrase | Kind | Result | Check |
+|---|---|---|---|---|
+| 2016_05_SD_OAK 3103 | incomplete pass | None | upheld | Right. |
+| 2016_09_ATL_TB 2557 | pass completion | completionToIncomplete | upheld | Right. |
+| 2016_11_NO_CAR 2123 | incomplete pass | None | reversed | Right to leave out: incomplete ruled, really a catch (excluded kind, spec resolved 4). |
+| 2016_15_LA_SEA 2651 | incomplete pass | None | upheld | Right. |
+| 2016_16_MIA_BUF 4750 | pass completion | completionToIncomplete | upheld | Right. |
+| 2017_01_LAC_DEN 785 | incomplete pass | None | upheld | Right. |
+| 2017_02_CLE_BAL 2134 | pass completion | completionToIncomplete | upheld | Right. |
+| 2017_05_SF_IND 3296 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2017_07_TEN_CLE 976 | pass completion | completionToIncomplete | reversed | Right ruling; the real reversal was to a catch and fumble, not an incompletion (the game's alternative is the incompletion). |
+| 2017_13_HOU_TEN 1137 | pass completion | completionToIncomplete | upheld | Right. |
+| 2018_11_HOU_WAS 2417 | fumble | fumbleToDown | upheld | Right. |
+| 2018_15_NO_CAR 2232 | incomplete pass | None | upheld | Right. |
+| 2018_16_ATL_CAR 4290 | incomplete pass | None | reversed | Right. |
+| 2019_01_DET_ARI 5309 | pass completion | completionToIncomplete | upheld | Right. |
+| 2019_06_WAS_MIA 1276 | pass completion | completionToIncomplete | upheld | Right. |
+| 2019_07_BAL_SEA 1369 | None | None | upheld | Right. |
+| 2019_09_TB_SEA 3557 | runner was down by contact | None | reversed | Right to leave out: ruled down, reversed to a fumble (not a modeled kind). |
+| 2019_09_TB_SEA 4195 | None | None | upheld | Right. |
+| 2019_13_MIN_SEA 1047 | first down | spotLineToGain | reversed | Right. |
+| 2019_13_TB_JAX 1248 | interception | interceptionToIncomplete | reversed | Right. |
+| 2019_16_BUF_NE 1984 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2020_05_ARI_NYJ 3435 | short of the line to gain | spotLineToGain | upheld | Right. |
+| 2020_08_ATL_CAR 2074 | pass completion | completionToIncomplete | reversed | Right (a completion with a lost fumble, reversed to incomplete). |
+| 2020_14_DEN_CAR 2498 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2020_15_SF_DAL 1125 | fumble | None | reversed | Fixed: a kickoff-return fumble. The first reading counted it; only run and pass plays count now. |
+| 2021_08_PHI_DET 623 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2021_09_ARI_SF 1019 | short of the goal line | None | upheld | Right. |
+| 2021_10_BUF_NYJ 1728 | fumble | fumbleToDown | reversed | Right ruling (a sack-fumble the defense recovered); the real reversal was to an incomplete pass, while the game's alternative is down at the spot. |
+| 2021_17_DET_SEA 1031 | fumble | fumbleToDown | reversed | Same as the row above: a sack-fumble reversed to an incomplete pass. |
+| 2022_04_CHI_NYG 1422 | pass completion | completionToIncomplete | reversed | Right. |
+| 2022_05_HOU_JAX 1788 | pass completion | completionToIncomplete | reversed | Right (a completion with a lost fumble, reversed to incomplete). |
+| 2022_05_SEA_NO 2227 | fumble | fumbleToDown | upheld | Right. |
+| 2022_13_BUF_NE 2590 | interception | interceptionToIncomplete | reversed | Right. |
+| 2022_14_KC_DEN 1135 | incomplete pass | None | upheld | Right. |
+| 2022_15_NYG_WAS 3778 | runner was out of bounds | None | reversed | Right. |
+| 2022_18_LAC_DEN 3821 | incomplete pass | None | upheld | Right. |
+| 2023_02_GB_ATL 3942 | short of the line to gain | spotLineToGain | upheld | Right. |
+| 2023_10_DEN_BUF 1482 | incomplete pass | None | reversed | Right. |
+| 2023_15_PIT_IND 1722 | runner was not down by contact | touchdownToShort | reversed | Fixed: a ruled touchdown ("not down by contact") reversed to down at the 1. The first reading missed it; it is the touchdown kind now. |
+| 2023_15_WAS_LA 3873 | runner broke the plane | touchdownToShort | reversed | Right. |
+
+- Result (2016-2023): Replay Official reviews are 100% of the turnover reviews (fumbles, interceptions), as Rule 15-1-2 (e) requires; coaches challenge completions and spots. For G7, coach challenges of the five kinds come to 0.1499 per team-game (season range 0.1121 to 0.1895, 4,190 team-games), with 43.9% reversed (season range 32.9% to 51.4%, 628 challenges).
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
