@@ -1136,6 +1136,8 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 16 | 2026-11-14, M2 | M2 pins only, metrics must match run 15: the code review fixes (the requests' state and run-off seconds, data/game/tempo-modes.json) | Every metric, diagnostic and invariant count identical to run 15; 0 gated failures; 7.36 ms per game on a quiet machine |
 | Engine | 12 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 11: standouts and close calls (off in this validation), the why lines and the merged code | Every metric identical to run 11; the generated tables byte-identical |
 | Step 5 game | 17 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 16: standouts and close calls (off in the calibrated baseline), the G1 rule set, the merged UI | Every metric, diagnostic and invariant count identical to run 16; 0 gated failures; 7.60 ms per game on a quiet machine |
+| Engine | 13 | 2026-11-14, M2 G review fixes | M2 G review fixes, pins only, metrics must match run 12: the reversal labels and challenge costs changed engine code the summary's hash covers (close calls off in this validation) | Every metric identical to run 12; the generated tables byte-identical |
+| Step 5 game | 18 | 2026-11-14, M2 G review fixes | M2 G review fixes, pins only, metrics must match run 17: the reversal labels, the failed-challenge timeout across quarters, the no-timeout cost (close calls off in the calibrated baseline) | Every metric, diagnostic and invariant count identical to run 17; 0 gated failures; 7.47 ms per game on a quiet machine (in-sample just before: identical, 7.57 ms) |
 
 
 ## M1 step 5c: playtest fixes

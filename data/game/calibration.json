@@ -6,7 +6,7 @@
   2025
  ],
  "tolerancesSha256": "b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb",
- "codeHash": "5a92358c0751ecb7aa64ec83c690fbe6c76e56daf77e748d2b52d69541311457",
+ "codeHash": "9e889afcb6bb1ae739f11a3c03547f1b718903649aeb409e0fbe2db82395a289",
  "codeFiles": [
   "packages/shared/src/caller.ts",
   "packages/shared/src/catalog.ts",
@@ -230,8 +230,8 @@
   "postseasonTies": 0
  },
  "perf": {
-  "msPerGame": 7.601,
-  "wallSeconds": 78.8,
+  "msPerGame": 7.468,
+  "wallSeconds": 77.4,
   "machine": "darwin arm64, Apple M4, Node v25.6.0"
  },
  "metrics": [
