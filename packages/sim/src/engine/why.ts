@@ -95,6 +95,10 @@ export function variantFor(why: WhyTemplates, when: string, trace: readonly Trac
     const r = trace.find((e) => e.factor === "fluke")?.["reason"];
     return typeof r === "string" ? r : undefined;
   }
+  if (when === "standout") {
+    const k = trace.find((e) => e.factor === "standout")?.["kind"];
+    return typeof k === "string" ? k : undefined;
+  }
   if (when === "baseline") {
     const pct = trace.find((e) => e.factor === "class")?.["pct"];
     return typeof pct === "number" && pct >= (why.commonAtLeastPct ?? 0) ? "common" : "plain";

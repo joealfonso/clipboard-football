@@ -68,6 +68,7 @@ function loadAll(root: string): { data: EngineData; caller: CallerData } {
       matchup: readJson(root, "data/engine/matchup.centered.json"),
       personnel: readJson(root, "data/engine/personnel.json"),
       participants: readJson(root, "data/engine/participants.json"),
+      standouts: readJson(root, "data/engine/standouts.json"),
       ratings: readJson(root, "data/players/ratings.json"),
       distributions: readJson(root, "data/players/distributions.json"),
       names: readJson(root, "data/players/names.json"),

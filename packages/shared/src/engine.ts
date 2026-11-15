@@ -121,6 +121,38 @@ export interface ParticipantsConfig {
   readonly foulers: Readonly<Record<string, Readonly<Partial<Record<"offense" | "defense", readonly Position[]>>>>>;
 }
 
+// ---------------------------------------------------------------- designed: standout plays (M2 F)
+
+export type StandoutKindId = "breakawayRun" | "bigCatch" | "sack" | "pick" | "longKick";
+
+export interface StandoutKind {
+  readonly id: StandoutKindId;
+  /** The participants role the elite player must be credited with. */
+  readonly role: "ballCarrier" | "target" | "sacker" | "interceptor" | "kicker";
+  readonly positions: readonly Position[];
+  /** Elite on any of these (card rating at or above the threshold); the highest is the one shown. */
+  readonly ratings: readonly string[];
+  /** The class family the kind's class is in: run, pass, or fieldGoal. */
+  readonly family: string;
+  readonly class: string;
+  /** Field goals only: the kind applies from this distance on. */
+  readonly minDistance?: number;
+  /** An elite player's multiplier on the class, before his share and the centering. */
+  readonly multiplier: number;
+}
+
+/** data/engine/standouts.json (designed, centered). docs/MODEL.md, "Standout plays". */
+export interface StandoutsConfig {
+  readonly schemaVersion: number;
+  readonly designed: true;
+  /** Whether the game (prepareGame) plays with standouts. createEngine alone does not. */
+  readonly enabled: boolean;
+  readonly threshold: number;
+  readonly kinds: readonly StandoutKind[];
+  /** Per kind: the factor every applicable play's raw factor is multiplied by, so its mean is 1. */
+  readonly centering: Readonly<Record<StandoutKindId, number>>;
+}
+
 // ---------------------------------------------------------------- designed: ratings
 
 export interface RatingInput {
@@ -363,6 +395,8 @@ export const TRACE_FIELDS = {
   returner: ["id", "number", "name"],
   /** One per foul, in the order of the play's fouls. */
   fouler: ["id", "number", "name", "penalty"],
+  /** M2 milestone F: the elite player who made a standout play (card rating shown). */
+  standout: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "multiplier"],
   call: ["label", "leaf", "kind"],
   cell: ["family", "level", "key"],
   class: ["name", "label", "basePct", "pct"],
@@ -421,6 +455,8 @@ export interface EngineData {
   readonly personnel: Personnel;
   /** M2 milestone B: who made the play (designed). */
   readonly participants: ParticipantsConfig;
+  /** M2 milestone F: standout plays (designed, centered). */
+  readonly standouts: StandoutsConfig;
   readonly ratings: RatingsConfig;
   readonly distributions: Distributions;
   readonly names: Names;

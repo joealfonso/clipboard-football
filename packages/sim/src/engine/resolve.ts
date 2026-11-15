@@ -22,6 +22,7 @@ import type { Rng } from "../rng";
 import { applyEffect, leagueMeans, type Field } from "./effects";
 import { fail } from "./errors";
 import { createCredit, creditStream, type Unit } from "./participants";
+import { cardsOf, standoutsFor, type Applied, type CardLookup } from "./standouts";
 import { onField } from "./players";
 import { backoff, drawIndex, drawTuple, drawWeighted } from "./tables";
 import { dominant, isFluke, render, renderHeadline, round2, templateFor, variantFor, type TraceEntry } from "./why";
@@ -35,6 +36,11 @@ export interface Players {
    * (false start, delay of game) by the team in possession. Absent means 1 for both.
    */
   readonly offensePreSnapFoulScale?: { readonly home: number; readonly away: number };
+  /**
+   * Optional (M2 F): the pools as the player cards show them (before home field), for the standout
+   * threshold. Absent means the pools above are the card ratings.
+   */
+  readonly cards?: { readonly home: TeamPool; readonly away: TeamPool };
 }
 
 export type ResolvePlay = (state: GameState, offenseCall: OffenseCall, defenseCall: string | null, players: Players, rng: Rng) => PlayResult;
@@ -46,6 +52,13 @@ export interface EngineOptions {
    * first draw. It must not advance the outcome stream. Default: creditStream (participants.ts).
    */
   readonly creditStream?: (rng: Rng) => Rng;
+  /**
+   * M2 F: play with standout plays (data/engine/standouts.json). Default off, so the engine alone
+   * (and its step 4 validation) is unchanged; the game turns it on with standouts.enabled (prepareGame).
+   */
+  readonly standouts?: boolean;
+  /** Scripts only (M2 F centering): sees every standout kind applied to a class draw. */
+  readonly observeStandouts?: (applied: readonly Applied[]) => void;
 }
 
 // Outcome tuple flags (pipeline/engine/classes.py).
@@ -156,6 +169,8 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
   const c = compile(data);
   const credit = createCredit(data.participants);
   const creditFor = options.creditStream ?? creditStream;
+  const standoutsOn = options.standouts === true;
+  const so = data.standouts;
   const why = data.why;
   const label = (k: string): string => why.labels[k] ?? k;
   const minS = data.config.durations.minSeconds;
@@ -174,6 +189,24 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     readonly leaf: string;
     readonly receiving: { readonly name: string; readonly unit: Unit } | null;
     readonly credit: Rng;
+    /** M2 F: card ratings, and the standout kinds applied to this play's class draw. */
+    readonly card: CardLookup;
+    readonly applied: Applied[];
+  }
+
+  /** M2 F: the standout factors for a class draw, recorded on the play; all 1 with standouts off. */
+  function standoutMult(family: string, classes: readonly string[], ctx: Ctx, distance: number | null): Float64Array {
+    const m = new Float64Array(classes.length).fill(1);
+    if (!standoutsOn) return m;
+    const applied = standoutsFor(so, data.participants, family, ctx.leaf, distance, ctx.offense, ctx.defense, ctx.card);
+    options.observeStandouts?.(applied);
+    for (const a of applied) {
+      const k = classes.indexOf(a.kind.class);
+      if (k < 0) continue;
+      m[k] = (m[k] as number) * a.factor;
+      ctx.applied.push(a);
+    }
+    return m;
   }
 
   function seconds(hist: readonly number[] | undefined, rng: Rng): number {
@@ -305,8 +338,18 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
   function finish(play: PlayResult, ctx: Ctx, when: string, detail: Record<string, unknown>): PlayResult {
     // M2 B: the outcome is final here; credit the players from the credit stream (no outcome draw).
     const cls = typeof detail["class"] === "string" ? detail["class"] : null;
-    const cr = credit({ play, cls, leaf: ctx.leaf, offense: ctx.offense, defense: ctx.receiving?.unit ?? ctx.defense, unit: ctx.receiving?.name ?? null }, ctx.credit);
+    // M2 F: a kind that raised the drawn class, with elites on the field, leans the credit to them.
+    const hit = ctx.applied.find((a) => a.kind.class === cls && a.elites.length > 0);
+    const boost = hit === undefined ? undefined : { role: hit.kind.role, weights: new Map(hit.elites.map((e) => [e.player.id, hit.kind.multiplier])) };
+    const cr = credit({ play, cls, leaf: ctx.leaf, offense: ctx.offense, defense: ctx.receiving?.unit ?? ctx.defense, unit: ctx.receiving?.name ?? null, ...(boost === undefined ? {} : { boost }) }, ctx.credit);
     for (const e of cr.trace) ctx.trace.push(e);
+    // A standout: the factor applied, its class drawn, and the elite player credited with the role (F3).
+    const credited = hit === undefined ? undefined : cr.participants[hit.kind.role];
+    const star = hit?.elites.find((e) => e.player.id === credited);
+    if (hit !== undefined && star !== undefined) {
+      ctx.trace.push({ factor: "standout", player: star.player.id, number: star.player.number, name: star.player.name, rating: star.rating, ratingLabel: label(star.rating), value: star.value, kind: hit.kind.id, multiplier: round2(hit.kind.multiplier) });
+      if (when !== "penalty") when = "standout";
+    }
     const t: WhyTemplate = templateFor(why, when, play.kind, variantFor(why, when, ctx.trace));
     const r = render(t, ctx.trace);
     // M2 D: the plain-words headline, bound to the same trace; an unbound slot throws (no fallback).
@@ -426,9 +469,10 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
       return true;
     }, baseP);
     let total = 0;
+    const sm = standoutMult(family, classes, ctx, null);
     const w = new Float64Array(n);
     for (let k = 0; k < n; k++) {
-      w[k] = ((baseW[k] as number) / baseTotal) * (mm[k] as number) * (fm[k] as number) * (eff.mult[k] as number);
+      w[k] = ((baseW[k] as number) / baseTotal) * (mm[k] as number) * (fm[k] as number) * (eff.mult[k] as number) * (sm[k] as number);
       total += w[k] as number;
     }
     const k = drawIndex(w, ctx.rng);
@@ -601,6 +645,7 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     classes: readonly string[],
     ctx: Ctx,
     applies: (e: RatingEffect) => boolean = () => true,
+    sm: ArrayLike<number> | null = null,
   ): Pick<ClassDraw, "cls" | "k" | "base" | "p" | "probs"> {
     const n = classes.length;
     let bt = 0;
@@ -609,7 +654,7 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     const w = new Float64Array(n);
     let total = 0;
     for (let i = 0; i < n; i++) {
-      w[i] = ((baseW[i] as number) / bt) * (eff.mult[i] as number);
+      w[i] = ((baseW[i] as number) / bt) * (eff.mult[i] as number) * (sm === null ? 1 : (sm[i] as number));
       total += w[i] as number;
     }
     const k = drawIndex(w, ctx.rng);
@@ -758,7 +803,8 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     const band = F.bands.findIndex((b) => distance >= b.min && distance <= b.max);
     const block = (F.blockPer10000[band < 0 ? F.bands.length - 1 : band] as number) / SHARE_TOTAL;
     const baseW = [(1 - block) * make, (1 - block) * (1 - make), block];
-    const cd = kickClassDraw("fieldGoal", baseW, ["good", "miss", "blocked"], ctx, (e) => e.target.kind === "fieldGoal" && (e.target.minDistance === undefined || distance >= e.target.minDistance));
+    const fgClasses = ["good", "miss", "blocked"];
+    const cd = kickClassDraw("fieldGoal", baseW, fgClasses, ctx, (e) => e.target.kind === "fieldGoal" && (e.target.minDistance === undefined || distance >= e.target.minDistance), standoutMult("fieldGoal", fgClasses, ctx, distance));
     detail["classProbabilities"] = cd.probs;
     ctx.trace.push({ factor: "fieldGoal", distance, pct: Math.round(cd.p * PCT) });
     let play: PlayResult & { kind: "fieldGoal" };
@@ -938,6 +984,8 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     const P = data.personnel;
     // Seeded before this play's first outcome draw; reads the outcome stream, never advances it.
     const creditRng = creditFor(rng);
+    const cards = players.cards;
+    const card: CardLookup = cards === undefined ? (p) => p : (p) => cardsOf(cards.home).get(p.id) ?? cardsOf(cards.away).get(p.id) ?? p;
     const ctxFor = (offSlots: string, offGroup: "offense" | "kick", pkg: string, leaf: string = call): Ctx => {
       const os = offGroup === "offense" ? P.offense[offSlots] : P.kick[offSlots];
       const ds = P.packages[pkg];
@@ -946,7 +994,7 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
       const unitName = offGroup === "kick" ? data.participants.receivingUnit[leaf] : undefined;
       const rs = unitName === undefined ? undefined : data.participants.returnUnits[unitName];
       const receiving = unitName === undefined || rs === undefined ? null : { name: unitName, unit: onField(defPool, rs, unitName) };
-      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale, leaf, receiving, credit: creditRng };
+      return { state, rng, trace: [], offense: onField(offPool, os, offSlots), defense: onField(defPool, ds, pkg), preSnapScale, leaf, receiving, credit: creditRng, card, applied: [] };
     };
     const needDefense = (): { preset: string; pkg: string } => {
       if (defenseCall === null) return fail("missingDefenseCall", `${call} needs a defensive preset`);

@@ -26,6 +26,11 @@ export interface CreditInput {
   readonly defense: Unit;
   /** The return unit's name when `defense` is one. */
   readonly unit: string | null;
+  /**
+   * M2 F: when a standout factor raised the drawn class, the role it raised and each elite's
+   * multiplier; crediting weights those players by it (they made the class more likely).
+   */
+  readonly boost?: { readonly role: string; readonly weights: ReadonlyMap<string, number> };
 }
 
 export interface Credited {
@@ -60,6 +65,37 @@ function ratingOr(p: Player, rating: string, fallback: number): number {
   return v === undefined ? fallback : v;
 }
 
+/** Shares of a role on one unit before any class tilt (M2 F: the standout weighting). Normalized; empty with no candidate. */
+export function baseShares(cfg: ParticipantsConfig, name: string, r: RoleConfig, unit: Unit, ctx: { cls: string | null; leaf: string; unit: string | null }): Map<Player, number> {
+  const xs = weighted(cfg, name, r, unit, { ...ctx, cls: ctx.cls }, new Set(), false);
+  const total = xs.reduce((a, x) => a + x.w, 0);
+  return new Map(total > 0 ? xs.map((x) => [x.p, x.w / total]) : []);
+}
+
+/** Weighted candidates for a role on one unit (participants.json); `tilt` applies the class tilts. */
+function weighted(cfg: ParticipantsConfig, name: string, r: RoleConfig, unit: Unit, ctx: { cls: string | null; leaf: string; unit: string | null }, exclude: ReadonlySet<string>, tilt: boolean): { p: Player; w: number }[] {
+  const shares: PositionShares | undefined = (r.byLeaf?.[ctx.leaf]) ?? (ctx.cls !== null ? r.byClass?.[ctx.cls] : undefined) ?? (ctx.unit !== null ? r.byUnit?.[ctx.unit] : undefined) ?? r.flat;
+  const tilts = tilt ? cfg.tilts.filter((t) => t.role === name && (t.classes.includes("*") || (ctx.cls !== null && t.classes.includes(ctx.cls)))) : [];
+  const out: { p: Player; w: number }[] = [];
+  for (const pos of POSITIONS) {
+    const share = shares?.[pos] ?? 0;
+    const xs = (unit[pos] ?? []).filter((x) => !exclude.has(x.id));
+    if (share <= 0 || xs.length === 0) continue;
+    const sw = cfg.slotWeights[pos as Position] ?? [];
+    const slot = (i: number): number => sw[Math.min(i, sw.length - 1)] ?? 1;
+    let total = 0;
+    for (let i = 0; i < xs.length; i++) total += slot(i);
+    xs.forEach((x, i) => {
+      let w = (share * slot(i)) / total;
+      for (const t of tilts) w *= Math.exp(t.coef * (ratingOr(x, t.rating, cfg.center) - cfg.center));
+      out.push({ p: x, w });
+    });
+  }
+  if (out.length > 0) return out;
+  for (const pos of r.fallback ?? []) for (const x of unit[pos] ?? []) if (!exclude.has(x.id)) out.push({ p: x, w: 1 });
+  return out;
+}
+
 export function createCredit(cfg: ParticipantsConfig): (input: CreditInput, rng: Rng) => Credited {
   const role = (name: string): RoleConfig => {
     const r = cfg.roles[name];
@@ -67,28 +103,9 @@ export function createCredit(cfg: ParticipantsConfig): (input: CreditInput, rng:
     return r;
   };
 
-  /** Weighted candidates for a role on one unit. */
+  /** Weighted candidates for a role on one unit, class tilts applied. */
   function candidates(name: string, r: RoleConfig, unit: Unit, ctx: { cls: string | null; leaf: string; unit: string | null }, exclude: ReadonlySet<string>): { p: Player; w: number }[] {
-    const shares: PositionShares | undefined = (r.byLeaf?.[ctx.leaf]) ?? (ctx.cls !== null ? r.byClass?.[ctx.cls] : undefined) ?? (ctx.unit !== null ? r.byUnit?.[ctx.unit] : undefined) ?? r.flat;
-    const tilts = cfg.tilts.filter((t) => t.role === name && (t.classes.includes("*") || (ctx.cls !== null && t.classes.includes(ctx.cls))));
-    const out: { p: Player; w: number }[] = [];
-    for (const pos of POSITIONS) {
-      const share = shares?.[pos] ?? 0;
-      const xs = (unit[pos] ?? []).filter((x) => !exclude.has(x.id));
-      if (share <= 0 || xs.length === 0) continue;
-      const sw = cfg.slotWeights[pos as Position] ?? [];
-      const slot = (i: number): number => sw[Math.min(i, sw.length - 1)] ?? 1;
-      let total = 0;
-      for (let i = 0; i < xs.length; i++) total += slot(i);
-      xs.forEach((x, i) => {
-        let w = (share * slot(i)) / total;
-        for (const t of tilts) w *= Math.exp(t.coef * (ratingOr(x, t.rating, cfg.center) - cfg.center));
-        out.push({ p: x, w });
-      });
-    }
-    if (out.length > 0) return out;
-    for (const pos of r.fallback ?? []) for (const x of unit[pos] ?? []) if (!exclude.has(x.id)) out.push({ p: x, w: 1 });
-    return out;
+    return weighted(cfg, name, r, unit, ctx, exclude, true);
   }
 
   return function credit(input, rng) {
@@ -107,7 +124,8 @@ export function createCredit(cfg: ParticipantsConfig): (input: CreditInput, rng:
     const pick = (configRole: string, exclude: ReadonlySet<string> = new Set()): Player | undefined => {
       const r = role(configRole);
       const unit = r.side === "offense" ? input.offense : input.defense;
-      const xs = candidates(configRole, r, unit, ctx, exclude);
+      const boost = input.boost !== undefined && input.boost.role === configRole ? input.boost.weights : null;
+      const xs = candidates(configRole, r, unit, ctx, exclude).map((x) => (boost === null ? x : { p: x.p, w: x.w * (boost.get(x.p.id) ?? 1) }));
       const u = rng.nextFloat();
       if (xs.length === 0) return undefined;
       const total = xs.reduce((a, x) => a + x.w, 0);

@@ -1515,6 +1515,34 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - The UI's data loader (packages/app/src/engine/data.ts) now loads data/engine/participants.json and data/game/tempo-modes.json. It loaded neither, and its `as unknown as` cast hid that from the typecheck, so the browser build would have failed at load since milestone B. Two lines each; nothing else in the UI changed.
 - Pins: game.ts is in the engine validation's import graph (through types.ts), play.ts and coach.ts are in the game calibration's, and the new file is in its data hashes. So engine run 10 and game holdout run 15 went stale. Re-pinned on the lead's go-ahead by engine run 11 and game holdout run 16, both pins only and post hoc, started at 15-minute load 3.94: engine metrics identical to run 10, with the generated tables byte-identical; in-sample summary identical; holdout metrics, diagnostics and invariants identical to run 15 (7.36 ms per game).
 
+### F: standout plays (engineer, 2026-11-14)
+- Built against the pre-registered data/game/m2-standout-tolerances.json (sha256 recorded above before any run; F2 minimum 0.10, confirmed by the lead). Data: data/engine/standouts.json (kinds, threshold, multipliers, centering; schema `standoutsSchema`). Code: packages/sim/src/engine/standouts.ts, with the factor applied in resolve.ts's class draws. Check and report: `scripts/game/standouts.ts --check`, docs/STANDOUT_REPORT.md, data/game/m2-standout-check.json.
+- Interface changes:
+  - `EngineData.standouts` and `EngineFiles.standouts`.
+  - `EngineOptions.standouts` (default off) and `observeStandouts` (scripts only).
+  - `Players.cards` (optional): the card-rating pools, which `gamePlayers` sets.
+  - `prepareGame(data, { standouts? })`.
+  - The trace factor `standout`: `{ player, number, name, rating, ratingLabel, value, kind, multiplier }`. It matches the UI's assumed `Standout` (packages/app/src/engine/types.ts reads `player, number, rating, value, kind, multiplier` from the trace), with `name` and `ratingLabel` added for the why line.
+  - Why templates `when: "standout"`, one variant per kind; their headlines start "Standout:".
+  - The UI loader loads standouts.json.
+- Order: the byte-identity proof with standouts off came first (all 10,000 in-sample outcome digests identical to 04f0f5d). Then one centering run (every centering at 1, the in-sample seeds), then the check.
+- Results, all inside the pre-registered tolerances:
+  - F1: largest class-share move 0.059 pp; points per team-game mean -0.029, SD +0.101; turnovers +0.005; 50+ make rate -0.135 pp; no gated step 5 metric changes status.
+  - F2: relative effect at the threshold from 0.19 (sack) to 0.91 (breakaway run), all at least 0.10.
+  - F3: 0 bad entries, 0 with standouts off.
+  - F6: 2.44 standouts per game. No holdout run (designed and centered, as the lead ruled).
+- For the lead (F2 reading): the spec's F2 compares an elite player with a league-average one, so the effect includes the step 4 rating effects that rating already has. The standout layer alone (elite, on vs off) is 0.09 for bigCatch and sack and 0.12 to 0.25 for the others. If F2 should mean the standout layer alone, those two multipliers need raising, and F1 must then be rerun.
+- Spec gap: the sack kind names LB, but linebackers have no Pass Rush rating (POSITION_SKILLS), so no LB can be elite for it. The positions stay as pre-registered; the schema checks that at least one listed position has one of the kind's ratings.
+- `enabled` is false in the shipped data, the lead's call to make. Turning standouts on changes game outcomes by design, and with them 21 tests that pin step 5 or scripted-game outcomes:
+  - the committed in-sample summary pinned as step 5d run H (step5b, step5c and step5d spec checks);
+  - the step 5c repro seeds;
+  - the M2 e-session scripted games (overtime, tie, AI two-point);
+  - test/m2/outcome-digests.test.ts;
+  - B7's swapped credit stream: with standouts on, the credited player decides whether a play is a standout and so its why line.
+
+  Those are value re-points for the test-writer, plus an in-sample summary re-run and the CLI snapshot. With `enabled` false the game is exactly step 5's (the proof above), and F1 to F3 and F6 ran with standouts explicitly on.
+- Pins: resolve.ts, participants.ts and shared engine.ts are in the engine validation's import graph, and play.ts in the calibration's. So engine run 11 and game holdout run 16 are stale again, pending the lead (pins only would match: with `enabled` false nothing the engine validation or the game plays changes).
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

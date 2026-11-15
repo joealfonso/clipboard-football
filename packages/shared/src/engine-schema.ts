@@ -17,6 +17,7 @@ import type {
   ParticipantsConfig,
   Personnel,
   Player,
+  StandoutsConfig,
   RatingsConfig,
   TeamPool,
   WhyTemplates,
@@ -400,6 +401,41 @@ export const participantsSchema = z
     for (const t of p.tilts) if (!(t.role in p.roles)) ctx.addIssue({ code: "custom", message: `tilt on unknown role ${t.role}` });
   });
 
+// ---------------------------------------------------------------- M2 F: standout plays
+
+const standoutKindIds = ["breakawayRun", "bigCatch", "sack", "pick", "longKick"] as const;
+export const standoutsSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    designed: z.literal(true),
+    note: z.string().optional(),
+    enabled: z.boolean(),
+    threshold: z.number().int().min(0).max(99),
+    kinds: z.array(
+      z.strictObject({
+        id: z.enum(standoutKindIds),
+        role: z.enum(["ballCarrier", "target", "sacker", "interceptor", "kicker"]),
+        positions: z.array(position).min(1),
+        ratings: z.array(z.string().min(1)).min(1),
+        family: z.enum(["run", "pass", "fieldGoal"]),
+        class: z.string().min(1),
+        minDistance: z.number().int().positive().optional(),
+        multiplier: z.number().min(1),
+      }),
+    ),
+    centering: z.strictObject(Object.fromEntries(standoutKindIds.map((k) => [k, z.number().positive()])) as Record<(typeof standoutKindIds)[number], z.ZodNumber>),
+  })
+  .superRefine((s, ctx) => {
+    const ids = s.kinds.map((k) => k.id);
+    if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "a standout kind is listed twice" });
+    // At least one of a kind's positions must have one of its ratings. A position without any can
+    // never be elite for the kind (the sack kind's LB: linebackers have no Pass Rush; DECISIONS, M2 F).
+    for (const k of s.kinds) {
+      const has = k.positions.some((pos) => k.ratings.some((r) => [...BASE_RATINGS, ...(POSITION_SKILLS[pos] as readonly string[])].includes(r)));
+      if (!has) ctx.addIssue({ code: "custom", message: `${k.id}: none of ${k.positions.join(", ")} has any of ${k.ratings.join(", ")}` });
+    }
+  });
+
 export interface EngineFiles {
   readonly config: unknown;
   readonly scrimmage: unknown;
@@ -409,6 +445,7 @@ export interface EngineFiles {
   readonly matchup: unknown;
   readonly personnel: unknown;
   readonly participants: unknown;
+  readonly standouts: unknown;
   readonly ratings: unknown;
   readonly distributions: unknown;
   readonly names: unknown;
@@ -428,6 +465,7 @@ export function parseEngineData(files: EngineFiles, rules: RuleSet, caller: Call
     matchup: matchupCenteredSchema.parse(files.matchup) as unknown as MatchupCentered,
     personnel: personnelSchema.parse(files.personnel) as unknown as Personnel,
     participants: participantsSchema.parse(files.participants) as unknown as ParticipantsConfig,
+    standouts: standoutsSchema.parse(files.standouts) as unknown as StandoutsConfig,
     ratings: ratingsSchema.parse(files.ratings) as unknown as RatingsConfig,
     distributions: distributionsSchema.parse(files.distributions) as unknown as Distributions,
     names: namesSchema.parse(files.names) as Names,

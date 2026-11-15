@@ -1,7 +1,7 @@
 {
   "version": 2,
   "designed": true,
-  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used. Step 5c (G1, designed): a template with a `variant` serves only that case: the matchup lines by the dominant multiplier's direction (up: above 1, down: below 1); the fluke line only for a class under the engine's rare-class threshold (config.fluke.classProbabilityBelow), a long gain past the yards percentile gets its own line; the baseline says \"common\" only at commonAtLeastPct or more. M2 milestone D (designed): every template also has a `headline`, the plain-words line the game shows (no multipliers, percentages or raw ids); it may name players from the trace's role entries (#number name). The `text` line stays as the detail line, unchanged. Rendering either fails with a typed error when a slot has no value.",
+  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used. Step 5c (G1, designed): a template with a `variant` serves only that case: the matchup lines by the dominant multiplier's direction (up: above 1, down: below 1); the fluke line only for a class under the engine's rare-class threshold (config.fluke.classProbabilityBelow), a long gain past the yards percentile gets its own line; the baseline says \"common\" only at commonAtLeastPct or more. M2 milestone D (designed): every template also has a `headline`, the plain-words line the game shows (no multipliers, percentages or raw ids); it may name players from the trace's role entries (#number name). The `text` line stays as the detail line, unchanged. Rendering either fails with a typed error when a slot has no value. M2 milestone F (designed): a play whose trace has a standout entry uses the standout line for its kind (variant), unless it drew a flag.",
   "minLogEffect": 0.05,
   "commonAtLeastPct": 20,
   "order": [
@@ -92,7 +92,13 @@
     "fieldGoal": "A field goal try",
     "extraPoint": "An extra point",
     "kickoff": "A kickoff",
-    "onsideKick": "An onside kick"
+    "onsideKick": "An onside kick",
+    "speed": "speed",
+    "elusiveness": "elusiveness",
+    "hands": "hands",
+    "passRush": "pass rush",
+    "ballSkills": "ball skills",
+    "kickPower": "leg"
   },
   "templates": [
     {
@@ -270,6 +276,66 @@
       "text": "The quarterback spikes the ball to stop the clock.",
       "headline": "#{passer.number} {passer.name} spikes the ball to stop the clock.",
       "factors": []
+    },
+    {
+      "id": "standoutBreakawayRun",
+      "when": "standout",
+      "variant": "breakawayRun",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.multiplier}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) broke it for {class.label}.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutBigCatch",
+      "when": "standout",
+      "variant": "bigCatch",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.multiplier}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) made {class.label}.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutSack",
+      "when": "standout",
+      "variant": "sack",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.multiplier}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) got the sack.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutPick",
+      "when": "standout",
+      "variant": "pick",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.multiplier}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) made the interception.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutLongKick",
+      "when": "standout",
+      "variant": "longKick",
+      "text": "{fieldGoal.distance}-yard field goal: {class.label}, {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.multiplier}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) hit the {fieldGoal.distance}-yard field goal.",
+      "factors": [
+        "standout",
+        "class",
+        "fieldGoal"
+      ]
     }
   ]
 }

@@ -5,7 +5,9 @@
 // adds data (the jersey-number rules, the participants file, the headlines) by design; every
 // other byte of the step 5 record must match.
 //
-//   node --import ./scripts/engine/register.mjs scripts/game/outcome-digests.ts [--write <file>] [--check <file>]
+//   node --import ./scripts/engine/register.mjs scripts/game/outcome-digests.ts [--write <file>] [--check <file>] [--standouts on]
+//
+// Standouts (milestone F) are off unless --standouts on: they change outcomes by design.
 //
 // --write records the digests (run on the pre-M2 tree to make the baseline); --check compares
 // against a baseline file and exits 1 on any difference. The baseline's slice is the committed
@@ -69,10 +71,11 @@ export interface DigestFile {
   readonly slice: readonly string[];
 }
 
-export function digestRun(data: GameData, base: Provenance, sliceGames: number): DigestFile {
+export function digestRun(data: GameData, base: Provenance, sliceGames: number, standouts = false): DigestFile {
   const lg = data.config.league;
   const seeds = runSeeds(lg.calibrationSeed, lg.leagues, lg.gamesPerLeague);
-  const kit = prepareGame(data);
+  // M2 F: the proof is with standouts off (they change outcomes by design, milestone F1).
+  const kit = prepareGame(data, { standouts });
   const coach = averageCoachFor(data);
   const slice: string[] = [];
   const leagues = seeds.leagueSeeds.map((leagueSeed, l) => {
@@ -97,7 +100,7 @@ function main(): number {
   const check = at("--check");
   const base: Provenance = check !== undefined ? (JSON.parse(readFileSync(check, "utf8")) as DigestFile).provenance : { rulesHash: data.rulesHash, dataHashes: data.dataHashes };
   const t0 = performance.now();
-  const run = digestRun(data, base, data.config.league.ciSliceGames);
+  const run = digestRun(data, base, data.config.league.ciSliceGames, at("--standouts") === "on");
   process.stderr.write(`[outcome-digests] ${run.leagues.reduce((a, l) => a + l.games, 0)} games in ${((performance.now() - t0) / 1000).toFixed(1)} s\n`);
   const write = at("--write");
   if (write !== undefined) writeFileSync(write, JSON.stringify(run, null, 1) + "\n");

@@ -109,6 +109,27 @@ Supported ids (15): the 12 of step 3 plus offensive pass interference, illegal c
 
 **Rating ranks** (computed; `ratingRanks(pools)`): for every player of the generated league (card ratings: after the team-strength shift, before home field), each base rating's and position skill's rank within his position, 1 the highest, with the count at the position. Ties go to the lower player id in string order, so ranks are 1..n with no repeats.
 
+## Standout plays
+
+**Designed, centered** (M2 milestone F; data/engine/standouts.json, packages/sim/src/engine/standouts.ts; report docs/STANDOUT_REPORT.md). Off in the shipped game until the lead turns `enabled` on (DECISIONS.md, M2 F).
+
+- Threshold: a player is elite for a kind when his card rating (the league pool after the team-strength shift, before home field) for any of the kind's ratings is at least 90 (spec resolved 8), and he plays one of the kind's positions.
+- The five kinds, each on class probabilities only (locked 3); a standout never edits the real play drawn in the class:
+
+| Kind | Role | Positions | Ratings | Class | Multiplier |
+|---|---|---|---|---|---|
+| breakawayRun | ball carrier | RB, QB | Speed, Elusiveness | run 20+ | 1.35 |
+| bigCatch | target | WR, TE, RB | Speed, Hands | completion 20+ | 1.6 |
+| sack | sacker | DL, LB | Pass Rush | sack | 1.7 |
+| pick | interceptor | CB, S | Ball Skills | interception | 1.9 |
+| longKick | kicker | K | Kick Power | field goal good, 50+ yards | 1.6 |
+
+- Linebackers have no Pass Rush rating, so the sack kind's LB position can never be elite: in practice, sacks come from defensive linemen. There is no strip-sack kind (spec resolved 8).
+- Size: on a play a kind applies to, the boosted class's weight is multiplied by centering x (1 + the sum over elite on-field players of share x (multiplier - 1)). The share is the player's base share of the role (participants.json, before class tilts). Below the threshold a player adds nothing, so the factor before centering is exactly 1 (F5).
+- Centering (like the matchup table): every applicable play's factor is multiplied by the kind's centering, the inverse of the mean raw factor over the in-sample leagues' applicable class draws (`scripts/game/standouts.ts --center`): breakawayRun 0.969, bigCatch 0.944, sack 0.969, pick 0.952, longKick 0.980. League class rates stay where they were (F1).
+- Tagging: a play is a standout only when the factor was applied, its class was drawn, and the elite player is the one credited with the role (F3). When the class was drawn, crediting weights each elite candidate by his multiplier, because he made it more likely. The trace gets a `standout` entry (player, number, name, rating, rating label, card value, kind, multiplier), and the why line uses the kind's standout template unless the play drew a flag. A standout on a play that doesn't stand is not counted (box score, end-of-game list, F6).
+- Multipliers, threshold, kinds and centering are designed data; the F1 tolerances and the F2 minimum (0.10) were pre-registered in data/game/m2-standout-tolerances.json before any run.
+
 ## Why sentence
 
 **Designed.** Each play records a structured trace (detail.trace): the call, the cell and backoff level, the class drawn with its baseline and final probability, the matchup and formation multipliers on that class, each rating effect on it, the fouls, the special-teams event, and the fluke flag. The sentence (detail.why) comes from a template in data/engine/why.json whose slots bind only to trace fields; a slot with no value throws, there is no fallback text. Order: a pre-snap foul, then a fluke, then a foul on the play, then the dominant factor (largest absolute log multiplier on the class that happened, ties by matchup, rating, formation; under 0.05 none dominates and the sentence says it was a common result). Kicks have their own templates.

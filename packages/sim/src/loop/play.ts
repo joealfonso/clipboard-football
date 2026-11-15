@@ -122,8 +122,9 @@ export interface GameKit {
   readonly resolve: ResolvePlay;
 }
 
-export function prepareGame(data: GameData): GameKit {
-  return { data, resolve: createEngine(data.engine) };
+/** `standouts` overrides data/engine/standouts.json `enabled` (the F1 standouts-off run, the byte-identity proof). */
+export function prepareGame(data: GameData, options: { readonly standouts?: boolean } = {}): GameKit {
+  return { data, resolve: createEngine(data.engine, { standouts: options.standouts ?? data.engine.standouts.enabled }) };
 }
 
 function snapshot(s: GameState): Snapshot {
@@ -167,6 +168,8 @@ export function gamePlayers(setup: GameSetup, data: GameData): Players {
   return {
     home: shifted(setup.home.pool, hf.ratingEdge),
     away: shifted(setup.away.pool, -hf.ratingEdge),
+    // M2 F: the card ratings (before home field) decide who is elite.
+    cards: { home: setup.home.pool, away: setup.away.pool },
     ...(c === 0 ? {} : { offensePreSnapFoulScale: { home: 1 - c, away: 1 + c } }),
   };
 }
