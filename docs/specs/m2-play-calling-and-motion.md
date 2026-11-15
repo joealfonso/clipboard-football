@@ -470,7 +470,7 @@ Open:
 - Every number in "Motion" and the card sizes (playtest, art-director).
 - The new and revised art slots (art-director review against DESIGN.md).
 
-## Resolved (Joseph, question dialog, 2026-11-15)
+## Resolved (Joseph, question dialog, 2026-11-14)
 
 1. Pre-snap look: the opponent stays in the huddle until the player's last key, then lines up in its real alignment and snaps. This is the designer's recommendation. E6 holds, and there is no Space-to-snap step (open decision 2 lapses).
 2. Call order: formation first. Offense picks a formation card, then a play card from that formation, with run and pass plays on one play screen or split by the 7-choice rule. Defense picks its front, then its play. This replaces "the order stays Run or Pass, then Formation, then play". The builder amends the engine's request screens so the order is formation first. Outcomes stay byte-identical: only the order the same final call is assembled in changes.
