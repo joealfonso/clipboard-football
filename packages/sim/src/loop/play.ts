@@ -13,7 +13,9 @@
 //                 instead, step 5c E); then offense and defense calls, resolvePlay, penalty
 //                 choice, applyPlay.
 
-import type { DecisionRequest, GameData, OffenseCallChoice, PlayResult, RequestEvent, RequestState, RuleSet, TeamPool, Tempo } from "../../../shared/src/types";
+import type { DecisionRequest, GameData, OffenseCallChoice, PlayResult, RequestEvent, RequestState, RuleSet, Standout, TeamPool, Tempo, WhyTemplates } from "../../../shared/src/types";
+import { render, renderHeadline, templateFor, type TraceEntry } from "../engine/why";
+import { kickStands, playStands } from "./box";
 import { FORMATION_PLAYS, type OffenseCall } from "../caller/offense";
 import { createEngine, type Players, type ResolvePlay } from "../engine/resolve";
 import type { PenaltyOption } from "../game/enforce";
@@ -86,6 +88,8 @@ export type GameEvent =
       /** The offense spent a timeout instead of a ten-second run-off. */
       readonly runoffTimeout: boolean;
       readonly after: Snapshot;
+      /** M2 F: a standout play, when the engine's candidate stands after penalty enforcement (absent otherwise). */
+      readonly standout?: Standout;
     }
   | { readonly t: "twoMinuteWarning"; readonly period: number }
   | { readonly t: "endPeriod"; readonly period: number; readonly score: { readonly home: number; readonly away: number } };
@@ -599,7 +603,9 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   const next = applyPlay(s, rules, play, { ...(penalty === null ? {} : { penalty }), runoffTimeout });
   const usedTimeout = runoffTimeout && next.timeouts[offenseTeam] < s.timeouts[offenseTeam] && play.kind !== "kickoff";
   const after = snapshot(next);
-  const ev: GameEvent = { t: "play", before, offense, defense, play, penalty, runoffTimeout: usedTimeout, after };
+  const ev0: Extract<GameEvent, { t: "play" }> = { t: "play", before, offense, defense, play, penalty, runoffTimeout: usedTimeout, after };
+  const star = standoutOf(ev0, rules, kit.data.engine.why);
+  const ev: GameEvent = star === null ? ev0 : { ...ev0, standout: star };
   if (before.phase === "scrimmage") lastSnap = {
       kneel: play.kind === "kneel",
       restart: (play.fouls ?? []).length > 0 ? 2 : "outOfBounds" in play && play.outOfBounds === true ? 1 : 0,
@@ -609,6 +615,28 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   events.push(ev);
   stateEvents(s, next, events);
   return { state: next, events, inputs, snaps, lastSnap };
+}
+
+/**
+ * M2 F (code review): the loop's final standout call. The engine's candidate counts only on a play
+ * that stands (playStands, kickStands), whatever the flags; its why line and headline are the
+ * standout template's, bound to the play's trace plus the standout entry. Labelling only.
+ */
+export function standoutOf(ev: Extract<GameEvent, { t: "play" }>, rules: RuleSet, why: WhyTemplates): Standout | null {
+  const trace = ((ev.play.detail ?? {})["trace"] ?? []) as readonly TraceEntry[];
+  const c = trace.find((e) => e.factor === "standoutCandidate");
+  if (c === undefined) return null;
+  const stands = ev.play.kind === "punt" || ev.play.kind === "fieldGoal" ? kickStands(ev, rules) : playStands(ev, rules);
+  if (!stands) return null;
+  const entry: TraceEntry = { ...c, factor: "standout" };
+  const t = templateFor(why, "standout", ev.play.kind, String(c["kind"]));
+  const full = [...trace, entry];
+  const pick = (k: string): string => String(c[k]);
+  const num = (k: string): number => Number(c[k]);
+  return {
+    player: pick("player"), number: num("number"), name: pick("name"), rating: pick("rating"), ratingLabel: pick("ratingLabel"),
+    value: num("value"), kind: pick("kind"), applied: num("applied"), why: render(t, full).text, headline: renderHeadline(t, full),
+  };
 }
 
 export function recordOf(run: GameRun, setup: GameSetup, data: GameData): GameRecord {

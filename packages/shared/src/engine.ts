@@ -395,8 +395,13 @@ export const TRACE_FIELDS = {
   returner: ["id", "number", "name"],
   /** One per foul, in the order of the play's fouls. */
   fouler: ["id", "number", "name", "penalty"],
-  /** M2 milestone F: the elite player who made a standout play (card rating shown). */
-  standout: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "multiplier"],
+  /**
+   * M2 milestone F: the elite player credited on a class his standout factor raised (applied
+   * factor above 1). A candidate: the loop makes it a standout only if the play stands.
+   */
+  standoutCandidate: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "applied"],
+  /** The loop's final standout (GameEvent `standout`), the slots of the standout why line. */
+  standout: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "applied"],
   call: ["label", "leaf", "kind"],
   cell: ["family", "level", "key"],
   class: ["name", "label", "basePct", "pct"],

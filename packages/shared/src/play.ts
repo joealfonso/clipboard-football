@@ -166,6 +166,24 @@ export interface OnField {
   readonly defense: OnFieldSide;
 }
 
+/**
+ * M2 milestone F: a standout play as the game counts it (GameEvent `standout`): the engine's
+ * candidate (trace `standoutCandidate`) on a play that stands after penalty enforcement, with the
+ * standout why line and headline. `applied` is the factor the engine applied to the class.
+ */
+export interface Standout {
+  readonly player: string;
+  readonly number: number;
+  readonly name: string;
+  readonly rating: string;
+  readonly ratingLabel: string;
+  readonly value: number;
+  readonly kind: string;
+  readonly applied: number;
+  readonly why: string;
+  readonly headline: string;
+}
+
 /** The detail fields M2 adds that the UI reads. Every PlayResult from resolvePlay has them. */
 export interface PlayDetailM2 {
   readonly participants: Participants;

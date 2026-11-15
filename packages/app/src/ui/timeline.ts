@@ -216,6 +216,8 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   const { play, before, after } = event;
   const tm = templates.timing;
   const d = readDetail(play);
+  // M2 F (code review): the loop's final standout (a candidate whose play stood), the detail hook as a fallback.
+  const star = event.standout ?? d.standout;
   const parts = d.participants ?? {};
   const unit = unitOf(event);
   const isKickTry = play.kind === "extraPoint" || (play.kind === "noPlay" && event.offense.call === "extraPoint");
@@ -532,7 +534,7 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
     else if (gOff >= 6 || gDef >= 6) label("Touchdown", finalBall, liveEnd, "after.score");
     else if (gDef === 2 && after.safetyKick) label("Safety", finalBall, liveEnd, "after.score");
   }
-  if (d.standout !== undefined) label("Standout", startOf.get(d.standout.player) ?? finalBall, liveEnd, "standout");
+  if (star !== undefined) label("Standout", startOf.get(star.player) ?? finalBall, liveEnd, "standout");
 
   // Flags at the foul spot, or the line when there is none, shown at the whistle.
   const flags: TLLabel[] = (play.fouls ?? []).map((f) => ({ text: "Flag", at: { x: MID_X + 4, y: f.spot ?? los }, t: play.kind === "noPlay" ? snapAt : liveEnd, source: "fouls" }));
@@ -578,7 +580,7 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   const caught = b.labels.some((l) => l.source === "turnover" || l.source === "participants.fumbleRecoverer") || tackler !== null || kind === "pass";
   const holdMs = scored ? tm.scoreHoldMs : caught ? tm.holdMs : 0;
   const involved = [...new Set([...PARTICIPANT_ROLES.map((r) => parts[r]).filter((x): x is string => x !== undefined), ...(parts.foulers ?? [])])].filter((id) => startOf.has(id));
-  const rings = [b.holder, play.kind === "noPlay" ? (parts.foulers?.[0] ?? null) : null, d.standout?.player ?? null].filter((x): x is string => x !== null && startOf.has(x));
+  const rings = [b.holder, play.kind === "noPlay" ? (parts.foulers?.[0] ?? null) : null, star?.player ?? null].filter((x): x is string => x !== null && startOf.has(x));
 
   return {
     los,

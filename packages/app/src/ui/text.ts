@@ -271,7 +271,8 @@ export function resultLine(ev: PlayEvent, ctx: TextCtx): string {
   const out: string[] = [];
   const d = readDetail(play);
   const head = cap(playText(ev, ctx)) + ".";
-  out.push(d.standout === undefined ? head : `Standout: ${head}`);
+  // M2 F (code review): the loop's final standout, never a candidate a flag took away.
+  out.push((ev.standout ?? d.standout) === undefined ? head : `Standout: ${head}`);
   const gOff = after.score[off] - before.score[off];
   const gDef = after.score[def] - before.score[def];
   if (play.kind !== "extraPoint" && play.kind !== "twoPoint" && play.kind !== "fieldGoal") {

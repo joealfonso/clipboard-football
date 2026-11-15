@@ -44,28 +44,54 @@ Fixed seed, 40,000 plays per arm, league-average (65) teams, one slot at the thr
 | pick | 0.0429 | 0.0529 | 0.234 | 0.128 | 0.1 | pass |
 | longKick | 0.6126 | 0.7765 | 0.268 | 0.119 | 0.1 | pass |
 
-## F3: tagging
+## F1 outside the calibration leagues (report, not gated)
 
-Standout entries that fail the three conditions (factor applied, class drawn, player credited): 0. Entries with standouts off: 0.
+Three leagues from run seed 27261112 (league seeds 983090831, 2473283415, 304467696, none a calibration league), 3000 games, standouts on vs off on the same seeds. The centering was set on the calibration leagues.
+
+| Check | Off | On | Difference | Tolerance | Within |
+|---|---|---|---|---|---|
+| `classShare.run.r4_9` | 33.865 | 33.749 | -0.116 | 0.2 | yes |
+| `classShare.run.loss` | 17.673 | 17.658 | -0.014 | 0.2 | yes |
+| `classShare.run.r10_19` | 8.507 | 8.503 | -0.004 | 0.2 | yes |
+| `classShare.run.r1_3` | 36.883 | 36.922 | 0.039 | 0.2 | yes |
+| `classShare.run.fumble` | 0.648 | 0.669 | 0.022 | 0.2 | yes |
+| `classShare.run.r20` | 2.424 | 2.498 | 0.074 | 0.2 | yes |
+| `classShare.pass.c10_19` | 16.610 | 16.655 | 0.046 | 0.2 | yes |
+| `classShare.pass.c20` | 7.760 | 7.710 | -0.049 | 0.2 | yes |
+| `classShare.pass.inc` | 29.436 | 29.400 | -0.036 | 0.2 | yes |
+| `classShare.pass.sack` | 6.386 | 6.434 | 0.049 | 0.2 | yes |
+| `classShare.pass.int` | 1.996 | 2.020 | 0.024 | 0.2 | yes |
+| `classShare.pass.scramble` | 4.677 | 4.637 | -0.041 | 0.2 | yes |
+| `classShare.pass.c1_9` | 29.579 | 29.580 | 0.001 | 0.2 | yes |
+| `classShare.pass.c0` | 2.882 | 2.884 | 0.002 | 0.2 | yes |
+| `classShare.pass.fumbleCatch` | 0.675 | 0.679 | 0.004 | 0.2 | yes |
+| `points.perTeamGame.mean` | 22.251 | 22.214 | -0.038 | 0.3 | yes |
+| `points.perTeamGame.sd` | 9.271 | 9.244 | -0.028 | 0.3 | yes |
+| `turnovers.perTeamGame` | 1.161 | 1.179 | 0.018 | 0.05 | yes |
+| `fieldGoal.makeRate.50plus` | 65.608 | 65.422 | -0.186 | 1 | yes |
+
+## F3: tagging, both ways
+
+From the record alone (the on-field players, the class drawn, the player credited, the factor recomputed), 24357 plays met all three conditions (factor applied and above 1, its class drawn, the elite player credited). Plays where the engine's candidate and the recomputation disagree, either way, or where the loop's final standout is not exactly "a candidate whose play stands": 0 (outside leagues: 0). Candidates with standouts off: 0.
 
 ## F6: standouts per game (report, not gated)
 
-Counted on plays that stand (a standout a flag took away is not one): 2.438 per game (SD 2.208); 607 more were taken away by accepted flags over 10000 games.
+The loop's final standouts (GameEvent `standout`: a candidate whose play stands after penalty enforcement): 2.376 per game (SD 2.187); 597 more were taken away by accepted flags over 10000 games.
 
 | Standouts in a game | Games |
 |---|---|
-| 0 | 2176 |
-| 1 | 1938 |
-| 2 | 1778 |
-| 3 | 1369 |
-| 4 | 1037 |
-| 5 | 707 |
-| 6 or more | 995 |
+| 0 | 2290 |
+| 1 | 1950 |
+| 2 | 1754 |
+| 3 | 1361 |
+| 4 | 1004 |
+| 5 | 695 |
+| 6 or more | 946 |
 
 | Kind | Per game |
 |---|---|
-| breakawayRun | 0.169 |
-| bigCatch | 1.290 |
+| breakawayRun | 0.163 |
+| bigCatch | 1.235 |
 | sack | 0.679 |
 | pick | 0.277 |
 | longKick | 0.023 |

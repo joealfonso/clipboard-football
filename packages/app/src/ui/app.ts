@@ -376,7 +376,7 @@ export class App {
     g.lastPlay = ev;
     g.result = resultLine(ev, ctx);
     g.calls = callsLine(ev, ctx);
-    g.why = whyHeadline(ev.play);
+    g.why = whyHeadline(ev.play, ev.standout);
     if (g.why === null) console.warn(`No explanation for play ${ev.after.period}:${ev.before.clock} (seed ${g.matchup.seed}, event ${g.events.length - 1}).`);
     this.announce(g);
   }
@@ -1149,7 +1149,7 @@ export class App {
     const t = g.matchup;
     const winner = s.result?.winner ?? null;
     const verdict = winner === null ? "Tie." : winner === g.human ? "You win." : "You lose.";
-    const standouts = g.events.filter((e): e is PlayEvent => e.t === "play" && readDetail(e.play).standout !== undefined);
+    const standouts = g.events.filter((e): e is PlayEvent => e.t === "play" && (e.standout ?? readDetail(e.play).standout) !== undefined);
     return [
       h("p", { class: "big mono" }, `${t.away.nickname} ${s.score.away}, ${t.home.nickname} ${s.score.home}`),
       h("p", {}, verdict),

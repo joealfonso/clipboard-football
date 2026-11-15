@@ -198,11 +198,11 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
   function standoutMult(family: string, classes: readonly string[], ctx: Ctx, distance: number | null): Float64Array {
     const m = new Float64Array(classes.length).fill(1);
     if (!standoutsOn) return m;
-    const applied = standoutsFor(so, data.participants, family, ctx.leaf, distance, ctx.offense, ctx.defense, ctx.card);
+    // Only the kinds whose class this draw has (code review: the centering counts exactly these).
+    const applied = standoutsFor(so, data.participants, family, ctx.leaf, distance, ctx.offense, ctx.defense, ctx.card).filter((a) => classes.includes(a.kind.class));
     options.observeStandouts?.(applied);
     for (const a of applied) {
       const k = classes.indexOf(a.kind.class);
-      if (k < 0) continue;
       m[k] = (m[k] as number) * a.factor;
       ctx.applied.push(a);
     }
@@ -343,12 +343,13 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     const boost = hit === undefined ? undefined : { role: hit.kind.role, weights: new Map(hit.elites.map((e) => [e.player.id, hit.kind.multiplier])) };
     const cr = credit({ play, cls, leaf: ctx.leaf, offense: ctx.offense, defense: ctx.receiving?.unit ?? ctx.defense, unit: ctx.receiving?.name ?? null, ...(boost === undefined ? {} : { boost }) }, ctx.credit);
     for (const e of cr.trace) ctx.trace.push(e);
-    // A standout: the factor applied, its class drawn, and the elite player credited with the role (F3).
+    // A standout candidate (F3): the factor applied and above 1, its class drawn, and the elite player
+    // credited with the role. Whether it is a standout is the loop's call, once the play stands or
+    // not after penalty enforcement (code review); the engine's own why line is the usual one.
     const credited = hit === undefined ? undefined : cr.participants[hit.kind.role];
     const star = hit?.elites.find((e) => e.player.id === credited);
-    if (hit !== undefined && star !== undefined) {
-      ctx.trace.push({ factor: "standout", player: star.player.id, number: star.player.number, name: star.player.name, rating: star.rating, ratingLabel: label(star.rating), value: star.value, kind: hit.kind.id, multiplier: round2(hit.kind.multiplier) });
-      if (when !== "penalty") when = "standout";
+    if (hit !== undefined && star !== undefined && hit.factor > 1) {
+      ctx.trace.push({ factor: "standoutCandidate", player: star.player.id, number: star.player.number, name: star.player.name, rating: star.rating, ratingLabel: label(star.rating), value: star.value, kind: hit.kind.id, applied: round2(hit.factor) });
     }
     const t: WhyTemplate = templateFor(why, when, play.kind, variantFor(why, when, ctx.trace));
     const r = render(t, ctx.trace);

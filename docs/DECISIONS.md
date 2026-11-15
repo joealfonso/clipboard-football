@@ -1552,6 +1552,20 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
 - The pins-only engine run 12 and game holdout run 17 wait until G is done, then run once at the end of M2.
 - Sack and LB: no linebacker can be elite for sacks until a later milestone gives linebackers a Pass Rush rating. The kind stays as pre-registered.
 
+### F code review fixes (engineer, 2026-11-14)
+- (High) Standouts and flags. The engine no longer tags a standout or switches the why line. It records a candidate (trace factor `standoutCandidate`; the old `standout` factor is gone from the trace). The loop decides the final status after penalty enforcement from `playStands`/`kickStands`, and puts `standout` on the play event (`GameEvent.play.standout`, shared type `Standout`) with the standout why line and headline, rendered by `standoutOf` in loop/play.ts.
+  - A play that stands after a declined foul now gets the standout headline (checked on league 2026 seed 30: the declined illegal-contact play reads "Standout: #80 ...'s hands (99) made a 20-yard-plus completion."). A play a flag wipes is not a standout.
+  - The app reads the loop's value, with the detail hook only as its fixtures' fallback: the end-of-game list (app.ts), the result line's "Standout:" (text.ts), the timeline label and ring (timeline.ts), and the why line (`whyHeadline(play, standout)`). The UI test's label check reads the same final field.
+- (Medium) The applied factor. The candidate carries `applied`, the factor the engine applied (centering x (1 + share x (multiplier - 1))), and a candidate needs it above 1. The standout why line cites it (x{standout.applied}) and never the raw multiplier.
+- (Medium-low) F3 runs both ways. scripts/game/standouts.ts recomputes the three conditions for every play from the record alone (on-field players, class drawn, player credited, the factor via `standoutsFor`). Result: 24,357 plays met them in the in-sample run, and 0 plays disagreed either way, with the candidate or with the loop's final call. Outside leagues: 0 too.
+- (Low) Schema strictness.
+  - `standoutsSchema` rejects a rating that isn't a base rating or a position skill.
+  - `checkStandoutClasses` (run in `parseEngineData`) rejects a class that isn't one of its family's classes.
+  - Both give clear messages.
+  - `observeStandouts` sees only kinds whose class the draw has. The recentering gave the same values to 6 places, so the centering and F1's outcomes are unchanged.
+- Results: standouts off, all 10,000 in-sample outcome digests are still identical to 04f0f5d. F1 passes as registered (largest class-share move 0.059 pp, other values as before), as do F2 and F3. F6 is 2.38 standouts per game, counted as the loop's final standouts.
+- F1 on 3 leagues outside the 10 calibration leagues (run seed 27261112; 3,000 games; report, not gated): every check within its tolerance. Largest class-share move 0.116 pp; points mean -0.038, SD -0.028; turnovers +0.018; 50+ make rate -0.186 pp (docs/STANDOUT_REPORT.md).
+
 ### G1 and G2: challenge rules and close-call rates (engineer, 2026-11-14)
 - G1: the cited challenge and replay values are in data/rules/nfl-2026.json as `challenges.*` (11 leaves) and `replay.*` (18 leaves), one leaf per RULES.md row (the existing rule-set test checks it). The review-then-penalty order is `replay.penaltyChoiceAfterReview` (Rule 15-7-3, Item 3): a coach may remake an accept-or-decline choice after the review, so the review comes first and the penalty choice follows it, as the design wants.
 - G2: `uv run --project pipeline python -m pipeline.challenges` (pipeline/challenges/build.py) writes data/game/challenges.json, byte-identical on rerun (checked twice). It loads only the training seasons from data/game/config.json (2016-2023), drops any row from 2024 on or outside the regular season, and fails if a holdout season reaches the fit. pipeline/tests/test_challenges.py shows 2024-2026 rows never land.

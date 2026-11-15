@@ -4,6 +4,7 @@
 import type { PlayResult } from "@clipboard-football/shared";
 import { readDetail } from "./types";
 
-export function whyHeadline(play: PlayResult): string | null {
-  return readDetail(play).headline ?? null;
+/** M2 F: a standout (the loop's final call, GameEvent `standout`) has its own headline. */
+export function whyHeadline(play: PlayResult, standout?: { readonly headline: string }): string | null {
+  return standout?.headline ?? readDetail(play).headline ?? null;
 }

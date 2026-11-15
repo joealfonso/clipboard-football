@@ -15,7 +15,9 @@ import { join } from "node:path";
 import type { EngineData, GameData, Player, StandoutKindId, TeamPool } from "../../packages/shared/src/types";
 import type { GameState } from "../../packages/sim/src/game/types";
 import { createEngine } from "../../packages/sim/src/engine/resolve";
-import type { Applied } from "../../packages/sim/src/engine/standouts";
+import { standoutsFor, type Applied } from "../../packages/sim/src/engine/standouts";
+import { averageCoachFor, leagueFromSeed, setupGame } from "../../packages/sim/src/loop/league";
+import { gamePlayers } from "../../packages/sim/src/loop/play";
 import { generateTeam } from "../../packages/sim/src/engine/players";
 import { kickStands, playStands } from "../../packages/sim/src/loop/box";
 import type { GameEvent, GameKit, GameRecord } from "../../packages/sim/src/loop/play";
@@ -35,8 +37,8 @@ interface StandoutTolerances {
   readonly f2: { readonly minRelativeEffect: Readonly<Record<StandoutKindId, number>> };
 }
 
-function kitOf(data: GameData, standouts: boolean, observe?: (a: readonly Applied[]) => void): GameKit {
-  return { data, resolve: createEngine(data.engine, { standouts, ...(observe === undefined ? {} : { observeStandouts: observe }) }) };
+function kitOf(data: GameData, standouts: boolean, observe?: (a: readonly Applied[]) => void): GameKit & { standouts: boolean } {
+  return { data, standouts, resolve: createEngine(data.engine, { standouts, ...(observe === undefined ? {} : { observeStandouts: observe }) }) };
 }
 
 function withCentering(data: GameData, centering: Readonly<Record<StandoutKindId, number>>): GameData {
@@ -56,18 +58,57 @@ interface Tally {
   byKind: Record<string, number>;
   /** A standout entry whose play did not stand (a flag took it away). */
   wiped: number;
-  /** F3 checks: every standout entry's kind drew its class and the player holds the role. */
+  /**
+   * F3 both ways (code review): recomputed from the record alone (on-field players, class drawn,
+   * the player credited), a candidate exactly where all three hold, and a final standout exactly
+   * where a candidate's play stands.
+   */
   f3Bad: string[];
+  /** Plays whose recomputed conditions all hold (should equal the candidates). */
+  f3Expected: number;
 }
 
-function tally(data: GameData, kit: GameKit): Tally {
+const RUN_LEAVES = new Set(["insideRun", "outsideRun", "qbSneak"]);
+const PASS_LEAVES = new Set(["shortPass", "intermediatePass", "deepPass", "screenPass", "playAction"]);
+
+/** Whether the engine should have made this play a standout candidate, from the record alone (F3). */
+function expectCandidate(data: GameData, ev: Plays, players: ReturnType<typeof gamePlayers>, cards: Map<string, Player>): { kind: string; player: string } | null {
+  const d = (ev.play.detail ?? {}) as Record<string, unknown>;
+  const trace = (d["trace"] ?? []) as Record<string, unknown>[];
+  const leaf = String(trace.find((x) => x["factor"] === "call")?.["leaf"] ?? "");
+  const family = ev.play.kind === "fieldGoal" ? "fieldGoal" : RUN_LEAVES.has(leaf) ? "run" : PASS_LEAVES.has(leaf) ? "pass" : null;
+  const cls = d["class"];
+  if (family === null || typeof cls !== "string" || ev.play.kind === "noPlay") return null;
+  const of = d["onField"] as { offense: Record<string, string[]>; defense: Record<string, string[]> } | undefined;
+  if (of === undefined) return null;
+  const byId = new Map([...players.home.players, ...players.away.players].map((p) => [p.id, p]));
+  const unit = (side: Record<string, string[]>): Record<string, Player[]> => Object.fromEntries(Object.entries(side).map(([pos, ids]) => [pos, ids.map((id) => byId.get(id) as Player)]));
+  const classes = family === "fieldGoal" ? ["good", "miss", "blocked"] : (data.engine.scrimmage.families[family]?.classes ?? []);
+  const distance = typeof d["distance"] === "number" ? d["distance"] : null;
+  const applied = standoutsFor(data.engine.standouts, data.engine.participants, family, leaf, distance, unit(of.offense), unit(of.defense), (p) => cards.get(p.id) ?? p).filter((a) => classes.includes(a.kind.class));
+  const hit = applied.find((a) => a.kind.class === cls && a.elites.length > 0);
+  if (hit === undefined || !(hit.factor > 1)) return null;
+  const credited = ((d["participants"] ?? {}) as Record<string, string>)[hit.kind.role];
+  return hit.elites.some((e) => e.player.id === credited) ? { kind: hit.kind.id, player: credited as string } : null;
+}
+
+function tally(data: GameData, kit: GameKit & { standouts: boolean }, runSeed?: number, leagues?: number): Tally {
   const lg = data.config.league;
   const rules = data.engine.rules;
-  const t: Tally = { run: undefined as unknown as LeagueRun, classes: {}, points: [], turnovers: [], fg50: { att: 0, good: 0 }, standouts: [], byKind: {}, wiped: 0, f3Bad: [] };
-  const kindOf = new Map(data.engine.standouts.kinds.map((k) => [k.id, k]));
+  const t: Tally = { run: undefined as unknown as LeagueRun, classes: {}, points: [], turnovers: [], fg50: { att: 0, good: 0 }, standouts: [], byKind: {}, wiped: 0, f3Bad: [], f3Expected: 0 };
+  const coach = averageCoachFor(data);
+  const leagueCache = new Map<number, ReturnType<typeof leagueFromSeed>["teams"]>();
   t.run = runLeagues(data, {
-    runSeed: lg.calibrationSeed, leagues: lg.leagues, gamesPerLeague: lg.gamesPerLeague,
-    onGame: (record: GameRecord, box) => {
+    runSeed: runSeed ?? lg.calibrationSeed, leagues: leagues ?? lg.leagues, gamesPerLeague: lg.gamesPerLeague,
+    onGame: (record: GameRecord, box, g) => {
+      let teams = leagueCache.get(g.leagueSeed);
+      if (teams === undefined) {
+        teams = leagueFromSeed(data, g.leagueSeed).teams;
+        leagueCache.set(g.leagueSeed, teams);
+      }
+      const setup = setupGame(teams, g.leagueSeed, g.seed, () => coach);
+      const players = gamePlayers(setup, data);
+      const cards = new Map([...setup.home.pool.players, ...setup.away.pool.players].map((p) => [p.id, p]));
       for (const side of ["home", "away"] as const) {
         t.points.push(box[side].points);
         t.turnovers.push(box[side].interceptions + box[side].fumblesLost);
@@ -85,18 +126,21 @@ function tally(data: GameData, kit: GameKit): Tally {
           if (ev.play.good) t.fg50.good++;
         }
         const trace = (d["trace"] ?? []) as Record<string, unknown>[];
-        const so = trace.find((x) => x["factor"] === "standout");
-        if (so === undefined) continue;
-        const kind = kindOf.get(so["kind"] as StandoutKindId);
-        const parts = (d["participants"] ?? {}) as Record<string, string>;
-        if (kind === undefined || d["class"] !== kind.class || parts[kind.role] !== so["player"]) t.f3Bad.push(`seed ${record.seed}: ${JSON.stringify(so)}`);
-        const stands = ev.play.kind === "fieldGoal" ? kickStands(ev, rules) : playStands(ev, rules);
+        const cand = trace.find((x) => x["factor"] === "standoutCandidate");
+        const want = kit.standouts ? expectCandidate(data, ev, players, cards) : null;
+        if (want !== null) t.f3Expected++;
+        const got = cand === undefined ? null : { kind: String(cand["kind"]), player: String(cand["player"]) };
+        if (JSON.stringify(want) !== JSON.stringify(got)) t.f3Bad.push(`seed ${record.seed} play ${ev.before.period}/${ev.before.clock}: expected ${JSON.stringify(want)}, tagged ${JSON.stringify(got)}`);
+        const stands = ev.play.kind === "fieldGoal" || ev.play.kind === "punt" ? kickStands(ev, rules) : playStands(ev, rules);
+        // The loop's final call: a standout exactly when a candidate's play stands.
+        if ((cand !== undefined && stands) !== (ev.standout !== undefined)) t.f3Bad.push(`seed ${record.seed}: final standout ${ev.standout !== undefined} for a candidate ${cand !== undefined} that stands ${stands}`);
+        if (cand === undefined) continue;
         if (!stands) {
           t.wiped++;
           continue;
         }
         n++;
-        t.byKind[so["kind"] as string] = (t.byKind[so["kind"] as string] ?? 0) + 1;
+        t.byKind[String(cand["kind"])] = (t.byKind[String(cand["kind"])] ?? 0) + 1;
       }
       t.standouts.push(n);
     },
@@ -113,6 +157,26 @@ const shares = (c: Record<string, number>): Record<string, number> => {
   const tot = Object.values(c).reduce((a, b) => a + b, 0);
   return Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v / tot]));
 };
+
+type Check = { id: string; off: number; on: number; diff: number; tolerance: number; pass: boolean };
+
+function f1Checks(off: Tally, on: Tally, tol: StandoutTolerances): Check[] {
+  const checks: Check[] = [];
+  const add = (id: string, a: number, b: number, tolerance: number, scale = 1): void => {
+    const diff = (b - a) * scale;
+    checks.push({ id, off: a * scale, on: b * scale, diff, tolerance, pass: Math.abs(diff) <= tolerance + 1e-9 });
+  };
+  for (const fam of ["run", "pass"]) {
+    const a = shares(off.classes[fam] ?? {});
+    const b = shares(on.classes[fam] ?? {});
+    for (const k of Object.keys(a)) add(`classShare.${fam}.${k}`, a[k] ?? 0, b[k] ?? 0, tol.f1.scrimmageClassSharePp, 100);
+  }
+  add("points.perTeamGame.mean", mean(off.points), mean(on.points), tol.f1.pointsPerTeamGameMean);
+  add("points.perTeamGame.sd", sd(off.points), sd(on.points), tol.f1.pointsPerTeamGameSd);
+  add("turnovers.perTeamGame", mean(off.turnovers), mean(on.turnovers), tol.f1.turnoversPerTeamGame);
+  add("fieldGoal.makeRate.50plus", off.fg50.good / off.fg50.att, on.fg50.good / on.fg50.att, tol.f1.fieldGoalMakeRate50PlusPp, 100);
+  return checks;
+}
 
 function center(data: GameData): Record<StandoutKindId, number> {
   const ones = Object.fromEntries(KINDS.map((k) => [k, 1])) as Record<StandoutKindId, number>;
@@ -214,20 +278,14 @@ function main(): number {
   const t0 = performance.now();
   const off = tally(data, kitOf(data, false));
   const on = tally(data, kitOf(data, true));
-  const checks: { id: string; off: number; on: number; diff: number; tolerance: number; pass: boolean }[] = [];
-  const add = (id: string, a: number, b: number, tolerance: number, scale = 1): void => {
-    const diff = (b - a) * scale;
-    checks.push({ id, off: a * scale, on: b * scale, diff, tolerance, pass: Math.abs(diff) <= tolerance + 1e-9 });
-  };
-  for (const fam of ["run", "pass"]) {
-    const a = shares(off.classes[fam] ?? {});
-    const b = shares(on.classes[fam] ?? {});
-    for (const k of Object.keys(a)) add(`classShare.${fam}.${k}`, a[k] ?? 0, b[k] ?? 0, tol.f1.scrimmageClassSharePp, 100);
-  }
-  add("points.perTeamGame.mean", mean(off.points), mean(on.points), tol.f1.pointsPerTeamGameMean);
-  add("points.perTeamGame.sd", sd(off.points), sd(on.points), tol.f1.pointsPerTeamGameSd);
-  add("turnovers.perTeamGame", mean(off.turnovers), mean(on.turnovers), tol.f1.turnoversPerTeamGame);
-  add("fieldGoal.makeRate.50plus", off.fg50.good / off.fg50.att, on.fg50.good / on.fg50.att, tol.f1.fieldGoalMakeRate50PlusPp, 100);
+  const checks = f1Checks(off, on, tol);
+  // Not gated (code review): the same F1 on three leagues outside the ten calibration leagues.
+  const OUTSIDE_SEED = data.config.league.calibrationSeed + 7_000_000;
+  const offOut = tally(data, kitOf(data, false), OUTSIDE_SEED, 3);
+  const onOut = tally(data, kitOf(data, true), OUTSIDE_SEED, 3);
+  const calibrationLeagues = new Set(off.run.leagueSeeds);
+  if (onOut.run.leagueSeeds.some((s) => calibrationLeagues.has(s))) throw new Error("an outside league is a calibration league");
+  const outside = { runSeed: OUTSIDE_SEED, leagueSeeds: onOut.run.leagueSeeds, games: onOut.run.games, checks: f1Checks(offOut, onOut, tol), f3Bad: onOut.f3Bad.length };
   // No in-sample gated step 5 metric from pass to fail.
   const gameTol = JSON.parse(readFileSync(join(REPO, "data/game/tolerances.json"), "utf8")) as Tolerances;
   const actual = (JSON.parse(readFileSync(join(REPO, "data/game/actuals.json"), "utf8")) as Record<string, { metrics: Record<string, never> }>)[TARGETS.insample]?.metrics ?? {};
@@ -246,13 +304,15 @@ function main(): number {
     games: on.run.games,
     f1: { pass: f1Pass, checks, flips, statusChanges },
     f2: { pass: f2rows.every((r) => r.pass), rows: f2rows },
-    f3: { bad: on.f3Bad.length, examples: on.f3Bad.slice(0, 5), standoutsOffEntries: off.standouts.reduce((a, b) => a + b, 0) + off.wiped },
+    f3: { bad: on.f3Bad.length + off.f3Bad.length, examples: [...on.f3Bad, ...off.f3Bad].slice(0, 5), expected: on.f3Expected, standoutsOffEntries: off.standouts.reduce((a, b) => a + b, 0) + off.wiped },
+    outside,
     f6: { perGame: { mean: mean(on.standouts), sd: sd(on.standouts) }, distribution: hist, byKindPerGame: Object.fromEntries(KINDS.map((k) => [k, (on.byKind[k] ?? 0) / on.run.games])), wipedByFlags: on.wiped },
     perf: { msPerGameOff: off.run.msPerGame, msPerGameOn: on.run.msPerGame },
   };
   writeFileSync(join(REPO, "data/game/m2-standout-check.json"), JSON.stringify(out, null, 1) + "\n");
   writeFileSync(join(REPO, "docs/STANDOUT_REPORT.md"), report(out, cfg.centering));
   process.stderr.write(`[standouts] ${on.run.games} games x 2 in ${((performance.now() - t0) / 1000).toFixed(0)} s; F1 ${f1Pass ? "pass" : "FAIL"}, F2 ${out.f2.pass ? "pass" : "FAIL"}, F3 ${out.f3.bad === 0 && out.f3.standoutsOffEntries === 0 ? "pass" : "FAIL"}\n`);
+  for (const c of outside.checks.filter((x) => !x.pass)) process.stderr.write(`  outside leagues (not gated): ${c.id} diff ${c.diff.toFixed(3)} > ${c.tolerance}\n`);
   for (const c of checks.filter((x) => !x.pass)) process.stderr.write(`  F1 outside: ${c.id} off ${c.off.toFixed(3)} on ${c.on.toFixed(3)} (diff ${c.diff.toFixed(3)}, tolerance ${c.tolerance})\n`);
   for (const f of flips) process.stderr.write(`  F1 status flip to fail: ${f}\n`);
   for (const r of f2rows.filter((x) => !x.pass)) process.stderr.write(`  F2 below minimum: ${r.kind} ${r.relative.toFixed(3)} < ${r.min}\n`);
@@ -263,7 +323,8 @@ function report(o: {
   games: number; tolerancesSha256: string; standoutsSha256: string | undefined;
   f1: { pass: boolean; checks: { id: string; off: number; on: number; diff: number; tolerance: number; pass: boolean }[]; flips: string[]; statusChanges: { id: string; off: string; on: string; predictedOff: number; predictedOn: number }[] };
   f2: { pass: boolean; rows: { kind: string; average: number; elite: number; relative: number; standoutOnly: number; min: number; pass: boolean }[] };
-  f3: { bad: number; standoutsOffEntries: number };
+  f3: { bad: number; expected: number; standoutsOffEntries: number };
+  outside: { runSeed: number; leagueSeeds: number[]; games: number; checks: Check[]; f3Bad: number };
   f6: { perGame: { mean: number; sd: number }; distribution: Record<string, number>; byKindPerGame: Record<string, number>; wipedByFlags: number };
 }, centering: Readonly<Record<string, number>>): string {
   const f = (x: number, d = 3): string => x.toFixed(d);
@@ -285,8 +346,11 @@ function report(o: {
   L.push("Fixed seed, 40,000 plays per arm, league-average (65) teams, one slot at the threshold (90) in the kind's ratings vs 65. Relative effect = elite rate / average rate - 1, standouts on in both arms (it includes the step 4 rating effects that rating also has). Standout only = elite with standouts on vs the same elite with them off.", "");
   L.push("| Kind | Average | Elite | Relative | Standout only | Minimum | Status |", "|---|---|---|---|---|---|---|");
   for (const r of o.f2.rows) L.push(`| ${r.kind} | ${f(r.average, 4)} | ${f(r.elite, 4)} | ${f(r.relative)} | ${f(r.standoutOnly)} | ${r.min} | ${r.pass ? "pass" : "below"} |`);
-  L.push("", `## F3: tagging`, "", `Standout entries that fail the three conditions (factor applied, class drawn, player credited): ${o.f3.bad}. Entries with standouts off: ${o.f3.standoutsOffEntries}.`, "");
-  L.push("## F6: standouts per game (report, not gated)", "", `Counted on plays that stand (a standout a flag took away is not one): ${f(o.f6.perGame.mean)} per game (SD ${f(o.f6.perGame.sd)}); ${o.f6.wipedByFlags} more were taken away by accepted flags over ${o.games} games.`, "");
+  L.push("", "## F1 outside the calibration leagues (report, not gated)", "", `Three leagues from run seed ${o.outside.runSeed} (league seeds ${o.outside.leagueSeeds.join(", ")}, none a calibration league), ${o.outside.games} games, standouts on vs off on the same seeds. The centering was set on the calibration leagues.`, "");
+  L.push("| Check | Off | On | Difference | Tolerance | Within |", "|---|---|---|---|---|---|");
+  for (const c of o.outside.checks) L.push(`| \`${c.id}\` | ${f(c.off)} | ${f(c.on)} | ${f(c.diff)} | ${c.tolerance} | ${c.pass ? "yes" : "no"} |`);
+  L.push("", `## F3: tagging, both ways`, "", `From the record alone (the on-field players, the class drawn, the player credited, the factor recomputed), ${o.f3.expected} plays met all three conditions (factor applied and above 1, its class drawn, the elite player credited). Plays where the engine's candidate and the recomputation disagree, either way, or where the loop's final standout is not exactly "a candidate whose play stands": ${o.f3.bad} (outside leagues: ${o.outside.f3Bad}). Candidates with standouts off: ${o.f3.standoutsOffEntries}.`, "");
+  L.push("## F6: standouts per game (report, not gated)", "", `The loop's final standouts (GameEvent \`standout\`: a candidate whose play stands after penalty enforcement): ${f(o.f6.perGame.mean)} per game (SD ${f(o.f6.perGame.sd)}); ${o.f6.wipedByFlags} more were taken away by accepted flags over ${o.games} games.`, "");
   L.push("| Standouts in a game | Games |", "|---|---|");
   for (const [k, v] of Object.entries(o.f6.distribution).sort((a, b) => Number(a[0]) - Number(b[0]))) L.push(`| ${k === "6" ? "6 or more" : k} | ${v} |`);
   L.push("", "| Kind | Per game |", "|---|---|");

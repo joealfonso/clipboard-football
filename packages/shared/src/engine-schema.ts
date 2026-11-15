@@ -428,6 +428,10 @@ export const standoutsSchema = z
   .superRefine((s, ctx) => {
     const ids = s.kinds.map((k) => k.id);
     if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "a standout kind is listed twice" });
+    const known = new Set<string>([...BASE_RATINGS, ...Object.values(POSITION_SKILLS).flat()]);
+    for (const k of s.kinds) {
+      for (const r of k.ratings) if (!known.has(r)) ctx.addIssue({ code: "custom", message: `standout kind ${k.id}: ${r} is not a rating (BASE_RATINGS or a position skill)` });
+    }
     // At least one of a kind's positions must have one of its ratings. A position without any can
     // never be elite for the kind (the sack kind's LB: linebackers have no Pass Rush; DECISIONS, M2 F).
     for (const k of s.kinds) {
@@ -435,6 +439,16 @@ export const standoutsSchema = z
       if (!has) ctx.addIssue({ code: "custom", message: `${k.id}: none of ${k.positions.join(", ")} has any of ${k.ratings.join(", ")}` });
     }
   });
+
+/** M2 F (code review): every standout kind's class is one of its family's classes (run, pass from the baseline; fieldGoal's good, miss, blocked). */
+export function checkStandoutClasses(s: StandoutsConfig, scrimmage: Pick<BaselineScrimmage, "families">): StandoutsConfig {
+  const classes: Record<string, readonly string[]> = { fieldGoal: ["good", "miss", "blocked"], ...Object.fromEntries(Object.entries(scrimmage.families).map(([f, d]) => [f, d.classes])) };
+  const bad = s.kinds.filter((k) => !(classes[k.family] ?? []).includes(k.class));
+  if (bad.length > 0) {
+    throw new z.ZodError(bad.map((k) => ({ code: "custom" as const, path: ["kinds", s.kinds.indexOf(k), "class"], message: `standout kind ${k.id}: ${k.class} is not a ${k.family} class (${(classes[k.family] ?? []).join(", ") || "no such family"})`, input: k.class })));
+  }
+  return s;
+}
 
 export interface EngineFiles {
   readonly config: unknown;
@@ -465,7 +479,7 @@ export function parseEngineData(files: EngineFiles, rules: RuleSet, caller: Call
     matchup: matchupCenteredSchema.parse(files.matchup) as unknown as MatchupCentered,
     personnel: personnelSchema.parse(files.personnel) as unknown as Personnel,
     participants: participantsSchema.parse(files.participants) as unknown as ParticipantsConfig,
-    standouts: standoutsSchema.parse(files.standouts) as unknown as StandoutsConfig,
+    standouts: checkStandoutClasses(standoutsSchema.parse(files.standouts) as unknown as StandoutsConfig, baselineScrimmageSchema.parse(files.scrimmage) as unknown as BaselineScrimmage),
     ratings: ratingsSchema.parse(files.ratings) as unknown as RatingsConfig,
     distributions: distributionsSchema.parse(files.distributions) as unknown as Distributions,
     names: namesSchema.parse(files.names) as Names,

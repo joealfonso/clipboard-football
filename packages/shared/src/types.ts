@@ -45,6 +45,7 @@ export type {
   ParticipantRole,
   Participants,
   PlayDetailM2,
+  Standout,
   PlayResult,
   PlaySide,
   PuntPlay,

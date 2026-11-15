@@ -91,7 +91,8 @@ function labelHolds(text: string, source: string, ev: PlayEvent): boolean {
     case "Blocked":
       return source === "detail.class" && d.class === "blocked";
     case "Standout":
-      return source === "standout" && d.standout !== undefined;
+      // M2 F (lead, code review): the loop's final standout (GameEvent `standout`), the detail hook in fixtures.
+      return source === "standout" && (ev.standout ?? d.standout) !== undefined;
     case "Recovered by the kicking team":
       return source === "end.possession" && "end" in p && p.end?.possession === "offense";
     case "Recovered by the receivers":
