@@ -1,21 +1,83 @@
-/* DESIGN.md tokens. Flat colors, no gradients or shadows. Fonts: Atkinson Hyperlegible and IBM
-   Plex Mono when installed; the font files aren't bundled yet (asset intake, docs/ASSETS.md). */
+/* DESIGN.md "Broadcast" tokens (2026-11-15), mirrored from ui/tokens.ts. Depth is allowed, one job
+   per effect (DESIGN.md How depth works). Fonts: Inter and Barlow Condensed when installed; the
+   font files aren't bundled yet (asset intake, docs/ASSETS.md), so the stacks fall back to the system UI face. */
 :root {
+  /* Stage and surfaces. */
+  --bg: #0a1428;
+  --bg-top: #13264a;
+  --bg-bottom: #070e1c;
+  --panel: #0f1e3d;
+  --panel-raise: #1b3260;
+  --surface: rgba(18, 34, 63, 0.72);
+  --surface-solid: #12223f;
+  --surface-raised: rgba(255, 255, 255, 0.06);
+  --row-rest: rgba(255, 255, 255, 0.035);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --select-ring: rgba(255, 203, 61, 0.4);
+  --track: #1b3260;
+  /* Text and accent. */
+  --chalk: #f5f2e8;
+  --chalk-soft: #a9b3b8;
+  --signal: #ffcb3d;
+  --gold: #ffcb3d;
   --paper: #f5f2e8;
   --paper-shade: #e6e0cf;
   --ink: #22272b;
-  --ink-soft: #5c6368;
-  --panel: #1f2a30;
-  --panel-raise: #2e3b42;
-  --chalk: #f5f2e8;
-  --chalk-soft: #a9b3b8;
-  --signal: #f2b33d;
+  --ink-soft: #4f565b;
+  /* Field. */
+  --turf: #2f7237;
+  --turf-stripe: #327739;
+  --sideline: #2f7237;
+  --line: #f5f7f2;
+  --hash: #d5e0d2;
+  --outline-dark: #0a0d0b;
+  --ball: #7a4a1e;
+  --tag: rgba(7, 12, 22, 0.78);
+  /* Gradients. */
+  --stage: radial-gradient(120% 90% at 50% 0%, #13264a 0%, #0a1428 55%, #070e1c 100%);
+  --top-bar: linear-gradient(180deg, rgba(19, 38, 74, 0.9) 0%, rgba(10, 20, 40, 0.9) 100%);
+  --sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 40%);
+  --select: linear-gradient(90deg, rgba(255, 203, 61, 0.18) 0%, rgba(255, 203, 61, 0.06) 100%);
+  /* Elevation. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-3: 0 16px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-select: inset 0 0 0 1px rgba(255, 203, 61, 0.4), 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(255, 203, 61, 0.1);
+  /* Radii. */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+  /* Motion (UI). */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 260ms;
+  --dur-screen: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --text-scale: 1;
-  --font-ui: "Atkinson Hyperlegible", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* font.ui and font.display: no @font-face yet (asset intake); each stack falls back to the system face. */
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Barlow Condensed", "Inter", system-ui, sans-serif;
+  /* The main menu's visual values (docs/specs/m2-main-menu.md, art-director 2026-11-15), in one place.
+     The art ratio and the column widths the art-hide rule reads are in ui/splash.ts (SPLASH). */
+  --menu-frame-max: 1040px;
+  --menu-frame-padding: 32px;
+  --menu-narrow-max: 640px;
+  --menu-wordmark-size: 56px;
+  --menu-title-size: 28px;
+  --menu-rule: var(--gold);
+  --menu-left: 440px;
+  --menu-gap: 48px;
   font-family: var(--font-ui);
-  color: var(--ink);
-  background: var(--paper);
+  /* Inter's tailed l and seriffed I, so l, I and 1 read apart (confirm the tags at font intake). */
+  font-feature-settings: "cv05" 1, "cv08" 1;
+  color: var(--chalk);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -28,9 +90,16 @@ body {
   height: 100%;
   overflow: hidden;
 }
+/* stage.background: behind everything, every screen, both modes. */
+body {
+  background: var(--stage);
+  background-color: var(--bg);
+}
 
-.mono {
-  font-family: var(--font-mono);
+/* font.mono is retired: numbers that line up or tick use tabular Inter. */
+.mono,
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
 .visually-hidden {
@@ -42,176 +111,343 @@ body {
   white-space: nowrap;
 }
 
-/* ---------------------------------------------------------------- top bar */
+/* ---------------------------------------------------------------- glass (cards, rail, top bar) */
+.glass,
+.rail-card {
+  background: var(--sheen), var(--surface);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .rail-card {
+    background: var(--sheen), var(--surface-solid);
+  }
+  .top-bar {
+    background: var(--surface-solid);
+  }
+  .panel-foot {
+    background: var(--bg);
+  }
+}
+
+/* ---------------------------------------------------------------- top bar: the score bug */
 .top-bar {
   position: fixed;
   inset: 0 0 auto 0;
-  height: 48px;
-  background: var(--panel);
+  height: 56px;
+  background: var(--top-bar);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid var(--hairline);
+  box-shadow: var(--shadow-2);
   color: var(--chalk);
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 0 16px;
-  font-size: calc(16px * var(--text-scale));
+  gap: 12px;
+  padding: 0 12px;
+  font-size: calc(15px * var(--bar-scale));
   white-space: nowrap;
   overflow: hidden;
+  z-index: 4;
+  /* The bar is 56 px tall at any text size: its type follows the text size up to 125%, and the
+     last fit steps shrink it so score, clock and down and distance always fit (U5). */
+  --bar-scale: min(var(--text-scale), 1.25);
 }
 /* The scoreboard (usability pass U5): score, clock and down and distance are never dropped. */
-.top-bar .team,
-.top-bar .time {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-}
-.top-bar .name {
-  font-weight: 700;
-}
-.top-bar .you {
-  color: var(--chalk-soft);
-  font-size: calc(14px * var(--text-scale));
-}
-.top-bar .score {
-  font-size: calc(28px * var(--text-scale));
-  font-weight: 700;
-}
-.top-bar .period {
-  font-weight: 600;
-}
-.top-bar .divider {
-  width: 1px;
-  height: 24px;
-  background: var(--panel-raise);
-  flex: none;
-}
-.top-bar .bar-dd {
-  font-size: calc(18px * var(--text-scale));
-  font-weight: 700;
-  color: var(--chalk);
-  flex: none;
-}
-.top-bar .bar-keys {
-  margin-left: auto;
-  display: inline-flex;
-  gap: 12px;
-  flex: none;
-}
-.top-bar.fit-1 .chip-label,
-.top-bar.fit-2 .clock-state,
-.top-bar.fit-3 .ball-word {
+/* The class's display: flex would beat the browser's [hidden] rule: menu mode hides the bar. */
+.top-bar[hidden] {
   display: none;
 }
-/* Key chips (top bar and panel footer): a kbd box, then the label. */
-.chip {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
-  color: var(--chalk);
-  font-size: calc(14px * var(--text-scale));
-}
-kbd {
-  font-family: var(--font-mono);
-  font-size: calc(13px * var(--text-scale));
-  border: 1px solid var(--chalk-soft);
-  border-radius: 3px;
-  padding: 0 5px;
-  color: var(--chalk);
-}
-.chip-value {
-  font-family: var(--font-mono);
-}
-.swatch {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  outline: 1px solid var(--chalk-soft);
+.bug {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex: none;
+}
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  flex: none;
+}
+.team-chip {
+  width: 6px;
+  height: 28px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  flex: none;
+}
+.team-id {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.team-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.top-bar .name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: calc(20px * var(--bar-scale));
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--chalk);
+}
+.top-bar .you {
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--chalk-soft);
+  font-size: calc(12px * var(--bar-scale));
+  font-weight: 500;
+  line-height: 1.2;
+}
+.top-bar .score {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(34px * var(--bar-scale));
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+  color: var(--chalk);
+}
+/* hud.possession: a 10 by 6 signal ellipse; the slot keeps its width so the bug never shifts. */
+.poss {
+  width: 10px;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+.poss .dot {
+  width: 10px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal);
 }
 .pips {
   display: inline-flex;
   gap: 3px;
 }
 .pip {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 1px solid var(--chalk-soft);
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
 }
 .pip.on {
   background: var(--chalk);
-  border-color: var(--chalk);
 }
-.ball {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--chalk);
-}
-.ball .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--signal);
+.period,
+.clock-state {
+  color: var(--chalk-soft);
+  font-size: calc(12px * var(--bar-scale));
+  font-weight: 500;
+  line-height: 1.2;
 }
 .clock {
-  font-size: calc(24px * var(--text-scale));
   font-weight: 700;
+  font-size: calc(22px * var(--bar-scale));
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk);
 }
-.clock.late,
-.late-note {
+.clock.late {
   color: var(--signal);
 }
-.clock-state,
-.tempo,
-.late-note {
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: calc(12px * var(--bar-scale));
+  font-weight: 600;
+  line-height: 1.2;
+}
+.late-tag {
+  background: rgba(255, 203, 61, 0.16);
+  color: var(--signal);
+}
+.tempo {
+  background: var(--surface-raised);
   color: var(--chalk-soft);
-  font-size: calc(14px * var(--text-scale));
+  flex: none;
 }
-.late-note {
-  color: var(--signal);
+.bar-dd {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(22px * var(--bar-scale));
+  line-height: 1;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk);
+}
+.bar-spot {
+  color: var(--chalk-soft);
+  font-size: calc(12px * var(--bar-scale));
+  font-weight: 500;
+}
+.top-bar .bar-keys {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+/* Drop order when the bar is too narrow (ui/topbar.ts TOP_BAR_FIT_STEPS, one class each, cumulative):
+   key hint labels, the clock state word, the key hints (DESIGN.md), then the tempo tag, the
+   Under 2:00 tag (the clock stays signal), the You tag (kept for screen readers), team names cut
+   to 5 characters, the bug's type at 100% then 85%, and last the team names (kept for screen
+   readers). Score, clock and down and distance are never dropped. */
+.top-bar.fit-1 .chip-label,
+.top-bar.fit-2 .clock-state,
+.top-bar.fit-3 .bar-keys,
+.top-bar.fit-4 .tempo,
+.top-bar.fit-5 .late-tag {
+  display: none;
+}
+.top-bar.fit-6 .you,
+.top-bar.fit-10 .team-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  padding: 0;
+}
+.top-bar.fit-7 .name {
+  display: inline-block;
+  max-width: 5ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+.top-bar.fit-8 {
+  --bar-scale: min(var(--text-scale), 1);
+}
+.top-bar.fit-9 {
+  --bar-scale: 0.85;
+}
+.top-bar.fit-9 .cell {
+  padding: 0 8px;
+}
+.top-bar .chip {
+  font-size: calc(12px * var(--bar-scale));
+}
+.top-bar kbd {
+  min-width: calc(24px * var(--bar-scale));
+  height: calc(24px * var(--bar-scale));
+  font-size: calc(13px * var(--bar-scale));
 }
 .brand {
+  font-family: var(--font-display);
   font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* hud.keyHint: every key shows quietly, no box border. Used in the top bar, the rail and the legend. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--chalk-soft);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+}
+kbd,
+.row .key,
+.play-card .key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(24px * var(--text-scale));
+  height: calc(24px * var(--text-scale));
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 0;
+  color: var(--chalk-soft);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+  transition: background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+.chip-value {
+  color: var(--chalk);
+  font-variant-numeric: tabular-nums;
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  flex: none;
 }
 
 /* ---------------------------------------------------------------- layout */
 .layout {
   position: fixed;
-  inset: 48px 0 0 0;
+  inset: 56px 0 0 0;
 }
 .layout:focus {
   outline: none;
 }
+/* The canvas is transparent outside the field column: the stage shows through (DESIGN.md Field). */
 .field {
   position: absolute;
   left: 0;
   top: 0;
   display: block;
 }
-/* Overlays over the full-screen field (Joseph, 2026-11-14). ui/overlay.ts places them in window px.
-   The panel is the opaque dark board with chalk text (usability pass U1): full bleed in the side
-   column, a 1 px chalkSoft border when it floats over the field. Flat: no shadow. */
+/* Overlays: ui/overlay.ts places them in window px. In a game the panel is the calling screen
+   (transparent, glass cards); a sheet placed over the field keeps the opaque dark board (U1). */
 .overlay {
   position: fixed;
   overflow-y: auto;
   z-index: 2;
 }
 .panel {
-  padding: 16px 20px 0;
+  padding: 16px 24px 0;
   font-size: calc(17px * var(--text-scale));
-  line-height: 1.4;
-  background: var(--panel);
+  line-height: 1.45;
   color: var(--chalk);
-  border: 1px solid var(--chalk-soft);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 .panel > * {
   flex: none;
 }
 .panel.side {
   border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+/* The calling screen (docs/specs/m2-screen-switch.md): the whole window under the top bar, no
+   background (the stage shows through), the content centered so cards don't stretch across a wide window. */
+.panel.screen {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 24px max(24px, calc((100% - 1160px) / 2)) 0;
 }
 /* A hidden overlay stays hidden whatever other class it has (.panel.wide sets display: grid). */
 .overlay[hidden] {
@@ -221,43 +457,46 @@ kbd {
   z-index: 3;
   padding: 0;
 }
+/* Two cards side by side, top aligned: last play 5 parts, your call 7 (DESIGN.md Calling screen). */
 .panel.wide {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) 2fr;
-  column-gap: 20px;
+  grid-template-columns: minmax(260px, 5fr) 7fr;
+  column-gap: 24px;
+  row-gap: 16px;
   align-items: start;
 }
-/* The divider between the report and the call section. */
-.panel:not(.wide) .ov-menu {
-  border-top: 1px solid var(--panel-raise);
-  margin-top: 12px;
-  padding-top: 12px;
+.ov-report,
+.ov-menu,
+.panel > .glass {
+  padding: 20px 24px;
 }
-.panel.wide .ov-menu {
-  border-left: 1px solid var(--panel-raise);
-  padding-left: 20px;
+/* One column: the last-play card keeps a fixed minimum height (four result lines), so the rows never move. */
+.panel:not(.wide) .ov-report .report {
+  min-height: calc(4 * 20px * 1.35 * var(--text-scale));
 }
-/* The footer (U9): pinned to the bottom of the column, and visible while the column scrolls. */
+/* hud.legend: sticky at the bottom of the content, visible while the screen scrolls (U9). */
 .panel-foot {
   margin-top: auto;
   position: sticky;
   bottom: 0;
-  background: var(--panel);
-  border-top: 1px solid var(--panel-raise);
-  padding: 8px 0 10px;
-  font-size: calc(14px * var(--text-scale));
+  background: rgba(10, 20, 40, 0.85);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-top: 1px solid var(--hairline);
+  padding: 10px 0;
+  font-size: calc(12px * var(--text-scale));
   color: var(--chalk-soft);
 }
 .panel.wide .panel-foot {
   grid-column: 1 / -1;
 }
 .panel-foot p {
-  margin: 2px 0;
+  margin: 4px 0;
 }
 .panel-foot .keys-line {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 14px;
+  gap: 8px 16px;
 }
 .panel.compact .rows {
   display: grid;
@@ -265,160 +504,209 @@ kbd {
   column-gap: 8px;
 }
 .panel h1 {
-  font-size: calc(24px * var(--text-scale));
+  font-size: calc(28px * var(--text-scale));
   font-weight: 700;
-  margin: 0 0 12px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
 }
 .panel h2 {
   font-size: calc(18px * var(--text-scale));
   font-weight: 700;
-  margin: 14px 0 4px;
+  margin: 16px 0 4px;
+}
+/* type.label: section labels like "Play type", "Last play", "This play". */
+.section-label,
+.panel h2.section-label {
+  margin: 16px 0 8px;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--chalk-soft);
+}
+.report > .section-label:first-child,
+.rail-card > .section-label:first-child {
+  margin-top: 0;
 }
 .so-far {
   font-size: calc(15px * var(--text-scale));
+  line-height: 1.4;
   color: var(--chalk-soft);
   margin: 0 0 4px;
 }
-.panel h3 {
+.panel h3,
+.main-menu h3 {
   font-size: calc(16px * var(--text-scale));
   margin: 12px 0 4px;
 }
 .soft {
   color: var(--ink-soft);
 }
-.panel .soft {
+.panel .soft,
+.main-menu .soft {
   color: var(--chalk-soft);
 }
 
+/* The call card header: type.callHeader, then "You're on offense" in type.note. */
 .situation .dd {
-  font-size: calc(26px * var(--text-scale));
+  font-size: calc(28px * var(--text-scale));
   font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 .situation .side {
+  font-size: calc(15px * var(--text-scale));
   color: var(--chalk-soft);
 }
 .report {
   min-height: 0;
-  margin-top: 8px;
 }
 .report p {
   margin: 4px 0;
 }
 .result {
   font-size: calc(20px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.35;
+}
+.why {
+  font-size: calc(17px * var(--text-scale));
+  line-height: 1.45;
 }
 .calls,
 .event {
+  font-size: calc(15px * var(--text-scale));
+  line-height: 1.4;
   color: var(--chalk-soft);
-}
-.why {
-  font-size: calc(18px * var(--text-scale));
 }
 .hint {
   white-space: nowrap;
   color: var(--chalk-soft);
   font-size: calc(14px * var(--text-scale));
-  font-family: var(--font-mono);
 }
 .lineup {
   font-weight: 600;
 }
 
-/* ---------------------------------------------------------------- menu rows */
+/* ---------------------------------------------------------------- menu rows (hud.playMenu) */
 .rows {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin: 6px 0;
+  gap: 6px;
+  margin: 8px 0;
 }
-/* Rows on the dark board (usability pass U2): highlighted is an inverted paper bar; off is lighter
-   text, a dashed chip and the reason in words; off and highlighted never gets the fill. */
+/* Rows are clickable cards. Selected: the gold-tinted fill, the ring and glow, weight 600, a 3 px
+   gold accent bar and a gold key hint, never color alone. Off: no fill, the reason in words. */
 .row {
+  position: relative;
   display: flex;
   gap: 12px;
   align-items: center;
   width: 100%;
-  min-height: 40px;
+  min-height: 48px;
   text-align: left;
   font: inherit;
-  font-size: calc(18px * var(--text-scale));
+  font-size: calc(17px * var(--text-scale));
+  font-weight: 500;
+  line-height: 1.3;
   color: var(--chalk);
-  background: transparent;
+  background: var(--row-rest);
   border: 0;
-  border-radius: 3px;
-  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   cursor: pointer;
+  transition: background var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
 }
-.row .key {
-  min-width: 2.6em;
-  text-align: center;
-  font-weight: 600;
-  font-size: calc(15px * var(--text-scale));
-  border: 1px solid var(--chalk-soft);
-  border-radius: 3px;
-  color: var(--chalk);
-  flex: none;
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--gold);
+  transform: scaleY(0);
+  transition: transform var(--dur-base) var(--ease-standard);
 }
 .row .note,
 .row .reason {
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 400;
+  line-height: 1.4;
   color: var(--chalk-soft);
 }
 .row.hl,
 .row:hover {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--select);
+  box-shadow: var(--shadow-select);
+}
+.row.hl::before,
+.row:hover::before {
+  transform: scaleY(1);
 }
 .row.hl .label,
 .row:hover .label {
-  font-weight: 700;
+  font-weight: 600;
 }
 .row.hl .key,
 .row:hover .key {
-  border-color: var(--ink);
+  background: var(--gold);
   color: var(--ink);
-}
-.row.hl .note,
-.row:hover .note {
-  color: var(--ink-soft);
 }
 .row:focus-visible {
   outline: 2px solid var(--chalk);
   outline-offset: 2px;
 }
+.row:active {
+  transform: scale(0.99);
+}
 .row.off {
+  background: transparent;
   color: var(--chalk-soft);
   cursor: not-allowed;
 }
 .row.off .key {
-  border-style: dashed;
+  background: transparent;
   color: var(--chalk-soft);
-  border-color: var(--chalk-soft);
 }
 .row.off.hl,
 .row.off:hover,
 .row.off:focus-visible {
   background: transparent;
+  box-shadow: none;
   color: var(--chalk-soft);
-  outline: 2px dashed var(--chalk-soft);
+  outline: 1px dashed rgba(169, 179, 184, 0.6);
   outline-offset: -2px;
+}
+.row.off.hl::before,
+.row.off:hover::before {
+  transform: scaleY(0);
 }
 .row.off.hl .label,
 .row.off:hover .label {
-  font-weight: 400;
+  font-weight: 500;
 }
 .row.off.hl .key,
 .row.off:hover .key,
 .row.off.hl .note,
 .row.off:hover .note,
 .row.off .reason {
+  background: transparent;
   color: var(--chalk-soft);
-  border-color: var(--chalk-soft);
+}
+.row.off:active {
+  transform: none;
 }
 .status {
   min-height: 1.4em;
+  font-size: calc(15px * var(--text-scale));
   color: var(--ink-soft);
 }
-.panel .status {
+.panel .status,
+.main-menu .status {
   color: var(--chalk-soft);
 }
 
@@ -428,28 +716,43 @@ kbd {
   grid-template-columns: 9em 1fr 2.5em;
   gap: 8px;
   align-items: center;
-  margin: 3px 0;
+  margin: 4px 0;
 }
 .bar-track {
-  height: 10px;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
   background: var(--paper-shade);
 }
 .bar-fill {
   display: block;
   height: 100%;
+  border-radius: 4px;
   background: var(--ink-soft);
 }
-/* Bars on the dark board: panelRaise track, chalkSoft fill, the value always printed beside. */
+/* Bars on dark surfaces: track, chalkSoft fill, the value always printed beside. */
 .panel .bar-track,
-.panel .progress {
-  background: var(--panel-raise);
+.panel .progress,
+.main-menu .bar-track,
+.main-menu .progress {
+  background: var(--track);
 }
 .panel .bar-fill,
-.panel .progress-fill {
+.panel .progress-fill,
+.main-menu .bar-fill,
+.main-menu .progress-fill {
   background: var(--chalk-soft);
+}
+.panel .card .bar-track {
+  background: var(--paper-shade);
+}
+.panel .card .bar-fill {
+  background: var(--ink-soft);
 }
 .bar-value {
   text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .unit-cols {
   display: grid;
@@ -459,7 +762,7 @@ kbd {
 .matchup-team {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-weight: 600;
 }
 table {
@@ -469,38 +772,47 @@ table {
 th,
 td {
   text-align: left;
-  padding: 2px 8px 2px 0;
+  padding: 4px 8px 4px 0;
 }
 td.mono {
   text-align: right;
 }
-.panel table th {
+.panel table th,
+.main-menu table th {
   color: var(--chalk-soft);
-  font-size: calc(14px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
 }
 .panel table tbody th,
-.panel table tr + tr th:first-child {
+.panel table tr + tr th:first-child,
+.main-menu table tbody th,
+.main-menu table tr + tr th:first-child {
   color: var(--chalk);
   font-size: inherit;
   font-weight: 400;
 }
-.roster tr.sel,
-.roster tr.sel th,
-.roster tr.sel td {
-  background: var(--paper);
-  color: var(--ink);
+.panel table tr + tr > *,
+.main-menu table tr + tr > * {
+  border-top: 1px solid var(--hairline);
 }
-.roster tr.sel {
-  outline: 2px solid var(--chalk);
+/* The roster's selected row: the row selection (gold tint, accent bar, weight), not a paper slab. */
+.roster tr.sel > * {
+  background: var(--select);
+  font-weight: 600;
+}
+.roster tr.sel > :first-child {
+  box-shadow: inset 3px 0 0 var(--gold);
 }
 .roster tr {
   cursor: pointer;
 }
-/* The roster player card: a paper sheet on the board (play cards are .play-card). */
+/* The roster player card: a paper sheet with the team band (play cards are .play-card). */
 .card {
-  border: 1px solid var(--ink);
-  padding: 12px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-2);
+  padding: 0 16px 16px;
   background: var(--paper);
   color: var(--ink);
 }
@@ -509,12 +821,26 @@ td.mono {
 }
 .card-head {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: baseline;
   font-size: calc(18px * var(--text-scale));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.card > .card-head,
+.mark-card > .card-head {
+  margin: 0 -16px 12px;
+  padding: 12px 16px;
 }
 .card-head .name {
   font-weight: 700;
+}
+.card-head .team-word {
+  font-weight: 500;
+  font-size: calc(15px * var(--text-scale));
+}
+.card-head:not(.team-band) .team-word {
+  color: var(--ink-soft);
 }
 .big {
   font-size: calc(24px * var(--text-scale));
@@ -526,20 +852,99 @@ td.mono {
   white-space: nowrap;
 }
 .progress {
-  height: 12px;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
   background: var(--paper-shade);
   max-width: 400px;
 }
 .progress-fill {
   height: 100%;
+  border-radius: 4px;
   background: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------------- the play rail (hud.playRail) */
+/* Read only, beside the field on the play screen when it fits (DESIGN.md Play screen). */
+.play-rail {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+  overflow: hidden;
+  font-size: calc(15px * var(--text-scale));
+  line-height: 1.4;
+  color: var(--chalk);
+}
+.play-rail[hidden] {
+  display: none;
+}
+.rail-card {
+  padding: 16px 18px;
+  flex: none;
+}
+.rail-card p {
+  margin: 4px 0 0;
+}
+.rail-calls,
+.rail-why {
+  font-size: calc(15px * var(--text-scale));
+  color: var(--chalk);
+}
+.rail-result-line {
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.35;
+}
+.rail-result-line + .rail-why {
+  margin-top: 8px;
+}
+.rail-keys {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.rail-in {
+  animation: rise-in var(--dur-slow) var(--ease-out) both;
+}
+
+/* ---------------------------------------------------------------- screen switch (UI transitions) */
+/* Calling to play: the field and rail fade in over dur.screen. Play to calling: the calling cards
+   fade in and rise 8 px. The timeline never waits on either. */
+.field.screen-in,
+.play-rail.screen-in {
+  animation: fade-in var(--dur-screen) var(--ease-out) both;
+}
+.panel.screen-in {
+  animation: rise-in var(--dur-screen) var(--ease-out) both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------------------------------------------------------------- states */
 .too-small {
   position: fixed;
   inset: 0;
-  background: var(--paper);
+  background: var(--stage);
+  color: var(--chalk);
   display: grid;
   place-items: center;
   font-size: 20px;
@@ -549,50 +954,88 @@ td.mono {
   display: none;
 }
 
+/* Reduced motion, from the system or the in-game setting: every UI transition is 0 ms. */
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
     animation: none !important;
   }
 }
+.reduce-motion *,
+.reduce-motion *::before {
+  transition: none !important;
+  animation: none !important;
+}
 
-/* ---------------------------------------------------------------- play cards (card.*) */
+/* ---------------------------------------------------------------- play cards (card.play) */
 .cards {
   display: grid;
   /* As many columns as the overlay fits: one row of cards across a wide overlay. */
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 6px;
-  margin: 6px 0;
+  gap: 8px;
+  margin: 8px 0;
 }
 .play-card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 2px;
-  padding: 4px;
+  gap: 4px;
+  padding: 6px;
   font: inherit;
+  font-size: calc(15px * var(--text-scale));
   color: var(--ink);
   background: var(--paper);
-  border: 1px solid var(--paper-shade);
+  border: 0;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
   cursor: pointer;
   text-align: left;
+  transition: transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
 }
-/* play-card focus (U2): a 3 px chalk outline outside the tile and a shaded label strip, never a fill over the art. */
+.play-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.play-card .key {
+  background: var(--paper-shade);
+  color: var(--ink-soft);
+}
+/* Highlighted: a 2 px gold outline outside the tile, a lift, a shaded label strip; never a fill over the art. */
 .play-card.hl,
 .play-card:hover,
 .play-card:focus-visible {
-  outline: 3px solid var(--chalk);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
 }
 .play-card.hl .play-card-label,
 .play-card:hover .play-card-label {
   background: var(--paper-shade);
+}
+.play-card.hl .key,
+.play-card:hover .key {
+  background: var(--gold);
+  color: var(--ink);
 }
 /* Off: shaded tile, inkSoft label with the reason in words, art at half opacity (never the only cue). */
 .play-card.off {
   background: var(--paper-shade);
   color: var(--ink-soft);
   cursor: not-allowed;
+}
+.play-card.off.hl,
+.play-card.off:hover {
+  outline: 1px dashed rgba(169, 179, 184, 0.6);
+  transform: none;
+}
+.play-card.off .key {
+  background: transparent;
+  color: var(--ink-soft);
 }
 .play-card.off .play-card-art {
   opacity: 0.5;
@@ -602,10 +1045,11 @@ td.mono {
   width: 100%;
   height: auto;
   max-height: 120px;
+  border-radius: 6px;
 }
 .play-card-personnel {
   color: var(--ink-soft);
-  font-size: calc(14px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
 }
 @media (max-height: 640px) {
   .play-card-art svg {
@@ -616,25 +1060,30 @@ td.mono {
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
-/* ---------------------------------------------------------------- the player card over a mark */
-/* Opaque: the card sits over the menu panel as well as the field, and the panel's text bled
-   through the 0.94 overlay backing. */
+/* ---------------------------------------------------------------- the player card (card.panel) */
+/* Opaque: the card sits over the panel and the field. Header band in the team fill, paper body. */
 .mark-card {
-  border: 1px solid var(--ink);
-  padding: 12px 16px;
+  overflow: hidden;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-3);
+  padding: 0 16px 16px;
   background: var(--paper);
+  color: var(--ink);
+  font-size: calc(15px * var(--text-scale));
 }
 .mark-card .card-head {
   flex-wrap: wrap;
   column-gap: 8px;
-  padding-bottom: 8px;
+}
+.mark-card .card-head:not(.team-band) {
   border-bottom: 1px solid var(--paper-shade);
 }
 .mark-card h3 {
-  margin: 14px 0 6px;
+  margin: 16px 0 8px;
   font-size: calc(13px * var(--text-scale));
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--ink-soft);
 }
 .mark-card table.ratings {
@@ -644,7 +1093,7 @@ td.mono {
 }
 .mark-card .ratings th,
 .mark-card .ratings td {
-  padding: 3px 0;
+  padding: 4px 0;
   text-align: left;
   font-weight: 400;
 }
@@ -652,13 +1101,13 @@ td.mono {
   border-top: 1px solid var(--paper-shade);
 }
 .mark-card .ratings thead th {
-  padding: 0 0 2px;
+  padding: 0 0 4px;
   font-size: calc(13px * var(--text-scale));
   color: var(--ink-soft);
 }
 .mark-card .ratings .val {
   text-align: right;
-  font-weight: 700;
+  font-weight: 600;
   padding-right: 16px;
   width: 3ch;
 }
@@ -670,14 +1119,137 @@ td.mono {
   white-space: normal;
 }
 .mark-card .hint {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   white-space: normal;
+  color: var(--ink-soft);
 }
 .mark-card:focus {
   outline: 2px solid var(--ink);
   outline-offset: -3px;
 }
 .mark-card ul {
-  margin: 2px 0;
+  margin: 4px 0;
   padding-left: 1.2em;
+}
+
+/* ---------------------------------------------------------------- the main menu (menu mode) */
+/* docs/specs/m2-main-menu.md: while there is no game, this fills the window; no top bar, no field. */
+.main-menu {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  background: var(--stage);
+  color: var(--chalk);
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-size: calc(17px * var(--text-scale));
+  line-height: 1.45;
+}
+.main-menu[hidden] {
+  display: none;
+}
+/* Centered both ways; scrolls vertically when it doesn't fit (margin: auto keeps the top reachable). */
+.menu-frame {
+  margin: auto;
+  width: min(var(--menu-frame-max), 100vw - 64px);
+  padding: var(--menu-frame-padding);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.menu-frame.narrow {
+  width: min(var(--menu-narrow-max), 100vw - 64px);
+}
+.menu-frame > * {
+  flex: none;
+  min-width: 0;
+}
+.wordmark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--menu-wordmark-size) * var(--text-scale));
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--chalk);
+  overflow-wrap: break-word;
+}
+/* menu.rule: a 48 px gold accent bar under the main menu's wordmark only (DESIGN.md Broadcast). */
+.menu-rule {
+  width: 48px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--menu-rule);
+  margin-top: 14px;
+}
+/* Other menu screens: the title in the UI face, sentence case, then 16 px of space, no accent bar. */
+.menu-title {
+  margin: 0 0 16px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: calc(var(--menu-title-size) * var(--text-scale));
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--chalk);
+  overflow-wrap: break-word;
+}
+.menu-frame > .glass {
+  padding: 20px 24px;
+}
+.menu-cols {
+  display: grid;
+  grid-template-columns: minmax(0, calc(var(--menu-left) * var(--text-scale))) minmax(0, 1fr);
+  column-gap: var(--menu-gap);
+  align-items: start;
+  margin-top: 24px;
+}
+.menu-frame.no-art .menu-cols {
+  grid-template-columns: minmax(0, var(--menu-narrow-max));
+}
+.menu-left {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tagline {
+  margin: 0 0 12px;
+  font-size: calc(18px * var(--text-scale));
+  line-height: 1.45;
+  color: var(--chalk-soft);
+}
+.menu-lead {
+  margin: 12px 0 8px;
+  font-weight: 700;
+}
+/* menu.splashArt: the diagram inside a card. */
+.menu-art-col {
+  min-width: 0;
+  align-self: start;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  line-height: 0;
+}
+.menu-art {
+  display: block;
+}
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-row .progress {
+  flex: 1;
+}
+.main-menu .panel-foot {
+  margin-top: 12px;
+  position: static;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.main-menu .unit-cols {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }

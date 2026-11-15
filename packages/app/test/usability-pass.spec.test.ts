@@ -15,14 +15,14 @@ import { cameraAt, layoutFor } from "../src/ui/layout";
 import { labelWidth, placeNumbers, type MarkPx } from "../src/ui/marks";
 import { breadcrumb, openMenu, press, title, type MenuData, type MenuKey, type MenuState } from "../src/ui/menu";
 import { MID_X } from "../src/ui/motion";
-import { contrast, overlayBackground, placeOverlay, rgbOf, type Guard } from "../src/ui/overlay";
+import { blend, contrast, overlayBackground, placeOverlay, rgbOf, type Guard } from "../src/ui/overlay";
 import { callingFrame, kickoffFrame } from "../src/ui/presnap";
 import { settingsScreen, titleScreen } from "../src/ui/screens";
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "../src/ui/storage";
 import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { catalogLabels } from "../src/ui/text";
 import { at, timeline } from "../src/ui/timeline";
-import { COLOR, FONT_MONO, FONT_UI, matchupSwatches, SWATCHES } from "../src/ui/tokens";
+import { COLOR, FONT_UI, matchupSwatches, SWATCH_FAMILY, SWATCHES, TEAM_END_ZONE, TEAM_OUTLINE } from "../src/ui/tokens";
 import { COMPLETE, KICKOFF_RETURN } from "./fixtures";
 import { playGame } from "./support";
 
@@ -53,16 +53,36 @@ interface Text {
   readonly baseline: string;
 }
 
-function recorder(): { g: CanvasRenderingContext2D; fills: Fill[]; texts: Text[] } {
+interface Stroked {
+  readonly text: string;
+  readonly x: number;
+  readonly y: number;
+  readonly style: string;
+  readonly width: number;
+}
+
+/** A rounded rectangle filled as a path (DESIGN.md Broadcast: tag pills, toasts, the flag marker). */
+type Pill = Fill;
+
+function recorder(): { g: CanvasRenderingContext2D; fills: Fill[]; texts: Text[]; strokedTexts: Stroked[]; pills: Pill[]; clears: Omit<Fill, "style">[] } {
   const fills: Fill[] = [];
   const texts: Text[] = [];
+  const strokedTexts: Stroked[] = [];
+  const pills: Pill[] = [];
+  const clears: Omit<Fill, "style">[] = [];
+  let path: { x: number; y: number; w: number; h: number }[] = [];
   const state: Record<string, unknown> = { fillStyle: "#000000", font: "10px sans-serif", globalAlpha: 1, textAlign: "start", textBaseline: "alphabetic" };
   const g = new Proxy(state, {
     get(target, prop: string) {
       if (prop in target) return target[prop];
       if (prop === "measureText") return (s: string) => ({ width: s.length * 7 });
+      if (prop === "beginPath") return () => (path = []);
+      if (prop === "roundRect") return (x: number, y: number, w: number, h: number) => path.push({ x, y, w, h });
+      if (prop === "fill") return () => pills.push(...path.map((r) => ({ ...r, style: String(target["fillStyle"]) })));
+      if (prop === "clearRect") return (x: number, y: number, w: number, h: number) => clears.push({ x, y, w, h });
       if (prop === "fillRect") return (x: number, y: number, w: number, h: number) => fills.push({ x, y, w, h, style: String(target["fillStyle"]) });
       if (prop === "fillText") return (text: string, x: number, y: number) => texts.push({ text, x, y, style: String(target["fillStyle"]), font: String(target["font"]), align: String(target["textAlign"]), baseline: String(target["textBaseline"]) });
+      if (prop === "strokeText") return (text: string, x: number, y: number) => strokedTexts.push({ text, x, y, style: String(target["strokeStyle"]), width: Number(target["lineWidth"]) });
       if (prop === "getLineDash") return () => [];
       return () => undefined;
     },
@@ -71,7 +91,28 @@ function recorder(): { g: CanvasRenderingContext2D; fills: Fill[]; texts: Text[]
       return true;
     },
   }) as unknown as CanvasRenderingContext2D;
-  return { g, fills, texts };
+  return { g, fills, texts, strokedTexts, pills, clears };
+}
+
+/** The color.tag pill a text sits on: a pill centered on the text (DESIGN.md Broadcast: every small word on the grass is on a tag). */
+function tagUnder(t: Text, pills: readonly Pill[]): Pill | undefined {
+  return pills.find((p) => p.style === COLOR.tag && Math.abs(p.x + p.w / 2 - t.x) < 1e-6 && Math.abs(p.y + p.h / 2 - t.y) < 1e-6);
+}
+
+/**
+ * Each drawn text is centered on a color.tag pill wider than the text and `height` px tall, drawn
+ * before it, and has no stroked outline (DESIGN.md Marks: white on a dark tag pill, superseding the stroke).
+ */
+function expectTagged(texts: readonly Text[], pills: readonly Pill[], strokes: readonly Stroked[], height: number, padX: number): void {
+  for (const t of texts) {
+    const p = tagUnder(t, pills);
+    expect(p, `tag under ${t.text}`).toBeDefined();
+    expect(p?.h).toBe(height);
+    expect(p?.w).toBeCloseTo(t.text.length * 7 + 2 * padX, 9);
+    expect(t.align).toBe("center");
+    expect(t.baseline).toBe("middle");
+    expect(strokes.some((k) => k.text === t.text && k.x === t.x && k.y === t.y), `no stroke under ${t.text}`).toBe(false);
+  }
 }
 
 /** The color the last fillRect covering (x, y) painted. */
@@ -95,62 +136,109 @@ const viewAt = (los: number) => viewOf(L1280, cameraAt(los, L1280.visibleYards, 
 describe("AC 1: every contrast figure in the spec and DESIGN.md, recomputed from the hex values", () => {
   // [label, a, b, figure as printed]
   const FIGURES: readonly [string, string, string, number][] = [
-    // Spec, Accessibility baseline, and DESIGN.md contrast checks.
-    ["chalk on panel", COLOR.chalk, COLOR.panel, 13.1],
-    ["chalkSoft on panel", COLOR.chalkSoft, COLOR.panel, 6.9],
-    ["ink on paper", COLOR.ink, COLOR.paper, 13.5],
-    ["inkSoft on paper", COLOR.inkSoft, COLOR.paper, 5.5],
-    ["inkSoft on paperShade (off card labels)", COLOR.inkSoft, COLOR.paperShade, 4.6],
-    ["chalk focus ring on panel", COLOR.chalk, COLOR.panel, 13.1],
-    ["paper fill (highlighted row) against panel", COLOR.paper, COLOR.panel, 13.1],
-    ["chalkSoft bar fill on panelRaise track", COLOR.chalkSoft, COLOR.panelRaise, 5.4],
-    ["panelRaise on panel", COLOR.panelRaise, COLOR.panel, 1.28],
-    ["chalk on panelRaise", COLOR.chalk, COLOR.panelRaise, 10.3],
-    ["signal on panel", COLOR.signal, COLOR.panel, 7.9],
-    ["ink on end zone", COLOR.ink, COLOR.paperShade, 11.4],
-    ["inkSoft on end zone", COLOR.inkSoft, COLOR.paperShade, 4.6],
-    ["offense on paper", COLOR.offense, COLOR.paper, 6.5],
-    ["offense on end zone", COLOR.offense, COLOR.paperShade, 5.5],
-    ["defense on paper", COLOR.defense, COLOR.paper, 5.4],
-    ["defense on end zone", COLOR.defense, COLOR.paperShade, 4.6],
-    ["ball on paper", COLOR.ball, COLOR.paper, 6.6],
-    ["line on paper", COLOR.line, COLOR.paper, 3.5],
-    ["signal on paper", COLOR.signal, COLOR.paper, 1.7],
-    ["ink against signal", COLOR.ink, COLOR.signal, 8.1],
-    ["offense against defense", COLOR.offense, COLOR.defense, 1.19],
-    // U4: swatch pairs.
-    ["sky against green (lowest passing pair)", "#6FA8E8", "#3A9A4A", 1.43],
-    ["red against green (fails the rule)", "#D9443A", "#3A9A4A", 1.22],
+    // DESIGN.md "Stadium grass" contrast checks (2026-11-15), recomputed here as its Still open asks.
+    // Panel.
+    ["chalk on panel", COLOR.chalk, COLOR.panel, 14.72],
+    ["chalkSoft on panel", COLOR.chalkSoft, COLOR.panel, 7.72],
+    ["chalk focus ring on panel", COLOR.chalk, COLOR.panel, 14.72],
+    ["paper against panel", COLOR.paper, COLOR.panel, 14.72],
+    ["gold fill (highlighted row) against panel", COLOR.gold, COLOR.panel, 10.89],
+    ["chalkSoft bar fill on panelRaise track", COLOR.chalkSoft, COLOR.panelRaise, 5.88],
+    ["panelRaise on panel", COLOR.panelRaise, COLOR.panel, 1.31],
+    ["chalk on panelRaise", COLOR.chalk, COLOR.panelRaise, 11.21],
+    ["signal on panel", COLOR.signal, COLOR.panel, 10.89],
+    ["ink on gold (highlighted row)", COLOR.ink, COLOR.gold, 9.95],
+    ["inkSoft on gold (notes on the highlighted row)", COLOR.inkSoft, COLOR.gold, 4.93],
+    // Light surfaces (play cards, player card).
+    ["ink on paper", COLOR.ink, COLOR.paper, 13.46],
+    ["inkSoft on paper", COLOR.inkSoft, COLOR.paper, 6.66],
+    ["inkSoft on paperShade (off card labels)", COLOR.inkSoft, COLOR.paperShade, 5.66],
+    ["ink on paperShade (play-card zones and bands)", COLOR.ink, COLOR.paperShade, 11.43],
+    ["ink against signal", COLOR.ink, COLOR.signal, 9.95],
+    // Play cards (DESIGN.md Broadcast): ink for both sides on paper tiles, zone edges inkSoft on paperShade.
+    ["play card diagram: ink on paper (both sides)", COLOR.ink, COLOR.paper, 13.46],
+    ["play card zone edge: inkSoft on paperShade", COLOR.inkSoft, COLOR.paperShade, 5.66],
+    // Field paint on the two turf stripes (light / dark). The light stripe moved to #327739 (Broadcast).
+    ["line on turfStripe", COLOR.line, COLOR.turfStripe, 5.07],
+    ["line on turf", COLOR.line, COLOR.turf, 5.43],
+    ["hash on turfStripe", COLOR.hash, COLOR.turfStripe, 4.02],
+    ["hash on turf", COLOR.hash, COLOR.turf, 4.3],
+    ["outlineDark (line of scrimmage) on turfStripe", COLOR.outlineDark, COLOR.turfStripe, 3.56],
+    ["outlineDark (line of scrimmage) on turf", COLOR.outlineDark, COLOR.turf, 3.33],
+    ["signal (first-down line core) on turfStripe", COLOR.signal, COLOR.turfStripe, 3.61],
+    ["signal (first-down line core) on turf", COLOR.signal, COLOR.turf, 3.87],
+    ["turfStripe against turf (decorative)", COLOR.turfStripe, COLOR.turf, 1.07],
+    ["sideline is turf's hex", COLOR.sideline, COLOR.turf, 1],
+    // Marks, rings and the ball on grass.
+    ["line against outlineDark (the two ring colors)", COLOR.line, COLOR.outlineDark, 18.1],
+    ["ball against its line outline", COLOR.ball, COLOR.line, 6.89],
+    // Team fills against their rings (DESIGN.md Team colors, "Fill vs outline").
+    ["slot 0 orange #F29A2E against its outlineDark ring", "#F29A2E", COLOR.outlineDark, 8.78],
+    ["slot 1 red #C62F2F against its line ring", "#C62F2F", COLOR.line, 5.06],
+    ["slot 2 cobalt #3263D2 against its line ring", "#3263D2", COLOR.line, 5.06],
+    ["slot 3 silver #C3CCD3 against its outlineDark ring", "#C3CCD3", COLOR.outlineDark, 11.99],
+    ["slot 4 black iron #1D1E22 against its line ring", "#1D1E22", COLOR.line, 15.44],
+    ["slot 5 purple #7A4EBA against its line ring", "#7A4EBA", COLOR.line, 5.37],
+    ["slot 6 lilac #B99BE8 against its outlineDark ring", "#B99BE8", COLOR.outlineDark, 8.29],
+    ["slot 7 azure #45A8E6 against its outlineDark ring", "#45A8E6", COLOR.outlineDark, 7.44],
+    // U4: matchup pairs (DESIGN.md Colorblind simulation, "Lowest allowed matchup").
+    ["silver against lilac (lowest allowed pair)", "#C3CCD3", "#B99BE8", 1.45],
+    ["red against cobalt (fails the rule)", "#C62F2F", "#3263D2", 1.0],
   ];
   it.each(FIGURES)("%s is %d (+-0.05)", (_label, a, b, figure) => {
     expect(Math.abs(c(a, b) - figure)).toBeLessThanOrEqual(0.05);
   });
 
-  // U4's table, typed in from the spec.
+  // DESIGN.md Contrast checks (Broadcast): figures over translucent paint, blended in sRGB over the worst pixel.
+  it("Broadcast: the lit light stripe, softened yard lines and tag pills keep their figures", () => {
+    const lit = blend([255, 255, 255], rgbOf(COLOR.turfStripe), 0.05);
+    const near = (got: number, want: number, what: string): void => expect(Math.abs(got - want), `${what}: ${got.toFixed(2)}`).toBeLessThanOrEqual(0.05);
+    near(contrast(rgbOf(COLOR.line), lit), 4.58, "line at the lit light stripe");
+    near(contrast(rgbOf(COLOR.hash), lit), 3.62, "hash at the lit light stripe");
+    near(contrast(rgbOf(COLOR.signal), lit), 3.26, "first-down core at the lit light stripe");
+    near(contrast(blend(rgbOf(COLOR.line), rgbOf(COLOR.turf), 0.8), rgbOf(COLOR.turf)), 4.12, "yard line at 0.8 on the dark stripe");
+    near(contrast(blend(rgbOf(COLOR.line), lit, 0.8), lit), 3.55, "yard line at 0.8 at the lit light stripe");
+    // color.tag is rgba(7, 12, 22, 0.78).
+    expect(COLOR.tag).toBe("rgba(7, 12, 22, 0.78)");
+    near(contrast(rgbOf(COLOR.line), blend([7, 12, 22], lit, 0.78)), 14.8, "line on a tag at the lit light stripe");
+    for (const ez of TEAM_END_ZONE) expect(contrast(rgbOf(COLOR.line), blend([7, 12, 22], rgbOf(ez), 0.78)), ez).toBeGreaterThanOrEqual(13);
+    // Both ring colors keep 3:1 against both stripes and the lit center.
+    for (const under of [rgbOf(COLOR.turf), rgbOf(COLOR.turfStripe), lit]) {
+      expect(contrast(rgbOf(COLOR.line), under)).toBeGreaterThanOrEqual(3);
+      expect(contrast(rgbOf(COLOR.outlineDark), under)).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  // DESIGN.md Team colors (Broadcast, 2026-11-15), typed in: the slot fills and "Swatch on panel".
   const SWATCH_TABLE: readonly [number, string, string, number][] = [
-    [0, "#D9443A", "red", 3.39],
-    [1, "#6FA8E8", "blue", 5.92],
-    [2, "#3A9A4A", "green", 4.14],
-    [3, "#C9CED2", "neutral", 9.28],
-    [4, "#9A5CC8", "purple", 3.32],
-    [5, "#8CC85A", "green", 7.38],
-    [6, "#279490", "blue", 4.01],
-    [7, "#F59A8C", "red", 6.93],
+    [0, "#F29A2E", "orange", 7.41],
+    [1, "#C62F2F", "red", 3.02],
+    [2, "#3263D2", "blue", 3.02],
+    [3, "#C3CCD3", "neutral", 10.13],
+    [4, "#1D1E22", "neutral", 1.01],
+    [5, "#7A4EBA", "purple", 2.85],
+    [6, "#B99BE8", "purple", 7.0],
+    [7, "#45A8E6", "blue", 6.28],
   ];
   it.each(SWATCH_TABLE)("swatch slot %d (%s, %s) is %d on panel (+-0.05)", (slot, hex, _family, figure) => {
     expect(SWATCHES[slot]?.toUpperCase()).toBe(hex);
     expect(Math.abs(c(hex, COLOR.panel) - figure)).toBeLessThanOrEqual(0.05);
   });
 
-  it("the swatches on panel span 3.31 to 9.25 (Accessibility baseline, amended)", () => {
+  it("the swatches on the navy panel span 1.01 to 10.13", () => {
     const r = SWATCHES.map((s) => c(s, COLOR.panel));
-    expect(Math.abs(Math.min(...r) - 3.31)).toBeLessThanOrEqual(0.05);
-    expect(Math.abs(Math.max(...r) - 9.25)).toBeLessThanOrEqual(0.05);
+    expect(Math.abs(Math.min(...r) - 1.01)).toBeLessThanOrEqual(0.05);
+    expect(Math.abs(Math.max(...r) - 10.13)).toBeLessThanOrEqual(0.05);
   });
 
-  it("panelRaise is the new token #2E3B42 and the panel is #1F2A30", () => {
-    expect(COLOR.panelRaise.toUpperCase()).toBe("#2E3B42");
-    expect(COLOR.panel.toUpperCase()).toBe("#1F2A30");
+  it("each slot's ring and end zone are DESIGN.md's: dark tier takes color.line, light tier color.outlineDark", () => {
+    expect([...TEAM_OUTLINE].map((x) => x.toUpperCase())).toEqual(["outlineDark", "line", "line", "outlineDark", "line", "line", "outlineDark", "outlineDark"].map((k) => COLOR[k as "line" | "outlineDark"].toUpperCase()));
+    expect([...TEAM_END_ZONE].map((x) => x.toUpperCase())).toEqual(["#B85A1E", "#CC4A3C", "#3263D2", "#5E6B78", "#62666C", "#7A4EBA", "#7656B0", "#1F6FA8"]);
+  });
+
+  it("panelRaise is #1B3260 and the panel is navy #0F1E3D (DESIGN.md Stadium grass)", () => {
+    expect(COLOR.panelRaise.toUpperCase()).toBe("#1B3260");
+    expect(COLOR.panel.toUpperCase()).toBe("#0F1E3D");
   });
 });
 
@@ -171,15 +259,16 @@ describe("AC 2: the panel is the opaque dark board (U1)", () => {
 // ---------------------------------------------------------------- AC 3: swatches
 
 describe("AC 3: matchupSwatches always gives two different swatches (U4)", () => {
+  // DESIGN.md Team colors (Broadcast), typed in.
   const FAMILY: Readonly<Record<string, string>> = {
-    "#D9443A": "red",
-    "#6FA8E8": "blue",
-    "#3A9A4A": "green",
-    "#C9CED2": "neutral",
-    "#9A5CC8": "purple",
-    "#8CC85A": "green",
-    "#279490": "blue",
-    "#F59A8C": "red",
+    "#F29A2E": "orange",
+    "#C62F2F": "red",
+    "#3263D2": "blue",
+    "#C3CCD3": "neutral",
+    "#1D1E22": "neutral",
+    "#7A4EBA": "purple",
+    "#B99BE8": "purple",
+    "#45A8E6": "blue",
   };
   const ORDER = Object.keys(FAMILY);
   const fam = (hex: string): string => FAMILY[hex.toUpperCase()] ?? `unknown ${hex}`;
@@ -209,16 +298,30 @@ describe("AC 3: matchupSwatches always gives two different swatches (U4)", () =>
     for (const [a, h] of [[9, 2], [17, 30], [31, 8]] as const) expect(matchupSwatches(a, h)).toEqual(matchupSwatches(a % 8, h % 8));
   });
 
-  it("never pairs red #D9443A with green #3A9A4A (the pair red-green color blindness confuses most)", () => {
+  // DESIGN.md Broadcast: there is no green family (a green team would vanish on grass), so red
+  // never meets green, the pair red-green color blindness confuses most.
+  it("no slot is green, so a matchup never pairs red with green", () => {
+    expect(new Set(Object.values(FAMILY)).has("green")).toBe(false);
+    expect(SWATCH_FAMILY).not.toContain("green");
     for (const [a, h] of pairs) {
       const m = matchupSwatches(a, h);
-      expect([m.away.toUpperCase(), m.home.toUpperCase()].sort().join("+"), `away ${a} home ${h}`).not.toBe("#3A9A4A+#D9443A");
+      expect([fam(m.away), fam(m.home)], `away ${a} home ${h}`).not.toContain("green");
     }
   });
 
-  it("every SWATCHES entry is at least 3.0:1 on COLOR.panel", () => {
+  // DESIGN.md Broadcast: black (1.01) and purple (2.85) fall under 3:1 on navy, so every chip and
+  // swatch carries a 1 px inset ring of rgba(255, 255, 255, 0.35); the team name is always beside it.
+  it("every swatch's edge, its fill or its inset ring, is at least 3.0:1 on COLOR.panel, and the CSS draws the ring", () => {
     expect(SWATCHES).toHaveLength(8);
-    for (const s of SWATCHES) expect(c(s, COLOR.panel), s).toBeGreaterThanOrEqual(3.0);
+    for (const s of SWATCHES) {
+      const ring = blend([255, 255, 255], rgbOf(s), 0.35);
+      expect(Math.max(c(s, COLOR.panel), contrast(ring, rgbOf(COLOR.panel))), s).toBeGreaterThanOrEqual(3.0);
+    }
+    const css = readFileSync(join(root, "packages/app/src/styles.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const sel of [".swatch", ".team-chip"]) {
+      const body = new RegExp(`(?:^|\\n|\\})\\s*\\${sel}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? "";
+      expect(body.replace(/\s+/g, " "), sel).toContain("box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35)");
+    }
   });
 
   it("app.ts no longer calls swatchFor directly", () => {
@@ -445,7 +548,14 @@ describe("U6: the 'Huddle' label (field.huddleLabel)", () => {
     const v = viewAt(los);
     const r = recorder();
     drawFrame(r.g, v, frame, 0, frameOpts());
-    return { frame, v, labels: r.texts.filter((t) => t.text === "Huddle") };
+    return { frame, v, labels: r.texts.filter((t) => t.text === "Huddle"), strokes: r.strokedTexts, pills: r.pills };
+  };
+  /** The label's tag pill as a box (DESIGN.md Broadcast: the pill is the label's footprint, 18 px tall, 6 px padding). */
+  const pillBox = (t: Text, pills: readonly Pill[]): { x0: number; x1: number; y0: number; y1: number } => {
+    const p = tagUnder(t, pills);
+    expect(p, `tag under ${t.text}`).toBeDefined();
+    const q = p as Pill;
+    return { x0: q.x, x1: q.x + q.w, y0: q.y, y1: q.y + q.h };
   };
   /** The label box overlaps a field line at yard y, or a mark (circle of markPx / 2). */
   const conflicts = (bx: ReturnType<typeof boxOf>, frame: ReturnType<typeof frameAt>, v: ReturnType<typeof viewAt>, firstDown: number | null): string[] => {
@@ -466,12 +576,14 @@ describe("U6: the 'Huddle' label (field.huddleLabel)", () => {
     return out;
   };
 
-  it("a still Calling frame draws 'Huddle' once, in inkSoft, UI font 600 14 px", () => {
+  // DESIGN.md Broadcast: on-field tags are a color.tag pill, Inter 600 14 px color.line, 18 px tall, 6 px padding.
+  it("a still Calling frame draws 'Huddle' once, in line on an 18 px color.tag pill, UI font 600 14 px", () => {
     expect(HUDDLE_LABEL).toBe("Huddle");
-    const { labels } = labelIn("offense", 40, null);
+    const { labels, strokes, pills } = labelIn("offense", 40, null);
     expect(labels).toHaveLength(1);
     const lab = labels[0] as Text;
-    expect(lab.style.toUpperCase()).toBe(COLOR.inkSoft.toUpperCase());
+    expect(lab.style.toUpperCase()).toBe(COLOR.line.toUpperCase());
+    expectTagged(labels, pills, strokes, 18, 6);
     expect(lab.font).toContain("600 14px");
     expect(lab.font).toContain(FONT_UI);
   });
@@ -479,9 +591,9 @@ describe("U6: the 'Huddle' label (field.huddleLabel)", () => {
   it("with no conflict it sits at the first spot: 1 yard right of the horseshoe's right edge, centered on it", () => {
     // 2nd & 3 at the 40 (line to gain at 43): the defense huddle (centered 10 yards past) is clear of every line.
     for (const firstDown of [null, 43]) {
-      const { frame, v, labels } = labelIn("offense", 40, firstDown);
+      const { frame, v, labels, pills } = labelIn("offense", 40, firstDown);
       expect(labels, `firstDown ${firstDown}`).toHaveLength(1);
-      const bx = boxOf(labels[0] as Text, 14);
+      const bx = pillBox(labels[0] as Text, pills);
       const huddle = frame.marks.filter((m) => m.huddle).map((m) => at(m.keys, 0));
       const xs = huddle.map((p) => v.ox + (1 + p.x) * v.s);
       const ys = huddle.map((p) => (v.cameraY - p.y) * v.s);
@@ -492,7 +604,7 @@ describe("U6: the 'Huddle' label (field.huddleLabel)", () => {
   });
 
   it("1st & 10 (the huddle's center on the line to gain): drawn, and clear of the line to gain, the LOS, the goal lines and every mark", () => {
-    const { frame, v, labels } = labelIn("offense", 40, 50);
+    const { frame, v, labels, pills } = labelIn("offense", 40, 50);
     // Precondition: the first spot is taken here (it sits on the line to gain), so the rule must move it.
     const huddle = frame.marks.filter((m) => m.huddle).map((m) => at(m.keys, 0));
     const edge = Math.max(...huddle.map((p) => v.ox + (1 + p.x) * v.s)) + v.markPx / 2;
@@ -502,6 +614,7 @@ describe("U6: the 'Huddle' label (field.huddleLabel)", () => {
     expect(conflicts(first, frame, v, 50)).toContain("line to gain");
     expect(labels).toHaveLength(1);
     expect(conflicts(boxOf(labels[0] as Text, 14), frame, v, 50)).toEqual([]);
+    expect(conflicts(pillBox(labels[0] as Text, pills), frame, v, 50)).toEqual([]);
   });
 
   it("whenever it is drawn, it is clear of every line and mark (both sides, across the field)", () => {
@@ -517,9 +630,10 @@ describe("U6: the 'Huddle' label (field.huddleLabel)", () => {
       ["defense", 3, 10],
     ];
     for (const [side, los, fd] of cases) {
-      const { frame, v, labels } = labelIn(side, los, fd);
+      const { frame, v, labels, pills } = labelIn(side, los, fd);
       expect(labels.length, `${side} ${los}`).toBeLessThanOrEqual(1);
       if (labels.length === 1) expect(conflicts(boxOf(labels[0] as Text, 14), frame, v, fd), `${side} at ${los}, line to gain ${fd}`).toEqual([]);
+      if (labels.length === 1) expect(conflicts(pillBox(labels[0] as Text, pills), frame, v, fd), `${side} at ${los}, line to gain ${fd} (the pill)`).toEqual([]);
     }
   });
 
@@ -600,10 +714,11 @@ describe("AC 9: the label setting (U7, amended by Joseph: one label per mark)", 
     expect(lc()).toBe("rating");
   });
 
-  it("settingsScreen still has 5 rows; row 4 is 'Mark label shows', noting Jersey number or Overall rating", () => {
+  // Amended by docs/specs/m2-main-menu.md (decision 6): Animation speed is row 5, so 6 rows. The rows changed, not the rule.
+  it("settingsScreen has 6 rows; row 4 is 'Mark label shows', noting Jersey number or Overall rating", () => {
     for (const [v, note] of [["number", "Jersey number"], ["rating", "Overall rating"]] as const) {
       const s = settingsScreen({ textSize: 100, reducedMotion: "system", markLabels: "involved", labelContent: v });
-      expect(s.rows).toHaveLength(5);
+      expect(s.rows).toHaveLength(6);
       const r4 = s.rows[3];
       expect(r4?.key).toBe("4");
       expect(r4?.label).toBe("Mark label shows");
@@ -641,24 +756,27 @@ describe("AC 10: one label per mark (U7, amended)", () => {
   const draw = (labelContent: FrameOpts["labelContent"]) => {
     const r = recorder();
     drawFrame(r.g, viewAt(COMPLETE.before.spot), tl, tl.total, frameOpts({ numbers, ratings, labelContent, markLabels: "all" }));
-    return r.texts.filter((t) => /^\d+$/.test(t.text));
+    const t = r.texts.filter((x) => /^\d+$/.test(x.text));
+    // DESIGN.md Broadcast mark.label: a color.tag pill 14 px tall with 2 px horizontal padding.
+    expectTagged(t, r.pills, r.strokedTexts, 14, 2);
+    return t;
   };
   const numSet = new Set(Object.values(numbers).map(String));
   const oRat = new Set(oIds.map((id) => String(ratings[id])));
   const xRat = new Set(xIds.map((id) => String(ratings[id])));
 
-  it("'number': jersey numbers only, mono 600 12 px in the side color", () => {
+  it("'number': jersey numbers only, Inter 600 12 px in line on a tag pill", () => {
     const t = draw("number");
     expect(t.length).toBeGreaterThan(0);
     for (const x of t) {
       expect(numSet.has(x.text), x.text).toBe(true);
-      expect([COLOR.offense, COLOR.defense].map((c_) => c_.toUpperCase())).toContain(x.style.toUpperCase());
+      expect(x.style.toUpperCase()).toBe(COLOR.line.toUpperCase());
       expect(x.font).toContain("600 12px");
-      expect(x.font).toContain(FONT_MONO);
+      expect(x.font).toContain(FONT_UI);
     }
   });
 
-  it("'rating': the overall only, at the jersey number's size and weight (mono 600 12 px), in the side color", () => {
+  it("'rating': the overall only, at the jersey number's size and weight (Inter 600 12 px), in line on a tag pill", () => {
     const t = draw("rating");
     const o = t.filter((x) => oRat.has(x.text));
     const xs = t.filter((x) => xRat.has(x.text));
@@ -667,11 +785,10 @@ describe("AC 10: one label per mark (U7, amended)", () => {
     // One label per mark: nothing drawn that isn't a rating, and no mark labeled twice.
     expect(t.length).toBe(o.length + xs.length);
     expect(new Set(t.map((x) => x.text)).size).toBe(t.length);
-    for (const x of o) expect(x.style.toUpperCase()).toBe(COLOR.offense.toUpperCase());
-    for (const x of xs) expect(x.style.toUpperCase()).toBe(COLOR.defense.toUpperCase());
+    for (const x of t) expect(x.style.toUpperCase()).toBe(COLOR.line.toUpperCase());
     for (const x of t) {
       expect(x.font).toContain("600 12px");
-      expect(x.font).toContain(FONT_MONO);
+      expect(x.font).toContain(FONT_UI);
     }
   });
 
@@ -757,19 +874,29 @@ describe("AC 11: kickoffFrame lines up both kickoff units (U8)", () => {
 
 // ---------------------------------------------------------------- U1: canvas outside the column
 
-describe("U1: the canvas outside the field column is the dark board", () => {
-  it("drawField paints panel outside the column and paper inside it", () => {
+// Amended by DESIGN.md Broadcast (2026-11-15): "Outside the column, the canvas is transparent
+// (clearRect), and the stage gradient shows from CSS. The canvas never paints the stage."
+describe("U1, as amended by Broadcast: the canvas outside the field column is transparent", () => {
+  it("drawField clears the canvas, paints nothing outside the column, sideline in the margin and the 5-yard turf band inside it", () => {
     const v = viewAt(40);
     expect(v.width).toBeGreaterThan(v.columnWidth);
     const r = recorder();
     drawField(r.g, v, scene, 1);
     const y = v.height / 2;
-    // Left of the column (if any) and right of it, into the side column.
-    if (v.ox > 2) expect(paintedAt(r.fills, v.ox / 2, y)).toBe(COLOR.panel);
-    expect(paintedAt(r.fills, v.ox + v.columnWidth + 2, y)).toBe(COLOR.panel);
-    expect(paintedAt(r.fills, v.width - 2, y)).toBe(COLOR.panel);
-    // Inside the column, between the sidelines at midfield height: paper.
-    expect(paintedAt(r.fills, v.ox + v.columnWidth / 2 + 3, y)).toBe(COLOR.paper);
+    expect(r.clears).toContainEqual({ x: 0, y: 0, w: v.width, h: v.height });
+    // Left of the column (if any) and right of it: no fill, so the stage shows through.
+    if (v.ox > 2) expect(paintedAt(r.fills, v.ox / 2, y)).toBeUndefined();
+    expect(paintedAt(r.fills, v.ox + v.columnWidth + 2, y)).toBeUndefined();
+    expect(paintedAt(r.fills, v.width - 2, y)).toBeUndefined();
+    // The margin outside the left sideline: flat sideline.
+    expect(paintedAt(r.fills, v.ox + v.s / 2, y)).toBe(COLOR.sideline);
+    // Inside the sidelines: the mowing band, turf at each goal line, alternating toward the 50.
+    for (const yard of [2, 7, 12, 47, 52, 88, 97]) {
+      const k = Math.floor((yard < 50 ? yard : 99 - yard) / 5);
+      const cy = (v.cameraY - yard) * v.s;
+      const want = k % 2 === 0 ? COLOR.turf : COLOR.turfStripe;
+      expect(paintedAt(r.fills, v.ox + v.columnWidth / 2 + 3, cy), `yard ${yard}`).toBe(want);
+    }
   });
 });
 

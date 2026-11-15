@@ -9,7 +9,7 @@ import type { PlayEvent } from "../src/engine/types";
 import { cameraAt, COLUMN_YARDS, layoutFor, MIN_HEIGHT, MIN_WIDTH, panCamera, screenX, screenY, SIDE_MARGIN_MIN, TOP_BAR, VISIBLE_YARDS } from "../src/ui/layout";
 import { blend, CARD_MIN_WINDOW_WIDTH, contrast, FocusTrail, OVERLAY_ALPHA, OVERLAY_IDS, OVERLAY_MARGIN, overlaysShown, placeOverlay, rgbOf, unitDepth } from "../src/ui/overlay";
 import { at, timeline } from "../src/ui/timeline";
-import { COLOR } from "../src/ui/tokens";
+import { COLOR, SWATCHES, TEAM_END_ZONE } from "../src/ui/tokens";
 import { playGame } from "./support";
 import * as S from "../src/ui/screens";
 import { MotionError, parseMotion, parseTemplates, TemplateError } from "../src/ui/templates";
@@ -21,7 +21,7 @@ const motionRaw = read("data/ui/motion.json");
 
 describe("layout (L1, the full-screen field)", () => {
   it.each([
-    [800, 520],
+    [800, 528],
     [1024, 600],
     [1280, 720],
     [1440, 900],
@@ -50,11 +50,15 @@ describe("layout (L1, the full-screen field)", () => {
     expect(spacing - l.markPx).toBeGreaterThanOrEqual(4);
   });
 
-  it("the make-the-window-larger floor is lowered to 800x520, where the field still fits", () => {
-    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 520]);
+  // DESIGN.md Broadcast (2026-11-15): the top bar grows 48 to 56 px, so the floor moves 520 to 528
+  // to keep the floor scale at 9.44 px per yard.
+  it("the make-the-window-larger floor is 800x528, where the field still fits at 9.44 px per yard", () => {
+    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 528]);
+    expect(TOP_BAR).toBe(56);
+    expect(layoutFor(800, 528).s).toBeCloseTo(9.44, 9);
     expect(layoutFor(1023, 599).tooSmall).toBe(false);
     expect(layoutFor(799, 700).tooSmall).toBe(true);
-    expect(layoutFor(1200, 519).tooSmall).toBe(true);
+    expect(layoutFor(1200, 527).tooSmall).toBe(true);
   });
 
   it("the line of scrimmage sits 70% down the canvas, and the camera pans only near an edge", () => {
@@ -76,7 +80,7 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
   );
   // Margins under SIDE_MARGIN_MIN, so the overlay goes over the field: the floor and two tall windows.
   const overField = [
-    [800, 520],
+    [800, 528],
     [1024, 900],
     [1280, 1024],
   ] as const;
@@ -189,7 +193,8 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
 
   // Amended 2026-11-14 (usability pass U1, AC 2): the backing is the opaque dark board, with chalk text.
   it("text on the panel backing keeps 4.5:1 over the darkest field pixel", () => {
-    for (const under of [COLOR.ink, COLOR.offense, COLOR.defense, COLOR.ball, COLOR.paper]) {
+    // Every opaque color the field paints: team fills and end zones replace the retired side colors.
+    for (const under of [COLOR.ink, ...SWATCHES, ...TEAM_END_ZONE, COLOR.ball, COLOR.paper, COLOR.turf, COLOR.turfStripe, COLOR.line, COLOR.hash, COLOR.outlineDark, COLOR.signal]) {
       const backing = blend(rgbOf(COLOR.panel), rgbOf(under), OVERLAY_ALPHA);
       for (const text of [COLOR.chalk, COLOR.chalkSoft]) expect(contrast(rgbOf(text), backing), `${text} over ${under}`).toBeGreaterThanOrEqual(4.5);
     }
@@ -214,6 +219,7 @@ describe("every non-menu screen has at most seven choices (F3)", () => {
   const models: S.ScreenModel[] = [
     S.titleScreen({ hasSave: true, storage: true }),
     S.titleScreen({ hasSave: false, storage: false }),
+    S.titleScreen({ hasSave: false, storage: true, checking: true }),
     S.pregameScreen(),
     ...S.UNITS.map((unit) => S.rosterScreen({ team: "T", unit, empty: false })),
     S.cardScreen({ hasPrev: true, hasNext: false }),
@@ -223,7 +229,7 @@ describe("every non-menu screen has at most seven choices (F3)", () => {
     S.endScreen(),
     ...S.BOX_TABS.map((t) => S.boxScreen(t)),
     S.pauseScreen({ hasPlay: true, speed: "1x" }),
-    S.settingsScreen({ textSize: 200, reducedMotion: "system", markLabels: "involved" }),
+    S.settingsScreen({ textSize: 200, reducedMotion: "system", markLabels: "involved", speed: "skip", systemReduced: true }),
     S.controlsScreen(),
     S.detailsScreen(),
     S.saveErrorScreen("older"),
@@ -239,8 +245,11 @@ describe("every non-menu screen has at most seven choices (F3)", () => {
   it("counts match the design's screen table", () => {
     expect(S.pregameScreen().rows).toHaveLength(6);
     expect(S.pauseScreen({ hasPlay: true, speed: "1x" }).rows).toHaveLength(7);
-    // Text size, motion, mark labels, what the mark label shows (usability pass U7), Back.
-    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", labelContent: "rating" }).rows).toHaveLength(5);
+    // Text size, motion, mark labels, what the mark label shows (usability pass U7), animation speed
+    // (main menu spec decision 6, MM9), Back.
+    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", labelContent: "rating" }).rows).toHaveLength(6);
+    // The main menu: New game, Continue, Settings, Controls (main menu spec MM5, MM23).
+    expect(S.titleScreen({ hasSave: true, storage: true }).rows).toHaveLength(4);
     expect(S.boxScreen("Team").rows).toHaveLength(6);
     expect(S.endScreen().rows).toHaveLength(4);
     expect(S.titleScreen({ hasSave: false, storage: true }).rows[1]).toMatchObject({ on: false, reason: "no saved game" });
