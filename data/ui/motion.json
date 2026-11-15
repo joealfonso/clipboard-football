@@ -26,5 +26,5 @@
   "live": { "minMs": 1500, "maxMs": 4000, "kneelMs": 900, "spikeMs": 700 },
   "preSnap": { "lineUpMs": 450, "runoffMaxMs": 600, "setMs": 300, "glideMs": 150 },
   "fillet": { "roundRadius": 2.0, "sharpRadius": 0.6, "sharpDeg": 60 },
-  "huddle": { "offenseBehind": 7, "defensePast": 6, "markGapPx": 4 }
+  "huddle": { "offenseBehind": 9, "defensePast": 10, "markGapPx": 4 }
 }

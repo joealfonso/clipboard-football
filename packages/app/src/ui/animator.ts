@@ -1,6 +1,9 @@
 // Plays a timeline on the field canvas with requestAnimationFrame. Speed 1x, 2x or skip; Space
-// skips to the whistle. Reduced motion shows only the final frame with paths, cuts the camera
-// and the possession flip, and skips holds. The animator reads the timeline and decides nothing.
+// skips to the whistle. Reduced motion shows only the final frame with paths, and cuts the camera
+// and the possession flip. A jump to the end (reduced motion, skip) still holds the whistle frame
+// for at least the designed hold, so it is painted before a flip replaces it (Space ends the
+// hold; a player card pauses it).
+// The animator reads the timeline and decides nothing.
 
 import { drawField, drawFrame, markPositions, viewOf, type FieldScene, type FrameOpts } from "./field";
 import { cameraAt, panCamera, screenX, type Layout } from "./layout";
@@ -28,6 +31,13 @@ export class Animator {
   /** The last play's final frame, for the dead ball's state 1 (Pre-snap). */
   private last: { tl: Timeline; scene: FieldScene; t: number; camera: number } | null = null;
   private stillRaf = 0;
+  /** The whistle-frame hold after a jump to the end (reduced motion, skip), so the frame is painted. */
+  private holdTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Ms of that hold still to run, and when its timer started (a player card pauses it). */
+  private holdLeft = 0;
+  private holdFrom = 0;
+  /** A jump-to-end hold is pending (running, or paused by a player card). */
+  private holding = false;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -61,11 +71,18 @@ export class Animator {
     return cameraAt(los, l.visibleYards, this.templates().field.losFromTop);
   }
 
-  /** The dead-ball view: the last play's final frame if it's in this frame, else an empty field. */
+  /**
+   * The dead-ball view: the last play's final frame if it's in this frame, else an empty field.
+   * Without keepLast the last play's frame is gone for good (a possession flip): restoreLast never
+   * brings it back in the old orientation.
+   */
   idle(scene: FieldScene, keepLast: boolean, crossfade: boolean): void {
     const before = crossfade ? this.snapshot() : null;
     this.idleScene = scene;
-    if (!keepLast) this.current = null;
+    if (!keepLast) {
+      this.current = null;
+      this.last = null;
+    }
     if (this.current === null) this.camera = this.startCamera(scene.los);
     this.redraw();
     if (before !== null) this.fade(before);
@@ -171,13 +188,20 @@ export class Animator {
     return markPositions(viewOf(this.layout(), this.camera), this.current.tl, this.t);
   }
 
-  /** A player card is open: hold the play where it is. */
+  /** A player card is open: hold the play where it is (the whistle hold after a jump too). */
   pause(): void {
+    if (this.paused) return;
     this.paused = true;
+    if (this.holding && this.holdTimer !== null) {
+      this.clearHoldTimer();
+      this.holdLeft = Math.max(0, this.holdLeft - (performance.now() - this.holdFrom));
+    }
   }
 
   resume(): void {
+    if (!this.paused) return;
     this.paused = false;
+    if (this.holding && this.holdTimer === null) this.startHold();
   }
 
   /** Plays one timeline; resolves at the end of the hold. */
@@ -227,7 +251,7 @@ export class Animator {
     });
   }
 
-  /** The final frame with paths drawn; no holds under reduced motion or skip from the start. */
+  /** The final frame with paths drawn, held for the whistle hold (respecting pause) before resolving, so a possession flip never replaces it unpainted. */
   private jumpToEnd(o: PlayOpts, fromStart: boolean): void {
     cancelAnimationFrame(this.raf);
     const cur = this.current;
@@ -243,12 +267,35 @@ export class Animator {
     this.last = { tl, scene: cur.scene, t: tl.total, camera: cam };
     this.redraw();
     void fromStart;
+    // Hold the whistle frame before resolving, so the next change (a possession flip's idle field)
+    // can't replace it before it is ever painted. At least the normal path's hold or settle, and
+    // never under the designed hold (timing.holdMs): a touchback or fair catch has a hold of 0 but
+    // its label still shows. Space during the hold ends it; a player card pauses it.
+    this.holdLeft = Math.max(tl.holdMs, tl.settleMs, this.templates().timing.holdMs);
+    this.holding = true;
+    if (!this.paused) this.startHold();
+  }
+
+  private startHold(): void {
+    this.holdFrom = performance.now();
+    this.holdTimer = setTimeout(() => this.endHold(), this.holdLeft);
+  }
+
+  private clearHoldTimer(): void {
+    if (this.holdTimer !== null) clearTimeout(this.holdTimer);
+    this.holdTimer = null;
+  }
+
+  private endHold(): void {
+    this.clearHoldTimer();
+    this.holding = false;
     this.finish?.();
   }
 
-  /** Space during the animation. */
+  /** Space during the animation; during the whistle hold after a jump, ends the hold. */
   skip(): void {
-    if (this.playing) this.skipRequested = true;
+    if (this.holding) this.endHold();
+    else if (this.playing) this.skipRequested = true;
   }
 
   /** S during the animation: 1x, 2x, skip. Returns the new setting. */
@@ -263,6 +310,8 @@ export class Animator {
 
   stop(): void {
     cancelAnimationFrame(this.raf);
+    this.clearHoldTimer();
+    this.holding = false;
     if (this.finish !== null) this.finish();
   }
 }

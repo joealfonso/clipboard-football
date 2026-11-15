@@ -9,9 +9,9 @@ import type { Catalog } from "@clipboard-football/shared";
 import { offenseArt, slotsFromCounts } from "../src/ui/art";
 import { cardArt, cardSvg, personnelLine } from "../src/ui/cards";
 import { callingFrame, glide, ownSlots } from "../src/ui/presnap";
-import { NO_PLAY_STAT, playLines, ratingValue } from "../src/ui/ratings";
+import { NO_PLAY_STAT, overallRating, playLines, ratingValue } from "../src/ui/ratings";
 import { pauseScreen, seedLine } from "../src/ui/screens";
-import { parseMotion, parseTemplates } from "../src/ui/templates";
+import { parseMotion, parseTemplates, TemplateError } from "../src/ui/templates";
 import { at, timeline } from "../src/ui/timeline";
 import type { DecisionRequest, PlayEvent } from "../src/engine/types";
 import { ALL_FIXTURES, COMPLETE, fixturePlayers } from "./fixtures";
@@ -127,6 +127,44 @@ describe("ratings on marks and the hover card (Joseph's amendment)", () => {
       for (const [k, v] of [...Object.entries(p.ratings), ...Object.entries(p.skills)]) expect(ratingValue(p, k)).toBe(v);
       expect(ratingValue(p, templates.keyRating[p.position] ?? "")).toBeTypeOf("number");
     }
+  });
+
+  it("the overall is the position-weighted mean of the card ratings, rounded, and only the weighted ratings move it", () => {
+    const g = playGame(82, "away");
+    const step = g.sent.find((m) => m.t === "step");
+    if (step?.t !== "step") throw new Error("no step");
+    for (const p of [...step.matchup.home.pool.players, ...step.matchup.away.pool.players]) {
+      const w = templates.overallWeights[p.position] ?? {};
+      let sum = 0;
+      let total = 0;
+      for (const [r, x] of Object.entries(w)) {
+        sum += (ratingValue(p, r) as number) * x;
+        total += x;
+      }
+      const ovr = overallRating(p, templates.overallWeights);
+      expect(ovr, p.id).toBe(Math.round(sum / total));
+      expect(ovr).toBeGreaterThanOrEqual(0);
+      expect(ovr).toBeLessThanOrEqual(99);
+    }
+    const k = step.matchup.home.pool.players.find((p) => p.position === "K");
+    if (k === undefined) throw new Error("no kicker");
+    // A kicker's speed is not in his weights: changing it leaves his overall alone.
+    expect(overallRating({ ...k, ratings: { ...k.ratings, speed: k.ratings.speed === 0 ? 99 : 0 } }, templates.overallWeights)).toBe(overallRating(k, templates.overallWeights));
+    // His kick power is: raising it raises his overall.
+    const low = { ...k, skills: { ...k.skills, kickPower: 0 } };
+    const high = { ...k, skills: { ...k.skills, kickPower: 99 } };
+    expect(overallRating(high, templates.overallWeights)).toBeGreaterThan(overallRating(low, templates.overallWeights));
+  });
+
+  it("overallWeights must cover every position with that position's own ratings and positive weights", () => {
+    const raw = read("data/ui/templates.json") as Record<string, unknown>;
+    const ow = raw["overallWeights"] as Record<string, Record<string, number>>;
+    const without = Object.fromEntries(Object.entries(ow).filter(([pos]) => pos !== "QB"));
+    expect(() => parseTemplates({ ...raw, overallWeights: without })).toThrow(TemplateError);
+    expect(() => parseTemplates({ ...raw, overallWeights: { ...ow, QB: {} } })).toThrow(TemplateError);
+    expect(() => parseTemplates({ ...raw, overallWeights: { ...ow, QB: { passRush: 1 } } })).toThrow(/passRush is not a QB rating/);
+    expect(() => parseTemplates({ ...raw, overallWeights: { ...ow, QB: { accuracy: 0 } } })).toThrow(TemplateError);
+    expect(() => parseTemplates({ ...raw, overallWeights: "x" })).toThrow(TemplateError);
   });
 
   it("every mark on the field has a reachable card: a real player id with a number", () => {

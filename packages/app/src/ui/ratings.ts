@@ -10,6 +10,22 @@ export function ratingValue(p: Player, rating: string): number | undefined {
   return (p.ratings as Readonly<Record<string, number>>)[rating] ?? p.skills[rating];
 }
 
+/**
+ * A player's overall: the weighted mean of his card ratings (before home field), with the
+ * position's weights from templates overallWeights. Display only; the engine never reads it.
+ */
+export function overallRating(p: Player, weights: Readonly<Record<string, Readonly<Record<string, number>>>>): number {
+  let sum = 0;
+  let total = 0;
+  for (const [r, w] of Object.entries(weights[p.position] ?? {})) {
+    const v = ratingValue(p, r);
+    if (v === undefined) continue;
+    sum += v * w;
+    total += w;
+  }
+  return total === 0 ? 0 : Math.round(sum / total);
+}
+
 const ROLE_TEXT: Readonly<Record<ParticipantRole, string>> = {
   passer: "Passer",
   target: "Target",

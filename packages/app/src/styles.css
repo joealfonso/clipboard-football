@@ -6,6 +6,7 @@
   --ink: #22272b;
   --ink-soft: #5c6368;
   --panel: #1f2a30;
+  --panel-raise: #2e3b42;
   --chalk: #f5f2e8;
   --chalk-soft: #a9b3b8;
   --signal: #f2b33d;
@@ -50,26 +51,80 @@ body {
   color: var(--chalk);
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 18px;
   padding: 0 16px;
   font-size: calc(16px * var(--text-scale));
   white-space: nowrap;
   overflow: hidden;
 }
+/* The scoreboard (usability pass U5): score, clock and down and distance are never dropped. */
 .top-bar .team,
 .top-bar .time {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex: none;
+}
+.top-bar .name {
+  font-weight: 700;
+}
+.top-bar .you {
+  color: var(--chalk-soft);
+  font-size: calc(14px * var(--text-scale));
 }
 .top-bar .score {
-  font-size: calc(22px * var(--text-scale));
+  font-size: calc(28px * var(--text-scale));
+  font-weight: 700;
+}
+.top-bar .period {
   font-weight: 600;
+}
+.top-bar .divider {
+  width: 1px;
+  height: 24px;
+  background: var(--panel-raise);
+  flex: none;
+}
+.top-bar .bar-dd {
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 700;
+  color: var(--chalk);
+  flex: none;
+}
+.top-bar .bar-keys {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 12px;
+  flex: none;
+}
+.top-bar.fit-1 .chip-label,
+.top-bar.fit-2 .clock-state,
+.top-bar.fit-3 .ball-word {
+  display: none;
+}
+/* Key chips (top bar and panel footer): a kbd box, then the label. */
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--chalk);
+  font-size: calc(14px * var(--text-scale));
+}
+kbd {
+  font-family: var(--font-mono);
+  font-size: calc(13px * var(--text-scale));
+  border: 1px solid var(--chalk-soft);
+  border-radius: 3px;
+  padding: 0 5px;
+  color: var(--chalk);
+}
+.chip-value {
+  font-family: var(--font-mono);
 }
 .swatch {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   outline: 1px solid var(--chalk-soft);
   flex: none;
 }
@@ -100,7 +155,8 @@ body {
   background: var(--signal);
 }
 .clock {
-  font-size: calc(20px * var(--text-scale));
+  font-size: calc(24px * var(--text-scale));
+  font-weight: 700;
 }
 .clock.late,
 .late-note {
@@ -110,6 +166,7 @@ body {
 .tempo,
 .late-note {
   color: var(--chalk-soft);
+  font-size: calc(14px * var(--text-scale));
 }
 .late-note {
   color: var(--signal);
@@ -132,18 +189,29 @@ body {
   top: 0;
   display: block;
 }
-/* Overlays over the full-screen field (Joseph, 2026-11-14). ui/overlay.ts places them in window px
-   and sets the paper backing (paper at 0.94, so text keeps 4.5:1 over any field pixel). Flat: a
-   1 px border, no shadow. */
+/* Overlays over the full-screen field (Joseph, 2026-11-14). ui/overlay.ts places them in window px.
+   The panel is the opaque dark board with chalk text (usability pass U1): full bleed in the side
+   column, a 1 px chalkSoft border when it floats over the field. Flat: no shadow. */
 .overlay {
   position: fixed;
   overflow-y: auto;
-  padding: 10px 16px 12px;
-  font-size: calc(16px * var(--text-scale));
-  line-height: 1.4;
-  background: var(--paper);
-  border: 1px solid var(--line, #7e837a);
   z-index: 2;
+}
+.panel {
+  padding: 16px 20px 0;
+  font-size: calc(17px * var(--text-scale));
+  line-height: 1.4;
+  background: var(--panel);
+  color: var(--chalk);
+  border: 1px solid var(--chalk-soft);
+  display: flex;
+  flex-direction: column;
+}
+.panel > * {
+  flex: none;
+}
+.panel.side {
+  border: 0;
 }
 /* A hidden overlay stays hidden whatever other class it has (.panel.wide sets display: grid). */
 .overlay[hidden] {
@@ -159,22 +227,57 @@ body {
   column-gap: 20px;
   align-items: start;
 }
+/* The divider between the report and the call section. */
+.panel:not(.wide) .ov-menu {
+  border-top: 1px solid var(--panel-raise);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.panel.wide .ov-menu {
+  border-left: 1px solid var(--panel-raise);
+  padding-left: 20px;
+}
+/* The footer (U9): pinned to the bottom of the column, and visible while the column scrolls. */
+.panel-foot {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: var(--panel);
+  border-top: 1px solid var(--panel-raise);
+  padding: 8px 0 10px;
+  font-size: calc(14px * var(--text-scale));
+  color: var(--chalk-soft);
+}
+.panel.wide .panel-foot {
+  grid-column: 1 / -1;
+}
+.panel-foot p {
+  margin: 2px 0;
+}
+.panel-foot .keys-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
 .panel.compact .rows {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   column-gap: 8px;
 }
-.play-keys {
-  color: var(--chalk-soft);
-  margin-left: auto;
-}
 .panel h1 {
-  font-size: calc(22px * var(--text-scale));
+  font-size: calc(24px * var(--text-scale));
+  font-weight: 700;
   margin: 0 0 12px;
 }
 .panel h2 {
-  font-size: calc(17px * var(--text-scale));
-  margin: 16px 0 6px;
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 700;
+  margin: 14px 0 4px;
+}
+.so-far {
+  font-size: calc(15px * var(--text-scale));
+  color: var(--chalk-soft);
+  margin: 0 0 4px;
 }
 .panel h3 {
   font-size: calc(16px * var(--text-scale));
@@ -183,13 +286,16 @@ body {
 .soft {
   color: var(--ink-soft);
 }
+.panel .soft {
+  color: var(--chalk-soft);
+}
 
 .situation .dd {
-  font-size: calc(24px * var(--text-scale));
-  font-weight: 600;
+  font-size: calc(26px * var(--text-scale));
+  font-weight: 700;
 }
 .situation .side {
-  color: var(--ink-soft);
+  color: var(--chalk-soft);
 }
 .report {
   min-height: 0;
@@ -203,14 +309,14 @@ body {
 }
 .calls,
 .event {
-  color: var(--ink-soft);
+  color: var(--chalk-soft);
 }
 .why {
   font-size: calc(18px * var(--text-scale));
 }
 .hint {
   white-space: nowrap;
-  color: var(--ink-soft);
+  color: var(--chalk-soft);
   font-size: calc(14px * var(--text-scale));
   font-family: var(--font-mono);
 }
@@ -225,42 +331,95 @@ body {
   gap: 2px;
   margin: 6px 0;
 }
+/* Rows on the dark board (usability pass U2): highlighted is an inverted paper bar; off is lighter
+   text, a dashed chip and the reason in words; off and highlighted never gets the fill. */
 .row {
   display: flex;
-  gap: 10px;
-  align-items: baseline;
+  gap: 12px;
+  align-items: center;
   width: 100%;
+  min-height: 40px;
   text-align: left;
   font: inherit;
-  color: var(--ink);
+  font-size: calc(18px * var(--text-scale));
+  color: var(--chalk);
   background: transparent;
   border: 0;
-  padding: 6px 8px;
+  border-radius: 3px;
+  padding: 8px 10px;
   cursor: pointer;
 }
 .row .key {
-  min-width: 3.2em;
+  min-width: 2.6em;
+  text-align: center;
   font-weight: 600;
-}
-.row.hl,
-.row:hover {
-  background: var(--paper-shade);
-}
-.row:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: -2px;
-}
-.row.off {
-  color: var(--ink-soft);
-  cursor: default;
+  font-size: calc(15px * var(--text-scale));
+  border: 1px solid var(--chalk-soft);
+  border-radius: 3px;
+  color: var(--chalk);
+  flex: none;
 }
 .row .note,
 .row .reason {
+  color: var(--chalk-soft);
+}
+.row.hl,
+.row:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.row.hl .label,
+.row:hover .label {
+  font-weight: 700;
+}
+.row.hl .key,
+.row:hover .key {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.row.hl .note,
+.row:hover .note {
   color: var(--ink-soft);
+}
+.row:focus-visible {
+  outline: 2px solid var(--chalk);
+  outline-offset: 2px;
+}
+.row.off {
+  color: var(--chalk-soft);
+  cursor: not-allowed;
+}
+.row.off .key {
+  border-style: dashed;
+  color: var(--chalk-soft);
+  border-color: var(--chalk-soft);
+}
+.row.off.hl,
+.row.off:hover,
+.row.off:focus-visible {
+  background: transparent;
+  color: var(--chalk-soft);
+  outline: 2px dashed var(--chalk-soft);
+  outline-offset: -2px;
+}
+.row.off.hl .label,
+.row.off:hover .label {
+  font-weight: 400;
+}
+.row.off.hl .key,
+.row.off:hover .key,
+.row.off.hl .note,
+.row.off:hover .note,
+.row.off .reason {
+  color: var(--chalk-soft);
+  border-color: var(--chalk-soft);
 }
 .status {
   min-height: 1.4em;
   color: var(--ink-soft);
+}
+.panel .status {
+  color: var(--chalk-soft);
 }
 
 /* ---------------------------------------------------------------- bars, tables, cards */
@@ -280,6 +439,15 @@ body {
   height: 100%;
   background: var(--ink-soft);
 }
+/* Bars on the dark board: panelRaise track, chalkSoft fill, the value always printed beside. */
+.panel .bar-track,
+.panel .progress {
+  background: var(--panel-raise);
+}
+.panel .bar-fill,
+.panel .progress-fill {
+  background: var(--chalk-soft);
+}
 .bar-value {
   text-align: right;
 }
@@ -294,11 +462,6 @@ body {
   gap: 6px;
   font-weight: 600;
 }
-.matchup .swatch,
-.box .swatch,
-.panel .swatch {
-  outline-color: var(--ink-soft);
-}
 table {
   border-collapse: collapse;
   width: 100%;
@@ -311,16 +474,38 @@ td {
 td.mono {
   text-align: right;
 }
+.panel table th {
+  color: var(--chalk-soft);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 600;
+}
+.panel table tbody th,
+.panel table tr + tr th:first-child {
+  color: var(--chalk);
+  font-size: inherit;
+  font-weight: 400;
+}
+.roster tr.sel,
+.roster tr.sel th,
+.roster tr.sel td {
+  background: var(--paper);
+  color: var(--ink);
+}
 .roster tr.sel {
-  background: var(--paper-shade);
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--chalk);
 }
 .roster tr {
   cursor: pointer;
 }
+/* The roster player card: a paper sheet on the board (play cards are .play-card). */
 .card {
   border: 1px solid var(--ink);
   padding: 12px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.card .soft {
+  color: var(--ink-soft);
 }
 .card-head {
   display: flex;
@@ -379,7 +564,7 @@ td.mono {
   gap: 6px;
   margin: 6px 0;
 }
-.card {
+.play-card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -392,32 +577,38 @@ td.mono {
   cursor: pointer;
   text-align: left;
 }
-/* card.focus: a 2 px ink outline and a shaded label line only, never a fill over the art (zones use paperShade). */
-.card.hl,
-.card:hover,
-.card:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: -2px;
+/* play-card focus (U2): a 3 px chalk outline outside the tile and a shaded label strip, never a fill over the art. */
+.play-card.hl,
+.play-card:hover,
+.play-card:focus-visible {
+  outline: 3px solid var(--chalk);
+  outline-offset: 2px;
 }
-.card.hl .card-label,
-.card:hover .card-label {
+.play-card.hl .play-card-label,
+.play-card:hover .play-card-label {
   background: var(--paper-shade);
 }
-.card.off {
+/* Off: shaded tile, inkSoft label with the reason in words, art at half opacity (never the only cue). */
+.play-card.off {
+  background: var(--paper-shade);
   color: var(--ink-soft);
+  cursor: not-allowed;
 }
-.card-art svg {
+.play-card.off .play-card-art {
+  opacity: 0.5;
+}
+.play-card-art svg {
   display: block;
   width: 100%;
   height: auto;
   max-height: 120px;
 }
-.card-personnel {
+.play-card-personnel {
   color: var(--ink-soft);
   font-size: calc(14px * var(--text-scale));
 }
 @media (max-height: 640px) {
-  .card-art svg {
+  .play-card-art svg {
     max-height: 72px;
   }
 }
@@ -426,9 +617,61 @@ td.mono {
 }
 
 /* ---------------------------------------------------------------- the player card over a mark */
+/* Opaque: the card sits over the menu panel as well as the field, and the panel's text bled
+   through the 0.94 overlay backing. */
 .mark-card {
   border: 1px solid var(--ink);
-  padding: 8px 12px;
+  padding: 12px 16px;
+  background: var(--paper);
+}
+.mark-card .card-head {
+  flex-wrap: wrap;
+  column-gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--paper-shade);
+}
+.mark-card h3 {
+  margin: 14px 0 6px;
+  font-size: calc(13px * var(--text-scale));
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.mark-card table.ratings {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.mark-card .ratings th,
+.mark-card .ratings td {
+  padding: 3px 0;
+  text-align: left;
+  font-weight: 400;
+}
+.mark-card .ratings tbody tr + tr {
+  border-top: 1px solid var(--paper-shade);
+}
+.mark-card .ratings thead th {
+  padding: 0 0 2px;
+  font-size: calc(13px * var(--text-scale));
+  color: var(--ink-soft);
+}
+.mark-card .ratings .val {
+  text-align: right;
+  font-weight: 700;
+  padding-right: 16px;
+  width: 3ch;
+}
+.mark-card .ratings .rank {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.mark-card .ratings thead .rank {
+  white-space: normal;
+}
+.mark-card .hint {
+  margin: 14px 0 0;
+  white-space: normal;
 }
 .mark-card:focus {
   outline: 2px solid var(--ink);
@@ -437,7 +680,4 @@ td.mono {
 .mark-card ul {
   margin: 2px 0;
   padding-left: 1.2em;
-}
-.mark-card .ratings {
-  columns: 2;
 }

@@ -18,6 +18,7 @@ import { layoutFor, type Layout } from "./layout";
 import { deepestUnit, FocusTrail, OVERLAY_IDS, overlayBackground, overlaysShown, placeOverlay, unitDepth, type Guard, type OverlayId, type Placement } from "./overlay";
 import { breadcrumb, current, isFirstScreen, openMenu, press, rows as menuRows, title as menuTitle, type MenuData, type MenuExtra, type MenuKey, type MenuState, type Row } from "./menu";
 import {
+  LABEL_LEGEND,
   MARK_LABEL_TEXT,
   UNITS,
   boxScreen,
@@ -43,7 +44,6 @@ import {
 import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, setSaveAside, storageAvailable, writeSave, type Settings } from "./storage";
 import { MotionError, parseMotion, parseTemplates, type Motion, type Templates } from "./templates";
 import {
-  abbrev,
   callsLine,
   catalogLabels,
   clockText,
@@ -64,10 +64,10 @@ import {
   type TextCtx,
 } from "./text";
 import { timeline, type Timeline } from "./timeline";
-import { callingFrame, glide } from "./presnap";
+import { callingFrame, glide, kickoffFrame } from "./presnap";
 import { cardArt, cardScreen as cardKind, cardSvg, personnelLine } from "./cards";
-import { NO_PLAY_STAT, playLines, ratingValue } from "./ratings";
-import { COLOR, swatchFor } from "./tokens";
+import { NO_PLAY_STAT, overallRating, playLines } from "./ratings";
+import { COLOR, matchupSwatches } from "./tokens";
 
 /** A menu row as displayed: its reason already in words. */
 type MenuRow = Omit<Row, "reason"> & { readonly reason?: string };
@@ -299,7 +299,7 @@ export class App {
     return {
       numbers: this.numbers(),
       ratings: this.ratingLabels(),
-      showRatings: this.settings.ratingLabels,
+      labelContent: this.settings.labelContent,
       focused: this.markCard,
       markLabels: this.settings.markLabels,
       routeAlpha: this.templates?.timing.routeAlpha ?? 0.4,
@@ -307,16 +307,12 @@ export class App {
     };
   }
 
-  /** Each player's key rating (the card rating, before home field; templates keyRating). */
+  /** Each player's overall (position-weighted card ratings, before home field), shown beside his number. */
   private ratingLabels(): Record<string, number> {
     const m = this.game?.matchup ?? this.matchup;
-    if (m === null || m === undefined || this.templates === null) return {};
-    const out: Record<string, number> = {};
-    for (const p of [...m.home.pool.players, ...m.away.pool.players]) {
-      const v = ratingValue(p, this.templates.keyRating[p.position] ?? "speed");
-      if (v !== undefined) out[p.id] = v;
-    }
-    return out;
+    const t = this.templates;
+    if (m === null || m === undefined || t === null) return {};
+    return Object.fromEntries([...m.home.pool.players, ...m.away.pool.players].map((p) => [p.id, overallRating(p, t.overallWeights)]));
   }
 
   private sceneFor(possession: Team, los: number, firstDown: number | null): FieldScene {
@@ -541,6 +537,12 @@ export class App {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (this.layoutNow.tooSmall || this.fatal !== null || this.loading !== null) return;
     const k = e.key;
+    // A held Space or Enter (a key repeat) never skips, continues or clicks the focused row: the
+    // repeat of the Continue press reached the play and the next menu (debugger, U8).
+    if (e.repeat && (k === " " || k === "Enter")) {
+      e.preventDefault();
+      return;
+    }
     if (k === "m" || k === "M") {
       // Cycle the player cards over the marks on the field (Joseph's amendment: hover or focus).
       this.cycleMarkCard();
@@ -816,8 +818,8 @@ export class App {
       case "markLabels":
         this.settings.markLabels = this.settings.markLabels === "involved" ? "all" : this.settings.markLabels === "all" ? "none" : "involved";
         break;
-      case "ratingLabels":
-        this.settings.ratingLabels = !this.settings.ratingLabels;
+      case "labelContent":
+        this.settings.labelContent = this.settings.labelContent === "rating" ? "number" : "rating";
         break;
       case "copy":
         this.copyDetails(top);
@@ -912,7 +914,7 @@ export class App {
 
   /** Cards in the grid's first row: the columns that fit the overlay now. */
   private gridColumns(): number {
-    const cards = [...this.root.panel.querySelectorAll<HTMLElement>(".cards .card")];
+    const cards = [...this.root.panel.querySelectorAll<HTMLElement>(".cards .play-card")];
     const top = cards[0]?.offsetTop;
     return Math.max(1, cards.filter((c) => c.offsetTop === top).length);
   }
@@ -942,7 +944,9 @@ export class App {
       depth = units.length > 0 ? Math.max(...units) : deepestUnit(t, side);
     }
     const preview = this.previewFrame;
-    if (preview !== null) {
+    // Only a call's lineup moves the guard: a kickoff lineup (U8) is 60 yards deep and public.
+    const calling = req !== null && (req.kind === "offenseCall" || req.kind === "try" || req.kind === "defenseCall");
+    if (preview !== null && calling) {
       // The lineup actually shown, in case it sits deeper than its template (never shallower).
       const own = preview.marks.filter((x) => !x.huddle && x.side === (side === "offense" ? "O" : "X"));
       for (const x of own) depth = Math.max(depth, Math.abs((x.keys[0]?.y ?? s.spot) - s.spot));
@@ -968,7 +972,12 @@ export class App {
     }
     if (!shown.panel && hadFocus) this.root.main.focus({ preventScroll: true });
     this.position(panel, p.left, p.width, p.top, p.maxHeight, p.anchor);
-    panel.classList.toggle("wide", p.where !== "sheet" && p.width >= 760);
+    // The dark board (usability pass U1): opaque panel color on the panel only; the player card keeps its CSS paper.
+    panel.style.background = overlayBackground();
+    // In the side column the panel fills it, top bar to window bottom, so the footer sits at the bottom.
+    panel.style.height = p.fill ? `${p.maxHeight}px` : "";
+    panel.classList.toggle("side", p.where === "side");
+    panel.classList.toggle("wide", p.where !== "sheet" && p.where !== "side" && p.width >= 760);
     panel.classList.toggle("compact", p.compact);
     const card = this.root.markCard;
     if (shown["mark-card"]) {
@@ -990,7 +999,6 @@ export class App {
     el.style.left = `${left}px`;
     el.style.width = `${width}px`;
     el.style.maxHeight = `${maxHeight}px`;
-    el.style.background = overlayBackground();
     if (anchor === "top") {
       el.style.top = `${top}px`;
       el.style.bottom = "auto";
@@ -1048,13 +1056,13 @@ export class App {
       const name = [r.key, r.label, personnel].filter((x) => x !== null).join(", ");
       const b = h(
         "button",
-        { class: `card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
-        h("span", { class: "card-label" }, h("span", { class: "key mono" }, r.key), " ", r.label, r.on ? "" : ` (${r.reason ?? "not now"})`),
+        { class: `play-card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
+        h("span", { class: "play-card-label" }, h("span", { class: "key mono" }, r.key), " ", r.label, r.on ? "" : ` (${r.reason ?? "not now"})`),
       );
-      const art = h("span", { class: "card-art", "aria-hidden": "true" });
+      const art = h("span", { class: "play-card-art", "aria-hidden": "true" });
       art.innerHTML = cardSvg(cardArt(kind, c.unit, c.call, c.counts, t), c.side);
       b.append(art);
-      if (personnel !== null) b.append(h("span", { class: "card-personnel" }, personnel));
+      if (personnel !== null) b.append(h("span", { class: "play-card-personnel" }, personnel));
       b.addEventListener("click", () => (this.animating ? undefined : this.pick(r.key)));
       b.addEventListener("mouseenter", () => {
         this.highlight = i;
@@ -1076,6 +1084,17 @@ export class App {
     const g = this.game;
     if (g === null || g.menu === null || g.request === null || this.animating || this.templates === null || this.motion === null || g.state === null) return;
     const req = g.request;
+    // Before a kickoff, theirs or yours: both units lined up from the moment the dead ball shows (U8).
+    if (req.kind === "kickoff" || (req.kind === "continue" && req.about.what === "theyKickOff")) {
+      const s = this.hudState(g) ?? g.state;
+      const key = JSON.stringify([req.seq, "kickoff"]);
+      if (key === this.previewKey) return;
+      this.previewKey = key;
+      const frame = kickoffFrame({ los: s.spot, humanKicks: s.possession === g.human, templates: this.templates, pxPerYard: this.layoutNow.s });
+      this.previewFrame = frame;
+      this.animator.still(frame, this.sceneFor(s.possession, s.spot, null), 0);
+      return;
+    }
     if (req.kind !== "offenseCall" && req.kind !== "try" && req.kind !== "defenseCall") return;
     const m = g.menu;
     const s = g.state;
@@ -1174,10 +1193,14 @@ export class App {
     const { p, team } = found;
     const ranks = this.ranks.get(id);
     const plural = POSITION_PLURAL[p.position] ?? `${p.position}s`;
+    // One row per rating: name, value, league rank. "of N TEs" goes once in the header, not on every row.
+    let of: number | undefined;
     const ratings = [...Object.entries(p.ratings), ...Object.entries(p.skills)].map(([k, v]) => {
       const r = ranks?.[k];
-      return h("li", { class: "mono" }, `${RATING_NAME[k] ?? k} ${v}${r === undefined ? "" : `: ${ordinalRank(r.rank)} of ${r.of} ${plural}`}`);
+      if (r !== undefined) of = r.of;
+      return h("tr", {}, h("th", { scope: "row" }, RATING_NAME[k] ?? k), h("td", { class: "val" }, String(v)), h("td", { class: "rank" }, r === undefined ? "" : ordinalRank(r.rank)));
     });
+    const ratingHead = h("tr", {}, h("th", { scope: "col" }, ""), h("th", { scope: "col", class: "val" }, ""), h("th", { scope: "col", class: "rank" }, of === undefined ? "" : `Rank of ${of} ${plural}`));
     const play = playLines(id, this.game?.lastPlay ?? null);
     const line = this.box?.players.find((l) => l.id === id);
     return [
@@ -1186,7 +1209,7 @@ export class App {
         { class: "mark-card", role: "dialog", tabindex: "-1", "aria-label": `${p.name}, #${p.number}, ${p.position}`, "aria-live": "polite" },
         h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)),
         h("h3", {}, "Ratings"),
-        h("ul", { class: "ratings" }, ...ratings),
+        h("table", { class: "ratings" }, h("thead", {}, ratingHead), h("tbody", {}, h("tr", { class: "overall" }, h("th", { scope: "row" }, "Overall"), h("td", { class: "val" }, this.templates === null ? "" : String(overallRating(p, this.templates.overallWeights))), h("td", { class: "rank" }, "")), ...ratings)),
         h("h3", {}, "This play"),
         play.length === 0 ? h("p", { class: "soft" }, NO_PLAY_STAT) : h("ul", {}, ...play.map((x) => h("li", {}, x))),
         h("h3", {}, "This game"),
@@ -1261,8 +1284,22 @@ export class App {
   private renderStatus(): void {
     const el = this.root.panel.querySelector<HTMLElement>(".status");
     if (el === null) return;
-    const parts = [this.working ? "Working..." : "", this.status, this.storageWarning ?? ""].filter((x) => x !== "");
+    const parts = [this.working ? "Working..." : "", this.status === "" ? this.offReason() : this.status, this.storageWarning ?? ""].filter((x) => x !== "");
     el.textContent = parts.join(" ");
+  }
+
+  /** An off row under the highlight says why it is off in the status line too (usability pass U2). */
+  private offReason(): string {
+    const top = this.top();
+    if (top === undefined) return "";
+    if (top.id === "game") {
+      const g = this.game;
+      if (g === null || g.menu === null || this.ui === null || this.animating) return "";
+      const r = menuRows(g.menu, this.menuData(), this.menuExtra(g))[this.highlight];
+      return r === undefined || r.on ? "" : `${r.label}: ${reasonText(r.reason)}.`;
+    }
+    const r = this.screenModel()?.rows[this.highlight];
+    return r === undefined || r.on ? "" : `${r.label}: ${r.reason ?? "not available"}.`;
   }
 
   /** The state the HUD shows: the open request's state (the moment it is decided in) over the committed state. */
@@ -1273,6 +1310,15 @@ export class App {
     return { ...s, ...r };
   }
 
+  /** The two team swatches of the matchup on screen: never the same family or value (U4). */
+  private swatches(m: Matchup): { readonly away: string; readonly home: string } {
+    return matchupSwatches(m.away.index, m.home.index);
+  }
+
+  /**
+   * The scoreboard (usability pass U5): each team's swatch, nickname, score, timeouts and the ball;
+   * the period and clock; down and distance; then the keys that work now.
+   */
   private renderTopBar(): void {
     const bar = this.root.topBar;
     const g = this.game;
@@ -1280,19 +1326,29 @@ export class App {
       bar.replaceChildren(h("span", { class: "brand" }, "Clipboard Football"));
       return;
     }
+    const sw = this.swatches(g.matchup);
     const s = this.hudState(g);
+    const chip = (key: string, label: string, value?: string): HTMLElement => h("span", { class: "chip" }, h("kbd", {}, key), h("span", { class: "chip-label" }, label), value === undefined ? null : h("span", { class: "chip-value" }, value));
+    // No overlay during the live play, so skip, speed and the player card keys show here.
+    const keys = this.animating
+      ? h("span", { class: "bar-keys" }, chip("Space", "Skip"), chip("S", "Speed", this.settings.speed), chip("M", "Player card"))
+      : this.top()?.id === "game"
+        ? h("span", { class: "bar-keys" }, chip("Esc", "Menu"))
+        : h("span", { class: "bar-keys" });
+    const divider = (): HTMLElement => h("span", { class: "divider", "aria-hidden": "true" });
+    const name = (t: Team): HTMLElement[] => [h("span", { class: "name" }, g.matchup[t].nickname), ...(t === g.human ? [h("span", { class: "you" }, "(you)")] : [])];
     if (s === null) {
       // Before the opening toss is settled.
-      bar.replaceChildren(...(["away", "home"] as const).map((t) => h("span", { class: "team" }, swatch(swatchFor(g.matchup[t].index)), h("span", { class: "abbr" }, abbrev(g.matchup[t]), t === g.human ? " (you)" : ""), h("span", { class: "score mono" }, "0"))), h("span", { class: "time" }, "Coin toss"));
+      bar.replaceChildren(...(["away", "home"] as const).map((t) => h("span", { class: "team" }, swatch(sw[t]), ...name(t), h("span", { class: "score mono" }, "0"))), divider(), h("span", { class: "time" }, "Coin toss"), keys);
+      this.fitTopBar();
       return;
     }
     const perHalf = this.ui?.rules.timeouts.perHalf ?? 3;
     const team = (t: Team): HTMLElement => {
-      const info = g.matchup[t];
       const pips = h("span", { class: "pips", "aria-label": `${s.timeouts[t]} timeouts left` });
       for (let i = 0; i < perHalf; i++) pips.append(h("span", { class: i < s.timeouts[t] ? "pip on" : "pip", "aria-hidden": "true" }));
-      const ball = s.possession === t && s.phase !== "final" ? h("span", { class: "ball" }, h("span", { class: "dot", "aria-hidden": "true" }), "ball") : null;
-      return h("span", { class: "team" }, swatch(swatchFor(info.index)), h("span", { class: "abbr" }, abbrev(info), t === g.human ? " (you)" : ""), h("span", { class: "score mono" }, String(s.score[t])), pips, ball);
+      const ball = s.possession === t && s.phase !== "final" ? h("span", { class: "ball" }, h("span", { class: "dot", "aria-hidden": "true" }), h("span", { class: "ball-word" }, "ball")) : null;
+      return h("span", { class: "team" }, swatch(sw[t]), ...name(t), h("span", { class: "score mono" }, String(s.score[t])), pips, ball);
     };
     const clock = this.clockOverride ?? s.clock;
     const regulation = this.ui?.rules.game.regulationPeriods ?? 4;
@@ -1302,6 +1358,7 @@ export class App {
     bar.replaceChildren(
       team("away"),
       team("home"),
+      divider(),
       h(
         "span",
         { class: "time" },
@@ -1311,9 +1368,37 @@ export class App {
         lateHalf ? h("span", { class: "late-note" }, "under 2:00") : null,
         tempo,
       ),
-      // No overlay during the live play, so the skip and speed keys show here.
-      ...(this.animating ? [h("span", { class: "play-keys" }, `Space: skip. S: speed (${this.settings.speed}).`)] : []),
+      ...(s.phase === "final" ? [] : [divider(), h("span", { class: "bar-dd mono" }, situationText(s, g.human))]),
+      keys,
     );
+    this.fitTopBar();
+  }
+
+  /**
+   * The bar never clips a score, the clock or down and distance: when it is wider than the window
+   * it drops the key chips' labels, then the clock state word, then the word "ball" (U5).
+   */
+  private fitTopBar(): void {
+    const bar = this.root.topBar;
+    const steps = ["fit-1", "fit-2", "fit-3"];
+    bar.classList.remove(...steps);
+    for (const c of steps) {
+      if (bar.scrollWidth <= bar.clientWidth) break;
+      bar.classList.add(c);
+    }
+    // With the word gone, the dot itself says who has the ball.
+    const dropped = bar.classList.contains("fit-3");
+    for (const d of bar.querySelectorAll(".ball .dot")) {
+      if (dropped) {
+        d.removeAttribute("aria-hidden");
+        d.setAttribute("role", "img");
+        d.setAttribute("aria-label", "has the ball");
+      } else {
+        d.setAttribute("aria-hidden", "true");
+        d.removeAttribute("role");
+        d.removeAttribute("aria-label");
+      }
+    }
   }
 
   private rowButton(r: { key: string; label: string; on: boolean; reason?: string; note?: string }, i: number, onClick: () => void): HTMLElement {
@@ -1331,6 +1416,7 @@ export class App {
       this.highlight = i;
       for (const x of this.root.panel.querySelectorAll("button.row")) x.classList.remove("hl");
       b.classList.add("hl");
+      this.renderStatus();
     });
     return b;
   }
@@ -1355,7 +1441,7 @@ export class App {
     if (top === undefined) return [];
     if (top.id === "game") return this.gamePanel();
     const model = this.screenModel() as ScreenModel;
-    return [h("h1", {}, model.title), ...(model.lines ?? []).map((l) => h("p", { class: "soft mono seeds" }, l)), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), h("p", { class: "status", role: "status" })];
+    return [h("h1", {}, model.title), ...(model.lines ?? []).map((l) => h("p", { class: "soft mono seeds" }, l)), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), h("p", { class: "status", role: "status" }), this.footer(false)];
   }
 
   private gamePanel(): HTMLElement[] {
@@ -1375,7 +1461,8 @@ export class App {
       g.calls === "" ? null : h("p", { class: "calls" }, g.calls),
       ...g.eventLines.map((l) => h("p", { class: "event" }, l)),
     );
-    const out: HTMLElement[] = [];
+    // The report first, then the situation, then the call (usability pass U5, DESIGN.md Layout).
+    const out: HTMLElement[] = [header];
     if (g.menu !== null && g.request !== null && !this.animating) {
       const m = g.menu;
       const crumbs = breadcrumb(m, this.menuData());
@@ -1383,13 +1470,28 @@ export class App {
       if (req.kind === "continue") out.push(h("p", { class: "lineup" }, continueText(req.about, this.textCtx(g))));
       // M2 G: what is in doubt, then what a challenge risks, from the rule set (design "Challenge prompt").
       if (req.kind === "challenge") out.push(h("p", { class: "lineup" }, `Close call: ${req.closeCall.question} ${req.challengesLeft} challenge${req.challengesLeft === 1 ? "" : "s"} left; ${req.failedCostsTimeout ? `a failed challenge costs a timeout (${req.timeoutsLeft} left)` : "a failed challenge costs nothing"}.`));
-      out.push(h("h2", {}, menuTitle(m), crumbs === "" ? "" : `: ${crumbs}`));
+      // The step name, and the earlier pick that changes what the rows mean, once and labeled (U3).
+      out.push(h("h2", {}, menuTitle(m)));
+      if (crumbs !== "") out.push(h("p", { class: "so-far" }, `So far: ${crumbs}`));
       const list = menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }));
       out.push(this.onCardScreen() && !this.compact() ? this.cardGrid(m, list) : this.rowsGroup(menuTitle(m), this.compact() ? this.withPersonnel(m, list) : list));
       if (current(m) === "offense.clock" && req.kind === "offenseCall") out.push(h("p", { class: "soft" }, `Clock ${req.clockRunning ? "running" : "stopped"}. Tempo: ${tempoText(req.tempo)} (resets each drive).`));
     }
     out.push(h("p", { class: "status", role: "status" }));
-    return [h("div", { class: "ov-report" }, header, playText), h("div", { class: "ov-menu" }, ...out)];
+    return [h("div", { class: "ov-report" }, playText), h("div", { class: "ov-menu" }, ...out), this.footer(true)];
+  }
+
+  /**
+   * The panel footer (usability pass U9): the keys you can use, and on game screens what the mark
+   * labels are (U7). Visible text, not choices: no buttons, so the seven-choice count is unchanged.
+   */
+  private footer(game: boolean): HTMLElement {
+    const chip = (key: string, label: string): HTMLElement => h("span", { class: "chip" }, h("kbd", {}, key), h("span", { class: "chip-label" }, label));
+    const keys = game
+      ? [chip("Arrows", "Move"), chip("Enter", "Pick"), chip("D", "Details"), chip("M", "Player cards")]
+      : [this.top()?.id === "title" ? null : chip("Esc", "Back"), chip("Enter", "Pick")];
+    const legend = game || this.top()?.id === "settings" ? h("p", { class: "legend" }, LABEL_LEGEND[this.settings.labelContent]) : null;
+    return h("footer", { class: "panel-foot" }, h("p", { class: "keys-line" }, ...keys), legend);
   }
 
   private screenBody(top: Overlay): HTMLElement[] {
@@ -1427,6 +1529,9 @@ export class App {
               ["Space, Enter", "Continue; during the animation, skip to the end"],
               ["S", "Animation speed 1x, 2x, skip (during the animation)"],
               ["Arrows", "Move the highlight; Enter picks it. Left and right page player cards"],
+              ["Arrows", "On play cards, move across and down the grid"],
+              ["M", "Player card for each mark in turn; Esc or Enter closes it"],
+              ["Space", "Continue a dead ball"],
             ].map(([k, v]) => h("tr", {}, h("th", { class: "mono" }, k as string), h("td", {}, v as string))),
           ),
         ];
@@ -1451,7 +1556,8 @@ export class App {
     if (m === null) return [h("p", { class: "soft" }, "Drawing a matchup...")];
     const you = m[this.human];
     const them = m[other(this.human)];
-    const teamLine = (t: TeamSummary, side: Team): HTMLElement => h("span", { class: "matchup-team" }, swatch(swatchFor(t.index)), `${t.name} (${side})`);
+    const sw = this.swatches(m);
+    const teamLine = (t: TeamSummary, side: Team): HTMLElement => h("span", { class: "matchup-team" }, swatch(sw[side]), `${t.name} (${side})`);
     const unitBars = (t: TeamSummary): HTMLElement => h("div", { class: "units" }, h("h3", {}, t.nickname), ...UNITS.map((u) => bar(u, this.unitAverage(t.pool, u), this.unitAverage(t.pool, u) / 99)));
     return [
       h("p", { class: "matchup" }, "You: ", teamLine(you, this.human), " vs ", teamLine(them, other(this.human))),
@@ -1534,7 +1640,7 @@ export class App {
       .map((l) => ({ l, y: (l.passing?.yards ?? 0) + (l.rushing?.yards ?? 0) + (l.receiving?.yards ?? 0) + 20 * ((l.defense?.sacks ?? 0) + (l.defense?.interceptions ?? 0)) }))
       .sort((a, b) => b.y - a.y)
       .slice(0, n);
-    if (scored.length === 0) return h("p", { class: "soft" }, "No player stats yet: the engine doesn't name the players in each play yet.");
+    if (scored.length === 0) return h("p", { class: "soft" }, "No player stats yet.");
     return h("div", {}, h("h3", {}, "Top players"), ...scored.map(({ l }) => h("p", {}, `${this.nameOf(l.id)}: ${statLine(l)}`)));
   }
 
@@ -1565,7 +1671,8 @@ export class App {
     const g = this.game;
     if (g === null) return [h("p", { class: "soft" }, "No game.")];
     const t = g.matchup;
-    const teams = h("p", {}, swatch(swatchFor(t.away.index)), ` ${t.away.name} at `, swatch(swatchFor(t.home.index)), ` ${t.home.name}`);
+    const sw = this.swatches(t);
+    const teams = h("p", {}, swatch(sw.away), ` ${t.away.name} at `, swatch(sw.home), ` ${t.home.name}`);
     if (this.box === null) return [teams, h("p", { class: "soft" }, "Loading...")];
     const { box, players } = this.box;
     const reg = this.ui?.rules.game.regulationPeriods ?? 4;
@@ -1573,13 +1680,13 @@ export class App {
       "table",
       { class: "box" },
       h("tr", {}, h("th", {}, ""), ...Array.from({ length: box.periods }, (_, i) => h("th", {}, periodText(i + 1, reg))), h("th", {}, "Final")),
-      ...(["away", "home"] as const).map((side) => h("tr", {}, h("th", {}, swatch(swatchFor(t[side].index)), ` ${t[side].nickname}`), ...box[side].byPeriod.map((x) => h("td", { class: "mono" }, String(x))), h("td", { class: "mono" }, String(g.state?.score[side] ?? 0)))),
+      ...(["away", "home"] as const).map((side) => h("tr", {}, h("th", {}, swatch(sw[side]), ` ${t[side].nickname}`), ...box[side].byPeriod.map((x) => h("td", { class: "mono" }, String(x))), h("td", { class: "mono" }, String(g.state?.score[side] ?? 0)))),
     );
     const out: HTMLElement[] = [teams, byQ];
     if (!g.events.some((e) => e.t === "play")) return [...out, h("p", { class: "soft" }, "No plays yet.")];
     const dash = (v: number | undefined): string => (v === undefined ? "-" : String(v));
     const table = (head: readonly string[], rows: readonly (readonly string[])[]): HTMLElement =>
-      rows.length === 0 ? h("p", { class: "soft" }, "No player stats yet: the engine doesn't name the players in each play yet.") : h("table", { class: "box" }, h("tr", {}, ...head.map((c) => h("th", {}, c))), ...rows.map((r) => h("tr", {}, ...r.map((c, i) => h(i === 0 ? "th" : "td", { class: i === 0 ? "" : "mono" }, c)))));
+      rows.length === 0 ? h("p", { class: "soft" }, "No player stats yet.") : h("table", { class: "box" }, h("tr", {}, ...head.map((c) => h("th", {}, c))), ...rows.map((r) => h("tr", {}, ...r.map((c, i) => h(i === 0 ? "th" : "td", { class: i === 0 ? "" : "mono" }, c)))));
     const who = (l: PlayerLine): string => `${this.nameOf(l.id)} (${t[l.team].nickname})`;
     switch (tab) {
       case "Team": {
@@ -1600,11 +1707,9 @@ export class App {
               stat("Time of possession", (x) => clockText(x.possessionSeconds)),
               stat("Punts", (x) => String(x.punts)),
               stat("Field goals", (x) => `${x.fieldGoalsMade}-${x.fieldGoalAttempts}`),
-              stat("Challenges won-lost", () => "-"),
             ],
           ),
         );
-        out.push(h("p", { class: "soft" }, "Challenges aren't in the game yet."));
         break;
       }
       case "Offense players":

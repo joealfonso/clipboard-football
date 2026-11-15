@@ -93,6 +93,7 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
     for (const [w, hgt] of beside) expect(layoutFor(w, hgt).side, `${w}x${hgt}`).not.toBeNull();
   });
 
+  // Amended 2026-11-14 (usability pass U1, AC 6): the panel fills the side column, full bleed.
   it.each(beside)("%ix%i: with a wide margin the overlay sits in it and covers no part of the field", (w, hgt) => {
     const l = layoutFor(w, hgt, templates.field);
     const g = { los: 40, lineToGain: 50, side: "defense" as const, depth: 23 };
@@ -101,7 +102,7 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
       expect(p.left).toBeGreaterThanOrEqual(l.column.left + l.column.width);
       expect(p.left + p.width).toBeLessThanOrEqual(w);
       expect(p.width).toBeGreaterThanOrEqual(SIDE_MARGIN_MIN - 2 * OVERLAY_MARGIN);
-      expect(p.maxHeight).toBe(l.field.height - 2 * OVERLAY_MARGIN);
+      expect(p.maxHeight).toBe(l.field.height);
     }
   });
 
@@ -186,10 +187,11 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
     expect(css).toMatch(/\.overlay\[hidden\]\s*\{\s*display:\s*none\s*!important;?\s*\}/);
   });
 
-  it("text on the paper backing keeps 4.5:1 over the darkest field pixel", () => {
+  // Amended 2026-11-14 (usability pass U1, AC 2): the backing is the opaque dark board, with chalk text.
+  it("text on the panel backing keeps 4.5:1 over the darkest field pixel", () => {
     for (const under of [COLOR.ink, COLOR.offense, COLOR.defense, COLOR.ball, COLOR.paper]) {
-      const backing = blend(rgbOf(COLOR.paper), rgbOf(under), OVERLAY_ALPHA);
-      for (const text of [COLOR.ink, COLOR.inkSoft]) expect(contrast(rgbOf(text), backing), `${text} over ${under}`).toBeGreaterThanOrEqual(4.5);
+      const backing = blend(rgbOf(COLOR.panel), rgbOf(under), OVERLAY_ALPHA);
+      for (const text of [COLOR.chalk, COLOR.chalkSoft]) expect(contrast(rgbOf(text), backing), `${text} over ${under}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 
@@ -237,8 +239,8 @@ describe("every non-menu screen has at most seven choices (F3)", () => {
   it("counts match the design's screen table", () => {
     expect(S.pregameScreen().rows).toHaveLength(6);
     expect(S.pauseScreen({ hasPlay: true, speed: "1x" }).rows).toHaveLength(7);
-    // Text size, motion, mark labels, rating labels (Joseph's amendment), Back.
-    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", ratingLabels: true }).rows).toHaveLength(5);
+    // Text size, motion, mark labels, what the mark label shows (usability pass U7), Back.
+    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", labelContent: "rating" }).rows).toHaveLength(5);
     expect(S.boxScreen("Team").rows).toHaveLength(6);
     expect(S.endScreen().rows).toHaveLength(4);
     expect(S.titleScreen({ hasSave: false, storage: true }).rows[1]).toMatchObject({ on: false, reason: "no saved game" });

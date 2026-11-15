@@ -2,7 +2,7 @@
 // "Amended (Joseph, 2026-11-14): full-screen field, menus over it"). Pure, so the rules can be tested:
 // - an overlay never covers the line of scrimmage, the line to gain or your lineup at the set;
 // - no overlay shows during the live play;
-// - paper backing opaque enough for 4.5:1 text over any field pixel;
+// - an opaque dark board (color.panel) under chalk text (usability pass U1, 2026-11-14);
 // - focus goes back where it came from when an overlay closes.
 
 import type { Layout } from "./layout";
@@ -16,8 +16,8 @@ export const OVERLAY_MAX_WIDTH = 980;
 export const SHEET_MAX_WIDTH = 720;
 /** Card art on call screens from this window width up; narrower (or text at 150% and up) falls back to text rows. */
 export const CARD_MIN_WINDOW_WIDTH = 1024;
-/** Paper backing opacity over the field. contrast.test checks text over the darkest field pixel. */
-export const OVERLAY_ALPHA = 0.94;
+/** The panel is the opaque dark board (usability pass U1); layout.test checks chalk text on it. */
+export const OVERLAY_ALPHA = 1;
 /** Clear space kept around a protected line or lineup, in yards. */
 export const GUARD_PAD_YARDS = 1;
 
@@ -48,9 +48,9 @@ export function contrast(a: Rgb, b: Rgb): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** The overlay's CSS background: paper at OVERLAY_ALPHA. */
+/** The panel's CSS background: color.panel at OVERLAY_ALPHA (opaque). */
 export function overlayBackground(): string {
-  const [r, g, b] = rgbOf(COLOR.paper);
+  const [r, g, b] = rgbOf(COLOR.panel);
   return `rgba(${r}, ${g}, ${b}, ${OVERLAY_ALPHA})`;
 }
 
@@ -99,10 +99,13 @@ export interface Placement {
   readonly where: "side" | "above" | "below" | "between" | "sheet";
   /** Text rows instead of card art (window narrower than CARD_MIN_WINDOW_WIDTH). */
   readonly compact: boolean;
+  /** Fill the whole box (height, not only max-height): the side column, full bleed. */
+  readonly fill: boolean;
 }
 
 /**
- * Where an overlay goes. With a side margin (layout.side): in it, full height, covering nothing.
+ * Where an overlay goes. With a side margin (layout.side): the whole side column, full bleed from
+ * the top bar to the window bottom, covering nothing (usability pass U1).
  * Otherwise over a play (a guard): in the tallest stretch of the canvas the protected ranges leave
  * free, on the side away from the ball. Otherwise: a centered sheet.
  */
@@ -112,11 +115,11 @@ export function placeOverlay(l: Layout, camera: number, guard: Guard | null, mar
   const bottom0 = l.field.top + l.field.height - m;
   const compact = l.field.width < CARD_MIN_WINDOW_WIDTH;
   if (l.side !== null) {
-    return { left: l.side.left + m, width: l.side.width - 2 * m, top: top0, maxHeight: bottom0 - top0, anchor: "top", where: "side", compact };
+    return { left: l.side.left, width: l.side.width, top: l.field.top, maxHeight: l.field.height, anchor: "top", where: "side", compact, fill: true };
   }
   if (guard === null) {
     const width = Math.min(l.field.width - 2 * m, SHEET_MAX_WIDTH);
-    return { left: Math.round((l.field.width - width) / 2), width, top: top0, maxHeight: bottom0 - top0, anchor: "top", where: "sheet", compact };
+    return { left: Math.round((l.field.width - width) / 2), width, top: top0, maxHeight: bottom0 - top0, anchor: "top", where: "sheet", compact, fill: false };
   }
   const yPx = (y: number): number => l.field.top + (camera - y) * l.s;
   // Protected stretches in window px, top to bottom, merged.
@@ -142,7 +145,7 @@ export function placeOverlay(l: Layout, camera: number, guard: Guard | null, mar
   const ballLeft = ballX !== null && ballX < l.field.width / 2;
   const left = ballLeft ? l.field.width - m - width : m;
   const maxHeight = Math.max(0, best.b - best.a);
-  return { left: Math.round(left), width, top: best.a, maxHeight, anchor: best.anchor, where: best.where, compact };
+  return { left: Math.round(left), width, top: best.a, maxHeight, anchor: best.anchor, where: best.where, compact, fill: false };
 }
 
 // ---------------------------------------------------------------- when overlays show

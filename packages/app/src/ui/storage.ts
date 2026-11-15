@@ -2,32 +2,47 @@
 // browser. Every call tolerates blocked storage (private windows, denied permission): the game
 // plays and the status line says it can't be saved.
 
-import type { MarkLabelSetting, MotionSetting, SpeedSetting, TextSize } from "./screens";
+import type { LabelContent, MarkLabelSetting, MotionSetting, SpeedSetting, TextSize } from "./screens";
 
 export interface Settings {
   textSize: TextSize;
   reducedMotion: MotionSetting;
   markLabels: MarkLabelSetting;
   speed: SpeedSetting;
-  /** Each mark's key rating beside its number (Joseph's amendment); on by default. */
-  ratingLabels: boolean;
+  /** What each mark's label shows: jersey number, overall rating, or both (usability pass U7). */
+  labelContent: LabelContent;
 }
+
+/**
+ * The mark label default: the player's overall (Joseph, 2026-11-14: one label per mark, the
+ * overall by default; the setting switches to the jersey number).
+ */
+export const DEFAULT_LABEL_CONTENT: LabelContent = "rating";
 
 const SETTINGS_KEY = "clipboard-football.settings";
 const LOG_KEY = "clipboard-football.log";
-export const DEFAULT_SETTINGS: Settings = { textSize: 100, reducedMotion: "system", markLabels: "involved", speed: "1x", ratingLabels: true };
+export const DEFAULT_SETTINGS: Settings = { textSize: 100, reducedMotion: "system", markLabels: "involved", speed: "1x", labelContent: DEFAULT_LABEL_CONTENT };
 
 export function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (raw === null) return { ...DEFAULT_SETTINGS };
-    const v = JSON.parse(raw) as Partial<Settings>;
+    // ratingLabels is the setting before the usability pass (true: the rating was shown), and
+    // "both" a label mode that no longer exists: both migrate to the overall.
+    const v = JSON.parse(raw) as Partial<Settings> & { ratingLabels?: unknown };
     return {
       textSize: [100, 125, 150, 200].includes(v.textSize as number) ? (v.textSize as TextSize) : DEFAULT_SETTINGS.textSize,
       reducedMotion: v.reducedMotion === "on" || v.reducedMotion === "off" ? v.reducedMotion : "system",
       markLabels: v.markLabels === "all" || v.markLabels === "none" ? v.markLabels : "involved",
       speed: v.speed === "2x" || v.speed === "skip" ? v.speed : "1x",
-      ratingLabels: v.ratingLabels !== false,
+      labelContent:
+        v.labelContent === "number" || v.labelContent === "rating"
+          ? v.labelContent
+          : (v.labelContent as unknown) === "both" || v.ratingLabels === true
+            ? "rating"
+            : v.ratingLabels === false
+              ? "number"
+              : DEFAULT_LABEL_CONTENT,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

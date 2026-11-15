@@ -286,7 +286,7 @@ Nothing tweens anywhere:
 - The preview lineup and focus changes cut.
 - The huddle is shown in states 1 to 2, and their alignment appears at the Set with no break motion.
 - The play jumps to the final frame, which is the post-settle positions, with paths drawn and the ball at scale 1.
-- The camera cuts. There are no holds (M2 design, unchanged).
+- The camera cuts. The only hold is the whistle frame, held before a possession flip so it is painted (amended 2026-11-14, docs/specs/m2-usability-pass.md U8).
 
 The field still reads: the paths show what happened and the panel text says it. Skip shows the same final frame.
 
@@ -368,7 +368,7 @@ The field still reads: the paths show what happened and the panel text says it. 
 | Timeline at 1x, 3. Live | `play.seconds` scaled into 2 to 4 s; straight segments, easing at start and stop only | Geometry phase budgets clamped to 1.5 to 4.0 s; curves, acceleration, reaction, pursuit, arcs, cuts, blocks, convergence (decisions 8, 10, 11). |
 | Timeline at 1x, 4. Holds | Holds only | The 300 ms settle runs inside the hold. |
 | Rule for what may be drawn | Facts and diagram | Adds reaction (pursuit, convergence, settle) as diagram, bound by the 2.5 yd ring and the carrier corridor (Motion, contract 3). |
-| Reduced motion (Accessibility) | Final frame, no pans, no holds | Also: preview and huddle break cut, and the final frame shows post-settle positions. |
+| Reduced motion (Accessibility) | Final frame held for the whistle hold, no pans, no other holds (amended 2026-11-14) | Also: preview and huddle break cut, and the final frame shows post-settle positions. |
 | A4 | Snap to whistle 2 to 4 s | 1.5 to 4 s for scrimmage plays and kicks; kneel 900 ms and spike 700 ms fixed. |
 | DESIGN.md Motion, for art-director | "Pre-snap: routes faint under a second"; "straight segments with easing only at start and stop"; "paths stay drawn until the next snap" | Pre-snap states 1 to 4; motion as in this file; paths stay until the Calling state starts. Defender paths drawn only to the read, except named players (decision 13). |
 | DESIGN.md Shapes, path lines, for art-director | Implicitly straight | Routes have rounded breaks (fillets); the ball's size grows with height in flight. |

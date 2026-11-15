@@ -2,6 +2,8 @@
 // view draws the body; these rows are the screen's choices, so one test can count every screen
 // against the seven-choice cap (spec F3). A scrollable table counts as one choice (lead).
 
+import { DEFAULT_LABEL_CONTENT } from "./storage";
+
 export interface ScreenRow {
   /** The key that picks it: "1".."7", "T", "Esc", "Space", "Enter", "Left", "Right". */
   readonly key: string;
@@ -27,7 +29,8 @@ export function titleScreen(o: { readonly hasSave: boolean; readonly storage: bo
   return {
     id: "title",
     title: "Clipboard Football",
-    rows: [row("1", "New game", "newGame"), o.hasSave && o.storage ? row("2", "Continue", "continue") : row("2", "Continue", "continue", { on: false, reason }), row("3", "Settings", "settings")],
+    // A new game replaces the autosave: say so once, as a note, not a confirm step (usability pass U9).
+    rows: [row("1", "New game", "newGame", o.hasSave && o.storage ? { note: "replaces your saved game" } : {}), o.hasSave && o.storage ? row("2", "Continue", "continue") : row("2", "Continue", "continue", { on: false, reason }), row("3", "Settings", "settings")],
   };
 }
 
@@ -122,10 +125,19 @@ export type TextSize = 100 | 125 | 150 | 200;
 export type MotionSetting = "system" | "on" | "off";
 export type MarkLabelSetting = "involved" | "all" | "none";
 
+/** What a mark's one label shows (usability pass U7; Joseph, 2026-11-14: the overall by default). */
+export type LabelContent = "rating" | "number";
+export const LABEL_CONTENT_TEXT: Readonly<Record<LabelContent, string>> = { rating: "Overall rating", number: "Jersey number" };
+/** The legend line in the panel footer: what the number beside each mark is. */
+export const LABEL_LEGEND: Readonly<Record<LabelContent, string>> = {
+  rating: "Mark labels: overall ratings",
+  number: "Mark labels: jersey numbers",
+};
+
 export const MARK_LABEL_TEXT: Readonly<Record<MarkLabelSetting, string>> = { involved: "Named players during the play", all: "All", none: "None" };
 export const MOTION_TEXT: Readonly<Record<MotionSetting, string>> = { system: "Follow the system", on: "On", off: "Off" };
 
-export function settingsScreen(o: { readonly textSize: TextSize; readonly reducedMotion: MotionSetting; readonly markLabels: MarkLabelSetting; readonly ratingLabels?: boolean }): ScreenModel {
+export function settingsScreen(o: { readonly textSize: TextSize; readonly reducedMotion: MotionSetting; readonly markLabels: MarkLabelSetting; readonly labelContent?: LabelContent }): ScreenModel {
   return {
     id: "settings",
     title: "Settings",
@@ -133,7 +145,7 @@ export function settingsScreen(o: { readonly textSize: TextSize; readonly reduce
       row("1", "Text size", "textSize", { note: `${o.textSize}%` }),
       row("2", "Reduced motion", "reducedMotion", { note: MOTION_TEXT[o.reducedMotion] }),
       row("3", "Mark labels", "markLabels", { note: MARK_LABEL_TEXT[o.markLabels] }),
-      row("4", "Rating labels", "ratingLabels", { note: o.ratingLabels === false ? "Off" : "On" }),
+      row("4", "Mark label shows", "labelContent", { note: LABEL_CONTENT_TEXT[o.labelContent ?? DEFAULT_LABEL_CONTENT] }),
       row("Esc", "Back", "back"),
     ],
   };

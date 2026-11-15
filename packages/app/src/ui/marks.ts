@@ -115,27 +115,31 @@ export function pathPrimitives(tl: Timeline, t: number, edgeYards: number): Path
 
 export interface MarkPx {
   readonly id: string;
-  /** The key rating beside the number, when the rating labels are on. */
-  readonly rating?: number;
   readonly side: "O" | "X";
   /** Center in canvas px. */
   readonly x: number;
   readonly y: number;
   readonly ringed: boolean;
   readonly named: boolean;
+  /** The one label: the overall, or the jersey number (the label content setting, U7). */
   readonly number: number;
   readonly show: boolean;
 }
 
 export interface NumberBox {
   readonly id: string;
-  /** What to draw: the number, or the number and the rating. */
-  readonly text: string;
-  /** Center of the text box, px. */
+  /** The label as drawn. */
+  readonly number: string;
+  /** Center of the box, px. */
   readonly x: number;
   readonly y: number;
   readonly w: number;
   readonly h: number;
+}
+
+/** The width a label takes at `px` (mono: 0.62 em per character, 1 px each side). */
+export function labelWidth(text: string, px: number): number {
+  return text.length * px * 0.62 + 2;
 }
 
 /** Ring 6 px outside the mark (DESIGN.md mark.ballCarrier), 2 px stroke. */
@@ -152,10 +156,10 @@ function boxesHit(a: NumberBox, b: NumberBox): boolean {
 }
 
 /**
- * Places every shown number: under an O, above an X, 2 px off the mark (outside the ring when
- * ringed); to the right, then the left, when that spot is on another mark. Named players go first;
- * a number that would still collide is hidden, except a named player's, which always draws
- * (DESIGN.md Spacing: "the named player's number is drawn and the other is hidden").
+ * Places every shown label (one per mark): under an O, above an X, 2 px off the mark (outside the
+ * ring when ringed); to the right, then the left, when that spot is on another mark. Named players
+ * go first; a label that would still collide is hidden, except a named player's, which always
+ * draws (DESIGN.md Spacing: "the named player's number is drawn and the other is hidden").
  */
 export function placeNumbers(marks: readonly MarkPx[], markPx: number, numberPx: number): NumberBox[] {
   const r = markPx / 2;
@@ -164,20 +168,57 @@ export function placeNumbers(marks: readonly MarkPx[], markPx: number, numberPx:
   for (const m of order) {
     const h = numberPx;
     const reach = (m.ringed ? r + RING_GAP + 1 : r) + 2;
-    // With the rating first; when space is short the rating hides before the number does.
-    const texts = m.rating === undefined ? [String(m.number)] : [`${m.number} ${m.rating}`, String(m.number)];
-    const candidates: NumberBox[] = texts.flatMap((text) => {
-      const w = text.length * numberPx * 0.62 + 2;
-      return [
-        { id: m.id, text, x: m.x, y: m.side === "O" ? m.y + reach + h / 2 : m.y - reach - h / 2, w, h },
-        { id: m.id, text, x: m.x + reach + w / 2, y: m.y, w, h },
-        { id: m.id, text, x: m.x - reach - w / 2, y: m.y, w, h },
-      ];
-    });
+    const number = String(m.number);
+    const w = labelWidth(number, numberPx);
+    const candidates: NumberBox[] = [
+      { id: m.id, number, x: m.x, y: m.side === "O" ? m.y + reach + h / 2 : m.y - reach - h / 2, w, h },
+      { id: m.id, number, x: m.x + reach + w / 2, y: m.y, w, h },
+      { id: m.id, number, x: m.x - reach - w / 2, y: m.y, w, h },
+    ];
     const free = (b: NumberBox): boolean => marks.every((o) => o.id === m.id || !boxHitsCircle(b, o, r)) && placed.every((p) => !boxesHit(b, p));
-    const numberOnly = candidates.filter((c) => c.text === String(m.number));
-    const pick = candidates.find(free) ?? (m.named ? numberOnly[0] : undefined);
+    const pick = candidates.find(free) ?? (m.named ? candidates[0] : undefined);
     if (pick !== undefined) placed.push(pick);
   }
   return placed;
+}
+
+/**
+ * Where field.huddleLabel goes (usability pass U6), in canvas px: the label's center, or null when
+ * no spot is free. It never crosses a line (the line of scrimmage, the line to gain, a goal line:
+ * `lineYs`, canvas y) or touches a mark, and stays between the sidelines. First choice is 1 yard
+ * right of the horseshoe, centered on it; then the same spot stepped up and down; then the left
+ * side; then above and below the horseshoe.
+ */
+export function placeHuddleLabel(
+  huddle: readonly P[],
+  marks: readonly P[],
+  lineYs: readonly number[],
+  o: { readonly w: number; readonly h: number; readonly markPx: number; readonly yardPx: number; readonly left: number; readonly right: number },
+): P | null {
+  if (huddle.length === 0) return null;
+  const r = o.markPx / 2;
+  const xs = huddle.map((p) => p.x);
+  const ys = huddle.map((p) => p.y);
+  const x0 = Math.min(...xs) - r;
+  const x1 = Math.max(...xs) + r;
+  const y0 = Math.min(...ys) - r;
+  const y1 = Math.max(...ys) + r;
+  const cy = (y0 + y1) / 2;
+  const cx = (x0 + x1) / 2;
+  const pad = 2;
+  const box = (c: P): NumberBox => ({ id: "", number: "", x: c.x, y: c.y, w: o.w + 2 * pad, h: o.h + 2 * pad });
+  const free = (c: P): boolean => {
+    const b = box(c);
+    if (b.x - b.w / 2 < o.left || b.x + b.w / 2 > o.right) return false;
+    if (lineYs.some((ly) => Math.abs(ly - b.y) * 2 < b.h)) return false;
+    return marks.every((m) => !boxHitsCircle(b, m, r));
+  };
+  const steps = [0, -1, 1, -2, 2, -3, 3, -4, 4].map((k) => k * o.h);
+  const candidates: P[] = [
+    ...steps.map((dy) => ({ x: x1 + o.yardPx + o.w / 2, y: cy + dy })),
+    ...steps.map((dy) => ({ x: x0 - o.yardPx - o.w / 2, y: cy + dy })),
+    { x: cx, y: y0 - o.yardPx / 2 - o.h / 2 },
+    { x: cx, y: y1 + o.yardPx / 2 + o.h / 2 },
+  ];
+  return candidates.find(free) ?? null;
 }

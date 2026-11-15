@@ -12,19 +12,35 @@ Flat colors only. Every color in the game comes from these tokens. Contrast rati
 
 | Token | Hex | Use |
 |---|---|---|
-| `color.paper` | #F5F2E8 | Field surface, side column, menu and card backgrounds |
-| `color.paperShade` | #E6E0CF | End zones, selected or hovered menu row, rating bar track |
-| `color.ink` | #22272B | Main text, field boundary, goal lines, goal posts, scrimmage and first-down lines, ball-carrier ring, outline of signal markers on paper |
-| `color.inkSoft` | #5C6368 | Secondary text, labels, dimmed menu rows, calls line, rating bar fill |
+| `color.paper` | #F5F2E8 | Field surface (the field column), player card, play-card tiles, highlighted menu row fill |
+| `color.paperShade` | #E6E0CF | End zones, focused play-card label strip, off play-card tile, rating bar track on paper cards |
+| `color.ink` | #22272B | Text on paper, field boundary, goal lines, goal posts, scrimmage and first-down lines, ball-carrier ring, outline of signal markers on paper, highlighted row text |
+| `color.inkSoft` | #5C6368 | Secondary text on paper (cards, end zone names, the "Huddle" label), notes on a highlighted row, off play-card labels, rating bar fill on paper cards |
 | `color.line` | #7E837A | Yard lines, yard numbers |
 | `color.hash` | #B9B5A8 | Hash marks only (not text) |
 | `color.offense` | #005A96 | Offense marks, their jersey numbers, routes |
 | `color.defense` | #A84300 | Defense marks, their jersey numbers, paths |
 | `color.ball` | #7A4A1E | Ball and ball path |
-| `color.panel` | #1F2A30 | Top bar |
-| `color.chalk` | #F5F2E8 | Text on panel |
-| `color.chalkSoft` | #A9B3B8 | Secondary text on panel, swatch outline |
+| `color.panel` | #1F2A30 | Top bar, the side column and every menu overlay (opaque), the canvas outside the field column |
+| `color.panelRaise` | #2E3B42 | Dividers and bar tracks on panel. Decorative or paired with a printed value, never the only cue |
+| `color.chalk` | #F5F2E8 | Text on panel, focus ring on panel |
+| `color.chalkSoft` | #A9B3B8 | Secondary text on panel, off menu rows and their reasons, key chip outline, swatch outline, bar fill on panel |
 | `color.signal` | #F2B33D | Key state: possession dot, clock under 2:00, flag and challenge markers |
+
+Draft revision 2026-11-14 (designer, pending art-director, and Joseph for the overlay surface): `panel` now covers the side column and the menus, and `panelRaise` is new. See docs/specs/m2-usability-pass.md (U1, U2).
+
+Team swatches (`team.<id>.color`) are still placeholders until art-director sets real team colors. Eight slots in two lightness tiers, and a matchup never pairs two from the same family or with a luminance ratio under 1.4 (`matchupSwatches` in `packages/app/src/ui/tokens.ts`):
+
+| Slot | Hex | Family | Tier | On panel |
+|---|---|---|---|---|
+| 0 | #D9443A | red | mid | 3.39 |
+| 1 | #6FA8E8 | blue | light | 5.92 |
+| 2 | #3A9A4A | green | mid | 4.14 |
+| 3 | #C9CED2 | neutral | light | 9.28 |
+| 4 | #9A5CC8 | purple | mid | 3.32 |
+| 5 | #8CC85A | green | light | 7.38 |
+| 6 | #279490 | blue | mid | 4.01 |
+| 7 | #F59A8C | red | light | 6.93 |
 
 Offense vs defense pair: blue and orange-brown, darkened from the Okabe-Ito colorblind-safe set (blue #0072B2, vermillion #D55E00). Their luminance is close (1.19:1), so color is never the only cue: offense is always O, defense is always X. A grayscale screenshot must still read.
 
@@ -35,7 +51,11 @@ Contrast checks (text needs 4.5:1, large text and non-text marks and lines need 
 - ink on paper 13.5, on end zone 11.4. inkSoft on paper 5.5, on end zone 4.6.
 - offense on paper 6.5, on end zone 5.5. defense on paper 5.4, on end zone 4.6.
 - ball on paper 6.6. line on paper 3.5: passes as a line, and yard numbers pass only because they are large text (24 px or more, see Field).
-- chalk on panel 13.1, chalkSoft on panel 6.9, signal on panel 7.9.
+- chalk on panel 13.1, chalkSoft on panel 6.9, signal on panel 7.9. chalk on panelRaise 10.3, chalkSoft on panelRaise 5.4 (bar fill against track).
+- Highlighted menu row: ink on paper 13.5, inkSoft on paper 5.5; the paper fill against panel 13.1. Off play-card label: inkSoft on paperShade 4.6.
+- panelRaise on panel 1.28: FAILS 3:1, so panelRaise is decorative only (dividers) and never the only separation.
+- Team swatches on panel 3.32 to 9.28 (table above), all at least 3:1 with the chalkSoft outline as well.
+- The panelRaise, highlighted-row and swatch figures were computed by hand on 2026-11-14 with the luminance formula below. The usability-pass test (docs/specs/m2-usability-pass.md, AC 1) recomputes them in code.
 - signal on paper 1.7: FAILS 3:1. So any `color.signal` marker on the field or a paper panel gets a 2 px `color.ink` outline (ink against signal 8.1) and a text label. Signal is never used as text on paper.
 
 ### Colorblind simulation (done 2026-11-12)
@@ -86,7 +106,7 @@ The field runs up and down the screen. The team with the ball always attacks up.
 - X (defense): two crossed strokes, same size and stroke as the O.
 - Ball: small filled ellipse in `color.ball`, 7 by 5 px, long axis pointing up the field. No laces, no stitching.
 - Jersey number (`mark.number`): every mark carries its player's number. Job: tie the mark to the name in the result line and the player card. `font.mono`, 12 px at 100%, weight 600, in the mark's side color (offense 6.5:1, defense 5.4:1 on paper). It sits on the side of the mark away from the line of scrimmage: under an O, above an X. 2 px gap from the mark.
-- Mark label setting: each mark carries one label only. Default is the jersey number. The "Position labels on marks" setting swaps it for the position letters. Never both, never a label over a path.
+- Mark label setting: each mark carries one label only, in the jersey number's place, size, weight and side color. Default is the player's overall rating; the "Mark label shows" setting switches it to the jersey number (Joseph, 2026-11-14). Never both, never a label over a path. The player card keeps the jersey number in its header, so a mark still ties to the name in the result line.
 - Ball-carrier ring (`mark.ballCarrier`): a 2 px `color.ink` ring, 6 px outside the mark.
 - Play-path lines: offense routes solid in `color.offense` with an arrowhead. Defense paths dashed in `color.defense`. Blocks end in a short perpendicular tick. The ball path is a dotted `color.ball` line.
 
@@ -139,7 +159,7 @@ Flat. One rule only: no gradients, no shadows, no textures, no lighting. Depth c
 - Timeout pips are small filled circles, challenge pips small filled squares, so the two read apart in grayscale. Each pip group also has a text count for screen readers.
 - No play clock. The game is turn-based, so the play-clock run-off shows as the game clock counting down in the pre-snap beat.
 - Under 2:00 the clock turns `color.signal` and also shows the text "2:00".
-- Team swatch (`hud.teamSwatch`): a 10 px square of `team.<id>.color` with a 1 px `color.chalkSoft` outline (so dark team colors still read on the panel), right before the team name or abbreviation. Used in the top bar, box score headers and the pregame matchup only. The name is always there, so the swatch is never the only team cue.
+- Team swatch (`hud.teamSwatch`): a 14 px square (10 px before the 2026-11-14 usability pass) of `team.<id>.color` with a 1 px `color.chalkSoft` outline (so dark team colors still read on the panel), right before the team name or abbreviation. Used in the top bar, box score headers and the pregame matchup only. The name is always there, so the swatch is never the only team cue.
 - Call panel header (`hud.downDistance`): "3rd & 4 at OPP 38" in `font.mono`, 24 px at 100%, the largest text on screen while calling. "You're on offense" or "You're on defense" under it in `font.ui`.
 - Play menu (`hud.playMenu`): at most seven rows, each with its key ("1 Inside run"). Number keys first, mouse second. Selected or hovered row (`hud.playMenu.selected`) has a `color.paperShade` fill and a 2 px `color.ink` focus outline when focused by keyboard.
 - Off rows (`hud.playMenu.disabled`): `color.inkSoft` text plus the reason in words, "3 Kick (4th down or last 2:00 only)". Never opacity alone.
@@ -171,7 +191,7 @@ Flat. One rule only: no gradients, no shadows, no textures, no lighting. Depth c
 
 Code draws through these named slots. A skin replaces a slot's drawing or values, never the game logic. Slot ids are stable once approved.
 
-- `field.surface`, `field.endzone.home`, `field.endzone.away`, `field.yardLine`, `field.yardNumber`, `field.hash`, `field.goalPost`, `field.scrimmageLine`, `field.firstDownLine`
+- `field.surface`, `field.endzone.home`, `field.endzone.away`, `field.yardLine`, `field.yardNumber`, `field.hash`, `field.goalPost`, `field.scrimmageLine`, `field.firstDownLine`, `field.huddleLabel` (proposed 2026-11-14, usability pass U6)
 - `mark.offense`, `mark.defense`, `mark.number`, `mark.label`, `mark.ballCarrier`, `ball`
 - `path.offenseRoute`, `path.defenseRoute`, `path.block`, `path.ball`
 - `hud.scoreboard`, `hud.teamSwatch`, `hud.downDistance`, `hud.clock`, `hud.clockState`, `hud.tempo`, `hud.timeouts`, `hud.challenges`, `hud.possession`, `hud.playMenu`, `hud.playMenu.selected`, `hud.playMenu.disabled`, `hud.resultLine`, `hud.whyLine`, `hud.callsLine`
@@ -244,7 +264,7 @@ An asset enters the build only when every box is checked:
 - Result, why and calls lines move from under the field to the top of the side column. Why: under a portrait field they would cost field length. The spec still says "under the field" and needs to follow.
 - Yard numbers set at 24 px or more. Why: `color.line` is 3.5:1 on paper, which passes only as large text.
 - Flag and challenge markers on paper get an ink outline. Why: signal on paper is 1.7:1.
-- Mark labels: one per mark, jersey number by default, position letters as a setting.
+- Mark labels: one per mark, the overall rating by default, the jersey number as a setting (Joseph, 2026-11-14).
 - Banned looks: the copy rule now covers any other game, not only NFL Challenge.
 
 ## Still open

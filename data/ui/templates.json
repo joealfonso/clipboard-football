@@ -2131,5 +2131,72 @@
     "S": "coverage",
     "K": "kickPower",
     "P": "kickPower"
+  },
+  "overallWeights": {
+    "QB": {
+      "accuracy": 3,
+      "throwPower": 2,
+      "awareness": 2,
+      "agility": 1
+    },
+    "RB": {
+      "elusiveness": 3,
+      "speed": 2,
+      "agility": 2,
+      "ballSecurity": 1,
+      "strength": 1
+    },
+    "WR": {
+      "hands": 3,
+      "routeRunning": 3,
+      "speed": 2,
+      "agility": 1
+    },
+    "TE": {
+      "hands": 2,
+      "routeRunning": 2,
+      "runBlock": 2,
+      "strength": 1,
+      "speed": 1
+    },
+    "OL": {
+      "passBlock": 3,
+      "runBlock": 3,
+      "strength": 2,
+      "awareness": 1
+    },
+    "DL": {
+      "passRush": 3,
+      "runStop": 3,
+      "strength": 2,
+      "speed": 1
+    },
+    "LB": {
+      "tackling": 3,
+      "coverage": 2,
+      "awareness": 2,
+      "speed": 1,
+      "strength": 1
+    },
+    "CB": {
+      "coverage": 3,
+      "ballSkills": 2,
+      "speed": 2,
+      "agility": 1
+    },
+    "S": {
+      "coverage": 3,
+      "ballSkills": 2,
+      "awareness": 2,
+      "speed": 1
+    },
+    "K": {
+      "kickPower": 1,
+      "kickAccuracy": 1
+    },
+    "P": {
+      "kickPower": 1,
+      "kickAccuracy": 1
+    }
   }
 }

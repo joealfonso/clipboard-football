@@ -171,18 +171,23 @@ export function defenseArt(pkg: string, preset: string | null, slots: readonly S
 }
 
 /**
- * The huddle ring (`field.huddle`) for one side before its lineup: 7 yards behind the line for
- * the offense, 6 past it for the defense, the smallest radius that keeps marks `gap` px apart,
- * inside the end lines. From the layout and a fixed template only: never from anyone's call.
+ * The huddle (`field.huddle`) for one side before its lineup: a horseshoe whose opening faces the
+ * ball (usability pass U6). The ring has `count + 1` places at the smallest radius that keeps
+ * marks `gap` px apart; the place pointing straight at the line of scrimmage stays empty. Centered
+ * `behind` yards behind the line for the offense, `past` yards past it for the defense, inside the
+ * end lines. From the layout and a fixed template only: never from anyone's call.
  */
 export function huddleSpots(count: number, side: "O" | "X", los: number, pxPerYard: number, markPx: number, behind: number, past: number, gapPx: number, endZoneYards: number): Pt[] {
+  const places = count + 1;
   const chord = (markPx + gapPx) / pxPerYard;
-  const r = Math.max(1.5, chord / (2 * Math.sin(Math.PI / Math.max(2, count))));
+  const r = Math.max(1.5, chord / (2 * Math.sin(Math.PI / Math.max(2, places))));
   const lo = -endZoneYards + r + 1;
   const hi = 100 + endZoneYards - r - 1;
   const cy = Math.max(lo, Math.min(hi, side === "O" ? los - behind : los + past));
+  // Place 0 points at the line: up the field (+y) for the offense, down it for the defense.
+  const open = side === "O" ? Math.PI / 2 : -Math.PI / 2;
   return Array.from({ length: count }, (_, i) => {
-    const a = -Math.PI / 2 + (2 * Math.PI * i) / count;
+    const a = open + (2 * Math.PI * (i + 1)) / places;
     return { x: MID_X + r * Math.cos(a), y: cy + r * Math.sin(a) };
   });
 }

@@ -1703,6 +1703,13 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - Set preview (UI, test-writer flag): a run block's set path can be shorter than the edge-of-mark trim and drew nothing; a block that short now draws a minimum tick (`blockTick` in marks.ts, designed 0.4 yards past the trim), so all 11 have a preview path.
 - Start cap (UI, test-writer flag): `startMs` in timeline.ts and the fact-leg builder both capped at maxStartMs, so removing either cap alone changed nothing and no test could see it. The cap now lives once per path (the fact-leg builder, and the other marks' start), and motion.test checks starts under a tighter cap (40 ms) in the motion data, which fails if either cap is removed.
 
+### Player overall on the field (Joseph, 2026-11-14)
+
+- Date: 2026-11-14.
+- Decision: the number beside each mark's jersey number, and the first row of the player card, is the player's overall. It replaces the single key rating per position (templates keyRating, now unused by the UI). Joseph asked for "their overall" and then for it to be relevant to the position.
+- How: a weighted mean of the player's card ratings, rounded, with per-position weights in data/ui/templates.json `overallWeights`. Designed, not fitted. Ratings a position doesn't use count zero (a kicker's speed doesn't move his overall). parseTemplates rejects a missing position, a rating the position doesn't have, or a weight that isn't positive.
+- Display only: the engine never reads the overall.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

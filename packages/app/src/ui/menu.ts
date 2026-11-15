@@ -148,27 +148,38 @@ export function press(m: MenuState, key: MenuKey, data: MenuData): { menu: MenuS
   return stay({ t: "submit", answer: { seq: m.request.seq, path: [...m.picks, o.id] } });
 }
 
-/** "Pass, Shotgun": the picks so far, in words. */
+/** The screens whose pick changes what the later rows mean: only these show under "So far". */
+export const SO_FAR_SCREENS: ReadonlySet<string> = new Set(["offense.formation", "offense.try"]);
+
+/**
+ * "Go for two, Shotgun": the picks so far that the heading doesn't already name (usability pass
+ * U3). picks[i] is the pick made on screens[i]; only the formation and the try pick are kept, so
+ * navigation picks ("Formation", "Run") never repeat the heading. "" when there are none.
+ */
 export function breadcrumb(m: MenuState, data: MenuData): string {
-  return m.picks.map((p) => data.labels[p] ?? FIXED[p] ?? (p === "goForTwo" ? "Go for two" : p)).join(", ");
+  return m.picks
+    .filter((_, i) => SO_FAR_SCREENS.has(m.screens[i] ?? ""))
+    .map((p) => data.labels[p] ?? FIXED[p] ?? (p === "goForTwo" ? "Go for two" : p))
+    .join(", ");
 }
 
+/** The step name only: "You're on offense" sits right above it, so no "Offense:" prefix. */
 const TITLES: Readonly<Record<string, string>> = {
-  "offense.playType": "Offense: Play type",
-  "offense.playType.try": "Two-point try: Play type",
-  "offense.formation": "Offense: Formation",
-  "offense.playClass": "Offense: Run or pass",
-  "offense.run": "Offense: Run",
-  "offense.pass": "Offense: Pass",
-  "offense.kick": "Offense: Kick",
-  "offense.clock": "Offense: Clock",
-  "offense.try": "After a touchdown",
+  "offense.playType": "Play type",
+  "offense.playType.try": "Two-point try: play type",
+  "offense.formation": "Formation",
+  "offense.playClass": "Run or pass",
+  "offense.run": "Run plays",
+  "offense.pass": "Pass plays",
+  "offense.kick": "Kick",
+  "offense.clock": "Clock and tempo",
+  "offense.try": "After the touchdown",
   kickoff: "Kickoff",
-  "defense.package": "Defense: Package",
-  "defense.base": "Defense: Base",
-  "defense.nickel": "Defense: Nickel",
-  "defense.dime": "Defense: Dime",
-  "defense.specials": "Defense: Specials",
+  "defense.package": "Defensive package",
+  "defense.base": "Base plays",
+  "defense.nickel": "Nickel plays",
+  "defense.dime": "Dime plays",
+  "defense.specials": "Specials",
   continue: "Dead ball",
   penalty: "Penalty: your choice",
   runoff: "Ten-second run-off",

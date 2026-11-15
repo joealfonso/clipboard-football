@@ -4,7 +4,7 @@
 // never from theirs (P1). Pure: it returns a Timeline the field draws at t = 0.
 
 import type { Lineups, Position } from "@clipboard-football/shared";
-import { defenseArt, huddleSpots, offenseArt, slotsFromCounts, type Art, type SlotRef } from "./art";
+import { defenseArt, huddleSpots, lineUp, offenseArt, slotsFromCounts, type Art, type SlotRef } from "./art";
 import { MID_X, type Key, type Pt } from "./motion";
 import type { Motion, Templates } from "./templates";
 import type { Timeline, TLMark } from "./timeline";
@@ -38,6 +38,64 @@ export function ownSlots(lineups: Lineups | undefined, unit: string, counts: Rea
   return slotsFromCounts(counts).map((s) => ({ ...s, id: `own:${s.slot}` }));
 }
 
+/** A still frame's timeline around its marks: never reaches the set or the snap. */
+function stillTimeline(los: number, firstDown: number | null, marks: TLMark[], preview: Art | null): Timeline {
+  return {
+    los,
+    firstDown,
+    lineUpMs: 0,
+    runoffMs: 0,
+    runoff: null,
+    setAt: Infinity,
+    snapAt: Infinity,
+    liveEnd: Infinity,
+    settleMs: 0,
+    holdMs: 0,
+    total: 0,
+    marks,
+    ball: [{ t: 0, x: MID_X, y: los }],
+    ballScale: [{ t: 0, s: 1 }],
+    paths: [],
+    labels: [],
+    flags: [],
+    holder: null,
+    tackler: null,
+    involved: [],
+    rings: [],
+    snapWindowEnd: 0,
+    read: 0,
+    preview,
+  };
+}
+
+export interface KickoffOpts {
+  /** The kicking team's kickoff spot (yards from its own goal line): the frame's line. */
+  readonly los: number;
+  /** Whether the human's team kicks (its marks get `own:` ids) or receives. */
+  readonly humanKicks: boolean;
+  readonly templates: Templates;
+  readonly pxPerYard: number;
+}
+
+/**
+ * Both kickoff units lined up before the kick (usability pass U8): the kicking team (O's,
+ * attacking up) on templates.kick.kickoff and the return unit (X's) on templates.returnUnits.kickoff,
+ * with the same lineUp the live timeline uses, so the cut to the kick moves no mark. Display only:
+ * slots come from the template keys with generic ids (`own:` for your unit, `huddle:` for theirs),
+ * so no numbers show and hover skips them. Kickoff units are public before every kick; nothing
+ * here reads a result.
+ */
+export function kickoffFrame(o: KickoffOpts): Timeline {
+  const unit = (side: "O" | "X"): TLMark[] => {
+    const tmpl = side === "O" ? o.templates.kick["kickoff"] : o.templates.returnUnits["kickoff"];
+    const slots: SlotRef[] = Object.keys(tmpl ?? {}).map((slot) => ({ slot, position: slot.replace(/\d+$/, "") as Position }));
+    const pts = lineUp(slots, tmpl, side, o.los, o.templates, o.pxPerYard);
+    const prefix = (side === "O") === o.humanKicks ? "own" : "huddle";
+    return slots.map((s, i) => ({ slot: s.slot, side, position: s.position, playerId: `${prefix}:${s.slot}`, keys: [{ t: 0, ...(pts[i] as Pt) }], roles: [], fact: false, pathEnd: 0, pathStyle: "none", huddle: false }));
+  };
+  return stillTimeline(o.los, null, [...unit("O"), ...unit("X")], null);
+}
+
 export function callingFrame(o: CallingOpts): Timeline {
   const slots = ownSlots(o.lineups, o.unit, o.counts);
   const art: Art =
@@ -61,33 +119,7 @@ export function callingFrame(o: CallingOpts): Timeline {
   spots.forEach((p, i) =>
     marks.push({ slot: `huddle${i + 1}`, side: oppSide, position: "WR", playerId: `huddle:${i}`, keys: still(p), roles: [], fact: false, pathEnd: 0, pathStyle: "none", huddle: true }),
   );
-  return {
-    los: o.los,
-    firstDown: o.firstDown,
-    lineUpMs: 0,
-    runoffMs: 0,
-    runoff: null,
-    // Never reaches the set or the snap: a still frame of the Calling state.
-    setAt: Infinity,
-    snapAt: Infinity,
-    liveEnd: Infinity,
-    settleMs: 0,
-    holdMs: 0,
-    total: 0,
-    marks,
-    ball: [{ t: 0, x: MID_X, y: o.los }],
-    ballScale: [{ t: 0, s: 1 }],
-    paths: [],
-    labels: [],
-    flags: [],
-    holder: null,
-    tackler: null,
-    involved: [],
-    rings: [],
-    snapWindowEnd: 0,
-    read: 0,
-    preview: o.call === null ? (o.side === "offense" ? null : art) : art,
-  };
+  return stillTimeline(o.los, o.firstDown, marks, o.call === null ? (o.side === "offense" ? null : art) : art);
 }
 
 /**

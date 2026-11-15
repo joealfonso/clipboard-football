@@ -2,6 +2,25 @@
 // timing. Checked by hand here (the app has no zod dependency); a bad file fails loading with
 // the file named, as the data-failed-validation state says.
 
+import type { BASE_RATINGS, POSITION_SKILLS } from "@clipboard-football/shared";
+
+// The rating names, copied because the UI thread can't load a value from the shared root (it
+// pulls in zod; bundle.test.ts). `satisfies` the shared types, so a drift fails typecheck.
+const BASE = ["speed", "strength", "agility", "awareness"] as const satisfies typeof BASE_RATINGS;
+const SKILLS = {
+  QB: ["throwPower", "accuracy"],
+  RB: ["ballSecurity", "elusiveness"],
+  WR: ["hands", "routeRunning"],
+  TE: ["hands", "routeRunning", "runBlock"],
+  OL: ["passBlock", "runBlock"],
+  DL: ["passRush", "runStop"],
+  LB: ["tackling", "coverage"],
+  CB: ["coverage", "ballSkills"],
+  S: ["coverage", "ballSkills"],
+  K: ["kickPower", "kickAccuracy"],
+  P: ["kickPower", "kickAccuracy"],
+} as const satisfies typeof POSITION_SKILLS;
+
 export type Pair = readonly [number, number];
 export type Alignment = Readonly<Record<string, Pair>>;
 export type Waypoints = Readonly<Record<string, readonly Pair[]>>;
@@ -45,6 +64,11 @@ export interface Templates {
   readonly depthBands: Readonly<Record<string, Pair>>;
   /** The rating each position is judged on, for the rating label beside a mark's number. */
   readonly keyRating: Readonly<Record<string, string>>;
+  /**
+   * Per position: the weight of each rating in the overall shown beside a mark's number and on
+   * the card (designed). Ratings left out count zero; every position has at least one.
+   */
+  readonly overallWeights: Readonly<Record<string, Readonly<Record<string, number>>>>;
 }
 
 export type Zone = readonly [number, number, number, number, "deep" | "under"];
@@ -92,6 +116,17 @@ export function parseTemplates(v: unknown): Templates {
   groupOf(v["zones"], "zones", (x) => Array.isArray(x) && x.length === 5 && x.slice(0, 4).every(isNum) && (x[4] === "deep" || x[4] === "under"));
   if (!isObj(v["depthBands"]) || !Object.values(v["depthBands"]).every(isPair)) throw new TemplateError("depthBands must map pass plays to [from, to]");
   if (!isObj(v["keyRating"]) || !Object.values(v["keyRating"]).every((x) => typeof x === "string")) throw new TemplateError("keyRating must map positions to rating names");
+  const ow = v["overallWeights"];
+  if (!isObj(ow)) throw new TemplateError("overallWeights must map positions to rating weights");
+  for (const pos of Object.keys(SKILLS) as (keyof typeof SKILLS)[]) {
+    const wts = ow[pos];
+    if (!isObj(wts) || Object.keys(wts).length === 0) throw new TemplateError(`overallWeights.${pos} is missing`);
+    const known: readonly string[] = [...BASE, ...SKILLS[pos]];
+    for (const [r, x] of Object.entries(wts)) {
+      if (!known.includes(r)) throw new TemplateError(`overallWeights.${pos}: ${r} is not a ${pos} rating`);
+      if (!isNum(x) || x <= 0) throw new TemplateError(`overallWeights.${pos}.${r} must be a positive number`);
+    }
+  }
   if (!isObj(v["passDepth"]) || !Object.values(v["passDepth"]).every(isNum)) throw new TemplateError("passDepth must map pass plays to yards");
   const t = v["timing"] as Record<string, number>;
   if ((t["liveMinMs"] as number) > (t["liveMaxMs"] as number)) throw new TemplateError("timing.liveMinMs is above liveMaxMs");

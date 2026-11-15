@@ -4,7 +4,8 @@
 
 import { FIELD_WIDTH_YARDS, type Layout } from "./layout";
 import { at, MID_X, scaleAt, type Timeline } from "./timeline";
-import { numberShown, pathPrimitives, placeNumbers, RING_GAP, type MarkPx } from "./marks";
+import { numberShown, pathPrimitives, placeHuddleLabel, placeNumbers, RING_GAP, type MarkPx } from "./marks";
+import type { LabelContent } from "./screens";
 import { COLOR, FONT_MONO, FONT_UI } from "./tokens";
 
 export type MarkLabels = "involved" | "all" | "none";
@@ -20,9 +21,10 @@ export interface FieldScene {
 
 export interface FrameOpts {
   readonly numbers: Readonly<Record<string, number>>;
-  /** Each player's key rating (card rating, before home field), shown beside his number when on. */
+  /** Each player's overall (position-weighted card ratings, before home field), for the mark label. */
   readonly ratings: Readonly<Record<string, number>>;
-  readonly showRatings: boolean;
+  /** What a mark's one label shows: the overall or the jersey number (usability pass U7). */
+  readonly labelContent: LabelContent;
   /** The mark whose player card is open (ringed so the keyboard user sees which). */
   readonly focused: string | null;
   readonly markLabels: MarkLabels;
@@ -36,13 +38,15 @@ export interface View {
   /** Canvas x of the column's left edge (a yard outside the left sideline). */
   readonly ox: number;
   readonly width: number;
+  /** Width of the field column (sideline to sideline plus a yard each side), px. */
+  readonly columnWidth: number;
   readonly height: number;
   readonly cameraY: number;
   readonly markPx: number;
 }
 
 export function viewOf(l: Layout, cameraY: number): View {
-  return { s: l.s, ox: l.column.left, width: l.field.width, height: l.field.height, cameraY, markPx: l.markPx };
+  return { s: l.s, ox: l.column.left, width: l.field.width, columnWidth: l.column.width, height: l.field.height, cameraY, markPx: l.markPx };
 }
 
 const X = (v: View, x: number): number => v.ox + (1 + x) * v.s;
@@ -50,8 +54,12 @@ const Y = (v: View, y: number): number => (v.cameraY - y) * v.s;
 
 export function drawField(g: CanvasRenderingContext2D, v: View, scene: FieldScene, textScale: number): void {
   const ez = scene.endZoneYards;
-  g.fillStyle = COLOR.paper;
+  // Paper across the field column only; the canvas outside it is the dark board, so the side
+  // column stays dark during the live play when the panel is hidden (usability pass U1).
+  g.fillStyle = COLOR.panel;
   g.fillRect(0, 0, v.width, v.height);
+  g.fillStyle = COLOR.paper;
+  g.fillRect(v.ox, 0, v.columnWidth, v.height);
   // End zones.
   g.fillStyle = COLOR.paperShade;
   g.fillRect(X(v, 0), Y(v, 100 + ez), FIELD_WIDTH_YARDS * v.s, ez * v.s);
@@ -162,6 +170,9 @@ function blockTick(g: CanvasRenderingContext2D, v: View, a: { x: number; y: numb
   g.stroke();
 }
 
+/** field.huddleLabel's text (usability pass U6). */
+export const HUDDLE_LABEL = "Huddle";
+
 /** A mark's position on the canvas at t, for hit-testing a hover (the player card). */
 export function markPositions(v: View, tl: Timeline, t: number): { id: string; x: number; y: number }[] {
   return tl.marks.filter((m) => !m.playerId.startsWith("huddle:") && !m.playerId.startsWith("own:")).map((m) => {
@@ -250,20 +261,22 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
       g.stroke();
     }
   }
-  // Jersey numbers and ratings: all at the set, named players during the live play, all at the
-  // whistle; the side still in its huddle shows none until the set.
+  // Mark labels: all at the set, named players during the live play, all at the whistle; the side
+  // still in its huddle shows none until the set. One label per mark, in the side's color: the
+  // overall, or the jersey number (Joseph, 2026-11-14).
   const numberPx = Math.round(12 * o.textScale);
   g.font = `600 ${numberPx}px ${FONT_MONO}`;
   g.textAlign = "center";
   const phase = t < tl.setAt ? "lineup" : t < tl.snapAt ? "set" : whistle ? "whistle" : "live";
   const inside = o.markLabels === "all" && v.markPx >= 20;
   const placedMarks: MarkPx[] = tl.marks.flatMap((m) => {
-    const n = o.numbers[m.playerId];
-    if (n === undefined) return [];
+    // Only real players have a label (the huddle and generic slots have no number).
+    if (o.numbers[m.playerId] === undefined) return [];
+    const label = o.labelContent === "rating" ? o.ratings[m.playerId] : o.numbers[m.playerId];
+    if (label === undefined) return [];
     const p = at(m.keys, t);
     const named = tl.involved.includes(m.playerId);
-    const rating = o.showRatings ? o.ratings[m.playerId] : undefined;
-    return [{ id: m.playerId, side: m.side, x: X(v, p.x), y: Y(v, p.y), ringed: (whistle && tl.rings.includes(m.playerId)) || o.focused === m.playerId, named, number: n, show: numberShown(o.markLabels, phase, named, m.huddle), ...(rating === undefined ? {} : { rating }) }];
+    return [{ id: m.playerId, side: m.side, x: X(v, p.x), y: Y(v, p.y), ringed: (whistle && tl.rings.includes(m.playerId)) || o.focused === m.playerId, named, number: label, show: numberShown(o.markLabels, phase, named, m.huddle) }];
   });
   const sideOf = new Map(tl.marks.map((m) => [m.playerId, m.side]));
   g.textBaseline = "middle";
@@ -276,7 +289,28 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
   } else {
     for (const b of placeNumbers(placedMarks, v.markPx, numberPx)) {
       g.fillStyle = sideOf.get(b.id) === "O" ? COLOR.offense : COLOR.defense;
-      g.fillText(b.text, b.x, b.y);
+      g.fillText(b.number, b.x, b.y);
+    }
+  }
+  // field.huddleLabel: "Huddle" beside their horseshoe, only in a still Calling frame (in a
+  // timeline the huddle breaks within the line-up, so it needs no label).
+  const huddle = tl.setAt === Infinity ? tl.marks.filter((m) => m.huddle) : [];
+  if (huddle.length > 0) {
+    const toPx = (m: (typeof tl.marks)[number]): { x: number; y: number } => {
+      const p = at(m.keys, t);
+      return { x: X(v, p.x), y: Y(v, p.y) };
+    };
+    const labelPx = Math.round(14 * o.textScale);
+    g.font = `600 ${labelPx}px ${FONT_UI}`;
+    // Clear of the line of scrimmage, the line to gain, the goal lines and every mark.
+    const lines = [tl.los, ...(tl.firstDown === null ? [] : [tl.firstDown]), 0, 100].map((y) => Y(v, y));
+    const w = g.measureText(HUDDLE_LABEL).width;
+    const spot = placeHuddleLabel(huddle.map(toPx), tl.marks.map(toPx), lines, { w, h: labelPx, markPx: v.markPx, yardPx: v.s, left: X(v, 0), right: X(v, FIELD_WIDTH_YARDS) });
+    if (spot !== null) {
+      g.fillStyle = COLOR.inkSoft;
+      g.textAlign = "left";
+      g.textBaseline = "middle";
+      g.fillText(HUDDLE_LABEL, spot.x - w / 2, spot.y);
     }
   }
   // Flags and labels at the whistle.
