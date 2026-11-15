@@ -1443,6 +1443,11 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 
 Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions of 2026-11-12). UI side: docs/specs/m2-playable-game-design.md.
 
+### Challenge tolerances pre-registered before any G code or sim run (spec G7, resolved 15)
+- Date: 2026-11-14.
+- Decision: data/game/m2-challenge-tolerances.json is frozen. It was committed alone in 563bf09 at 2026-11-14 19:23:38 -0800, with sha256 `abd445ad784d4c301c9e76a1c7a31d66382cd1eb25cdb15794a332146cff9409`. The lead recorded this hash before any challenge code or G sim run.
+- Challenge rate and reversal share must land within the 2016-2023 season ranges. The other checks are the spec's G7 proposals as written.
+
 ### Standout tolerances pre-registered before any F code or run (spec F, resolved 15)
 - Date: 2026-11-14.
 - Decision: data/game/m2-standout-tolerances.json is frozen. It was committed alone in 1b43ff3 at 2026-11-14 17:47:23 -0800, with sha256 `495c327463c764798a10484d4e187027d1d3aacad9d3906f78bd5548b91dd724`. The lead recorded this hash before any standout code or sim run. Any later change to the file is a post-registration revision and is logged here.
