@@ -22,7 +22,7 @@ async function init(): Promise<void> {
     const loaded = await loadData((file, done, total) => send({ t: "progress", file, done, total }));
     const p = prepare(loaded.data, loaded.dataHash, __SIM_CODE_HASH__);
     session = new Session(p, send);
-    send({ t: "ready", ui: uiDataOf(p, loaded.uiTemplates), leagueSeed: DEFAULT_LEAGUE_SEED });
+    send({ t: "ready", ui: uiDataOf(p, loaded.uiTemplates, loaded.uiMotion), leagueSeed: DEFAULT_LEAGUE_SEED });
     for (const m of queue.splice(0)) session.handle(m);
   } catch (e) {
     const file = e instanceof DataError ? e.file : "unknown";

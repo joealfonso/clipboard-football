@@ -66,6 +66,9 @@ function screenOf(m: MenuState): RequestScreen | undefined {
 }
 
 const FIXED: Readonly<Record<string, string>> = {
+  formation: "Formation",
+  run: "Run",
+  pass: "Pass",
   timeout: "Timeout",
   continue: "Continue",
   hurryUp: "Hurry-up",
@@ -150,8 +153,8 @@ export function breadcrumb(m: MenuState, data: MenuData): string {
 const TITLES: Readonly<Record<string, string>> = {
   "offense.playType": "Offense: Play type",
   "offense.playType.try": "Two-point try: Play type",
-  "offense.formation.run": "Offense: Formation",
-  "offense.formation.pass": "Offense: Formation",
+  "offense.formation": "Offense: Formation",
+  "offense.playClass": "Offense: Run or pass",
   "offense.run": "Offense: Run",
   "offense.pass": "Offense: Pass",
   "offense.kick": "Offense: Kick",

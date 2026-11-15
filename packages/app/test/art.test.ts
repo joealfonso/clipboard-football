@@ -15,7 +15,7 @@ import { whyHeadline } from "../src/engine/headline";
 import type { PlayEvent } from "../src/engine/types";
 import { layoutFor } from "../src/ui/layout";
 import { numberShown, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
-import { parseTemplates } from "../src/ui/templates";
+import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { at, timeline, type Timeline } from "../src/ui/timeline";
 import { COMPLETE, RUN, snap } from "./fixtures";
 import { playGame } from "./support";
@@ -25,7 +25,8 @@ const templates = parseTemplates(read("data/ui/templates.json"));
 const personnel = read("data/engine/personnel.json") as { offense: Record<string, Record<string, number>>; kick: Record<string, Record<string, number>>; packages: Record<string, Record<string, number>>; presetPackage: Record<string, string> };
 const participants = read("data/engine/participants.json") as { returnUnits: Record<string, Record<string, number>> };
 const small = layoutFor(1024, 600, templates.field);
-const ctx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, pxPerYard: small.s };
+const motion = parseMotion(read("data/ui/motion.json"));
+const ctx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, pxPerYard: small.s, markPx: small.markPx, motion };
 
 const ids = (prefix: string, slots: Record<string, number>): Record<string, string[]> => Object.fromEntries(Object.entries(slots).map(([pos, n]) => [pos, Array.from({ length: n }, (_, i) => `${prefix}${pos}${i + 1}`)]));
 const presetOf = (pkg: string): string => Object.entries(personnel.presetPackage).find(([, p]) => p === pkg)?.[0] as string;

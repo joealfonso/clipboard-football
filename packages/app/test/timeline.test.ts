@@ -8,14 +8,15 @@ import { join } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { readDetail, type PlayEvent } from "../src/engine/types";
-import { parseTemplates } from "../src/ui/templates";
+import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { MID_X, at, timeline, type Timeline, type TimelineCtx } from "../src/ui/timeline";
 import { ALL_FIXTURES, COMPLETE, FALSE_START, FIELD_GOAL_MISS, INCOMPLETE, INTERCEPTION, KICKOFF_RETURN, RUN_OUT_OF_BOUNDS, SACK, UNNAMED_COMPLETE } from "./fixtures";
 import { playGame } from "./support";
 
 const templates = parseTemplates(JSON.parse(readFileSync(join(import.meta.dirname, "../../../data/ui/templates.json"), "utf8")));
 const personnel = JSON.parse(readFileSync(join(import.meta.dirname, "../../../data/engine/personnel.json"), "utf8")) as { presetPackage: Record<string, string> };
-const ctx: TimelineCtx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {} };
+const motion = parseMotion(JSON.parse(readFileSync(join(import.meta.dirname, "../../../data/ui/motion.json"), "utf8")));
+const ctx: TimelineCtx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, motion };
 
 const build = (event: PlayEvent, runoffSeconds = 0): Timeline => timeline({ event, runoffSeconds }, templates, ctx);
 
@@ -132,22 +133,34 @@ function checkPlay(ev: PlayEvent, label: string): void {
     if (l.text === "Flag") expect((p.fouls ?? []).length, `${label}: flag`).toBeGreaterThan(0);
     else expect(labelHolds(l.text, l.source, ev), `${label}: label "${l.text}" from ${l.source}`).toBe(true);
   }
-  // A3: no diagram mark touches the ball after the snap. Sampled between the builder's own 25 ms
-  // grid, so a pass can't hide between its checks. (Plain loop: an expect per sample is too slow.)
+  // A3, amended (motion spec, contract 3): after the snap window, no unnamed defender comes within
+  // the 2.5-yard ring of the ball on any drawn key, nor into the carrier's lane (2 yards either side
+  // of his next 1.0 s of path); no unnamed mark touches the ball (1 yard) even between keys.
+  // (Plain loop: an expect per sample is too slow.)
+  const ring = templates.field.clearOfBallYards;
   const touches: string[] = [];
+  const ballBefore = (t: number) => at(tl.ball, Math.min(t, tl.liveEnd - 1));
   for (const m of tl.marks) {
     if (m.fact) continue;
-    for (let t = tl.snapWindowEnd + 12.5; t <= tl.liveEnd; t += 25) {
+    for (let t = tl.snapWindowEnd; t < tl.liveEnd - 1; t += 12.5) {
+      const onKey = Math.abs(t / 25 - Math.round(t / 25)) < 1e-6;
       const a = at(m.keys, t);
-      const b = at(tl.ball, t);
-      if (Math.hypot(a.x - b.x, a.y - b.y) < 1) touches.push(`${m.slot} at ${t.toFixed(0)} ms`);
+      const b = ballBefore(t);
+      const r = Math.hypot(a.x - b.x, a.y - b.y);
+      if (r < 1) touches.push(`${m.slot} touches the ball at ${t.toFixed(0)} ms`);
+      else if (onKey && m.side === "X" && r < ring - 1e-6) touches.push(`${m.slot} inside the ring at ${t.toFixed(0)} ms (${r.toFixed(2)} yd)`);
     }
   }
-  expect(touches, `${label}: diagram marks touching the ball`).toEqual([]);
-  // A4: snap to whistle takes 2 to 4 s at 1x, holds and run-off excluded.
+  expect(touches, `${label}: diagram marks too close to the ball`).toEqual([]);
+  // A4, amended (decision 11): live time from geometry, 1.5 to 4 s at 1x; kneel and spike fixed; no live phase for no play.
   const live = tl.liveEnd - tl.snapAt;
-  expect(live).toBeGreaterThanOrEqual(templates.timing.liveMinMs);
-  expect(live).toBeLessThanOrEqual(templates.timing.liveMaxMs);
+  if (p.kind === "noPlay") expect(live).toBe(0);
+  else if (p.kind === "kneel") expect(live).toBe(motion.live.kneelMs);
+  else if (p.kind === "spike") expect(live).toBe(motion.live.spikeMs);
+  else {
+    expect(live).toBeGreaterThanOrEqual(motion.live.minMs - 1e-6);
+    expect(live).toBeLessThanOrEqual(motion.live.maxMs + 1e-6);
+  }
   expect(tl.total).toBeGreaterThanOrEqual(tl.liveEnd);
 }
 
@@ -157,13 +170,14 @@ describe("timeline purity (A1)", () => {
   });
 
   it("imports no Rng, no sim and no DOM, and never calls Math.random", () => {
-    for (const f of ["timeline.ts", "templates.ts"]) {
+    // Amended: also the motion builder and playArt.
+    for (const f of ["timeline.ts", "templates.ts", "motion.ts", "art.ts"]) {
       // Code only: comments may say "window" or "Rng" in plain words.
       const src = readFileSync(join(import.meta.dirname, "../src/ui", f), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .replace(/\/\/.*$/gm, "");
       const imports = ts.preProcessFile(src, true, true).importedFiles.map((x) => x.fileName);
-      for (const i of imports) expect(["@clipboard-football/shared", "../engine/types", "./templates"], `${f} imports ${i}`).toContain(i);
+      for (const i of imports) expect(["@clipboard-football/shared", "../engine/types", "./templates", "./art", "./motion"], `${f} imports ${i}`).toContain(i);
       expect(src).not.toMatch(/Math\.random|document\.|window\.|performance\.|Date\./);
     }
   });

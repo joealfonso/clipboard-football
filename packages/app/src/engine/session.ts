@@ -104,7 +104,7 @@ export function matchupOf(p: Prepared, leagueSeed: number, seed: number, gameTyp
   return setupGame(p.league(leagueSeed), leagueSeed, seed, () => coach, gameType);
 }
 
-export function uiDataOf(p: Prepared, uiTemplates: unknown): UiData {
+export function uiDataOf(p: Prepared, uiTemplates: unknown, uiMotion: unknown = null): UiData {
   const r = p.data.engine.rules;
   return {
     catalog: p.data.engine.caller.catalog,
@@ -112,6 +112,8 @@ export function uiDataOf(p: Prepared, uiTemplates: unknown): UiData {
     rules: { game: r.game, timeouts: r.timeouts, field: r.field, scoring: r.scoring, penalties: r.penalties },
     presetPackage: p.data.engine.personnel.presetPackage,
     uiTemplates,
+    uiMotion,
+    personnel: { offense: p.data.engine.personnel.offense, packages: p.data.engine.personnel.packages },
     dataHash: p.dataHash,
   };
 }

@@ -39,7 +39,7 @@ import {
   type Unit,
 } from "./screens";
 import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, setSaveAside, storageAvailable, writeSave, type Settings } from "./storage";
-import { parseTemplates, type Templates } from "./templates";
+import { MotionError, parseMotion, parseTemplates, type Motion, type Templates } from "./templates";
 import {
   abbrev,
   callsLine,
@@ -119,6 +119,7 @@ export class App {
   private readonly animator: Animator;
   private ui: UiData | null = null;
   private templates: Templates | null = null;
+  private motion: Motion | null = null;
   private labels: Record<string, string> = {};
   private stack: Overlay[] = [];
   private loading: { file: string; done: number; total: number } | null = { file: "", done: 0, total: 1 };
@@ -182,8 +183,10 @@ export class App {
       case "ready":
         try {
           this.templates = parseTemplates(m.ui.uiTemplates);
+          this.motion = parseMotion(m.ui.uiMotion);
         } catch (e) {
-          this.fatal = { title: "Game data failed its check: data/ui/templates.json. This build can't run.", lines: [(e as Error).message] };
+          const file = e instanceof MotionError ? "data/ui/motion.json" : "data/ui/templates.json";
+          this.fatal = { title: `Game data failed its check: ${file}. This build can't run.`, lines: [(e as Error).message] };
           this.render();
           return;
         }
@@ -390,7 +393,7 @@ export class App {
     const tl = timeline(
       { event: ev, runoffSeconds: runoff, ...(prev === null || prev.trySpots === null ? {} : { tryKickSpot: prev.trySpots.kick }) },
       this.templates,
-      { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers(), pxPerYard: this.layoutNow.s },
+      { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers(), pxPerYard: this.layoutNow.s, markPx: this.layoutNow.markPx, motion: this.motion as Motion },
     );
     const flip = g.framePossession !== null && g.framePossession !== ev.before.possession;
     if (flip) this.animator.idle(this.sceneFor(ev.before.possession, ev.before.spot, null), false, !this.reducedMotion());

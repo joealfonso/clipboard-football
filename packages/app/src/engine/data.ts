@@ -32,6 +32,7 @@ import leagueUrl from "../../../../data/game/league.json?url";
 import tempoModesUrl from "../../../../data/game/tempo-modes.json?url";
 import teamNamesUrl from "../../../../data/teams/names.json?url";
 import uiTemplatesUrl from "../../../../data/ui/templates.json?url";
+import uiMotionUrl from "../../../../data/ui/motion.json?url";
 
 /** Repo path -> served URL, in the order scripts/game/data.ts reads them, plus the UI's own data. */
 export const FILES: readonly (readonly [string, string])[] = [
@@ -62,6 +63,7 @@ export const FILES: readonly (readonly [string, string])[] = [
   ["data/teams/names.json", teamNamesUrl],
   ["data/game/tempo-modes.json", tempoModesUrl],
   ["data/ui/templates.json", uiTemplatesUrl],
+  ["data/ui/motion.json", uiMotionUrl],
 ];
 
 /** A file that failed to load or failed its check: the loading screen names it. */
@@ -83,8 +85,9 @@ export interface Loaded {
   readonly data: GameData;
   /** sha256 over every file's hash: two builds with the same data share it. */
   readonly dataHash: string;
-  /** data/ui/templates.json, parsed but checked by the UI (ui/templates.ts). */
+  /** data/ui/templates.json and motion.json, parsed but checked by the UI (ui/templates.ts). */
   readonly uiTemplates: unknown;
+  readonly uiMotion: unknown;
 }
 
 export async function loadData(progress: (file: string, done: number, total: number) => void): Promise<Loaded> {
@@ -169,5 +172,5 @@ export async function loadData(progress: (file: string, done: number, total: num
   const all = Object.entries(hashes)
     .map(([f, h]) => `${f}:${h}\n`)
     .join("");
-  return { data, dataHash: await sha256(new TextEncoder().encode(all)), uiTemplates: json("data/ui/templates.json") };
+  return { data, dataHash: await sha256(new TextEncoder().encode(all)), uiTemplates: json("data/ui/templates.json"), uiMotion: json("data/ui/motion.json") };
 }
