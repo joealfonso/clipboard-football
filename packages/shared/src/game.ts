@@ -4,7 +4,7 @@
 // game-schema.ts. docs/MODEL.md says which parts are fitted, designed or mixed.
 
 import type { EngineData } from "./engine";
-import type { PlayResult } from "./play";
+import type { OnFieldSide, PlayResult } from "./play";
 import type { Situation } from "./situation";
 
 /**
@@ -442,7 +442,7 @@ export type DecisionRequest =
   | (RequestBase & { readonly kind: "toss" })
   | (RequestBase & { readonly kind: "overtimeToss" })
   | (RequestBase & { readonly kind: "kickoff"; readonly safetyKick: boolean })
-  | (RequestBase & { readonly kind: "try"; readonly sameCall: OffenseCallChoice | null })
+  | (RequestBase & { readonly kind: "try"; readonly sameCall: OffenseCallChoice | null; readonly lineups?: Lineups })
   | (RequestBase & {
       readonly kind: "offenseCall";
       readonly tempo: Tempo;
@@ -451,8 +451,9 @@ export type DecisionRequest =
       readonly sameCall: OffenseCallChoice | null;
       /** Field goal distance from here, a fact for the Kick screen ("Field goal (47 yd)"). */
       readonly fieldGoalYards: number;
+      readonly lineups?: Lineups;
     })
-  | (RequestBase & { readonly kind: "defenseCall"; readonly onTry: boolean; readonly sameCall: string | null })
+  | (RequestBase & { readonly kind: "defenseCall"; readonly onTry: boolean; readonly sameCall: string | null; readonly lineups?: Lineups })
   | (RequestBase & {
       readonly kind: "penalty";
       /** The play just run (after the snap, so both calls are public). */
@@ -474,6 +475,14 @@ export type DecisionRequest =
   | (RequestBase & { readonly kind: "continue"; readonly about: ContinueAbout });
 
 export type RequestKind = DecisionRequest["kind"];
+
+/**
+ * The human side's own players for each formation (offense, try) or defense package on offer:
+ * exactly the players resolvePlay's onField puts on the field at the snap. Never the opponent's.
+ * Set by the session on every offenseCall, try and defenseCall request (docs/specs/
+ * m2-play-calling-and-motion.md, Need 1; approved by Joseph as a shared type change).
+ */
+export type Lineups = Readonly<Record<string, OnFieldSide>>;
 
 /**
  * The human's answer: the option ids from the first screen to a final option, for example

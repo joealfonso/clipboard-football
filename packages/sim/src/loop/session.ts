@@ -17,7 +17,7 @@ import { peekToss } from "../game/machine";
 import type { Team, TossChoice } from "../game/types";
 import { Rng, type RngState } from "../rng";
 import { gamePlayers, recordOf, startGame, stepGame, type GameKit, type GameRecord, type GameRun, type GameSetup, type Seat } from "./play";
-import { continueRequest, tossRequest, type RequestBody, type RequestDraft } from "./requests";
+import { continueRequest, tossRequest, withLineups, type RequestBody, type RequestDraft } from "./requests";
 
 export const SESSION_SCHEMA_VERSION = 1;
 
@@ -128,7 +128,9 @@ function advance(session: Session, setup: GameSetup, kit: GameKit): Session {
     } catch (e) {
       if (!(e instanceof Pause)) throw e;
       const seq = cur.seq + 1;
-      return { ...cur, seq, request: { ...e.request, seq } as DecisionRequest };
+      // The human's own lineups for the formations or packages on offer (shared type change, Need 1).
+      const request = withLineups({ ...e.request, seq } as DecisionRequest, setup[e.request.team].pool, kit.data.engine.personnel);
+      return { ...cur, seq, request };
     }
   }
 }

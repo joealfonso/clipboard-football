@@ -3,10 +3,11 @@
 // availability rules and the rule set; every off option carries a reason code (design decision
 // 9). Nothing here reads the other team's call for the coming snap.
 
-import type { Catalog, DecisionRequest, OffenseCallChoice, ReasonCode, RequestOption, RequestScreen, RuleSet, Situation, Tempo } from "../../../shared/src/types";
+import type { Catalog, DecisionRequest, OffenseCallChoice, OnFieldSide, Personnel, ReasonCode, RequestOption, RequestScreen, RuleSet, Situation, TeamPool, Tempo } from "../../../shared/src/types";
 import { MAX_CHOICES_PER_SCREEN, TEMPOS } from "../../../shared/src/types";
 import { indexCatalog, type AvailabilityIndex } from "../caller/availability";
 import { FORMATION_PLAYS } from "../caller/offense";
+import { onField } from "../engine/players";
 import type { GameState, Team } from "../game/types";
 
 export type Unseq<T> = T extends unknown ? Omit<T, "seq"> : never;
@@ -52,11 +53,13 @@ function catalogScreen(catalog: Catalog, id: string, legal: (choice: string) => 
   return screen(id, s.choices.map((c) => legal(c.id) ?? on(c.id, c.opens)));
 }
 
+/**
+ * Formation first (Joseph, docs/specs/m2-play-calling-and-motion.md, Resolved 2): the formation,
+ * then Run or Pass (the formation's 3 runs and 5 passes don't fit one 7-choice screen), then the
+ * play. Only the order the same final call is assembled in changes.
+ */
 function formationScreens(): RequestScreen[] {
-  return [
-    screen("offense.formation.run", FORMATIONS.map((f) => on(f, "offense.run"))),
-    screen("offense.formation.pass", FORMATIONS.map((f) => on(f, "offense.pass"))),
-  ];
+  return [screen("offense.formation", FORMATIONS.map((f) => on(f, "offense.playClass"))), screen("offense.playClass", [on("run", "offense.run"), on("pass", "offense.pass")])];
 }
 
 /** Whether a call (as taken by the loop) is legal now, by the catalog's availability rules. */
@@ -77,8 +80,7 @@ export function offenseRequest(s: GameState, rules: RuleSet, catalog: Catalog, s
   const a = availability(catalog);
   const kick = a.isAvailable("kick", sit) ? on("kick", "offense.kick") : off("kick", "kickNotNow", "offense.kick");
   const first = screen("offense.playType", [
-    on("run", "offense.formation.run"),
-    on("pass", "offense.formation.pass"),
+    on("formation", "offense.formation"),
     kick,
     on("clock", "offense.clock"),
     sameCallOption(last, last !== null && callLegal(last, sit, catalog)),
@@ -106,8 +108,7 @@ export function tryRequest(s: GameState, rules: RuleSet, catalog: Catalog, team:
     screens: [
       screen("offense.try", [on("extraPoint"), on("goForTwo", "offense.playType.try"), timeoutOption(s, rules, team)]),
       screen("offense.playType.try", [
-        on("run", "offense.formation.run"),
-        on("pass", "offense.formation.pass"),
+        on("formation", "offense.formation"),
         off("kick", "notOnTry"),
         off("clock", "notOnTry"),
         sameCallOption(last, twoLegal),
@@ -159,6 +160,25 @@ export function penaltyOptionId(o: { readonly kind: string; readonly foul?: numb
   return o.kind === "accept" ? `accept:${o.foul ?? 0}` : o.kind;
 }
 
+// ---------------------------------------------------------------- the human's own lineups
+
+/**
+ * The human side's players for each formation (offense call, try) or defense package (defense
+ * call) on offer: the same onField fill resolvePlay uses at the snap (pool order, the unit's
+ * slots), so a lineup shown before the snap is the lineup that snaps. Reads only the human's own
+ * pool and personnel.json: nothing about the opponent.
+ */
+export function withLineups(r: DecisionRequest, pool: TeamPool, personnel: Personnel): DecisionRequest {
+  const groups = r.kind === "offenseCall" || r.kind === "try" ? personnel.offense : r.kind === "defenseCall" ? personnel.packages : null;
+  if (groups === null) return r;
+  const lineups: Record<string, OnFieldSide> = {};
+  for (const [name, slots] of Object.entries(groups)) {
+    const field = onField(pool, slots, name);
+    lineups[name] = Object.fromEntries(Object.entries(field).map(([pos, players]) => [pos, players.map((p) => p.id)])) as OnFieldSide;
+  }
+  return { ...r, lineups } as DecisionRequest;
+}
+
 // ---------------------------------------------------------------- answers
 
 export type OffenseAnswer = { readonly timeout: true } | { readonly tempo: Tempo } | { readonly call: OffenseCallChoice };
@@ -170,14 +190,16 @@ export function offenseAnswer(path: readonly string[], last: OffenseCallChoice |
   if (a === "sameCall") return { call: last as OffenseCallChoice };
   if (a === "clock" && (TEMPOS as readonly string[]).includes(b ?? "")) return { tempo: b as Tempo };
   if (a === "clock" || a === "kick") return { call: { call: b as string } };
-  if (a === "run" || a === "pass") return { call: { call: c as string, formation: b as string } };
+  // ["formation", formation, "run" | "pass", play]
+  if (a === "formation") return { call: { call: d as string, formation: b as string } };
   if (a === "extraPoint") return { call: { call: "extraPoint" } };
   if (a === "goForTwo") {
     if (b === "sameCall") {
       const l = last as OffenseCallChoice;
       return { call: { call: "goForTwo", twoPointPlay: l.call, formation: l.formation as string } };
     }
-    return { call: { call: "goForTwo", twoPointPlay: d as string, formation: c as string } };
+    // ["goForTwo", "formation", formation, "run" | "pass", play]
+    return { call: { call: "goForTwo", twoPointPlay: path[4] as string, formation: c as string } };
   }
   throw new RangeError(`not an offense answer: ${path.join(" > ")}`);
 }
