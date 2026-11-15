@@ -13,7 +13,7 @@ import { describe, expect, it } from "vitest";
 import type { PlayResult } from "@clipboard-football/shared";
 import { whyHeadline } from "../src/engine/headline";
 import type { PlayEvent } from "../src/engine/types";
-import { layoutFor } from "../src/ui/layout";
+import { layoutFor, MIN_HEIGHT, MIN_WIDTH } from "../src/ui/layout";
 import { numberShown, pathPrimitives, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
 import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { at, timeline, type Timeline } from "../src/ui/timeline";
@@ -24,7 +24,8 @@ const read = (p: string): unknown => JSON.parse(readFileSync(join(import.meta.di
 const templates = parseTemplates(read("data/ui/templates.json"));
 const personnel = read("data/engine/personnel.json") as { offense: Record<string, Record<string, number>>; kick: Record<string, Record<string, number>>; packages: Record<string, Record<string, number>>; presetPackage: Record<string, string> };
 const participants = read("data/engine/participants.json") as { returnUnits: Record<string, Record<string, number>> };
-const small = layoutFor(1024, 600, templates.field);
+// The smallest window the game plays in (the floor Joseph's full-screen amendment lowered).
+const small = layoutFor(MIN_WIDTH, MIN_HEIGHT, templates.field);
 const motion = parseMotion(read("data/ui/motion.json"));
 const ctx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, pxPerYard: small.s, markPx: small.markPx, motion };
 

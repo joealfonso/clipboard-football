@@ -1,11 +1,16 @@
-// Layout (L1), the seven-choice cap on every non-menu screen (F3), the UI templates covering
+// Layout (L1: the full-screen field), the overlay rules (Joseph's full-screen amendment), the seven-choice cap on every non-menu screen (F3), the UI templates covering
 // every unit the engine puts on the field, and reading the engine's onField into slots.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { onFieldSlots } from "../src/engine/types";
-import { cameraAt, layoutFor, panCamera } from "../src/ui/layout";
+import type { PlayEvent } from "../src/engine/types";
+import { cameraAt, COLUMN_YARDS, layoutFor, MIN_HEIGHT, MIN_WIDTH, panCamera, screenX, screenY, SIDE_MARGIN_MIN, TOP_BAR, VISIBLE_YARDS } from "../src/ui/layout";
+import { blend, CARD_MIN_WINDOW_WIDTH, contrast, FocusTrail, OVERLAY_ALPHA, OVERLAY_IDS, OVERLAY_MARGIN, overlaysShown, placeOverlay, rgbOf, unitDepth } from "../src/ui/overlay";
+import { at, timeline } from "../src/ui/timeline";
+import { COLOR } from "../src/ui/tokens";
+import { playGame } from "./support";
 import * as S from "../src/ui/screens";
 import { MotionError, parseMotion, parseTemplates, TemplateError } from "../src/ui/templates";
 
@@ -14,38 +19,192 @@ const templatesRaw = read("data/ui/templates.json");
 const templates = parseTemplates(templatesRaw);
 const motionRaw = read("data/ui/motion.json");
 
-describe("layout (L1)", () => {
+describe("layout (L1, the full-screen field)", () => {
   it.each([
-    [1024, 600, 512],
-    [1280, 720, 638],
-    [1440, 900, 720],
-    // The design spec's table says 980 here, but its own rule (the smaller of 50% of the width and
-    // 0.95 x the column height) gives 960. The rule is what's built; the table needs a fix.
-    [1920, 1080, 960],
-  ])("%ix%i: the field column follows the width rule", (w, hgt, col) => {
+    [800, 520],
+    [1024, 600],
+    [1280, 720],
+    [1440, 900],
+    [1920, 1080],
+  ])("%ix%i: the field fills the window under the top bar, sideline to sideline in view", (w, hgt) => {
     const l = layoutFor(w, hgt, templates.field);
     expect(l.tooSmall).toBe(false);
-    expect(Math.abs(l.field.width - col)).toBeLessThanOrEqual(1);
-    expect(l.field.width).toBe(Math.floor(Math.min(w * 0.5, 0.95 * (hgt - 48))));
+    expect(l.field).toEqual({ left: 0, top: TOP_BAR, width: w, height: hgt - TOP_BAR });
+    // The whole width of the field shows, and at least VISIBLE_YARDS of its length.
+    expect(l.column.width).toBeLessThanOrEqual(w);
+    expect(l.column.width).toBeGreaterThanOrEqual(Math.floor(COLUMN_YARDS * l.s));
+    const spare = w - l.column.width;
+    if (spare >= SIDE_MARGIN_MIN) {
+      // A margin wide enough for the overlays: the column flush left, the margin all on the right.
+      expect(l.column.left).toBe(0);
+      expect(l.side).toEqual({ left: l.column.width, top: TOP_BAR, width: spare, height: hgt - TOP_BAR });
+    } else {
+      expect(l.side).toBeNull();
+      expect(Math.abs(l.column.left * 2 + l.column.width - w)).toBeLessThanOrEqual(1);
+    }
+    expect(l.visibleYards).toBeGreaterThanOrEqual(VISIBLE_YARDS - 1e-9);
+    expect(screenX(l, -1)).toBe(l.column.left);
     // Marks at least 14 px; interior line marks 2 yards apart leave a gap.
     expect(l.markPx).toBeGreaterThanOrEqual(14);
     const spacing = Math.min(...[["OL1", "OL2"], ["OL2", "OL3"]].map(([a, b]) => Math.abs((templates.offense["shotgun"]?.[a as string]?.[0] ?? 0) - (templates.offense["shotgun"]?.[b as string]?.[0] ?? 0)))) * l.s;
     expect(spacing - l.markPx).toBeGreaterThanOrEqual(4);
-    // The panel starts where the field column ends: it never covers the field.
-    expect(l.panel.left).toBeGreaterThanOrEqual(l.field.left + l.field.width);
   });
 
-  it("below 1024x600 the make-the-window-larger state is on", () => {
-    expect(layoutFor(1023, 700).tooSmall).toBe(true);
-    expect(layoutFor(1200, 599).tooSmall).toBe(true);
+  it("the make-the-window-larger floor is lowered to 800x520, where the field still fits", () => {
+    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 520]);
+    expect(layoutFor(1023, 599).tooSmall).toBe(false);
+    expect(layoutFor(799, 700).tooSmall).toBe(true);
+    expect(layoutFor(1200, 519).tooSmall).toBe(true);
   });
 
-  it("the line of scrimmage sits 70% down the column, and the camera pans only near an edge", () => {
+  it("the line of scrimmage sits 70% down the canvas, and the camera pans only near an edge", () => {
     const l = layoutFor(1280, 720);
     const cam = cameraAt(40, l.visibleYards);
     expect((cam - 40) / l.visibleYards).toBeCloseTo(0.7, 6);
+    expect(screenY(l, cam, 40) / l.field.height).toBeCloseTo(0.7, 6);
     expect(panCamera(cam, 50, l.visibleYards)).toBe(cam);
     expect(panCamera(cam, cam - 2, l.visibleYards)).toBe(cam + 3);
+  });
+});
+
+describe("overlays over the field (Joseph, 2026-11-14)", () => {
+  const personnel = read("data/engine/personnel.json") as { presetPackage: Record<string, string> };
+  const games = [{ g: playGame(91, "home"), human: "home" as const }, { g: playGame(92, "away"), human: "away" as const }];
+  // Every scrimmage call that lines a formation up against a defense preset: the sets the human sees while calling.
+  const sets = games.flatMap(({ g, human }) =>
+    g.events.filter((e): e is PlayEvent => e.t === "play" && e.before.phase === "scrimmage" && e.offense.formation !== undefined && e.defense !== null).map((ev) => ({ ev, human })),
+  );
+  // Margins under SIDE_MARGIN_MIN, so the overlay goes over the field: the floor and two tall windows.
+  const overField = [
+    [800, 520],
+    [1024, 900],
+    [1280, 1024],
+  ] as const;
+  // Margins wide enough: the overlay goes beside the field.
+  const beside = [
+    [1024, 600],
+    [1280, 720],
+    [1440, 900],
+    [1920, 1080],
+  ] as const;
+
+  it("the windows above are the right kind", () => {
+    for (const [w, hgt] of overField) expect(layoutFor(w, hgt).side, `${w}x${hgt}`).toBeNull();
+    for (const [w, hgt] of beside) expect(layoutFor(w, hgt).side, `${w}x${hgt}`).not.toBeNull();
+  });
+
+  it.each(beside)("%ix%i: with a wide margin the overlay sits in it and covers no part of the field", (w, hgt) => {
+    const l = layoutFor(w, hgt, templates.field);
+    const g = { los: 40, lineToGain: 50, side: "defense" as const, depth: 23 };
+    for (const p of [placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, 0), placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, w), placeOverlay(l, 0, null, 1.4)]) {
+      expect(p.where).toBe("side");
+      expect(p.left).toBeGreaterThanOrEqual(l.column.left + l.column.width);
+      expect(p.left + p.width).toBeLessThanOrEqual(w);
+      expect(p.width).toBeGreaterThanOrEqual(SIDE_MARGIN_MIN - 2 * OVERLAY_MARGIN);
+      expect(p.maxHeight).toBe(l.field.height - 2 * OVERLAY_MARGIN);
+    }
+  });
+
+  it("there are sets on both sides of the ball to check", () => {
+    expect(sets.filter((s) => s.ev.before.possession === s.human).length).toBeGreaterThan(50);
+    expect(sets.filter((s) => s.ev.before.possession !== s.human).length).toBeGreaterThan(50);
+  });
+
+  it.each(overField)("%ix%i: over the field it never covers the line of scrimmage, the line to gain or your lineup at the set", (w, hgt) => {
+    const l = layoutFor(w, hgt, templates.field);
+    const markYards = l.markPx / l.s;
+    const heights: number[] = [];
+    for (const { ev, human } of sets) {
+      const side = ev.before.possession === human ? "offense" : "defense";
+      const tl = timeline({ event: ev, runoffSeconds: 0, human: side }, templates, { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, pxPerYard: l.s, markPx: l.markPx, motion: parseMotion(motionRaw) });
+      const pkg = personnel.presetPackage[ev.defense as string] ?? "base";
+      const depth = side === "offense" ? unitDepth(templates, "offense", ev.offense.formation as string, null) : unitDepth(templates, "defense", pkg, ev.defense);
+      const ltg = ev.before.goalToGo ? null : ev.before.spot + ev.before.distance;
+      const camera = cameraAt(tl.los, l.visibleYards, templates.field.losFromTop);
+      const p = placeOverlay(l, camera, { los: tl.los, lineToGain: ltg, side, depth }, markYards, w / 2);
+      expect(p.where).not.toBe("side");
+      const top = p.top;
+      const bottom = p.top + p.maxHeight;
+      const y = (fy: number): number => l.field.top + screenY(l, camera, fy);
+      const clear = (a: number, b: number): boolean => b <= top || a >= bottom;
+      expect(clear(y(tl.los) - 1, y(tl.los) + 1), `LOS ${w}x${hgt}`).toBe(true);
+      if (ltg !== null) expect(clear(y(ltg) - 1, y(ltg) + 1), `line to gain ${w}x${hgt}`).toBe(true);
+      const own = tl.marks.filter((m) => m.side === (side === "offense" ? "O" : "X") && !m.huddle);
+      expect(own.length).toBe(11);
+      for (const m of own) {
+        const my = y(at(m.keys, tl.snapAt).y);
+        expect(clear(my - l.markPx / 2, my + l.markPx / 2), `${m.slot} ${w}x${hgt}`).toBe(true);
+      }
+      heights.push(p.maxHeight);
+    }
+    // Room to call in on every set, even at the floor: a title and two lines of compact rows (100 px).
+    // The worst case is a prevent defense, with the overlay below the line; past that it scrolls.
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(100);
+  });
+
+  it("off the field (title, pregame, settings) with narrow margins the overlay is a centered sheet", () => {
+    const l = layoutFor(1280, 1024);
+    const p = placeOverlay(l, 0, null, 1.4);
+    expect(p.where).toBe("sheet");
+    expect(Math.abs(p.left * 2 + p.width - 1280)).toBeLessThanOrEqual(1);
+  });
+
+  it("over the field, sits on the side away from the ball", () => {
+    const l = layoutFor(1920, 1600);
+    expect(l.side).toBeNull();
+    const g = { los: 40, lineToGain: 50, side: "offense" as const, depth: 7 };
+    const leftBall = placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, 300);
+    const rightBall = placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4, 1600);
+    expect(leftBall.left + leftBall.width).toBe(1920 - OVERLAY_MARGIN);
+    expect(leftBall.where).not.toBe("side");
+    expect(rightBall.left).toBe(OVERLAY_MARGIN);
+  });
+
+  it("card art from 1024 wide up, whichever way the overlay is placed; text rows below that", () => {
+    const g = { los: 40, lineToGain: 50, side: "offense" as const, depth: 7 };
+    for (const [w, hgt] of [...overField, ...beside, [1023, 600] as const]) {
+      const l = layoutFor(w, hgt);
+      expect(placeOverlay(l, cameraAt(40, l.visibleYards), g, 1.4).compact, `${w}x${hgt}`).toBe(w < CARD_MIN_WINDOW_WIDTH);
+      expect(placeOverlay(l, 0, null, 1.4).compact, `${w}x${hgt} sheet`).toBe(w < CARD_MIN_WINDOW_WIDTH);
+    }
+    expect(CARD_MIN_WINDOW_WIDTH).toBe(1024);
+  });
+
+  it("no overlay during the live play: every overlay element is hidden; the player card only with the play paused for it", () => {
+    // Every overlay element in the page is one the rule covers.
+    const html = readFileSync(join(import.meta.dirname, "../index.html"), "utf8");
+    const ids = [...html.matchAll(/<[^>]*\bid="([^"]+)"[^>]*\bclass="[^"]*\boverlay\b[^"]*"/g)].map((m) => m[1]);
+    expect(ids.length).toBeGreaterThanOrEqual(2);
+    expect([...ids].sort()).toEqual([...OVERLAY_IDS].sort());
+    const live = overlaysShown({ animating: true, markCard: false });
+    for (const id of OVERLAY_IDS) expect(live[id], id).toBe(false);
+    expect(overlaysShown({ animating: false, markCard: false })).toEqual({ panel: true, "mark-card": false });
+    expect(overlaysShown({ animating: true, markCard: true })).toEqual({ panel: false, "mark-card": true });
+    // A hidden overlay stays hidden whatever class it has: the bug where .panel.wide (display: grid)
+    // outranked [hidden] and left the result and why lines over the live play.
+    const css = readFileSync(join(import.meta.dirname, "../src/styles.css"), "utf8");
+    expect(css).toMatch(/\.overlay\[hidden\]\s*\{\s*display:\s*none\s*!important;?\s*\}/);
+  });
+
+  it("text on the paper backing keeps 4.5:1 over the darkest field pixel", () => {
+    for (const under of [COLOR.ink, COLOR.offense, COLOR.defense, COLOR.ball, COLOR.paper]) {
+      const backing = blend(rgbOf(COLOR.paper), rgbOf(under), OVERLAY_ALPHA);
+      for (const text of [COLOR.ink, COLOR.inkSoft]) expect(contrast(rgbOf(text), backing), `${text} over ${under}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("focus goes back to where it was when an overlay closes; Esc on a lower one closes the ones over it", () => {
+    const t = new FocusTrail<string, number>();
+    t.open("box", 2);
+    t.open("details", 0);
+    expect(t.top()).toBe("details");
+    expect(t.close("details")).toBe(0);
+    expect(t.close("box")).toBe(2);
+    expect(t.close("box")).toBeUndefined();
+    t.open("pause", 4);
+    t.open("settings", 1);
+    expect(t.close("pause")).toBe(4);
+    expect(t.top()).toBeUndefined();
   });
 });
 

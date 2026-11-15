@@ -123,24 +123,50 @@ body {
   position: fixed;
   inset: 48px 0 0 0;
 }
+.layout:focus {
+  outline: none;
+}
 .field {
   position: absolute;
   left: 0;
   top: 0;
   display: block;
 }
-.panel {
-  position: absolute;
-  top: 0;
-  bottom: 0;
+/* Overlays over the full-screen field (Joseph, 2026-11-14). ui/overlay.ts places them in window px
+   and sets the paper backing (paper at 0.94, so text keeps 4.5:1 over any field pixel). Flat: a
+   1 px border, no shadow. */
+.overlay {
+  position: fixed;
   overflow-y: auto;
-  padding: 16px 24px 24px;
+  padding: 10px 16px 12px;
   font-size: calc(16px * var(--text-scale));
   line-height: 1.4;
   background: var(--paper);
+  border: 1px solid var(--line, #7e837a);
+  z-index: 2;
 }
-.panel > * {
-  max-width: 560px;
+/* A hidden overlay stays hidden whatever other class it has (.panel.wide sets display: grid). */
+.overlay[hidden] {
+  display: none !important;
+}
+.mark-card-overlay {
+  z-index: 3;
+  padding: 0;
+}
+.panel.wide {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2fr;
+  column-gap: 20px;
+  align-items: start;
+}
+.panel.compact .rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  column-gap: 8px;
+}
+.play-keys {
+  color: var(--chalk-soft);
+  margin-left: auto;
 }
 .panel h1 {
   font-size: calc(22px * var(--text-scale));
@@ -166,7 +192,7 @@ body {
   color: var(--ink-soft);
 }
 .report {
-  min-height: calc(7.5em);
+  min-height: 0;
   margin-top: 8px;
 }
 .report p {
@@ -348,7 +374,8 @@ td.mono {
 /* ---------------------------------------------------------------- play cards (card.*) */
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* As many columns as the overlay fits: one row of cards across a wide overlay. */
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 6px;
   margin: 6px 0;
 }
@@ -395,15 +422,17 @@ td.mono {
   }
 }
 :root[style*="--text-scale: 2"] .cards {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
 /* ---------------------------------------------------------------- the player card over a mark */
 .mark-card {
   border: 1px solid var(--ink);
   padding: 8px 12px;
-  margin-bottom: 8px;
-  background: var(--paper);
+}
+.mark-card:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: -3px;
 }
 .mark-card ul {
   margin: 2px 0;

@@ -3,7 +3,7 @@
 // and the possession flip, and skips holds. The animator reads the timeline and decides nothing.
 
 import { drawField, drawFrame, markPositions, viewOf, type FieldScene, type FrameOpts } from "./field";
-import { cameraAt, panCamera, type Layout } from "./layout";
+import { cameraAt, panCamera, screenX, type Layout } from "./layout";
 import { at, type Timeline } from "./timeline";
 import type { Templates } from "./templates";
 import type { SpeedSetting } from "./screens";
@@ -152,6 +152,17 @@ export class Animator {
       this.camera = this.last.camera;
     }
     this.redraw();
+  }
+
+  /** The camera now (field y at the canvas's top edge), for placing overlays. */
+  cameraY(): number {
+    return this.camera;
+  }
+
+  /** The ball's canvas x in the frame shown, or null with no play on the field. */
+  ballX(): number | null {
+    if (this.current === null) return null;
+    return screenX(this.layout(), at(this.current.tl.ball, this.t).x);
   }
 
   /** The current frame's marks in canvas px, for hovering a mark. */
