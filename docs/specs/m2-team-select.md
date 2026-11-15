@@ -187,3 +187,7 @@ Everything else in this file is final.
 2. The two new worker messages are app-internal. They change no save, team data or shared type, so they aren't an ask-first schema change.
 3. The build measures the spread of the 32 unit averages for league seed 2026, logs it in DECISIONS, and switches to one decimal for any unit whose range is under 3 points, as written.
 4. The order is your team first, then the opponent, as designed. The playtest asks Joseph whether he wants pin-to-compare.
+
+## Parked (Joseph, 2026-11-14)
+
+Joseph: "stick with the play calling changes and gameplay improvement". This design is parked, not built, until he asks for it again. The pregame seed line is removed at the same time, and the seed and league seed stay findable in the in-game menu.
