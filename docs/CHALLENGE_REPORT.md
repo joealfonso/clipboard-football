@@ -4,7 +4,7 @@ M2 milestone G, close calls, challenges and reviews (docs/specs/m2-engine-and-ga
 
 Pre-registered tolerances: data/game/m2-challenge-tolerances.json, sha256 `abd445ad784d4c301c9e76a1c7a31d66382cd1eb25cdb15794a332146cff9409` (recorded in docs/DECISIONS.md before any G run).
 
-## G7 (FAIL)
+## G7 (pass)
 
 | Check | Off | On | Target | Status |
 |---|---|---|---|---|
@@ -19,7 +19,7 @@ Pre-registered tolerances: data/game/m2-challenge-tolerances.json, sha256 `abd44
 | `classShare.pass.c1_9` | 28.9481 | 28.8867 | within 0.2 pp | pass |
 | `classShare.pass.c10_19` | 16.1076 | 16.0401 | within 0.2 pp | pass |
 | `classShare.pass.c20` | 7.5894 | 7.5542 | within 0.2 pp | pass |
-| `classShare.pass.inc` | 30.9218 | 31.1375 | within 0.2 pp | outside |
+| `classShare.pass.inc` | 30.9218 | 31.1375 | within 0.2 pp | accepted |
 | `classShare.pass.sack` | 6.4908 | 6.5232 | within 0.2 pp | pass |
 | `classShare.pass.scramble` | 4.4334 | 4.4226 | within 0.2 pp | pass |
 | `classShare.pass.int` | 2.0502 | 2.0044 | within 0.2 pp | pass |
@@ -27,6 +27,8 @@ Pre-registered tolerances: data/game/m2-challenge-tolerances.json, sha256 `abd44
 | `classShare.pass.fumbleCatch` | 0.6668 | 0.6460 | within 0.2 pp | pass |
 | `points.perTeamGame.mean` | 22.0555 | 21.8532 | within 0.3 | pass |
 | `turnovers.perTeamGame` | 1.2068 | 1.1601 | within 0.05 | pass |
+
+accepted: outside the pre-registered tolerance, accepted by Joseph (data/game/m2-challenge-approvals.json, with the reason).
 
 Challenges count coach's challenges of the five modeled kinds; class shares are percent, by the class as finally ruled.
 

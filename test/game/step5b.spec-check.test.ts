@@ -249,7 +249,8 @@ describe("B12/F4/C4: every holdout run is disclosed post hoc, and the run counts
   // Amended 2026-11-14: C7 run 10 and step 5 game run 14, pins only after Joseph's run 13 holdout approvals.
   // Amended 2026-11-14 (M2, lead's call): engine run 10 and step 5 game run 15, M2 A-E pins only.
   // Amended 2026-11-14 (M2 code review, lead's call): engine run 11 and step 5 game run 16, pins only.
-  const EXPECTED: Record<string, number> = { Caller: 8, "Step 5 game": 16, Engine: 11, C7: 10 };
+  // Amended 2026-11-14 (M2 F and G, lead's call): engine run 12 and step 5 game run 17, pins only.
+  const EXPECTED: Record<string, number> = { Caller: 8, "Step 5 game": 17, Engine: 12, C7: 10 };
   const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
   const maxRun = (label: string): number => {
     const ns = [...label.matchAll(/\brun (\d+)\b/gi)].map((m) => Number(m[1]));

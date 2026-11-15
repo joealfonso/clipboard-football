@@ -3,7 +3,7 @@
   "configHash": "8802a99e6b6b6da84c0707096b1d5f636a62bdec2d881f947b0e45281ea0328f",
   "matchupHash": "ffe2456c4533c65d5a71cea83f1bfd87b4d86d194395d64eaf3aa2f109e6e004",
   "tolerancesHash": "74de64c3a87c295467efeaf0edfa7253876b381ef38a715b84557777bf99a871",
-  "codeHash": "e92ffb60472aae3d28ad84a5c6a198af45fc4133c750562e8939b1d57de60470",
+  "codeHash": "9ce878dee01a3ba94b7b1985e262f922051884d4e56ef96f927e196021e0e5cf",
   "fileHashes": {
     "data/caller/config.json": "4bf2862ba19cf7d03f759c82647992ebfc3f67e9651c0743eb2b9d30d8e4817c",
     "data/caller/defense.table.json": "691d1d86425f9aa30fc7dc831ec6e3630a36cdb633c0fbd11a523a94c04512ca",
@@ -18,11 +18,11 @@
     "data/engine/matchup.json": "9652c71ed678aa1ed87297fe45e5fe25d995e21ca41b002ff12a8cbc4b98c3da",
     "data/engine/personnel.json": "a3816cc3941cd6bbee57970b7ce405f5504f63193e2c0b9df6341b83d03862ff",
     "data/engine/tolerances.json": "82805bb68002be02c574f34f158c43088f153f79684f74930dcf45e394147886",
-    "data/engine/why.json": "4fb59398edfdcbae1674dbf6e371e8dd9ffec9877847d51f160cb08d50593d27",
+    "data/engine/why.json": "59454bc0d8f1d1c251fc02953d6aa13fff1b3b789a457a22cf1b220834fdfd27",
     "data/players/distributions.json": "059f2a7f4d026f2b7b7e2e11796f029f6ae363ddbe7494262b94cde1a67720bf",
     "data/players/names.json": "b11ced1100e534dcf523679b78ea7af176559aca0aab723a0ae31a31c479f098",
     "data/players/ratings.json": "c71a112781d3d04a1542267bf94d5a6f646186e8d2d34d416b83b714e998c7fd",
-    "data/rules/nfl-2026.json": "6da3f85dab7039bf28445a8acd055a2351672cc256f1fe056ed485e3a4e85312"
+    "data/rules/nfl-2026.json": "2e6c611e7e9a3b86c313d7358f835ff4ad737f5b7dbf7d1089a2d94da67d26c0"
   },
   "seed": 20261111,
   "simulationsPerPlay": 4,

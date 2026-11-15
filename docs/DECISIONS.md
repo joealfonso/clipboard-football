@@ -1134,6 +1134,8 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 15 | 2026-11-14, M2 | M2 A-E pins only, metrics must match run 14: the M2 data files and code (lead's call; in-sample outcome digests identical first) | Every metric, diagnostic and invariant count identical to run 14; 0 gated failures; slice digests now equal the in-sample summary's; 7.66 ms per game on a quiet machine |
 | Engine | 11 | 2026-11-14, M2 | M2 pins only, metrics must match run 10: the code review fixes changed shared code the summary's hash covers | Every metric identical to run 10; the generated tables byte-identical |
 | Step 5 game | 16 | 2026-11-14, M2 | M2 pins only, metrics must match run 15: the code review fixes (the requests' state and run-off seconds, data/game/tempo-modes.json) | Every metric, diagnostic and invariant count identical to run 15; 0 gated failures; 7.36 ms per game on a quiet machine |
+| Engine | 12 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 11: standouts and close calls (off in this validation), the why lines and the merged code | Every metric identical to run 11; the generated tables byte-identical |
+| Step 5 game | 17 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 16: standouts and close calls (off in the calibrated baseline), the G1 rule set, the merged UI | Every metric, diagnostic and invariant count identical to run 16; 0 gated failures; 7.60 ms per game on a quiet machine |
 
 
 ## M1 step 5c: playtest fixes
@@ -1685,6 +1687,9 @@ Spec: docs/specs/m2-play-calling-and-motion.md, Resolved 2 and 3 (Joseph). Edits
   - The UI renders it like the penalty and run-off requests: the ruled play animates first, then the prompt "Close call: <question>" with challenges and timeouts left, and the options Throw the flag and Let it stand. "Under review" and "Review result" are continue screens.
 - Save version: both branches had taken 5 (formation-first answer paths; `closeCalls`), so the merged save is version 6. An older save reads as older.
 - The timeline keeps the UI's new motion code and reads the loop's final standout (`event.standout`).
+
+### Pins-only engine run 12 and game holdout run 17 (lead's call; engineer, 2026-11-14)
+- Run at the end of M2, once G was in, on a quiet machine (15-minute load 3.97 at the start), in pin-safe order. First the outcome digests (identical to 04f0f5d) and the G7 report, now "pass" with Joseph's accepted deviation. Then engine run 12 (every metric identical to run 11, the five generated tables byte-identical), the in-sample summary (metrics, diagnostics and invariants identical), and game holdout run 16's successor, run 17 (every metric, diagnostic and invariant count identical to run 16, 0 gated failures, 7.60 ms per game). C7 not rerun (it pins only the unchanged tolerances file).
 
 ## Publishing
 
