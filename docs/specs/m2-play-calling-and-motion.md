@@ -488,3 +488,16 @@ Joseph: "all players on the field should move at the same time as if a real play
 - Defensive backs backpedal, turn and cover.
 - Everyone off the ball pursues the ball carrier once the ball is caught or handed off.
 Staggered starts mean reaction time only, at most 150 ms after the snap for any player. Unnamed players' motion is drawing only: it still obeys the 2.5-yard ring and lane rule, and never implies a different result. This replaces any reading of "staggered starts" that leaves players idle.
+
+## Amended (Joseph, 2026-11-14): player ratings on the field, hover for detail
+
+Joseph: "each player should have a rating on them that i can hover over to see more stats about that play. same with the defense".
+- Every mark on both sides can show the player's key rating for his position, beside his jersey number. Use the rating the position is judged on (for example Speed for a WR, Pass Rush for a DL), from the player's card, before the home-field shift. A field setting turns the rating labels on or off, and they are on by default. The number-collision rule still applies; when space is short, the rating hides before the number does.
+- Hovering a mark (mouse), or focusing it (keyboard: a key cycles marks, Enter or Esc closes), opens a card with:
+  - the player's name, number and position;
+  - every rating on his card, with its league rank where `ratingRanks` provides one;
+  - what he did on this play: only roles the engine credited (carrier, passer, target, tackler, sacker, interceptor, fouler and so on), with the yards from the result. A player with no credited role reads "No recorded stat on this play". The card never invents per-play stats the engine didn't decide;
+  - his game totals so far, from the player box score.
+- This works the same for offense and defense, at the set, during the play (it pauses the animation while the card is open) and at the whistle.
+- Accessibility: the card is reachable without a mouse, is announced to screen readers, and stays legible at 200% text.
+- Tests: every mark has a reachable card. A card's play section lists exactly the roles in `detail.participants` for that player, and no others. The ratings shown equal the card ratings.
