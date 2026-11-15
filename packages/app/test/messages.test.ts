@@ -47,4 +47,20 @@ describe("request state", () => {
     const runoffBeforeDefense = g.requests.some((r) => r.kind === "defenseCall" && r.events.some((e) => e.t === "runoff"));
     expect(runoffBeforeDefense).toBe(true);
   });
+
+  it("call requests carry your own lineups, and only your team's players (nothing about the opponent)", () => {
+    for (const human of ["home", "away"] as const) {
+      const g = playGame(44, human);
+      const step = g.sent.find((m) => m.t === "step");
+      if (step?.t !== "step") throw new Error("no step");
+      const mine = new Set(step.matchup[human].pool.players.map((p) => p.id));
+      const calls = g.requests.filter((r) => r.kind === "offenseCall" || r.kind === "defenseCall" || r.kind === "try");
+      expect(calls.length).toBeGreaterThan(0);
+      for (const r of calls) {
+        const lu = "lineups" in r ? r.lineups : undefined;
+        expect(lu, r.kind).toBeDefined();
+        for (const side of Object.values(lu ?? {})) for (const ids of Object.values(side)) for (const id of ids ?? []) expect(mine.has(id), `${human} ${r.kind} ${id}`).toBe(true);
+      }
+    }
+  });
 });

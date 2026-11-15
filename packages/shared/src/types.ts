@@ -135,6 +135,7 @@ export type {
   ContinueAbout,
   DecisionAnswer,
   DecisionRequest,
+  Lineups,
   OffenseCallChoice,
   PenaltyPreview,
   ReasonCode,

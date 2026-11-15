@@ -62,6 +62,27 @@ export function mix(...xs: number[]): number {
 
 export type Bot = (r: DecisionRequest) => readonly string[];
 
+/**
+ * The bot's path order, kept as it was before the screens went formation first (play-calling
+ * spec, Resolved 2): the formation paths, ["formation", f, "run"|"pass", play] (also after
+ * "goForTwo"), sorted run before pass, then by formation, then play, which is the order the old
+ * ["run"|"pass", f, play] paths came in. Same order, same weights, so the scripted games make the
+ * same calls as before and their records are unchanged.
+ */
+function classFirstOrder(paths: readonly string[][]): string[][] {
+  const at = (p: readonly string[]): number => p.indexOf("formation");
+  const out = [...paths];
+  const idx = out.map((p, i) => (at(p) >= 0 ? i : -1)).filter((i) => i >= 0);
+  if (idx.length === 0) return out;
+  const block = idx.map((i) => out[i] as string[]);
+  const pos = new Map(block.map((p, i) => [p, i]));
+  // Run before pass; within a class the DFS order already runs formation, then play.
+  const cls = (p: readonly string[]): number => (p[at(p) + 2] === "run" ? 0 : 1);
+  const sorted = [...block].sort((a, b) => cls(a) - cls(b) || (pos.get(a) as number) - (pos.get(b) as number));
+  idx.forEach((i, j) => (out[i] = sorted[j] as string[]));
+  return out;
+}
+
 export interface BotStyle {
   /** Weight of the timeout option when legal (others weigh 1). */
   readonly timeout?: number;
@@ -82,7 +103,7 @@ export function scriptedBot(seed: number, style: BotStyle = {}): Bot {
   return (r) => {
     const pref = style.prefer?.(r) ?? null;
     if (pref !== null) return pref;
-    const paths = finalPaths(r, true);
+    const paths = classFirstOrder(finalPaths(r, true));
     const weight = (p: readonly string[]): number => {
       const first = p[0] ?? "";
       if (first === "timeout") return style.timeout ?? 0.02;
@@ -91,7 +112,8 @@ export function scriptedBot(seed: number, style: BotStyle = {}): Bot {
       if (first === "onsideKick") return style.onside ?? 0.05;
       if (first === "goForTwo") return style.two ?? 0.02;
       if (first === "sameCall") return 0.5;
-      if (r.kind === "offenseCall" && r.state?.down === 4 && (first === "run" || first === "pass")) return 0.02;
+      // Formation first: a run or pass starts with "formation".
+      if (r.kind === "offenseCall" && r.state?.down === 4 && first === "formation") return 0.02;
       return 1;
     };
     const ws = paths.map(weight);

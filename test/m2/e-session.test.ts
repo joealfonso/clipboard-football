@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { decisionRequestSchema } from "../../packages/shared/src/m2-schema";
-import type { CoachView, DecisionAnswer, DecisionRequest, RequestEvent, RequestState } from "../../packages/shared/src/types";
+import type { CoachView, DecisionAnswer, DecisionRequest, Lineups, RequestEvent, RequestState } from "../../packages/shared/src/types";
 import { MAX_CHOICES_PER_SCREEN } from "../../packages/shared/src/types";
 import { REASON_CODES } from "../../packages/shared/src/game";
 import { averageCoach, labelOf, tempoShares, tempoModeView, type CoachPolicies } from "../../packages/sim/src/loop/coach";
@@ -116,7 +116,9 @@ describe("E2: seed plus input log replays the game exactly", () => {
   it("a different answer at one request changes the game", () => {
     const i = g.asked.findIndex((a, j) => j > 30 && a.request.kind === "offenseCall" && finalPaths(a.request, true).length > 10);
     const a = g.asked[i] as Asked;
-    const alt = finalPaths(a.request, true).find((p) => p[0] !== a.answer.path[0] && p[0] !== "timeout" && p[0] !== "clock") as string[];
+    // A run where the answer was a pass, or the reverse (formation first: the class is the third step).
+    const cls = a.answer.path[0] === "formation" ? a.answer.path[2] : undefined;
+    const alt = finalPaths(a.request, true).find((p) => p[0] === "formation" && p[2] !== cls) as string[];
     const r = answerSession(a.before, g.setup, kit, { seq: a.request.seq, path: alt });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
@@ -208,8 +210,11 @@ describe("answerSession never changes the session it is given", () => {
 
   it("a path that stops on an option that opens a screen is incomplete", () => {
     const a = (GAMES[2] as Played).asked.find((x) => x.request.kind === "offenseCall") as Asked;
-    const r = answerSession(a.before, (GAMES[2] as Played).setup, kit, { seq: a.request.seq, path: ["pass"] });
-    expect(r.ok === false && r.error.code).toBe("incompletePath");
+    // Formation first: every stop short of the play is incomplete, at each of the three steps.
+    for (const path of [["formation"], ["formation", "shotgun"], ["formation", "shotgun", "pass"]]) {
+      const r = answerSession(a.before, (GAMES[2] as Played).setup, kit, { seq: a.request.seq, path });
+      expect(r.ok === false && r.error.code, path.join(" > ")).toBe("incompletePath");
+    }
   });
 });
 
@@ -227,7 +232,7 @@ describe("E4: every request kind is reached in the scripted games", () => {
       if (r.kind === "continue" && r.about.what === "tossResult") tags.add("humanLosesToss");
       if (r.kind === "kickoff" && p[0] === "onsideKick") tags.add("humanOnside");
       if (r.kind === "continue" && r.about.what === "theyKickOff" && r.about.onside) tags.add("aiOnside");
-      if (r.kind === "offenseCall" && r.state?.down === 4 && (p[0] === "run" || p[0] === "pass")) tags.add("fourthDownGo");
+      if (r.kind === "offenseCall" && r.state?.down === 4 && p[0] === "formation") tags.add("fourthDownGo");
       if (r.kind === "offenseCall" && p[0] === "kick") tags.add(p[1] as string);
       if (r.kind === "try" && p[0] === "goForTwo") tags.add("humanTwo");
       if (r.kind === "defenseCall" && r.onTry) tags.add("aiTwo");
@@ -383,9 +388,12 @@ describe("E6: no request holds the opponent's call before the snap", () => {
   it("request types carry no call of the other side before the snap (type level)", () => {
     type Keys<K extends DecisionRequest["kind"]> = keyof Extract<DecisionRequest, { kind: K }>;
     type Base = "seq" | "state" | "events" | "team" | "screens" | "kind";
-    expectTypeOf<Keys<"defenseCall">>().toEqualTypeOf<Base | "onTry" | "sameCall">();
-    expectTypeOf<Keys<"offenseCall">>().toEqualTypeOf<Base | "tempo" | "clockRunning" | "sameCall" | "fieldGoalYards">();
-    expectTypeOf<Keys<"try">>().toEqualTypeOf<Base | "sameCall">();
+    // `lineups` (the human side's own players by formation or package) was added with Joseph's
+    // approval (docs/specs/m2-play-calling-and-motion.md, Resolved 3); its type holds only ids by position.
+    expectTypeOf<Keys<"defenseCall">>().toEqualTypeOf<Base | "onTry" | "sameCall" | "lineups">();
+    expectTypeOf<Keys<"offenseCall">>().toEqualTypeOf<Base | "tempo" | "clockRunning" | "sameCall" | "fieldGoalYards" | "lineups">();
+    expectTypeOf<Keys<"try">>().toEqualTypeOf<Base | "sameCall" | "lineups">();
+    expectTypeOf<NonNullable<Extract<DecisionRequest, { kind: "offenseCall" }>["lineups"]>>().toEqualTypeOf<Lineups>();
     expectTypeOf<Keys<"kickoff">>().toEqualTypeOf<Base | "safetyKick">();
     expectTypeOf<Keys<"toss">>().toEqualTypeOf<Base>();
     expectTypeOf<Keys<"continue">>().toEqualTypeOf<Base | "about">();

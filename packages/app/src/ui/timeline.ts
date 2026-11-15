@@ -1,33 +1,32 @@
-// The field animation as data: timeline(input, templates, ctx) returns keyframes for every mark,
-// the ball, the paths and the labels. Pure, with no Rng and no outcome logic (spec A1): the same
-// event always gives the same timeline.
+// The field animation as data: timeline(input, templates, ctx) returns dense keys (every 25 ms)
+// for every mark, the ball and its height, the paths and the labels. Pure, with no Rng and no
+// outcome logic (spec A1): the same event always gives the same timeline.
 //
-// Facts come only from the PlayResult (kind, end spot, possession, incomplete, turnover, fouls,
-// kick fields, `participants`, `onField`) and the after snapshot (the score). The diagram
-// (alignments, routes, drops) comes from data/ui/templates.json keyed by the calls only. Diagram
-// marks never carry the ball and are kept clear of it; only the engine's tackler arrives at the
-// tackle. A fact the engine leaves out is drawn neutral (the middle of the field, the posts for a
-// miss) and never named in a label (spec A3).
+// docs/specs/m2-play-calling-and-motion.md:
+// - Pre-snap: t = 0 starts the line-up. A side still in its huddle breaks it to its alignment
+//   (450 ms, with the run-off clock running at the same time), then everyone is set (300 ms), then
+//   the snap. Huddle spots come from the layout only, never from anyone's call (P1).
+// - Facts are anchors, fixed in time and place: the snap, handoff, throw, catch, interception,
+//   fumble, sack, kick, landing, the dead spot at the whistle, the tackler at the ball (decision 10).
+//   Only the engine's named players touch the ball.
+// - Everyone else moves from the snap (Joseph: all 22 move as in a real play), starting within
+//   150 ms: the line blocks and rushes and stops at contact, receivers run routes, backs run, block
+//   or check down, linebackers read then flow or drop, defensive backs backpedal and cover, and
+//   once the ball is caught or handed off everyone pursues. Unnamed defenders keep 2.5 yards from
+//   the ball and out of the carrier's lane (contract 3), so nothing implies a different result.
+// - Screen time comes from geometry (distances and speeds), clamped to 1.5 to 4.0 s (decision 11).
+// - The set preview is drawn from the calls (playArt), never from the result (P3).
 //
 // Frame: the play's frame. y is yards from the offense's goal line (0) to the other goal line
 // (100), the end lines at -10 and 110 (from the rule set); x is 0 to 53.3 from the offense's left.
 
 import type { PlayResult } from "@clipboard-football/shared";
 import { PARTICIPANT_ROLES, readDetail, type OnFieldSlot, type ParticipantRole, type PlayEvent } from "../engine/types";
-import type { Alignment, Pair, Templates, Waypoints } from "./templates";
+import { defenseArt, huddleSpots, lineUp, offenseArt, PASS_LEAVES, routeKey, RUN_LEAVES, waypoints, type Art } from "./art";
+import { at, clampX, drive, FIELD_WIDTH, grid, join, MID_X, pursue, ringFix, settle, velocity, type Key, type Pt } from "./motion";
+import type { Motion, Templates } from "./templates";
 
-export const FIELD_WIDTH = 53.3;
-export const MID_X = FIELD_WIDTH / 2;
-
-export interface Pt {
-  readonly x: number;
-  readonly y: number;
-}
-
-export interface Key extends Pt {
-  /** ms from the start of the timeline at 1x. */
-  readonly t: number;
-}
+export { at, FIELD_WIDTH, MID_X, type Key, type Pt };
 
 export interface TLMark {
   readonly slot: string;
@@ -39,6 +38,12 @@ export interface TLMark {
   readonly roles: readonly ParticipantRole[];
   /** Moved by facts (or the unit that handles the ball by the call), not by the diagram. */
   readonly fact: boolean;
+  /** The path is drawn up to this time: the read for unnamed players (decision 13), the whistle for named ones. */
+  readonly pathEnd: number;
+  /** How the drawn path ends: a block tick for engaged offensive linemen, an arrowhead for other offense, nothing for defense. */
+  readonly pathStyle: "block" | "arrow" | "none";
+  /** Starts the play in a huddle (no number until the set). */
+  readonly huddle: boolean;
 }
 
 export interface TLPath {
@@ -56,17 +61,30 @@ export interface TLLabel {
   readonly source: string;
 }
 
+export interface ScaleKey {
+  readonly t: number;
+  readonly s: number;
+}
+
 export interface Timeline {
   readonly los: number;
   readonly firstDown: number | null;
+  /** The line-up phase: huddles break and the run-off clock counts down (0 when neither happens). */
+  readonly lineUpMs: number;
   readonly runoffMs: number;
   readonly runoff: { readonly from: number; readonly to: number } | null;
+  /** The set starts here; the snap at snapAt. */
+  readonly setAt: number;
   readonly snapAt: number;
   readonly liveEnd: number;
+  /** The settle runs from liveEnd for settleMs, inside the hold. */
+  readonly settleMs: number;
   readonly holdMs: number;
   readonly total: number;
   readonly marks: readonly TLMark[];
   readonly ball: readonly Key[];
+  /** The ball's drawn size (1 at rest; larger with height in flight). */
+  readonly ballScale: readonly ScaleKey[];
   readonly paths: readonly TLPath[];
   readonly labels: readonly TLLabel[];
   readonly flags: readonly TLLabel[];
@@ -74,12 +92,16 @@ export interface Timeline {
   readonly holder: string | null;
   /** The engine's tackler, whose mark ends at the ball. */
   readonly tackler: string | null;
-  /** Players named in the play: their numbers show at the whistle by default. */
+  /** Players named in the play: their numbers show during the live play. */
   readonly involved: readonly string[];
   /** Marks with the ring: the holder at the whistle, a pre-snap fouler, a standout. */
   readonly rings: readonly string[];
-  /** The snap window at the start of the live phase, in which the center and the QB handle the ball. */
+  /** After the snap window the center and QB no longer handle the ball. */
   readonly snapWindowEnd: number;
+  /** The read: the handoff, the throw, a QB crossing the line, or a kick landing. Pursuit starts here. */
+  readonly read: number;
+  /** The human's own call drawn faint from the set to the snap (decision 9): from the calls only. */
+  readonly preview: Art | null;
 }
 
 export interface TimelineInput {
@@ -88,6 +110,10 @@ export interface TimelineInput {
   readonly runoffSeconds: number;
   /** The try's kick spot in the offense's frame (GameState.trySpots.kick), for an extra point. */
   readonly tryKickSpot?: number;
+  /** The side the human coaches on this play; null or absent for none (no huddle, no preview). */
+  readonly human?: "offense" | "defense" | null;
+  /** The human's side starts lined up (after the Calling state) or in its huddle (Same call). */
+  readonly ownStart?: "lined" | "huddle";
 }
 
 export interface TimelineCtx {
@@ -96,40 +122,15 @@ export interface TimelineCtx {
   readonly endZoneYards: number;
   /** Jersey numbers by player id, for labels that name a player ("Fumble, recovered by #55"). */
   readonly numbers: Readonly<Record<string, number>>;
-  /** Pixels per yard of the current layout, for the line's minimum spacing; absent means no spreading. */
+  /** Pixels per yard of the current layout, for the line's spacing and the huddle; absent means none. */
   readonly pxPerYard?: number;
+  readonly markPx?: number;
+  readonly motion: Motion;
 }
 
-// ---------------------------------------------------------------- sampling
+// ---------------------------------------------------------------- units
 
-/** Position on piecewise-linear keys at time t (held before the first and after the last). */
-export function at(keys: readonly Key[], t: number): Pt {
-  const first = keys[0];
-  if (first === undefined) return { x: MID_X, y: 0 };
-  if (t <= first.t) return { x: first.x, y: first.y };
-  // At or after the last key: the last key (two keys at one time are a jump, as a respot is).
-  const final = keys[keys.length - 1] as Key;
-  if (t >= final.t) return { x: final.x, y: final.y };
-  for (let i = 1; i < keys.length; i++) {
-    const b = keys[i] as Key;
-    if (t <= b.t) {
-      const a = keys[i - 1] as Key;
-      const f = b.t === a.t ? 1 : (t - a.t) / (b.t - a.t);
-      return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f };
-    }
-  }
-  const last = keys[keys.length - 1] as Key;
-  return { x: last.x, y: last.y };
-}
-
-const dist = (a: Pt, b: Pt): number => Math.hypot(a.x - b.x, a.y - b.y);
-const clampX = (x: number): number => Math.max(0, Math.min(FIELD_WIDTH, x));
-
-// ---------------------------------------------------------------- the build
-
-const RUN_LEAVES = new Set(["insideRun", "outsideRun", "qbSneak"]);
 const LOCATION_X: Readonly<Record<string, number>> = { left: 10, middle: MID_X, right: FIELD_WIDTH - 10 };
-
 const PUNT_LABELS: Readonly<Record<string, string>> = {
   touchback: "Touchback",
   fairCatchShort: "Fair catch",
@@ -142,79 +143,75 @@ const PUNT_LABELS: Readonly<Record<string, string>> = {
   blocked: "Blocked",
 };
 
-type LineFamily = "run" | "pass" | "kick" | null;
+type Family = "run" | "pass" | "kick" | "kickoff" | "clock" | "none";
 
-function unitOf(event: PlayEvent): { offense: { group: "offense" | "kick"; name: string }; defense: { group: "defense" | "returnUnits"; name: string }; drops: string; routes: string; line: LineFamily } {
+interface Unit {
+  readonly offense: { readonly group: "offense" | "kick"; readonly name: string };
+  readonly defense: { readonly group: "defense" | "returnUnits"; readonly name: string };
+  readonly family: Family;
+  readonly leaf: string;
+  /** Unnamed offense routes and unnamed defense drops (template keys). */
+  readonly routes: string;
+  readonly drops: string;
+  /** Snap time key in motion.snapMs. */
+  readonly snapKey: string;
+}
+
+function unitOf(event: PlayEvent): Unit {
   const { play, offense, defense } = event;
   const k = play.kind;
   const leaf = offense.call === "goForTwo" ? (offense.twoPointPlay ?? "") : offense.call;
-  if (k === "kickoff" || k === "onsideKick" || (k === "noPlay" && event.before.phase === "kickoff")) return { offense: { group: "kick", name: "kickoff" }, defense: { group: "returnUnits", name: "kickoff" }, drops: "return", routes: "cover", line: null };
-  if (k === "punt" || leaf === "punt") return { offense: { group: "kick", name: "punt" }, defense: { group: "returnUnits", name: "punt" }, drops: "return", routes: "cover", line: "kick" };
-  if (k === "fieldGoal" || k === "extraPoint" || leaf === "fieldGoal" || leaf === "extraPoint") return { offense: { group: "kick", name: leaf === "extraPoint" || k === "extraPoint" ? "extraPoint" : "fieldGoal" }, defense: { group: "returnUnits", name: "fieldGoal" }, drops: "kick", routes: "kick", line: "kick" };
-  if (k === "kneel" || k === "spike" || leaf === "kneel" || leaf === "spike") return { offense: { group: "offense", name: "underCenter" }, defense: { group: "defense", name: "base" }, drops: "kick", routes: "kick", line: "kick" };
-  return {
-    offense: { group: "offense", name: offense.formation ?? "shotgun" },
-    defense: { group: "defense", name: defense ?? "" },
-    drops: "",
-    routes: RUN_LEAVES.has(leaf) ? "run" : leaf,
-    line: RUN_LEAVES.has(leaf) ? "run" : "pass",
-  };
+  if (k === "kickoff" || k === "onsideKick" || (k === "noPlay" && event.before.phase === "kickoff"))
+    return { offense: { group: "kick", name: "kickoff" }, defense: { group: "returnUnits", name: "kickoff" }, family: "kickoff", leaf, routes: "cover", drops: "return", snapKey: "kickoff" };
+  if (k === "punt" || leaf === "punt") return { offense: { group: "kick", name: "punt" }, defense: { group: "returnUnits", name: "punt" }, family: "kick", leaf: "punt", routes: "cover", drops: "return", snapKey: "punt" };
+  if (k === "fieldGoal" || k === "extraPoint" || leaf === "fieldGoal" || leaf === "extraPoint") {
+    const name = leaf === "extraPoint" || k === "extraPoint" ? "extraPoint" : "fieldGoal";
+    return { offense: { group: "kick", name }, defense: { group: "returnUnits", name: "fieldGoal" }, family: "kick", leaf: name, routes: "kick", drops: "kick", snapKey: name };
+  }
+  if (k === "kneel" || k === "spike" || leaf === "kneel" || leaf === "spike")
+    return { offense: { group: "offense", name: "underCenter" }, defense: { group: "defense", name: "base" }, family: "clock", leaf: k === "spike" || leaf === "spike" ? "spike" : "kneel", routes: "kick", drops: "kick", snapKey: "kneel" };
+  const formation = offense.formation ?? "shotgun";
+  return { offense: { group: "offense", name: formation }, defense: { group: "defense", name: defense ?? "" }, family: RUN_LEAVES.has(leaf) ? "run" : PASS_LEAVES.has(leaf) ? "pass" : "none", leaf, routes: routeKey(leaf), drops: "", snapKey: formation };
 }
 
-/**
- * DESIGN.md Spacing: the line is a diagram, not to scale across. When the marks on the line
- * (depth up to `maxDepth`, within 10 yards of the middle) come out closer than `minGap` yards,
- * spread them evenly out from the middle by one factor. Depths never change.
- */
-export function spreadLine(points: readonly Pt[], onLine: readonly boolean[], minGap: number): Pt[] {
-  const xs = points.filter((_, i) => onLine[i]).map((p) => p.x).sort((a, b) => a - b);
-  let gap = Infinity;
-  for (let i = 1; i < xs.length; i++) gap = Math.min(gap, (xs[i] as number) - (xs[i - 1] as number));
-  if (!(gap < minGap) || gap <= 0) return [...points];
-  const k = minGap / gap;
-  return points.map((p, i) => (onLine[i] ? { x: clampX(MID_X + (p.x - MID_X) * k), y: p.y } : p));
+// ---------------------------------------------------------------- the plan (raw ms from the snap)
+
+/** A fact mark's movement between two anchors. */
+interface Leg {
+  readonly pts: readonly Pt[];
+  readonly t0: number;
+  readonly t1: number;
+  readonly restStart: boolean;
+  readonly restEnd: boolean;
+  /** t0 is a start time in screen ms after the snap (not scaled), as for a mark's first move. */
+  readonly fixedStart?: boolean;
 }
 
-/** Where a slot lines up at the set: the template, or rows by order when the template has none. */
-function alignmentOf(slots: readonly OnFieldSlot[], tmpl: Alignment | undefined, side: "O" | "X", los: number): Pt[] {
-  const missing = slots.filter((s) => tmpl?.[s.slot] === undefined);
-  return slots.map((s) => {
-    const a: Pair | undefined = tmpl?.[s.slot];
-    if (a !== undefined) return { x: clampX(MID_X + a[0]), y: side === "O" ? los - a[1] : los + a[1] };
-    // Fallback: spread the unplaced players across the field, two rows.
-    const i = missing.indexOf(s);
-    const perRow = Math.max(1, Math.ceil(missing.length / 2));
-    const row = Math.floor(i / perRow);
-    const col = i % perRow;
-    const x = ((col + 1) / (perRow + 1)) * FIELD_WIDTH;
-    const depth = 2 + row * 4;
-    return { x, y: side === "O" ? los - depth : los + depth };
-  });
-}
+type BallSeg =
+  | { readonly kind: "hold"; readonly id: string; readonly t0: number; readonly t1: number }
+  | { readonly kind: "move"; readonly pts: readonly Pt[]; readonly t0: number; readonly t1: number; readonly apex: number; readonly endScale: number }
+  | { readonly kind: "jump"; readonly to: Pt; readonly t: number };
 
-/** Diagram waypoints for a slot's position group, mirrored so "in" points to the middle. */
-function diagramPath(start: Pt, w: Waypoints | undefined, position: string, side: "O" | "X"): Pt[] {
-  const pts = w?.[position];
-  if (pts === undefined) return [];
-  const inward = start.x <= MID_X ? 1 : -1;
-  // "up" is up the screen; for the defense the template's up means toward its own goal (also up).
-  return pts.map(([i, u]) => ({ x: clampX(start.x + inward * i), y: start.y + (side === "O" ? u : u) }));
-}
-
-interface Build {
-  ball: Key[];
-  facts: Map<string, Key[]>;
-  labels: TLLabel[];
+interface Plan {
+  /** The whistle, raw ms from the snap. */
+  whistle: number;
+  /** Fixed live length (kneel 900, spike 700), else null for the clamp. */
+  fixed: number | null;
+  read: number;
+  legs: Map<string, Leg[]>;
+  ball: BallSeg[];
   holder: string | null;
-  ballFlight: Pt[];
-  flightStart: number;
-  flightEnd: number;
+  labels: { text: string; at: Pt; t: number; source: string }[];
+  /** The carrier's handoff or catch time (for the release of the line). */
+  releaseAt: number;
 }
+
+const dist = (a: Pt, b: Pt): number => Math.hypot(a.x - b.x, a.y - b.y);
 
 export function timeline(input: TimelineInput, templates: Templates, ctx: TimelineCtx): Timeline {
+  const M = ctx.motion;
   const { event } = input;
   const { play, before, after } = event;
-  const tm = templates.timing;
   const d = readDetail(play);
   // M2 F (code review): the loop's final standout (a candidate whose play stood), the detail hook as a fallback.
   const star = event.standout ?? d.standout;
@@ -223,50 +220,49 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   const isKickTry = play.kind === "extraPoint" || (play.kind === "noPlay" && event.offense.call === "extraPoint");
   const los = isKickTry && input.tryKickSpot !== undefined ? input.tryKickSpot : before.spot;
   const endLine = 100 + ctx.endZoneYards;
+  const tm = templates.timing;
 
-  // Times at 1x.
-  const runoffMs = input.runoffSeconds > 0 ? tm.runoffMaxMs : 0;
-  const snapAt = runoffMs + tm.setMs;
-  const span = Math.max(1e-9, tm.liveSecondsMax - tm.liveSecondsMin);
-  const f0 = Math.max(0, Math.min(1, (play.seconds - tm.liveSecondsMin) / span));
-  const live = tm.liveMinMs + f0 * (tm.liveMaxMs - tm.liveMinMs);
-  const liveEnd = snapAt + live;
-  const T = (f: number): number => snapAt + f * live;
-  const snapWindowEnd = T(0.12);
-
-  // Marks at the set, from the engine's onField and the template for the unit.
+  // ------------------------------------------------------------ marks at the set
   const onField = d.onField;
   const offSlots = onField?.offense ?? [];
+  const defSlots = onField?.defense ?? [];
   const pkg = unit.defense.group === "defense" ? (ctx.presetPackage[unit.defense.name] ?? unit.defense.name) : unit.defense.name;
   const offTmpl = unit.offense.group === "offense" ? templates.offense[unit.offense.name] : templates.kick[unit.offense.name];
   const defTmpl = unit.defense.group === "defense" ? templates.defense[pkg] : templates.returnUnits[unit.defense.name];
-  const defSlots = onField?.defense ?? [];
-  const minGap = ctx.pxPerYard === undefined ? 0 : templates.lineSpacing.minPx / ctx.pxPerYard;
-  const lineOf = (pts: readonly Pt[]): boolean[] => pts.map((q) => Math.abs(q.y - los) <= templates.lineSpacing.maxDepth + 1e-9 && Math.abs(q.x - MID_X) <= 10);
-  const offRaw = alignmentOf(offSlots, offTmpl, "O", los);
-  const defRaw = alignmentOf(defSlots, defTmpl, "X", los);
-  const offStart = spreadLine(offRaw, lineOf(offRaw), minGap);
-  const defStart = spreadLine(defRaw, lineOf(defRaw), minGap);
+  const preset = unit.defense.group === "defense" ? unit.defense.name : null;
+  const offStart = lineUp(offSlots, offTmpl, "O", los, templates, ctx.pxPerYard);
+  const defStart = lineUp(defSlots, defTmpl, "X", los, templates, ctx.pxPerYard, preset === null ? undefined : templates.presetAlignment[preset]);
   const startOf = new Map<string, Pt>();
   offSlots.forEach((s, i) => startOf.set(s.id, offStart[i] as Pt));
   defSlots.forEach((s, i) => startOf.set(s.id, defStart[i] as Pt));
-  const slotOf = new Map<string, OnFieldSlot>();
-  for (const s of [...offSlots, ...defSlots]) slotOf.set(s.id, s);
+  const slotOf = new Map<string, OnFieldSlot & { side: "O" | "X"; index: number }>();
+  offSlots.forEach((s, i) => slotOf.set(s.id, { ...s, side: "O", index: i }));
+  defSlots.forEach((s, i) => slotOf.set(s.id, { ...s, side: "X", index: i }));
+  const known = (id: string | undefined): id is string => id !== undefined && startOf.has(id);
   const firstAt = (position: string, slots: readonly OnFieldSlot[]): string | undefined => slots.find((s) => s.position === position)?.id;
 
+  // ------------------------------------------------------------ pre-snap phases
+  const publicLineup = unit.family === "kick" || unit.family === "kickoff" || unit.family === "clock";
+  const human = input.human ?? null;
+  const huddled = (side: "O" | "X"): boolean => {
+    if (human === null || publicLineup) return false;
+    const own = (human === "offense" ? "O" : "X") === side;
+    return own ? input.ownStart === "huddle" : true;
+  };
+  const anyHuddle = offSlots.length > 0 && (huddled("O") || huddled("X"));
+  const runoffMs = input.runoffSeconds > 0 ? M.preSnap.runoffMaxMs : 0;
+  const lineUpMs = Math.max(anyHuddle ? M.preSnap.lineUpMs : 0, runoffMs);
+  const setAt = lineUpMs;
+  const snapAt = lineUpMs + M.preSnap.setMs;
+  const px = ctx.pxPerYard ?? 11.5;
+  const markPx = ctx.markPx ?? Math.max(templates.field.markMinPx, templates.field.markYards * px);
+  const huddleOf = (side: "O" | "X", n: number): Pt[] => huddleSpots(n, side, los, px, markPx, M.huddle.offenseBehind, M.huddle.defensePast, M.huddle.markGapPx, ctx.endZoneYards);
+  const offHuddle = huddleOf("O", offSlots.length);
+  const defHuddle = huddleOf("X", defSlots.length);
+
+  // ------------------------------------------------------------ the plan
   const spotX = (loc: string | undefined): number => (loc === undefined ? MID_X : (LOCATION_X[loc] ?? MID_X));
   const end = "end" in play && play.end !== undefined ? play.end : undefined;
-  const ballStart: Pt = { x: MID_X, y: los };
-  const b: Build = { ball: [{ t: 0, ...ballStart }, { t: snapAt, ...ballStart }], facts: new Map(), labels: [], holder: null, ballFlight: [], flightStart: 0, flightEnd: 0 };
-  const known = (id: string | undefined): id is string => id !== undefined && startOf.has(id);
-  const move = (id: string, keys: Key[]): void => {
-    b.facts.set(id, [{ t: 0, ...(startOf.get(id) as Pt) }, { t: snapAt, ...(startOf.get(id) as Pt) }, ...keys]);
-  };
-  const label = (text: string, p: Pt, t: number, source: string): void => {
-    b.labels.push({ text, at: p, t, source });
-  };
-  const leaf = event.offense.call === "goForTwo" ? (event.offense.twoPointPlay ?? "") : event.offense.call;
-  // The ball's dead spot. Sideline for out of bounds: the side if the engine gave one, else the near sideline of the diagram.
   const endPt = (fromX: number): Pt => {
     const y = end?.spot ?? los;
     const ob = "outOfBounds" in play && play.outOfBounds === true;
@@ -274,31 +270,61 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
     const x = ob ? (side === "left" ? 0 : side === "right" ? FIELD_WIDTH : fromX < MID_X ? 0 : FIELD_WIDTH) : spotX(side);
     return { x, y };
   };
-  const fumbled = d.class === "fumble" || d.class === "fumbleCatch" || ("turnover" in play && play.turnover === "fumble");
+  const speedOf = (id: string | undefined): number => M.speed[slotOf.get(id ?? "")?.position ?? "WR"] ?? 13;
+  const travel = (a: Pt, b: Pt, id: string | undefined): number => (dist(a, b) / speedOf(id)) * 1000 + M.decelMs / 2;
+  const startMs = (id: string): number => {
+    const s = slotOf.get(id);
+    const base = M.startMs[s?.position ?? "WR"] ?? 0;
+    return Math.min(M.maxStartMs, base + ((s?.index ?? 0) % 3) * M.slotOffsetMs);
+  };
   const recoveredText = (id: string | undefined): string => {
     const n = id === undefined ? undefined : ctx.numbers[id];
     return n === undefined ? "Fumble" : `Fumble, recovered by #${n}`;
   };
-
+  const fumbled = d.class === "fumble" || d.class === "fumbleCatch" || ("turnover" in play && play.turnover === "fumble");
+  const plan: Plan = { whistle: 0, fixed: null, read: 0, legs: new Map(), ball: [], holder: null, labels: [], releaseAt: 0 };
+  const leg = (id: string | undefined, l: Leg): void => {
+    if (!known(id)) return;
+    plan.legs.set(id, [...(plan.legs.get(id) ?? []), l]);
+  };
   const qb = firstAt("QB", offSlots);
-  const kind = play.kind === "twoPoint" ? (RUN_LEAVES.has(leaf) ? "run" : play.incomplete === true ? "incomplete" : "pass") : play.kind;
+  const q0 = qb !== undefined ? (startOf.get(qb) as Pt) : { x: MID_X, y: los - 4 };
+  const ball0: Pt = { x: MID_X, y: los };
+  const snapMs = M.snapMs[unit.snapKey] ?? 120;
+  const kind = play.kind === "twoPoint" ? (RUN_LEAVES.has(unit.leaf) ? "run" : "pass") : play.kind;
 
-  /** A carrier with the ball from `from` (at fStart) to the dead spot, with a fumble when the engine says so. */
-  const carryToEnd = (carrier: string | undefined, path: Key[]): void => {
-    const e = endPt(path[path.length - 1]?.x ?? MID_X);
+  /** The carrier from `from` (holding the ball from t0) to the dead spot, with a fumble when the engine says so. */
+  const carry = (carrier: string | undefined, pts: Pt[], t0: number, ballT0: number = t0): void => {
+    const e = endPt((pts[pts.length - 1] as Pt).x);
+    const route = [...pts, e];
+    let len = 0;
+    for (let i = 1; i < route.length; i++) len += dist(route[i - 1] as Pt, route[i] as Pt);
+    const t1 = t0 + (len / speedOf(carrier ?? qb)) * 1000 + M.convergeMs;
     if (fumbled) {
       const loose = d.fumbleSpot === undefined ? e : { x: e.x, y: d.fumbleSpot };
+      const tl = t1 - 350;
       const rec = parts.fumbleRecoverer;
-      if (known(carrier)) move(carrier, [...path, { t: T(0.8), ...loose }]);
-      b.ball.push({ t: T(0.8), ...loose }, { t: T(0.88), x: loose.x + 1, y: loose.y }, { t: T(1), ...e });
-      if (known(rec)) move(rec, [{ t: T(0.88), x: loose.x + 1, y: loose.y }, { t: T(1), ...e }]);
-      b.holder = known(rec) ? rec : null;
-      label(known(rec) ? recoveredText(rec) : "Fumble", loose, liveEnd, "participants.fumbleRecoverer");
+      leg(carrier, { pts: [...pts, loose], t0, t1: tl, restStart: t0 === 0, restEnd: true });
+      if (known(carrier)) plan.ball.push({ kind: "hold", id: carrier, t0: ballT0, t1: tl });
+      else plan.ball.push({ kind: "move", pts: [...pts, loose], t0, t1: tl, apex: 1, endScale: 1 });
+      const pop = { x: loose.x + 1.5, y: loose.y };
+      plan.ball.push({ kind: "move", pts: [loose, pop], t0: tl, t1: tl + 200, apex: 0.8, endScale: 0.8 });
+      if (known(rec)) {
+        leg(rec, { pts: [startOf.get(rec) as Pt, pop], t0: startMs(rec), t1: tl + 200, restStart: true, restEnd: false, fixedStart: true });
+        leg(rec, { pts: [pop, e], t0: tl + 200, t1, restStart: false, restEnd: true });
+        plan.ball.push({ kind: "hold", id: rec, t0: tl + 200, t1 });
+        plan.holder = rec;
+      } else plan.ball.push({ kind: "move", pts: [pop, e], t0: tl + 200, t1, apex: 1, endScale: 1 });
+      plan.labels.push({ text: known(rec) ? recoveredText(rec) : "Fumble", at: loose, t: t1, source: "participants.fumbleRecoverer" });
+      plan.whistle = t1;
       return;
     }
-    if (known(carrier)) move(carrier, [...path, { t: T(1), ...e }]);
-    b.ball.push({ t: T(1), ...e });
-    b.holder = known(carrier) ? carrier : null;
+    leg(carrier, { pts: route, t0, t1, restStart: t0 === 0, restEnd: true });
+    if (known(carrier)) {
+      plan.ball.push({ kind: "hold", id: carrier, t0: ballT0, t1 });
+      plan.holder = carrier;
+    } else plan.ball.push({ kind: "move", pts: route, t0, t1, apex: 1, endScale: 1 });
+    plan.whistle = t1;
   };
 
   switch (kind) {
@@ -306,149 +332,198 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
     case "scramble":
     case "kneel": {
       const carrier = parts.ballCarrier ?? (kind === "run" ? undefined : parts.passer);
-      const q = qb !== undefined ? (startOf.get(qb) as Pt) : { x: MID_X, y: los - 3 };
-      const gap: Pt = { x: spotX(d.runLocation), y: los };
-      b.ball.push({ t: T(0.08), ...q });
-      const carrierIsQb = carrier !== undefined && slotOf.get(carrier)?.position === "QB";
+      plan.ball.push({ kind: "move", pts: [ball0, q0], t0: 0, t1: snapMs, apex: 1, endScale: 1 });
       if (kind === "kneel") {
-        if (known(carrier)) move(carrier, [{ t: T(0.08), ...q }]);
-        else if (qb !== undefined) move(qb, [{ t: T(0.08), ...q }]);
-        carryToEnd(carrier ?? qb, [{ t: T(0.08), ...q }]);
-        if (carrier === undefined) b.holder = null;
-        label("Kneel", endPt(q.x), liveEnd, "kind");
+        const who = known(carrier) ? carrier : qb;
+        const e = endPt(q0.x);
+        if (who !== undefined) {
+          leg(who, { pts: [q0, e], t0: snapMs, t1: 500, restStart: true, restEnd: true });
+          plan.ball.push({ kind: "hold", id: who, t0: snapMs, t1: 900 });
+        }
+        plan.holder = known(carrier) ? carrier : null;
+        plan.labels.push({ text: "Kneel", at: e, t: 900, source: "kind" });
+        plan.whistle = 900;
+        plan.fixed = M.live.kneelMs;
+        plan.read = 300;
         break;
       }
-      if (carrierIsQb || (carrier === undefined && leaf === "qbSneak") || kind === "scramble") {
-        // The QB takes the snap by the call. With no carrier named the ball goes on alone.
-        b.ball.push({ t: T(0.35), ...gap });
-        if (qb !== undefined && qb !== carrier) move(qb, [{ t: T(0.08), ...q }]);
-        carryToEnd(carrier, [{ t: T(0.08), ...q }, { t: T(0.35), ...gap }]);
+      const gap: Pt = { x: spotX(d.runLocation), y: los };
+      const qbCarries = (carrier !== undefined && slotOf.get(carrier)?.position === "QB") || (carrier === undefined && unit.leaf === "qbSneak") || kind === "scramble";
+      if (qbCarries) {
+        const who = carrier ?? qb;
+        if (qb !== undefined && qb !== who) leg(qb, { pts: [q0, { x: q0.x - 1, y: q0.y - 1 }], t0: 0, t1: 500, restStart: true, restEnd: true, fixedStart: true });
+        if (kind === "scramble") {
+          const back = { x: q0.x, y: q0.y - 2 };
+          const t0 = snapMs + 500;
+          if (known(who)) leg(who, { pts: [q0, back], t0: 0, t1: t0, restStart: true, restEnd: false, fixedStart: true });
+          plan.ball.push({ kind: known(who) ? "hold" : "move", ...(known(who) ? { id: who } : { pts: [q0, back], apex: 1, endScale: 1 }), t0: snapMs, t1: t0 } as BallSeg);
+          carry(known(who) ? who : undefined, [back, gap], t0);
+          plan.read = t0 + travel(back, gap, who) * 0.6;
+        } else {
+          // A sneak: he moves at the snap and the ball meets him on his way to the line.
+          carry(known(who) ? who : undefined, [q0, gap], 0, snapMs);
+          plan.read = travel(q0, gap, who) * 0.6;
+        }
+        plan.releaseAt = plan.read;
         break;
       }
-      if (qb !== undefined) move(qb, [{ t: T(0.08), ...q }, { t: T(0.4), x: q.x + (q.x <= MID_X ? -2 : 2), y: q.y - 1 }]);
-      if (known(carrier)) {
-        const c0 = startOf.get(carrier) as Pt;
-        const hand: Pt = { x: (c0.x + q.x) / 2, y: Math.min(c0.y, q.y) + 0.5 };
-        b.ball.push({ t: T(0.2), ...hand }, { t: T(0.4), ...gap });
-        carryToEnd(carrier, [{ t: T(0.2), ...hand }, { t: T(0.4), ...gap }]);
-      } else {
-        b.ball.push({ t: T(0.2), x: q.x, y: q.y + 0.5 }, { t: T(0.4), ...gap });
-        carryToEnd(undefined, [{ t: T(0.4), ...gap }]);
+      // A handoff: the QB meets the back at the mesh point, then carries out his fake.
+      const rbId = known(carrier) ? carrier : firstAt("RB", offSlots);
+      const rb0 = rbId !== undefined ? (startOf.get(rbId) as Pt) : { x: q0.x, y: q0.y - 2 };
+      const mesh: Pt = { x: (q0.x + rb0.x) / 2 + (rb0.x <= q0.x ? 0.5 : -0.5), y: Math.max(q0.y, rb0.y) + 0.6 };
+      const H = M.handoffMs;
+      if (qb !== undefined) {
+        leg(qb, { pts: [q0, mesh], t0: 0, t1: H, restStart: true, restEnd: false, fixedStart: true });
+        leg(qb, { pts: [mesh, { x: mesh.x + (rb0.x <= q0.x ? 3 : -3), y: mesh.y - 1.5 }], t0: H, t1: H + 900, restStart: false, restEnd: true });
+        plan.ball.push({ kind: "hold", id: qb, t0: snapMs, t1: H });
       }
+      const stretch: Pt[] = unit.leaf === "outsideRun" ? [{ x: clampX(MID_X + (rb0.x <= MID_X ? -9 : 9)), y: los - 1 }] : [];
+      const toGap: Pt = unit.leaf === "outsideRun" ? { x: (stretch[0] as Pt).x, y: los + 1 } : gap;
+      if (known(carrier)) leg(carrier, { pts: [rb0, mesh], t0: startMs(carrier), t1: H, restStart: true, restEnd: false, fixedStart: true });
+      carry(known(carrier) ? carrier : undefined, [mesh, ...stretch, toGap], H);
+      plan.read = H;
+      plan.releaseAt = H + travel(mesh, toGap, carrier) + (3 / speedOf(carrier)) * 1000;
       break;
     }
-    case "pass":
-    case "incomplete": {
-      const q = qb !== undefined ? (startOf.get(qb) as Pt) : { x: MID_X, y: los - 5 };
-      const drop: Pt = { x: q.x, y: q.y - (leaf === "screenPass" ? 2 : leaf === "deepPass" ? 3 : 1.5) };
-      b.ball.push({ t: T(0.08), ...q }, { t: T(0.3), ...drop });
-      if (qb !== undefined) move(qb, [{ t: T(0.08), ...q }, { t: T(0.3), ...drop }]);
-      const px = spotX(d.passLocation);
-      const isInt = "turnover" in play && play.turnover === "interception";
-      if (kind === "incomplete" || ("incomplete" in play && play.incomplete === true)) {
-        const depth = d.airYards ?? templates.passDepth[leaf] ?? 8;
-        const tp: Pt = { x: px, y: los + depth };
-        b.ballFlight = [drop, tp];
-        b.flightStart = T(0.35);
-        b.flightEnd = T(0.7);
-        // The ball falls past the target; at the whistle it is respotted at the previous spot (a jump, not a flight).
-        b.ball.push({ t: T(0.35), ...drop }, { t: T(0.7), ...tp }, { t: T(0.8), x: tp.x, y: tp.y + 1.5 }, { t: T(1), x: tp.x, y: tp.y + 1.5 }, { t: T(1), x: MID_X, y: end?.spot ?? los });
+    case "pass": {
+      const drop = M.dropMs[unit.leaf] ?? 700;
+      const dropYd = unit.leaf === "screenPass" ? 2 : unit.leaf === "deepPass" ? 3 : 1.5;
+      const dropPt: Pt = { x: q0.x, y: q0.y - dropYd };
+      plan.ball.push({ kind: "move", pts: [ball0, q0], t0: 0, t1: snapMs, apex: 1, endScale: 1 });
+      if (qb !== undefined) {
+        if (unit.leaf === "playAction") {
+          const rb = firstAt("RB", offSlots);
+          const r0 = rb === undefined ? undefined : (startOf.get(rb) as Pt);
+          const toward = r0 === undefined || dist(r0, q0) < 0.5 ? { x: 1, y: -0.5 } : { x: (r0.x - q0.x) / dist(r0, q0), y: (r0.y - q0.y) / dist(r0, q0) };
+          const fake = { x: q0.x + toward.x * 1.2, y: q0.y + toward.y * 1.2 };
+          leg(qb, { pts: [q0, fake], t0: 0, t1: 350, restStart: true, restEnd: false, fixedStart: true });
+          leg(qb, { pts: [fake, dropPt], t0: 350, t1: drop, restStart: false, restEnd: true });
+        } else leg(qb, { pts: [q0, dropPt], t0: 0, t1: drop, restStart: true, restEnd: true, fixedStart: true });
+        plan.ball.push({ kind: "hold", id: qb, t0: snapMs, t1: drop });
+      }
+      const throwT = drop + M.hitchMs;
+      const px0 = spotX(d.passLocation);
+      const flight = (to: Pt): number => Math.max(M.flight.minMs, Math.min(M.flight.maxMs, M.flight.baseMs + M.flight.perYardMs * dist(dropPt, to)));
+      const apex = (to: Pt): number => Math.min(M.flight.apexMax, 1 + dist(dropPt, to) * M.flight.apexPerYard);
+      plan.read = throwT;
+      plan.releaseAt = throwT + M.release.afterThrowMs;
+      if ("incomplete" in play && play.incomplete === true) {
+        const depth = d.airYards ?? templates.passDepth[unit.leaf] ?? 8;
+        const tp: Pt = { x: px0, y: los + depth };
+        const catchT = throwT + flight(tp);
+        if (qb !== undefined) leg(qb, { pts: [dropPt, { x: dropPt.x, y: dropPt.y + 0.5 }], t0: throwT, t1: catchT + 300, restStart: true, restEnd: true });
+        plan.ball.push({ kind: "hold", id: qb ?? "", t0: drop, t1: throwT });
+        plan.ball.push({ kind: "move", pts: [dropPt, tp], t0: throwT, t1: catchT, apex: apex(tp), endScale: 1 });
+        plan.ball.push({ kind: "move", pts: [tp, { x: tp.x, y: tp.y + 1.5 }], t0: catchT, t1: catchT + 300, apex: 0.8, endScale: 0.8 });
         const target = parts.target;
-        if (known(target)) move(target, [{ t: T(0.7), x: tp.x + 1, y: tp.y - 0.5 }]);
-        label("Incomplete", tp, liveEnd, "incomplete");
-        b.holder = null;
+        if (known(target)) leg(target, { pts: [startOf.get(target) as Pt, ...routeTo(target, tp)], t0: startMs(target), t1: catchT, restStart: true, restEnd: true, fixedStart: true });
+        plan.labels.push({ text: "Incomplete", at: tp, t: catchT + 300, source: "incomplete" });
+        plan.whistle = catchT + 300;
+        plan.ball.push({ kind: "jump", to: { x: MID_X, y: end?.spot ?? los }, t: plan.whistle });
         break;
       }
-      if (isInt) {
-        const e = endPt(px);
-        const depth = d.airYards ?? templates.passDepth[leaf] ?? 10;
-        const c: Pt = { x: px, y: Math.max(los + depth, e.y) };
-        b.ballFlight = [drop, c];
-        b.flightStart = T(0.35);
-        b.flightEnd = T(0.6);
-        b.ball.push({ t: T(0.35), ...drop }, { t: T(0.6), ...c });
+      if ("turnover" in play && play.turnover === "interception") {
+        const e = endPt(px0);
+        const depth = d.airYards ?? templates.passDepth[unit.leaf] ?? 10;
+        const c: Pt = { x: px0, y: Math.max(los + depth, e.y) };
+        const catchT = throwT + flight(c);
+        if (qb !== undefined) leg(qb, { pts: [dropPt, { x: dropPt.x, y: dropPt.y + 2 }], t0: throwT, t1: catchT + 500, restStart: true, restEnd: true });
+        plan.ball.push({ kind: "hold", id: qb ?? "", t0: drop, t1: throwT });
+        plan.ball.push({ kind: "move", pts: [dropPt, c], t0: throwT, t1: catchT, apex: apex(c), endScale: 1 });
         const icp = parts.interceptor;
-        label("Interception", c, T(0.6), "turnover");
+        if (known(icp)) leg(icp, { pts: [startOf.get(icp) as Pt, c], t0: startMs(icp), t1: catchT, restStart: true, restEnd: false, fixedStart: true });
+        plan.labels.push({ text: "Interception", at: c, t: catchT, source: "turnover" });
+        plan.read = catchT;
         const regained = end?.possession === "offense";
+        const back = catchT + travel(c, e, icp);
         if (regained) {
           const rec = parts.fumbleRecoverer;
-          if (known(icp)) move(icp, [{ t: T(0.6), ...c }, { t: T(0.85), ...e }]);
-          b.ball.push({ t: T(0.85), ...e }, { t: T(1), ...e });
-          if (known(rec)) move(rec, [{ t: T(1), ...e }]);
-          b.holder = known(rec) ? rec : null;
-          label(known(rec) ? recoveredText(rec) : "Fumble", e, liveEnd, "defensePossessedDuringPlay");
+          leg(icp, { pts: [c, e], t0: catchT, t1: back, restStart: false, restEnd: true });
+          plan.ball.push({ kind: known(icp) ? "hold" : "move", ...(known(icp) ? { id: icp } : { pts: [c, e], apex: 1, endScale: 1 }), t0: catchT, t1: back } as BallSeg);
+          if (known(rec)) leg(rec, { pts: [startOf.get(rec) as Pt, e], t0: startMs(rec), t1: back + 300, restStart: true, restEnd: true, fixedStart: true });
+          plan.holder = known(rec) ? rec : null;
+          plan.labels.push({ text: known(rec) ? recoveredText(rec) : "Fumble", at: e, t: back + 300, source: "defensePossessedDuringPlay" });
+          plan.whistle = back + 300;
         } else {
-          if (known(icp)) move(icp, [{ t: T(0.6), ...c }, { t: T(1), ...e }]);
-          b.ball.push({ t: T(1), ...e });
-          b.holder = known(icp) ? icp : null;
+          leg(icp, { pts: [c, e], t0: catchT, t1: back, restStart: false, restEnd: true });
+          if (known(icp)) {
+            plan.ball.push({ kind: "hold", id: icp, t0: catchT, t1: back });
+            plan.holder = icp;
+          } else plan.ball.push({ kind: "move", pts: [c, e], t0: catchT, t1: back, apex: 1, endScale: 1 });
+          plan.whistle = back;
         }
         break;
       }
-      // Complete. The catch point is the air yards when the engine gives them, else the dead spot (neutral).
-      const e = endPt(px);
-      const c: Pt = d.airYards !== undefined ? { x: px, y: los + d.airYards } : e;
-      const tc = d.airYards !== undefined ? 0.65 : 0.8;
-      b.ballFlight = [drop, c];
-      b.flightStart = T(0.35);
-      b.flightEnd = T(tc);
-      b.ball.push({ t: T(0.35), ...drop }, { t: T(tc), ...c });
+      // Complete: the catch point is the air yards when the engine gives them, else the dead spot (neutral).
+      const e = endPt(px0);
+      const c: Pt = d.airYards !== undefined ? { x: px0, y: los + d.airYards } : e;
+      const catchT = throwT + flight(c);
+      if (qb !== undefined) leg(qb, { pts: [dropPt, { x: dropPt.x, y: dropPt.y + 1 }], t0: throwT, t1: catchT + 300, restStart: true, restEnd: true });
+      plan.ball.push({ kind: "hold", id: qb ?? "", t0: drop, t1: throwT });
+      plan.ball.push({ kind: "move", pts: [dropPt, c], t0: throwT, t1: catchT, apex: apex(c), endScale: 1 });
       const rcv = parts.receiver;
-      carryToEnd(rcv, [{ t: T(tc), ...c }]);
-      break;
-    }
-    case "sack": {
-      const q = qb !== undefined ? (startOf.get(qb) as Pt) : { x: MID_X, y: los - 5 };
-      const e = endPt(q.x);
-      const sp: Pt = { x: q.x, y: e.y };
-      b.ball.push({ t: T(0.08), ...q });
-      const passer = parts.passer ?? qb;
-      if (passer !== undefined && known(passer)) move(passer, [{ t: T(0.08), ...q }, { t: T(0.8), ...sp }]);
-      if (known(parts.sacker)) move(parts.sacker, [{ t: T(0.8), ...sp }]);
-      if (fumbled) {
-        b.ball.push({ t: T(0.75), ...sp });
-        carryToEnd(undefined, [{ t: T(0.75), ...sp }]);
-      } else {
-        b.ball.push({ t: T(0.8), ...sp }, { t: T(1), ...sp });
-        b.holder = parts.passer !== undefined && known(parts.passer) ? parts.passer : null;
-      }
+      if (known(rcv)) leg(rcv, { pts: [startOf.get(rcv) as Pt, ...routeTo(rcv, c)], t0: startMs(rcv), t1: catchT, restStart: true, restEnd: false, fixedStart: true });
+      plan.read = catchT;
+      if (dist(c, e) < 0.5 && !fumbled) {
+        // Caught at the dead spot: he settles there.
+        if (known(rcv)) leg(rcv, { pts: [c, c], t0: catchT, t1: catchT + M.convergeMs, restStart: false, restEnd: true });
+        if (known(rcv)) {
+          plan.ball.push({ kind: "hold", id: rcv, t0: catchT, t1: catchT + M.convergeMs });
+          plan.holder = rcv;
+        }
+        plan.whistle = catchT + M.convergeMs;
+      } else carry(known(rcv) ? rcv : undefined, [c], catchT);
       break;
     }
     case "spike": {
-      const q = qb !== undefined ? (startOf.get(qb) as Pt) : { x: MID_X, y: los - 1.5 };
-      if (qb !== undefined) move(qb, [{ t: T(0.08), ...q }]);
-      b.ball.push({ t: T(0.08), ...q }, { t: T(0.2), x: q.x, y: q.y + 0.6 }, { t: T(1), x: q.x, y: q.y + 0.6 }, { t: T(1), x: MID_X, y: end?.spot ?? los });
-      label("Spike", q, liveEnd, "kind");
+      const g: Pt = { x: q0.x, y: q0.y + 0.6 };
+      plan.ball.push({ kind: "move", pts: [ball0, q0], t0: 0, t1: snapMs, apex: 1, endScale: 1 });
+      plan.ball.push({ kind: "move", pts: [q0, g], t0: snapMs, t1: 250, apex: 1, endScale: 1 });
+      if (qb !== undefined) leg(qb, { pts: [q0, { x: q0.x, y: q0.y + 0.4 }], t0: 0, t1: 400, restStart: true, restEnd: true, fixedStart: true });
+      plan.labels.push({ text: "Spike", at: q0, t: 700, source: "kind" });
+      plan.whistle = 700;
+      plan.fixed = M.live.spikeMs;
+      plan.read = 250;
+      plan.ball.push({ kind: "jump", to: { x: MID_X, y: end?.spot ?? los }, t: 700 });
       break;
     }
     case "punt": {
       const punter = firstAt("P", offSlots);
       const p0 = punter !== undefined ? (startOf.get(punter) as Pt) : { x: MID_X, y: los - 14 };
-      if (punter !== undefined) move(punter, [{ t: T(0.12), ...p0 }]);
-      b.ball.push({ t: T(0.12), ...p0 });
-      const cls = d.class;
-      if (cls === "blocked") {
-        const e = endPt(MID_X);
-        b.ball.push({ t: T(0.4), ...e }, { t: T(1), ...e });
-        label("Blocked", e, T(0.4), "detail.class");
+      const kickT = snapMs + M.punt.kickAfterSnapMs;
+      plan.ball.push({ kind: "move", pts: [ball0, p0], t0: 0, t1: snapMs, apex: 1, endScale: 1 });
+      if (punter !== undefined) {
+        leg(punter, { pts: [p0, { x: p0.x, y: p0.y + 1 }], t0: 0, t1: kickT, restStart: true, restEnd: false, fixedStart: true });
+        leg(punter, { pts: [{ x: p0.x, y: p0.y + 1 }, { x: p0.x, y: p0.y + 4 }], t0: kickT, t1: kickT + 700, restStart: false, restEnd: true });
+        plan.ball.push({ kind: "hold", id: punter, t0: snapMs, t1: kickT });
+      }
+      const kp: Pt = { x: p0.x, y: p0.y + 1 };
+      const e = endPt(MID_X);
+      if (d.class === "blocked") {
+        plan.ball.push({ kind: "move", pts: [kp, e], t0: kickT, t1: kickT + 300, apex: 0.9, endScale: 1 });
+        plan.labels.push({ text: "Blocked", at: e, t: kickT + 300, source: "detail.class" });
+        plan.whistle = kickT + 600;
+        plan.read = kickT;
         break;
       }
-      const e = endPt(MID_X);
       const landY = d.gross !== undefined ? Math.min(los + d.gross, endLine) : e.y;
-      const land: Pt = { x: cls?.startsWith("outOfBounds") === true ? FIELD_WIDTH : MID_X, y: landY };
-      b.ballFlight = [p0, land];
-      b.flightStart = T(0.2);
-      b.flightEnd = T(0.6);
-      b.ball.push({ t: T(0.2), ...p0 }, { t: T(0.6), ...land });
+      const land: Pt = { x: d.class?.startsWith("outOfBounds") === true ? FIELD_WIDTH : MID_X, y: landY };
+      const hang = Math.min(M.punt.hangMaxMs, M.punt.hangBaseMs + M.punt.hangPerYardMs * (d.gross ?? dist(kp, land)));
+      const landT = kickT + hang;
+      plan.ball.push({ kind: "move", pts: [kp, land], t0: kickT, t1: landT, apex: M.punt.apex, endScale: 1 });
+      plan.read = landT;
       const ret = parts.returner;
-      if (known(ret)) {
-        move(ret, [{ t: T(0.6), ...land }, { t: T(1), ...e }]);
-        b.ball.push({ t: T(1), ...e });
-        b.holder = ret;
-      } else {
-        b.ball.push({ t: T(1), ...e });
+      if (known(ret)) leg(ret, { pts: [startOf.get(ret) as Pt, land], t0: startMs(ret), t1: landT, restStart: true, restEnd: dist(land, e) < 0.5, fixedStart: true });
+      const lbl = d.class === undefined ? undefined : PUNT_LABELS[d.class];
+      if (lbl !== undefined) plan.labels.push({ text: lbl, at: land, t: landT, source: "detail.class" });
+      if (known(ret) && dist(land, e) >= 0.5) carry(ret, [land], landT);
+      else {
+        if (known(ret)) {
+          plan.ball.push({ kind: "hold", id: ret, t0: landT, t1: landT + 300 });
+          plan.holder = ret;
+        } else if (dist(land, e) >= 0.5) plan.ball.push({ kind: "move", pts: [land, e], t0: landT, t1: landT + 300, apex: 1, endScale: 1 });
+        plan.whistle = landT + 300;
       }
-      const lbl = cls === undefined ? undefined : PUNT_LABELS[cls];
-      if (lbl !== undefined) label(lbl, land, T(0.6), "detail.class");
       break;
     }
     case "fieldGoal":
@@ -457,240 +532,445 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
       const kicker = firstAt("K", offSlots);
       const kickY = play.kind === "fieldGoal" ? play.kickSpot : los - 7;
       const hp: Pt = { x: MID_X, y: kickY };
-      if (holder !== undefined) move(holder, [{ t: T(0.1), ...hp }]);
-      if (kicker !== undefined) move(kicker, [{ t: T(0.2), x: MID_X - 1, y: kickY - 1 }]);
-      b.ball.push({ t: T(0.12), ...hp }, { t: T(0.25), ...hp });
+      const holdT = M.fieldGoal.holdMs;
+      const kickT = M.fieldGoal.kickMs;
+      plan.ball.push({ kind: "move", pts: [ball0, hp], t0: 0, t1: holdT, apex: 1, endScale: 1 });
+      if (holder !== undefined) leg(holder, { pts: [startOf.get(holder) as Pt, { x: MID_X + 0.5, y: kickY }], t0: 0, t1: holdT, restStart: true, restEnd: true, fixedStart: true });
+      if (kicker !== undefined) {
+        const k0 = startOf.get(kicker) as Pt;
+        leg(kicker, { pts: [k0, { x: MID_X - 0.6, y: kickY - 0.6 }], t0: 0, t1: kickT, restStart: true, restEnd: false, fixedStart: true });
+        leg(kicker, { pts: [{ x: MID_X - 0.6, y: kickY - 0.6 }, { x: MID_X - 0.2, y: kickY + 1.5 }], t0: kickT, t1: kickT + 500, restStart: false, restEnd: true });
+      }
       if (d.class === "blocked") {
         const e = end !== undefined ? endPt(MID_X) : { x: MID_X, y: los - 1 };
-        b.ball.push({ t: T(0.4), ...e }, { t: T(1), ...e });
-        label("Blocked", e, T(0.4), "detail.class");
+        plan.ball.push({ kind: "move", pts: [hp, e], t0: kickT, t1: kickT + 300, apex: 0.9, endScale: 1 });
+        plan.labels.push({ text: "Blocked", at: e, t: kickT + 300, source: "detail.class" });
+        plan.whistle = kickT + 600;
+        plan.read = kickT;
         break;
       }
       const posts: Pt = { x: MID_X, y: endLine };
-      b.ballFlight = [hp, posts];
-      b.flightStart = T(0.25);
-      b.flightEnd = T(0.75);
-      b.ball.push({ t: T(0.75), ...posts });
-      if (end !== undefined) b.ball.push({ t: T(1), ...endPt(MID_X) });
+      const fl = Math.min(M.fieldGoal.flightMaxMs, M.fieldGoal.flightBaseMs + M.fieldGoal.flightPerYardMs * dist(hp, posts));
+      plan.ball.push({ kind: "move", pts: [hp, posts], t0: kickT, t1: kickT + fl, apex: M.fieldGoal.apex, endScale: M.fieldGoal.endScale });
+      if (end !== undefined) plan.ball.push({ kind: "jump", to: endPt(MID_X), t: kickT + fl + 200 });
       const good = "good" in play && play.good;
-      label(good ? (play.kind === "fieldGoal" ? "Field goal good" : "Good") : "No good", posts, T(0.75), "good");
+      plan.labels.push({ text: good ? (play.kind === "fieldGoal" ? "Field goal good" : "Good") : "No good", at: posts, t: kickT + fl, source: "good" });
+      plan.whistle = kickT + fl + 200;
+      plan.read = kickT;
       break;
     }
     case "kickoff":
     case "onsideKick": {
       const kicker = firstAt("K", offSlots);
-      if (kicker !== undefined) move(kicker, [{ t: T(0.12), ...ballStart }]);
       const isOnside = play.kind === "onsideKick";
       const outcome = "outcome" in play ? play.outcome : "inPlay";
       const landingSpot = "landingSpot" in play ? play.landingSpot : undefined;
+      const approach = M.kickoff.approachMs;
+      if (kicker !== undefined) {
+        leg(kicker, { pts: [startOf.get(kicker) as Pt, ball0], t0: 0, t1: approach, restStart: true, restEnd: false, fixedStart: true });
+        leg(kicker, { pts: [ball0, { x: MID_X, y: los + 15 }], t0: approach, t1: approach + 1500, restStart: false, restEnd: true });
+      }
       let land: Pt;
       if (outcome === "touchbackEndZone" || outcome === "touchbackLandingZone") land = { x: MID_X, y: 100 + ctx.endZoneYards / 2 };
       else if (outcome === "outOfBounds") land = { x: FIELD_WIDTH, y: landingSpot ?? los + 40 };
       else if (landingSpot !== undefined) land = { x: MID_X, y: landingSpot };
       else if (isOnside) land = { x: MID_X, y: end?.spot ?? los + 10 };
       else land = { x: MID_X, y: Math.max(end?.spot ?? 97, 97) };
-      b.ballFlight = [ballStart, land];
-      b.flightStart = T(0.15);
-      b.flightEnd = T(0.55);
-      b.ball.push({ t: T(0.15), ...ballStart }, { t: T(0.55), ...land });
+      const hang = isOnside ? M.kickoff.onsideMs : Math.min(M.kickoff.hangMaxMs, M.kickoff.hangBaseMs + M.kickoff.hangPerYardMs * dist(ball0, land));
+      const landT = approach + hang;
+      plan.ball.push({ kind: "move", pts: [ball0, land], t0: approach, t1: landT, apex: isOnside ? M.kickoff.onsideApex : M.kickoff.apex, endScale: 1 });
+      plan.read = landT;
       const e = end !== undefined ? endPt(land.x) : land;
       const ret = parts.returner ?? (isOnside ? parts.fumbleRecoverer : undefined);
-      if (known(ret) && end !== undefined) {
-        move(ret, [{ t: T(0.55), ...land }, { t: T(1), ...e }]);
-        b.holder = ret;
+      if (known(ret)) leg(ret, { pts: [startOf.get(ret) as Pt, land], t0: startMs(ret), t1: landT, restStart: true, restEnd: end === undefined || dist(land, e) < 0.5, fixedStart: true });
+      if (outcome === "touchbackEndZone" || outcome === "touchbackLandingZone") plan.labels.push({ text: "Touchback", at: land, t: landT, source: "outcome" });
+      else if (outcome === "outOfBounds") plan.labels.push({ text: "Out of bounds", at: land, t: landT, source: "outcome" });
+      else if (outcome === "fairCatch") plan.labels.push({ text: "Fair catch", at: land, t: landT, source: "outcome" });
+      if (known(ret) && end !== undefined && dist(land, e) >= 0.5) carry(ret, [land], landT);
+      else {
+        if (known(ret) && end !== undefined) {
+          plan.ball.push({ kind: "hold", id: ret, t0: landT, t1: landT + 300 });
+          plan.holder = ret;
+        } else if (dist(land, e) >= 0.5) plan.ball.push({ kind: "move", pts: [land, e], t0: landT, t1: landT + 300, apex: 1, endScale: 1 });
+        plan.whistle = landT + 300;
       }
-      b.ball.push({ t: T(1), ...e });
-      if (outcome === "touchbackEndZone" || outcome === "touchbackLandingZone") label("Touchback", land, T(0.55), "outcome");
-      else if (outcome === "outOfBounds") label("Out of bounds", land, T(0.55), "outcome");
-      else if (outcome === "fairCatch") label("Fair catch", land, T(0.55), "outcome");
-      if (isOnside && end !== undefined) label(end.possession === "offense" ? "Recovered by the kicking team" : "Recovered by the receivers", e, liveEnd, "end.possession");
+      if (isOnside && end !== undefined) plan.labels.push({ text: end.possession === "offense" ? "Recovered by the kicking team" : "Recovered by the receivers", at: e, t: plan.whistle, source: "end.possession" });
       break;
     }
-    case "noPlay":
-      // No snap: everyone stays set, the flag goes down at the line.
-      b.ball.push({ t: liveEnd, ...ballStart });
-      break;
     default:
-      b.ball.push({ t: liveEnd, ...ballStart });
+      // No snap: everyone stays set, the flag goes down at the line.
+      plan.whistle = 0;
   }
+  if (kind === "sack") {
+    // The sacker reaches the QB at the drop end plus 600 ms; the QB may step up.
+    const drop = M.dropMs[unit.leaf] ?? 700;
+    const dropPt: Pt = { x: q0.x, y: q0.y - (unit.leaf === "deepPass" ? 3 : 1.5) };
+    const e = endPt(q0.x);
+    const sp: Pt = { x: q0.x, y: e.y };
+    const sackT = drop + 600;
+    const passer = parts.passer ?? qb;
+    if (known(passer)) {
+      plan.legs.set(passer, [
+        { pts: [q0, dropPt], t0: 0, t1: drop, restStart: true, restEnd: true, fixedStart: true },
+        { pts: [dropPt, sp], t0: drop, t1: sackT, restStart: true, restEnd: true },
+      ]);
+      plan.ball = [{ kind: "move", pts: [ball0, q0], t0: 0, t1: snapMs, apex: 1, endScale: 1 }, { kind: "hold", id: passer, t0: snapMs, t1: sackT }];
+    }
+    const sacker = parts.sacker;
+    if (known(sacker)) {
+      const s0 = startOf.get(sacker) as Pt;
+      const around: Pt = { x: clampX(s0.x + (s0.x <= MID_X ? -2.5 : 2.5)), y: los - 1 };
+      leg(sacker, { pts: [s0, around, sp], t0: startMs(sacker), t1: sackT, restStart: true, restEnd: true, fixedStart: true });
+    }
+    plan.read = drop;
+    plan.releaseAt = drop;
+    if (fumbled) {
+      plan.ball.push({ kind: "move", pts: [sp, e], t0: sackT, t1: sackT + 300, apex: 0.8, endScale: 0.8 });
+      const rec = parts.fumbleRecoverer;
+      if (known(rec)) leg(rec, { pts: [startOf.get(rec) as Pt, e], t0: startMs(rec), t1: sackT + 300, restStart: true, restEnd: true, fixedStart: true });
+      plan.holder = known(rec) ? rec : null;
+      plan.labels.push({ text: known(rec) ? recoveredText(rec) : "Fumble", at: e, t: sackT + 300, source: "participants.fumbleRecoverer" });
+    } else plan.holder = known(parts.passer) ? (parts.passer as string) : null;
+    plan.whistle = sackT + 300;
+  }
+
+  /** A route for a named receiver: his template route up to its last break, then on to the catch point. */
+  function routeTo(id: string, to: Pt): Pt[] {
+    const s = slotOf.get(id);
+    const start = startOf.get(id) as Pt;
+    const w = waypoints(start, templates.routes[unit.routes], s?.position ?? "WR");
+    return [...w.slice(0, Math.max(0, w.length - 1)), to];
+  }
+
+  // ------------------------------------------------------------ scale into screen time
+  const live = plan.whistle <= 0 ? 0 : plan.fixed ?? Math.max(M.live.minMs, Math.min(M.live.maxMs, plan.whistle));
+  const k = plan.whistle <= 0 ? 1 : live / plan.whistle;
+  const T = (raw: number): number => snapAt + raw * k;
+  const liveEnd = snapAt + live;
+  const read = T(plan.read);
+  const step = M.keyMs;
+
+  // Fact marks: their legs on the scaled clock.
+  const factKeys = new Map<string, Key[]>();
+  for (const [id, legs] of plan.legs) {
+    const runs = legs.map((l) => {
+      const pos = slotOf.get(id)?.position ?? "WR";
+      const t0 = l.fixedStart === true ? snapAt + Math.min(l.t0, M.maxStartMs) : T(l.t0);
+      const t1 = Math.max(t0 + step, T(l.t1));
+      return drive(l.pts, t0, t1, { accelMs: M.accelMs[pos] ?? 250, decelMs: M.decelMs, restStart: l.restStart, restEnd: l.restEnd, keyMs: step, fillet: M.fillet });
+    });
+    factKeys.set(id, join(...runs));
+  }
+
+  // The ball: held, flying (with its height as size) or jumping to a respot.
+  const ballKeys: Key[] = [{ t: 0, ...ball0 }, { t: snapAt, ...ball0 }];
+  const scale: ScaleKey[] = [{ t: 0, s: 1 }];
+  for (const seg of plan.ball) {
+    if (seg.kind === "jump") {
+      const t = T(seg.t);
+      ballKeys.push({ t, ...seg.to });
+      continue;
+    }
+    const t0 = T(seg.t0);
+    const t1 = Math.max(t0 + 1, T(seg.t1));
+    if (seg.kind === "hold") {
+      const keys = factKeys.get(seg.id);
+      if (keys === undefined) continue;
+      for (const t of grid(t0, t1, step)) ballKeys.push({ t, ...at(keys, t) });
+      continue;
+    }
+    const path = seg.pts;
+    let L = 0;
+    for (let i = 1; i < path.length; i++) L += dist(path[i - 1] as Pt, path[i] as Pt);
+    for (const t of grid(t0, t1, step)) {
+      const f = (t - t0) / (t1 - t0);
+      let left = f * L;
+      let p = path[0] as Pt;
+      for (let i = 1; i < path.length; i++) {
+        const a = path[i - 1] as Pt;
+        const b = path[i] as Pt;
+        const len = dist(a, b);
+        if (left <= len || i === path.length - 1) {
+          const s = len === 0 ? 1 : Math.min(1, left / len);
+          p = { x: a.x + (b.x - a.x) * s, y: a.y + (b.y - a.y) * s };
+          break;
+        }
+        left -= len;
+      }
+      ballKeys.push({ t, ...p });
+      if (seg.apex !== 1 || seg.endScale !== 1) {
+        // A parabola through 1 at release, the apex at mid-flight and the end scale at the end.
+        const s = (1 - f) * (1 - 2 * f) * 1 + 4 * f * (1 - f) * seg.apex + f * (2 * f - 1) * seg.endScale;
+        scale.push({ t, s });
+      }
+    }
+    if (seg.apex !== 1 || seg.endScale !== 1) scale.push({ t: t1 + 0.5, s: seg.endScale === 0.8 ? 1 : 1 });
+  }
+  ballKeys.sort((a, b) => a.t - b.t);
+  const ball = dedupe(ballKeys);
+  if (live > 0) ball.push({ t: liveEnd + M.settleMs, ...at(ball, liveEnd) });
+  const ballAt = (t: number): Pt => at(ball, Math.min(t, liveEnd - 1));
+  const finalBall = at(ball, liveEnd);
 
   // The tackler meets the ball at the whistle; none on a touchdown, an incompletion or a kick out of play.
-  b.ball.sort((x, y) => x.t - y.t);
-  const finalBall = at(b.ball, liveEnd);
   const tackler = parts.tackler !== undefined && known(parts.tackler) ? parts.tackler : null;
-  if (tackler !== null) {
-    const keys = b.facts.get(tackler);
-    if (keys === undefined) move(tackler, [{ t: T(0.75), x: finalBall.x + (finalBall.x <= MID_X ? 2 : -2), y: finalBall.y + 1.5 }, { t: liveEnd, ...finalBall }]);
-    else keys.push({ t: liveEnd, ...finalBall });
+
+  // ------------------------------------------------------------ every mark
+  const ring = templates.field.clearOfBallYards;
+  const marks: TLMark[] = [];
+  const roleOf = (id: string): ParticipantRole[] => PARTICIPANT_ROLES.filter((r) => parts[r] === id);
+  const named = new Set<string>([...PARTICIPANT_ROLES.map((r) => parts[r]).filter((x): x is string => x !== undefined)]);
+  const runSide = (finalBall.x - MID_X >= 0 ? 1 : -1) * (unit.family === "run" ? 1 : 0);
+  const contactFamily = unit.family === "run" ? "run" : unit.family === "pass" ? "pass" : unit.family === "kick" || unit.family === "clock" ? "kick" : null;
+  const releaseT = T(plan.releaseAt > 0 ? plan.releaseAt : plan.read);
+  const snapWindowEnd = Math.min(liveEnd, snapAt + Math.max(120, snapMs * k));
+
+  const build = (slots: readonly OnFieldSlot[], side: "O" | "X", setPts: readonly Pt[], huddlePts: readonly Pt[]): void => {
+    slots.forEach((s, i) => {
+      const set = setPts[i] as Pt;
+      const huddle = huddled(side);
+      const pre: Key[] = huddle && lineUpMs > 0 ? drive([huddlePts[i] as Pt, set], 0, Math.max(step, lineUpMs - 1), { accelMs: 150, decelMs: 150, restStart: true, restEnd: true, keyMs: step }) : [{ t: 0, ...set }];
+      const at0: Key[] = join(pre, [{ t: snapAt, ...set }]);
+      const pos = s.position;
+      const accel = M.accelMs[pos] ?? 250;
+      // Everyone moves at the same compressed or stretched pace as the anchored players (decision 11: uniform scaling).
+      const top = (M.speed[pos] ?? 13) / k;
+      const start = snapAt + Math.min(M.maxStartMs, (M.startMs[pos] ?? 0) + (i % 3) * M.slotOffsetMs);
+      const base = { slot: s.slot, side, position: pos, playerId: s.id, roles: roleOf(s.id), huddle };
+      if (live <= 0) {
+        // No snap: nobody moves (a huddle side still lines up first).
+        marks.push({ ...base, keys: huddle && lineUpMs > 0 ? at0 : [{ t: 0, ...set }], fact: false, pathEnd: snapAt, pathStyle: "none" });
+        return;
+      }
+      const fact = factKeys.get(s.id);
+      let keys: Key[];
+      let pathEnd = liveEnd;
+      let isFact = false;
+      if (fact !== undefined) {
+        isFact = true;
+        const first = fact[0] as Key;
+        keys = join(at0, first.t > snapAt ? [{ t: first.t, ...set }] : [], fact);
+        let last = keys[keys.length - 1] as Key;
+        if (s.id === tackler) {
+          // His own legs (a passer after the throw, say) stop where his run to the tackle starts.
+          const cut = Math.min(last.t, liveEnd - M.convergeMs);
+          const here = at(keys, cut);
+          keys = join(keys.filter((q) => q.t < cut), [{ t: cut, ...here }]);
+          last = keys[keys.length - 1] as Key;
+          keys = join(keys, tacklerRun(last, liveEnd));
+        } else if (last.t < liveEnd - step) keys = join(keys, idleUntil(last, liveEnd, s.id, side, pos));
+        else if (last.t > liveEnd) keys = join(keys.filter((q) => q.t < liveEnd), [{ t: liveEnd, ...at(keys, liveEnd) }]);
+      } else if (s.id === tackler) {
+        isFact = true;
+        const drop = diagramKeys(set, s, side, start, read);
+        keys = join(at0, drop, tacklerRun(drop[drop.length - 1] as Key, liveEnd));
+      } else {
+        const lineman = (pos === "OL" || pos === "DL") && contactFamily !== null;
+        if (lineman) {
+          const w = waypoints(set, templates.lineContact[contactFamily], pos);
+          const contact = w[w.length - 1] ?? set;
+          const engageEnd = start + (contactFamily === "pass" && pos === "OL" ? 600 : 200);
+          const hold: Pt = { x: clampX(contact.x + 0.6 * runSide), y: contact.y + (contactFamily === "pass" ? (pos === "OL" ? -0.3 : -0.3) : 0) };
+          const engaged = join(drive([set, contact], start, engageEnd, { accelMs: accel, decelMs: 150, restStart: true, restEnd: true, keyMs: step }), drive([contact, hold], engageEnd + step, Math.max(engageEnd + 2 * step, pos === "DL" ? Math.min(releaseT, liveEnd) : liveEnd), { accelMs: 300, decelMs: 300, restStart: true, restEnd: true, keyMs: step }));
+          let ks = join(at0, engaged);
+          if (pos === "DL" && releaseT < liveEnd - 3 * step) {
+            const p = at(ks, releaseT);
+            ks = join(
+              ks.filter((q) => q.t <= releaseT),
+              pursue({ start: p, vel: velocity(ks, releaseT, step), t0: releaseT, t1: liveEnd, ball: ballAt, topSpeed: top, accelMs: accel, leadMs: M.pursuit.leadMs, turnDegPerS: M.pursuit.turnDegPerS, ring, brakeYards: M.pursuit.brakeYards, minY: contact.y, keyMs: step }),
+            );
+          }
+          keys = ringFix(ks, ballAt, side === "X" ? ring : 1.5, snapWindowEnd, liveEnd, "sideways", side === "O" ? -1 : 1);
+          const namedLineman = named.has(s.id) || (parts.foulers ?? []).includes(s.id);
+          pathEnd = namedLineman ? liveEnd : Math.min(releaseT, engageEnd);
+          marks.push({ ...base, keys: settleOf(keys, side, s.id), fact: false, pathEnd, pathStyle: side === "O" ? "block" : "none" });
+          return;
+        }
+        // Routes and drops to the read, then everyone flows to the ball.
+        const readFor = Math.max(start + 4 * step, read + (side === "X" ? (M.reactionMs[pos] ?? M.reactionMs["other"] ?? 150) : 0));
+        const drop = diagramKeys(set, s, side, start, Math.min(readFor, liveEnd));
+        let ks = join(at0, drop);
+        if (readFor < liveEnd - 3 * step) {
+          const p = at(ks, readFor);
+          ks = join(
+            ks.filter((q) => q.t <= readFor),
+            pursue({
+              start: p,
+              vel: velocity(ks, readFor, step),
+              t0: readFor,
+              t1: liveEnd,
+              ball: ballAt,
+              topSpeed: top,
+              accelMs: accel,
+              leadMs: M.pursuit.leadMs,
+              turnDegPerS: M.pursuit.turnDegPerS,
+              ring: side === "X" ? ring : 2,
+              brakeYards: M.pursuit.brakeYards,
+              ...(side === "X" ? { corridor: { half: M.pursuit.corridorHalfYards, ms: M.pursuit.corridorMs } } : {}),
+              keyMs: step,
+            }),
+          );
+        }
+        keys = ringFix(ks, ballAt, side === "X" ? ring : 1.5, snapWindowEnd, liveEnd, "radial", side === "O" ? -1 : 1);
+        pathEnd = Math.min(readFor, liveEnd);
+      }
+      // Named players keep their whole path: the roles the engine credited and the fouling players.
+      const named0 = named.has(s.id) || s.id === tackler || (parts.foulers ?? []).includes(s.id);
+      marks.push({
+        ...base,
+        keys: s.id === plan.holder || s.id === tackler ? hold(keys) : settleOf(keys, side, s.id),
+        fact: isFact,
+        pathEnd: named0 ? liveEnd : pathEnd,
+        pathStyle: side === "O" ? "arrow" : "none",
+      });
+    });
+  };
+
+  /** A mark's diagram movement from its start to `t1`: its route or drop, stretched so nobody parks. */
+  function diagramKeys(set: Pt, s: OnFieldSlot, side: "O" | "X", t0: number, t1: number): Key[] {
+    const pos = s.position;
+    let pts: Pt[];
+    if (side === "O") {
+      const w = waypoints(set, templates.routes[unit.routes], pos);
+      // Backs with no route check down: a few yards to the flat on his side.
+      pts = w.length > 0 ? [set, ...w] : [set, { x: clampX(set.x + (set.x <= MID_X ? -3 : 3)), y: set.y + 2 }];
+    } else {
+      const z = preset === null ? undefined : templates.zones[preset]?.[s.slot];
+      const man = preset === null ? undefined : templates.manTargets[preset]?.[s.slot];
+      if (z !== undefined && pos !== "DL") pts = [set, { x: clampX(MID_X + (z[0] + z[2]) / 2), y: los + (z[1] + z[3]) / 2 }];
+      else if (man !== undefined && pos !== "DL") pts = [set, { x: clampX(MID_X + man[0]), y: los - man[1] + 4 }];
+      else {
+        const drops = templates.drops[unit.drops !== "" ? unit.drops : (templates.presetDrops[event.defense ?? ""] ?? "zone")];
+        const w = waypoints(set, drops, pos);
+        // Defensive backs always backpedal at least a little; nobody stands still.
+        pts = w.length > 0 ? [set, ...w] : [set, { x: set.x, y: set.y + 2 }];
+      }
+    }
+    const pace = ((M.speed[pos] ?? 13) * 0.8) / k;
+    let L = 0;
+    for (let i = 1; i < pts.length; i++) L += dist(pts[i - 1] as Pt, pts[i] as Pt);
+    const natural = t0 + (L / pace) * 1000 + 250;
+    // Stretched to the read so he jogs rather than parks; never compressed below his own pace.
+    return drive(pts, t0, Math.max(t1, Math.min(natural, liveEnd)), { accelMs: M.accelMs[pos] ?? 250, decelMs: M.decelMs, restStart: true, restEnd: true, keyMs: step, fillet: M.fillet });
   }
 
-  // Scores, from the after snapshot.
+  /** The engine's tackler: from where he is to the ball at the whistle, arriving at rest. */
+  function tacklerRun(from: Key, t1: number): Key[] {
+    if (from.t >= t1 - step) return [{ t: t1, ...finalBall }];
+    const mid: Pt = { x: (from.x + finalBall.x) / 2 + (from.x <= finalBall.x ? -1 : 1), y: (from.y + finalBall.y) / 2 };
+    return drive([from, mid, finalBall], from.t, t1, { accelMs: 300, decelMs: M.convergeMs, restStart: false, restEnd: true, keyMs: step, fillet: M.fillet });
+  }
+
+  /** After a fact mark's last leg: he keeps moving gently toward the ball (nobody idle), clear of it. */
+  function idleUntil(from: Key, t1: number, id: string, side: "O" | "X", pos: string): Key[] {
+    if (id === plan.holder) return [{ t: t1, x: from.x, y: from.y }];
+    return pursue({ start: from, vel: { x: 0, y: 0 }, t0: from.t, t1, ball: ballAt, topSpeed: ((M.speed[pos] ?? 10) * 0.6) / k, accelMs: 400, leadMs: M.pursuit.leadMs, turnDegPerS: M.pursuit.turnDegPerS, ring: side === "X" ? ring : 2, brakeYards: M.pursuit.brakeYards, keyMs: step }).slice(1);
+  }
+
+  /** The ball, holder and tackler don't move in the settle. */
+  function hold(keys: Key[]): Key[] {
+    const p = at(keys, liveEnd);
+    return join(keys.filter((q) => q.t <= liveEnd), [{ t: liveEnd, ...p }, { t: liveEnd + M.settleMs, ...p }]);
+  }
+
+  function settleOf(keys: Key[], side: "O" | "X", id: string): Key[] {
+    return settle(keys, liveEnd, M.settleMs, M.settleMaxYards, step, finalBall, side === "X" && !named.has(id) ? ring : null);
+  }
+
+  build(offSlots, "O", offStart, offHuddle);
+  build(defSlots, "X", defStart, defHuddle);
+
+  // ------------------------------------------------------------ labels, flags, preview
+  const labels: TLLabel[] = plan.labels.map((l) => ({ ...l, t: T(l.t) }));
   const off = before.possession;
   const def = off === "home" ? "away" : "home";
   const gOff = after.score[off] - before.score[off];
   const gDef = after.score[def] - before.score[def];
   if (play.kind !== "fieldGoal" && play.kind !== "extraPoint") {
-    if (play.kind === "twoPoint") label(gOff === 2 ? "Two-point try good" : "No good", finalBall, liveEnd, "after.score");
-    else if (gOff >= 6 || gDef >= 6) label("Touchdown", finalBall, liveEnd, "after.score");
-    else if (gDef === 2 && after.safetyKick) label("Safety", finalBall, liveEnd, "after.score");
+    if (play.kind === "twoPoint") labels.push({ text: gOff === 2 ? "Two-point try good" : "No good", at: finalBall, t: liveEnd, source: "after.score" });
+    else if (gOff >= 6 || gDef >= 6) labels.push({ text: "Touchdown", at: finalBall, t: liveEnd, source: "after.score" });
+    else if (gDef === 2 && after.safetyKick) labels.push({ text: "Safety", at: finalBall, t: liveEnd, source: "after.score" });
   }
-  if (star !== undefined) label("Standout", startOf.get(star.player) ?? finalBall, liveEnd, "standout");
-
-  // Flags at the foul spot, or the line when there is none, shown at the whistle.
+  if (star !== undefined) labels.push({ text: "Standout", at: startOf.get(star.player) ?? finalBall, t: liveEnd, source: "standout" });
   const flags: TLLabel[] = (play.fouls ?? []).map((f) => ({ text: "Flag", at: { x: MID_X + 4, y: f.spot ?? los }, t: play.kind === "noPlay" ? snapAt : liveEnd, source: "fouls" }));
 
-  // Every mark: fact keys, or diagram keys kept clear of the ball.
-  const roleOf = (id: string): ParticipantRole[] => PARTICIPANT_ROLES.filter((r) => parts[r] === id);
-  const clear = templates.field.clearOfBallYards;
-  const routes = templates.routes[unit.routes];
-  const dropName = unit.drops !== "" ? unit.drops : (templates.presetDrops[event.defense ?? ""] ?? "zone");
-  const drops = templates.drops[dropName];
-  const diagramEnd = snapAt + 0.8 * live;
-  const marks: TLMark[] = [];
-  const build = (slots: readonly OnFieldSlot[], side: "O" | "X"): void => {
-    for (const s of slots) {
-      const start = startOf.get(s.id) as Pt;
-      const factKeys = b.facts.get(s.id);
-      if (factKeys !== undefined) {
-        marks.push({ slot: s.slot, side, position: s.position, playerId: s.id, keys: factKeys, roles: roleOf(s.id), fact: true });
-        continue;
-      }
-      if (play.kind === "noPlay") {
-        marks.push({ slot: s.slot, side, position: s.position, playerId: s.id, keys: [{ t: 0, ...start }], roles: roleOf(s.id), fact: false });
-        continue;
-      }
-      const contact = unit.line === null ? undefined : templates.lineContact[unit.line];
-      const lineman = (s.position === "OL" || s.position === "DL") && contact?.[s.position] !== undefined;
-      const way = diagramPath(start, lineman ? contact : side === "O" ? routes : drops, s.position, side);
-      const keys: Key[] = [{ t: 0, ...start }, { t: snapAt, ...start }];
-      way.forEach((p, i) => keys.push({ t: snapAt + ((i + 1) / way.length) * (diagramEnd - snapAt), ...p }));
-      keys.push({ ...(keys[keys.length - 1] as Key), t: liveEnd });
-      marks.push({ slot: s.slot, side, position: s.position, playerId: s.id, keys: lineman ? keepClearSideways(keys, b.ball, templates.field.linemanClearYards, snapWindowEnd, liveEnd, side === "O" ? -1 : 1) : keepClear(keys, b.ball, clear, snapWindowEnd, liveEnd), roles: roleOf(s.id), fact: false });
-    }
-  };
-  build(offSlots, "O");
-  build(defSlots, "X");
+  let preview: Art | null = null;
+  if (human === "offense" && unit.offense.group === "offense" && unit.family !== "clock") preview = offenseArt(unit.offense.name, unit.leaf, offSlots, templates, los, ctx.pxPerYard);
+  else if (human === "defense" && preset !== null) preview = defenseArt(pkg, preset, defSlots, templates, los, ctx.pxPerYard);
 
-  const paths: TLPath[] = marks
-    .filter((m) => (m.keys[m.keys.length - 1] as Key).t > snapAt && dist(m.keys[1] ?? m.keys[0] as Key, m.keys[m.keys.length - 1] as Key) > 0.25)
-    .map((m) => ({ kind: m.side === "O" ? "offense" : "defense", points: m.keys.filter((k) => k.t >= snapAt), start: snapAt, end: (m.keys[m.keys.length - 1] as Key).t }));
-  if (b.ballFlight.length > 0) paths.push({ kind: "ball", points: b.ballFlight, start: b.flightStart, end: b.flightEnd });
-
-  const scored = b.labels.some((l) => l.source === "after.score" || l.source === "standout") || (play.kind === "fieldGoal" && play.good);
-  const caught = b.labels.some((l) => l.source === "turnover" || l.source === "participants.fumbleRecoverer") || tackler !== null || kind === "pass";
+  const scored = labels.some((l) => l.source === "after.score" || l.source === "standout") || (play.kind === "fieldGoal" && play.good);
+  const caught = labels.some((l) => l.source === "turnover" || l.source === "participants.fumbleRecoverer") || tackler !== null || kind === "pass";
   const holdMs = scored ? tm.scoreHoldMs : caught ? tm.holdMs : 0;
-  const involved = [...new Set([...PARTICIPANT_ROLES.map((r) => parts[r]).filter((x): x is string => x !== undefined), ...(parts.foulers ?? [])])].filter((id) => startOf.has(id));
-  const rings = [b.holder, play.kind === "noPlay" ? (parts.foulers?.[0] ?? null) : null, star?.player ?? null].filter((x): x is string => x !== null && startOf.has(x));
+  const settleMs = live > 0 ? M.settleMs : 0;
+  const involved = [...new Set([...named, ...(parts.foulers ?? [])])].filter((id) => startOf.has(id));
+  const rings = [plan.holder, play.kind === "noPlay" ? (parts.foulers?.[0] ?? null) : null, star?.player ?? null].filter((x): x is string => x !== null && startOf.has(x));
+  const paths: TLPath[] = plan.ball
+    .filter((s): s is Extract<BallSeg, { kind: "move" }> => s.kind === "move" && s.apex > 1)
+    .map((s) => ({ kind: "ball", points: s.pts, start: T(s.t0), end: T(s.t1) }));
+  scale.sort((a, b) => a.t - b.t);
 
   return {
     los,
     firstDown: before.phase === "scrimmage" && !before.goalToGo ? Math.min(100, before.spot + before.distance) : null,
-    runoffMs,
+    lineUpMs,
+    runoffMs: runoffMs === 0 ? 0 : lineUpMs,
     runoff: input.runoffSeconds > 0 ? { from: before.clock + input.runoffSeconds, to: before.clock } : null,
+    setAt,
     snapAt,
     liveEnd,
+    settleMs,
     holdMs,
-    total: liveEnd + holdMs,
+    total: liveEnd + Math.max(holdMs, settleMs),
     marks,
-    ball: b.ball.slice().sort((x, y) => x.t - y.t),
+    ball,
+    ballScale: scale,
     paths,
-    labels: b.labels,
+    labels,
     flags,
-    holder: b.holder,
+    holder: plan.holder,
     tackler,
     involved,
     rings,
     snapWindowEnd,
+    read,
+    preview,
   };
 }
 
 /**
- * Resamples a diagram mark every 25 ms of the live play after the snap window and keeps it at
- * least `clear` yards from the ball (spec A3: diagram marks never touch the ball). A mark that
- * would come closer is held on a circle around the ball, and the circle's angle turns at most
- * 45 degrees a sample toward the mark's own path, so it never jumps across the ball; it rejoins
- * its path once the path is clear on the same side.
+ * Keys in time order with no two at one time, except a jump (a respot), kept as a pair: the key
+ * before it moves back 1 microsecond, so at the jump's own time the ball is already on its new spot.
  */
-const MAX_TURN = Math.PI / 4;
-
-/** Sample times of the live play; the ball is read just before the whistle, so a respot (a jump to the dead-ball spot) never pushes anyone. */
-function samples(from: number, to: number): number[] {
-  const times: number[] = [];
-  for (let t = from; t < to; t += 25) times.push(t);
-  times.push(to);
-  return times;
-}
-const ballBefore = (ball: readonly Key[], t: number, to: number): Pt => at(ball, Math.min(t, to - 1));
-
-function keepClear(keys: readonly Key[], ball: readonly Key[], clear: number, from: number, to: number): Key[] {
-  const out: Key[] = keys.filter((k) => k.t < from);
-  let dir: number | null = null;
-  for (const t of samples(from, to)) {
-    const m = at(keys, t);
-    const bp = ballBefore(ball, t, to);
-    const d = dist(m, bp);
-    const own: number = d < 1e-9 ? (dir ?? (m.x <= MID_X ? Math.PI : 0)) : Math.atan2(m.y - bp.y, m.x - bp.x);
-    let angle: number;
-    if (dir === null) {
-      if (d >= clear) {
-        out.push({ t, ...m });
-        continue;
-      }
-      angle = own;
-    } else {
-      const diff: number = ((own - dir + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
-      angle = Math.abs(diff) <= MAX_TURN ? own : dir + Math.sign(diff) * MAX_TURN;
-      if (angle === own && d >= clear) {
-        dir = null;
-        out.push({ t, ...m });
-        continue;
-      }
+function dedupe(keys: readonly Key[]): Key[] {
+  const out: Key[] = [];
+  for (const k of keys) {
+    const last = out[out.length - 1];
+    if (last !== undefined && Math.abs(k.t - last.t) < 1e-9) {
+      if (Math.hypot(k.x - last.x, k.y - last.y) > 0.5) {
+        out[out.length - 1] = { ...last, t: last.t - 1e-3 };
+        out.push(k);
+      } else out[out.length - 1] = k;
+      continue;
     }
-    dir = angle;
-    const r = Math.max(clear, d);
-    out.push({ t, x: bp.x + r * Math.cos(angle), y: bp.y + r * Math.sin(angle) });
+    out.push(k);
   }
   return out;
 }
 
-/**
- * keepClear for a lineman: pushed only sideways, never up or down, so he holds the contact depth
- * his block stopped at and no X is drawn past an O (or the reverse). The side he is pushed to holds
- * until he is clear, so he never jumps across the ball.
- */
-function keepClearSideways(keys: readonly Key[], ball: readonly Key[], clear: number, from: number, to: number, away: -1 | 1): Key[] {
-  const out: Key[] = keys.filter((k) => k.t < from);
-  let side = 0;
-  for (const t of samples(from, to)) {
-    const m = at(keys, t);
-    const bp = ballBefore(ball, t, to);
-    const dy = m.y - bp.y;
-    // Look one sample ahead too: a kicked ball crosses the line fast, so the push starts before it arrives.
-    const ahead = ballBefore(ball, t + 25, to);
-    const free = dist(m, bp) >= clear && dist(at(keys, t + 25), ahead) >= clear;
-    const mySide = m.x === bp.x ? (m.x <= MID_X ? -1 : 1) : Math.sign(m.x - bp.x);
-    if (free && (side === 0 || mySide === side || Math.abs(dy) >= clear)) {
-      side = 0;
-      out.push({ t, ...m });
-      continue;
+/** Ball size at t (1 at rest). */
+export function scaleAt(s: readonly ScaleKey[], t: number): number {
+  let last = 1;
+  for (let i = 0; i < s.length; i++) {
+    const k = s[i] as ScaleKey;
+    if (k.t > t) {
+      const p = s[i - 1];
+      if (p === undefined) return 1;
+      const f = (t - p.t) / (k.t - p.t);
+      return p.s + (k.s - p.s) * f;
     }
-    if (side === 0) side = mySide;
-    const dx = Math.sqrt(Math.max(0, clear * clear - dy * dy));
-    const want = bp.x + side * Math.max(dx, side * (m.x - bp.x));
-    const x = clampX(want);
-    // Against a sideline there's no room to the side: step away from the ball up or down instead,
-    // on the side of it the lineman is already on (his own side of the line when level with it),
-    // so he never crosses the ball's path.
-    if (x !== want) {
-      const ex = x - bp.x;
-      const back = Math.sqrt(Math.max(0, clear * clear - ex * ex));
-      const dir = Math.abs(dy) < 1e-9 ? away : Math.sign(dy);
-      out.push({ t, x, y: dir < 0 ? Math.min(m.y, bp.y - back) : Math.max(m.y, bp.y + back) });
-      continue;
-    }
-    out.push({ t, x, y: m.y });
+    last = k.s;
   }
-  return out;
+  return last;
 }
 
 /** The PlayResult kinds the timeline draws, for tests. */

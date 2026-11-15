@@ -2,7 +2,7 @@
 // skips to the whistle. Reduced motion shows only the final frame with paths, cuts the camera
 // and the possession flip, and skips holds. The animator reads the timeline and decides nothing.
 
-import { drawField, drawFrame, viewOf, type FieldScene, type FrameOpts } from "./field";
+import { drawField, drawFrame, markPositions, viewOf, type FieldScene, type FrameOpts } from "./field";
 import { cameraAt, panCamera, type Layout } from "./layout";
 import { at, type Timeline } from "./timeline";
 import type { Templates } from "./templates";
@@ -24,6 +24,10 @@ export class Animator {
   private speedFactor = 1;
   private finish: (() => void) | null = null;
   private skipRequested = false;
+  private paused = false;
+  /** The last play's final frame, for the dead ball's state 1 (Pre-snap). */
+  private last: { tl: Timeline; scene: FieldScene; t: number; camera: number } | null = null;
+  private stillRaf = 0;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -111,6 +115,60 @@ export class Animator {
     requestAnimationFrame(step);
   }
 
+  /**
+   * A still frame (the Calling state): your lineup and their huddle. With `glideMs` the marks slide
+   * from the frame shown before (the timeline already carries the glide keys); 0 cuts.
+   */
+  still(tl: Timeline, scene: FieldScene, glideMs: number): void {
+    cancelAnimationFrame(this.stillRaf);
+    this.current = { tl, scene };
+    this.camera = this.startCamera(tl.los);
+    if (glideMs <= 0) {
+      this.t = 1e9;
+      this.redraw();
+      return;
+    }
+    const t0 = performance.now();
+    const step = (): void => {
+      this.t = Math.min(glideMs, performance.now() - t0);
+      this.redraw();
+      if (this.t < glideMs) this.stillRaf = requestAnimationFrame(step);
+    };
+    this.t = 0;
+    this.redraw();
+    this.stillRaf = requestAnimationFrame(step);
+  }
+
+  /** Back to the last play's whistle frame (Esc to a first screen, or the mouse leaving the cards). */
+  restoreLast(scene: FieldScene): void {
+    cancelAnimationFrame(this.stillRaf);
+    if (this.last === null) {
+      this.current = null;
+      this.idleScene = scene;
+      this.camera = this.startCamera(scene.los);
+    } else {
+      this.current = { tl: this.last.tl, scene: this.last.scene };
+      this.t = this.last.t;
+      this.camera = this.last.camera;
+    }
+    this.redraw();
+  }
+
+  /** The current frame's marks in canvas px, for hovering a mark. */
+  marks(): { id: string; x: number; y: number }[] {
+    if (this.current === null) return [];
+    return markPositions(viewOf(this.layout(), this.camera), this.current.tl, this.t);
+  }
+
+  /** A player card is open: hold the play where it is. */
+  pause(): void {
+    this.paused = true;
+  }
+
+  resume(): void {
+    this.paused = false;
+  }
+
   /** Plays one timeline; resolves at the end of the hold. */
   play(tl: Timeline, scene: FieldScene, o: PlayOpts): Promise<void> {
     this.stop();
@@ -131,7 +189,7 @@ export class Animator {
       let last = performance.now();
       this.t = 0;
       const frame = (now: number): void => {
-        const dt = (now - last) * this.speedFactor;
+        const dt = this.paused ? 0 : (now - last) * this.speedFactor;
         last = now;
         if (this.skipRequested) {
           this.jumpToEnd(o, false);
@@ -148,6 +206,7 @@ export class Animator {
         }
         this.redraw();
         if (this.t >= tl.total) {
+          this.last = { tl, scene, t: tl.total, camera: this.camera };
           this.finish?.();
           return;
         }
@@ -170,6 +229,7 @@ export class Animator {
     for (let t = tl.snapAt; t <= tl.liveEnd; t += 50) cam = panCamera(cam, at(tl.ball, t).y, l.visibleYards, this.templates().field.panEdgeYards);
     this.camera = cam;
     this.t = tl.total;
+    this.last = { tl, scene: cur.scene, t: tl.total, camera: cam };
     this.redraw();
     void fromStart;
     this.finish?.();
@@ -200,14 +260,20 @@ function emptyTimeline(los: number): Timeline {
   return {
     los,
     firstDown: null,
+    lineUpMs: 0,
     runoffMs: 0,
     runoff: null,
+    setAt: 0,
     snapAt: 0,
     liveEnd: 0,
+    settleMs: 0,
     holdMs: 0,
     total: 0,
     marks: [],
     ball: [{ t: 0, x: 53.3 / 2, y: los }],
+    ballScale: [{ t: 0, s: 1 }],
+    read: 0,
+    preview: null,
     paths: [],
     labels: [],
     flags: [],

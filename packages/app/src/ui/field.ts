@@ -3,8 +3,8 @@
 // here (spec H3): marks are offense blue O's and defense orange-brown X's for both teams.
 
 import { FIELD_WIDTH_YARDS, type Layout } from "./layout";
-import { at, MID_X, type Key, type Timeline, type TLMark } from "./timeline";
-import { numberShown, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "./marks";
+import { at, MID_X, scaleAt, type Timeline } from "./timeline";
+import { numberShown, pathPrimitives, placeNumbers, RING_GAP, type MarkPx } from "./marks";
 import { COLOR, FONT_MONO, FONT_UI } from "./tokens";
 
 export type MarkLabels = "involved" | "all" | "none";
@@ -20,6 +20,11 @@ export interface FieldScene {
 
 export interface FrameOpts {
   readonly numbers: Readonly<Record<string, number>>;
+  /** Each player's key rating (card rating, before home field), shown beside his number when on. */
+  readonly ratings: Readonly<Record<string, number>>;
+  readonly showRatings: boolean;
+  /** The mark whose player card is open (ringed so the keyboard user sees which). */
+  readonly focused: string | null;
   readonly markLabels: MarkLabels;
   readonly routeAlpha: number;
   readonly textScale: number;
@@ -134,12 +139,6 @@ function polyline(g: CanvasRenderingContext2D, v: View, pts: readonly { x: numbe
   g.stroke();
 }
 
-/** Keys from the snap up to time t, ending at the position at t. */
-function trail(keys: readonly Key[], from: number, t: number): { x: number; y: number }[] {
-  const pts = keys.filter((k) => k.t >= from && k.t < t).map((k) => ({ x: k.x, y: k.y }));
-  return [at(keys, from), ...pts, at(keys, t)];
-}
-
 function arrowhead(g: CanvasRenderingContext2D, v: View, a: { x: number; y: number }, b: { x: number; y: number }): void {
   const ang = Math.atan2(Y(v, b.y) - Y(v, a.y), X(v, b.x) - X(v, a.x));
   const len = 7;
@@ -161,42 +160,57 @@ function blockTick(g: CanvasRenderingContext2D, v: View, a: { x: number; y: numb
   g.stroke();
 }
 
-function moves(m: TLMark, snapAt: number): boolean {
-  const last = m.keys[m.keys.length - 1] as Key;
-  const a = at(m.keys, snapAt);
-  return last.t > snapAt && Math.hypot(last.x - a.x, last.y - a.y) > 0.25;
+/** A mark's position on the canvas at t, for hit-testing a hover (the player card). */
+export function markPositions(v: View, tl: Timeline, t: number): { id: string; x: number; y: number }[] {
+  return tl.marks.filter((m) => !m.playerId.startsWith("huddle:") && !m.playerId.startsWith("own:")).map((m) => {
+    const p = at(m.keys, t);
+    return { id: m.playerId, x: X(v, p.x), y: Y(v, p.y) };
+  });
 }
 
 /** One frame of the timeline at time t (ms at 1x). */
 export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t: number, o: FrameOpts): void {
   const whistle = t >= tl.liveEnd;
-  // Paths: faint previews of diagram routes at the set (never a fact path, which would show the
-  // result early), then each path as far as the play has gone.
-  for (const m of tl.marks) {
-    if (!moves(m, tl.snapAt)) continue;
-    const color = m.side === "O" ? COLOR.offense : COLOR.defense;
-    g.strokeStyle = color;
-    g.lineWidth = 2;
-    g.setLineDash(m.side === "X" ? [6, 4] : []);
-    // Every path stops at the edge of the mark it leads to (DESIGN.md Shapes), 1 px clear.
-    const edge = (v.markPx / 2 + 1) / v.s;
-    const preview = t < tl.snapAt;
-    if (preview && m.fact) continue;
-    const pts = trimEnd(trail(m.keys, tl.snapAt, preview ? Infinity : t), edge);
-    if (pts === null) continue;
-    if (preview) g.globalAlpha = o.routeAlpha;
-    polyline(g, v, pts);
-    const last = m.keys[m.keys.length - 1] as Key;
-    const ended = preview || t >= last.t;
-    if (m.side === "O" && ended && pts.length >= 2) {
-      const a = pts[pts.length - 2] as { x: number; y: number };
-      const b = pts[pts.length - 1] as { x: number; y: number };
-      if (m.position === "OL") blockTick(g, v, a, b);
-      else arrowhead(g, v, a, b);
+  const r = v.markPx / 2;
+  // The preview art's zones and depth bands sit under everything else, faint.
+  if (t < tl.snapAt && tl.preview !== null) {
+    g.globalAlpha = o.routeAlpha;
+    g.fillStyle = COLOR.paperShade;
+    for (const b of tl.preview.bands) g.fillRect(X(v, 0), Y(v, b.y1), FIELD_WIDTH_YARDS * v.s, (b.y1 - b.y0) * v.s);
+    g.strokeStyle = COLOR.defense;
+    g.lineWidth = 1.5;
+    g.setLineDash([4, 3]);
+    for (const z of tl.preview.zones) {
+      g.fillRect(X(v, Math.min(z.x0, z.x1)), Y(v, Math.max(z.y0, z.y1)), Math.abs(z.x1 - z.x0) * v.s, Math.abs(z.y1 - z.y0) * v.s);
+      g.strokeRect(X(v, Math.min(z.x0, z.x1)), Y(v, Math.max(z.y0, z.y1)), Math.abs(z.x1 - z.x0) * v.s, Math.abs(z.y1 - z.y0) * v.s);
+    }
+    g.setLineDash([]);
+    for (const tt of tl.preview.tethers) {
+      g.strokeStyle = COLOR.defense;
+      polyline(g, v, [tt.from, tt.to]);
+      g.strokeStyle = COLOR.offense;
+      g.beginPath();
+      g.arc(X(v, tt.to.x), Y(v, tt.to.y), 4, 0, Math.PI * 2);
+      g.stroke();
     }
     g.globalAlpha = 1;
   }
-  g.setLineDash([]);
+  // Paths (pure: marks.pathPrimitives), each stopping at the mark's edge.
+  for (const p of pathPrimitives(tl, t, (r + 1) / v.s)) {
+    g.globalAlpha = p.faint ? o.routeAlpha : 1;
+    g.strokeStyle = p.side === "O" ? COLOR.offense : COLOR.defense;
+    g.lineWidth = 2;
+    g.setLineDash(p.dashed ? [6, 4] : []);
+    polyline(g, v, p.points);
+    g.setLineDash([]);
+    const a = p.points[p.points.length - 2];
+    const b = p.points[p.points.length - 1];
+    if (a !== undefined && b !== undefined) {
+      if (p.end === "block") blockTick(g, v, a, b);
+      else if (p.end === "arrow") arrowhead(g, v, a, b);
+    }
+    g.globalAlpha = 1;
+  }
   // The ball's flight, dotted.
   for (const p of tl.paths) {
     if (p.kind !== "ball" || t < p.start) continue;
@@ -211,10 +225,6 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
     g.setLineDash([]);
   }
   // Marks.
-  const r = v.markPx / 2;
-  const numberPx = Math.round(12 * o.textScale);
-  g.font = `600 ${numberPx}px ${FONT_MONO}`;
-  g.textAlign = "center";
   for (const m of tl.marks) {
     const p = at(m.keys, t);
     const cx = X(v, p.x);
@@ -231,22 +241,27 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
       g.lineTo(cx - k, cy + k);
     }
     g.stroke();
-    if (whistle && tl.rings.includes(m.playerId)) {
+    if ((whistle && tl.rings.includes(m.playerId)) || o.focused === m.playerId) {
       g.strokeStyle = COLOR.ink;
       g.beginPath();
       g.arc(cx, cy, r + RING_GAP, 0, Math.PI * 2);
       g.stroke();
     }
   }
-  // Jersey numbers: all at the set, named players during the live play, all at the whistle.
-  const phase = t < tl.snapAt ? "set" : whistle ? "whistle" : "live";
+  // Jersey numbers and ratings: all at the set, named players during the live play, all at the
+  // whistle; the side still in its huddle shows none until the set.
+  const numberPx = Math.round(12 * o.textScale);
+  g.font = `600 ${numberPx}px ${FONT_MONO}`;
+  g.textAlign = "center";
+  const phase = t < tl.setAt ? "lineup" : t < tl.snapAt ? "set" : whistle ? "whistle" : "live";
   const inside = o.markLabels === "all" && v.markPx >= 20;
   const placedMarks: MarkPx[] = tl.marks.flatMap((m) => {
     const n = o.numbers[m.playerId];
     if (n === undefined) return [];
     const p = at(m.keys, t);
     const named = tl.involved.includes(m.playerId);
-    return [{ id: m.playerId, side: m.side, x: X(v, p.x), y: Y(v, p.y), ringed: whistle && tl.rings.includes(m.playerId), named, number: n, show: numberShown(o.markLabels, phase, named) }];
+    const rating = o.showRatings ? o.ratings[m.playerId] : undefined;
+    return [{ id: m.playerId, side: m.side, x: X(v, p.x), y: Y(v, p.y), ringed: (whistle && tl.rings.includes(m.playerId)) || o.focused === m.playerId, named, number: n, show: numberShown(o.markLabels, phase, named, m.huddle), ...(rating === undefined ? {} : { rating }) }];
   });
   const sideOf = new Map(tl.marks.map((m) => [m.playerId, m.side]));
   g.textBaseline = "middle";
@@ -259,7 +274,7 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
   } else {
     for (const b of placeNumbers(placedMarks, v.markPx, numberPx)) {
       g.fillStyle = sideOf.get(b.id) === "O" ? COLOR.offense : COLOR.defense;
-      g.fillText(String(o.numbers[b.id]), b.x, b.y);
+      g.fillText(b.text, b.x, b.y);
     }
   }
   // Flags and labels at the whistle.
@@ -291,14 +306,14 @@ export function drawFrame(g: CanvasRenderingContext2D, v: View, tl: Timeline, t:
     g.fillStyle = COLOR.ink;
     g.fillText(l.text, lx, ly);
   }
-  // The ball, always on top.
+  // The ball, always on top; its size shows its height in flight.
   const b = at(tl.ball, t);
-  drawBall(g, v, b.x, b.y);
+  drawBall(g, v, b.x, b.y, scaleAt(tl.ballScale, t));
 }
 
-export function drawBall(g: CanvasRenderingContext2D, v: View, x: number, y: number): void {
+export function drawBall(g: CanvasRenderingContext2D, v: View, x: number, y: number, scale = 1): void {
   g.fillStyle = COLOR.ball;
   g.beginPath();
-  g.ellipse(X(v, x), Y(v, y), 2.5, 3.5, 0, 0, Math.PI * 2);
+  g.ellipse(X(v, x), Y(v, y), 2.5 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
   g.fill();
 }

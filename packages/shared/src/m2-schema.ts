@@ -23,6 +23,8 @@ export const playParticipantsSchema = z.strictObject({
 
 const onFieldSide = z.partialRecord(z.enum(POSITIONS), z.array(id).min(1));
 export const onFieldSchema = z.strictObject({ offense: onFieldSide, defense: onFieldSide });
+/** A request's own-side lineups: formation or package id -> the human's players by position. */
+const lineups = z.record(id, onFieldSide);
 
 export function parseParticipants(json: unknown): Participants {
   return playParticipantsSchema.parse(json) as Participants;
@@ -116,9 +118,9 @@ export const decisionRequestSchema = z.discriminatedUnion("kind", [
   z.strictObject({ ...base, kind: z.literal("toss") }),
   z.strictObject({ ...base, kind: z.literal("overtimeToss") }),
   z.strictObject({ ...base, kind: z.literal("kickoff"), safetyKick: z.boolean() }),
-  z.strictObject({ ...base, kind: z.literal("try"), sameCall: offenseCall.nullable() }),
-  z.strictObject({ ...base, kind: z.literal("offenseCall"), tempo: z.enum(TEMPOS), clockRunning: z.boolean(), sameCall: offenseCall.nullable(), fieldGoalYards: z.number().int() }),
-  z.strictObject({ ...base, kind: z.literal("defenseCall"), onTry: z.boolean(), sameCall: id.nullable() }),
+  z.strictObject({ ...base, kind: z.literal("try"), sameCall: offenseCall.nullable(), lineups: lineups.optional() }),
+  z.strictObject({ ...base, kind: z.literal("offenseCall"), tempo: z.enum(TEMPOS), clockRunning: z.boolean(), sameCall: offenseCall.nullable(), fieldGoalYards: z.number().int(), lineups: lineups.optional() }),
+  z.strictObject({ ...base, kind: z.literal("defenseCall"), onTry: z.boolean(), sameCall: id.nullable(), lineups: lineups.optional() }),
   z.strictObject({ ...base, kind: z.literal("penalty"), play, offenseCall, defenseCall: id.nullable(), outcomes: z.array(z.strictObject({ option: id, after: preview })).min(2) }),
   z.strictObject({ ...base, kind: z.literal("runoff"), play, offenseCall, defenseCall: id.nullable(), clock: count, clockAfter: count }),
   z.strictObject({ ...base, kind: z.literal("continue"), about }),

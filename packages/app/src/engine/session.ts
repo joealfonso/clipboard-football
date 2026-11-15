@@ -31,9 +31,10 @@ import type { DecisionAnswer, RatingRanks, Team } from "./types";
 export const DEFAULT_LEAGUE_SEED = 2026;
 /**
  * Save versions: 1 held the M1 adapter's answers; 2 the engine's answer paths; 3 adds `codeHash`;
- * 4 adds `standouts`; 5 adds `closeCalls`. Only the current version resumes; an older one reads as "from an older version".
+ * 4 adds `standouts`; 5 was taken twice in parallel (m2/ui's formation-first answer paths, m2/playable's
+ * `closeCalls`), so the merge of both is 6. Only the current version resumes; an older one reads as "from an older version".
  */
-export const SAVE_SCHEMA_VERSION = 5;
+export const SAVE_SCHEMA_VERSION = 6;
 
 /**
  * M2 F (lead's call): the playable game runs with standout plays, a centered designed layer that
@@ -112,7 +113,7 @@ export function matchupOf(p: Prepared, leagueSeed: number, seed: number, gameTyp
   return setupGame(p.league(leagueSeed), leagueSeed, seed, () => coach, gameType);
 }
 
-export function uiDataOf(p: Prepared, uiTemplates: unknown): UiData {
+export function uiDataOf(p: Prepared, uiTemplates: unknown, uiMotion: unknown = null): UiData {
   const r = p.data.engine.rules;
   return {
     catalog: p.data.engine.caller.catalog,
@@ -120,6 +121,8 @@ export function uiDataOf(p: Prepared, uiTemplates: unknown): UiData {
     rules: { game: r.game, timeouts: r.timeouts, field: r.field, scoring: r.scoring, penalties: r.penalties },
     presetPackage: p.data.engine.personnel.presetPackage,
     uiTemplates,
+    uiMotion,
+    personnel: { offense: p.data.engine.personnel.offense, packages: p.data.engine.personnel.packages },
     dataHash: p.dataHash,
   };
 }

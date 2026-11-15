@@ -14,8 +14,8 @@ import type { PlayResult } from "@clipboard-football/shared";
 import { whyHeadline } from "../src/engine/headline";
 import type { PlayEvent } from "../src/engine/types";
 import { layoutFor } from "../src/ui/layout";
-import { numberShown, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
-import { parseTemplates } from "../src/ui/templates";
+import { numberShown, pathPrimitives, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
+import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { at, timeline, type Timeline } from "../src/ui/timeline";
 import { COMPLETE, RUN, snap } from "./fixtures";
 import { playGame } from "./support";
@@ -25,7 +25,8 @@ const templates = parseTemplates(read("data/ui/templates.json"));
 const personnel = read("data/engine/personnel.json") as { offense: Record<string, Record<string, number>>; kick: Record<string, Record<string, number>>; packages: Record<string, Record<string, number>>; presetPackage: Record<string, string> };
 const participants = read("data/engine/participants.json") as { returnUnits: Record<string, Record<string, number>> };
 const small = layoutFor(1024, 600, templates.field);
-const ctx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, pxPerYard: small.s };
+const motion = parseMotion(read("data/ui/motion.json"));
+const ctx = { presetPackage: personnel.presetPackage, endZoneYards: 10, numbers: {}, pxPerYard: small.s, markPx: small.markPx, motion };
 
 const ids = (prefix: string, slots: Record<string, number>): Record<string, string[]> => Object.fromEntries(Object.entries(slots).map(([pos, n]) => [pos, Array.from({ length: n }, (_, i) => `${prefix}${pos}${i + 1}`)]));
 const presetOf = (pkg: string): string => Object.entries(personnel.presetPackage).find(([, p]) => p === pkg)?.[0] as string;
@@ -108,8 +109,17 @@ describe("blocks: linemen stop at contact", () => {
     expect(bad).toEqual([]);
   });
 
-  it("offensive linemen use the block tick, not an arrowhead (field.ts draws OL ends as path.block)", () => {
-    expect(readFileSync(join(import.meta.dirname, "../src/ui/field.ts"), "utf8")).toMatch(/m\.position === "OL"\) blockTick/);
+  it("offensive linemen end in the block tick, other offensive players in an arrowhead, defenders in neither", () => {
+    const edge = (small.markPx / 2 + 1) / small.s;
+    for (const ev of [COMPLETE, RUN]) {
+      const tl = timeline({ event: ev, runoffSeconds: 0 }, templates, ctx);
+      const prims = pathPrimitives(tl, tl.total, edge);
+      expect(prims.some((p) => p.slot.startsWith("OL"))).toBe(true);
+      for (const p of prims) {
+        if (p.side === "X") expect(p.end, p.slot).toBe("none");
+        else expect(p.end, p.slot).toBe(p.slot.startsWith("OL") ? "block" : "arrow");
+      }
+    }
   });
 });
 
@@ -151,6 +161,9 @@ describe("jersey numbers", () => {
     expect(numberShown("involved", "whistle", false)).toBe(true);
     expect(numberShown("none", "whistle", true)).toBe(false);
     expect(numberShown("all", "live", false)).toBe(true);
+    // Before the snap: your lined-up players show numbers, the huddle never does.
+    expect(numberShown("involved", "lineup", false)).toBe(true);
+    expect(numberShown("all", "lineup", false, true)).toBe(false);
   });
 
   const mk = (id: string, x: number, y: number, over: Partial<MarkPx> = {}): MarkPx => ({ id, side: "O", x, y, ringed: false, named: false, number: 22, show: true, ...over });

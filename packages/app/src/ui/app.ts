@@ -39,7 +39,7 @@ import {
   type Unit,
 } from "./screens";
 import { DEFAULT_SETTINGS, bumpLog, deleteSave, loadSettings, readSave, saveSettings, setSaveAside, storageAvailable, writeSave, type Settings } from "./storage";
-import { parseTemplates, type Templates } from "./templates";
+import { MotionError, parseMotion, parseTemplates, type Motion, type Templates } from "./templates";
 import {
   abbrev,
   callsLine,
@@ -61,8 +61,14 @@ import {
   type PlayerText,
   type TextCtx,
 } from "./text";
-import { timeline } from "./timeline";
+import { timeline, type Timeline } from "./timeline";
+import { callingFrame, glide } from "./presnap";
+import { cardArt, cardScreen as cardKind, cardSvg, personnelLine } from "./cards";
+import { NO_PLAY_STAT, playLines, ratingValue } from "./ratings";
 import { COLOR, swatchFor } from "./tokens";
+
+/** A menu row as displayed: its reason already in words. */
+type MenuRow = Omit<Row, "reason"> & { readonly reason?: string };
 
 type Overlay =
   | { readonly id: "title" }
@@ -101,6 +107,8 @@ interface GameView {
   /** The pending play a penalty request already showed, so the commit doesn't animate it twice. */
   shownPending: string | null;
   requestAt: number;
+  /** The last call was Same call: your side starts in the huddle too (Pre-snap). */
+  lastSame: boolean;
   /** Run-off seconds a request snapshot already showed, so the snap doesn't count them down again. */
   runoffShown: number;
 }
@@ -119,6 +127,7 @@ export class App {
   private readonly animator: Animator;
   private ui: UiData | null = null;
   private templates: Templates | null = null;
+  private motion: Motion | null = null;
   private labels: Record<string, string> = {};
   private stack: Overlay[] = [];
   private loading: { file: string; done: number; total: number } | null = { file: "", done: 0, total: 1 };
@@ -136,6 +145,12 @@ export class App {
   private working = false;
   private status = "";
   private highlight = 0;
+  /** The player whose card is open over a mark (hover or the M key), or null. */
+  private markCard: string | null = null;
+  /** On a first screen the preview waits for the first input (Pre-snap, state 1). */
+  private previewArmed = false;
+  private previewFrame: Timeline | null = null;
+  private previewKey = "";
   private box: { box: BoxScore; players: readonly PlayerLine[] } | null = null;
   private ranks = new Map<string, Readonly<Record<string, RatingRank>>>();
   private clockOverride: number | null = null;
@@ -158,6 +173,9 @@ export class App {
     );
     window.addEventListener("keydown", (e) => this.onKey(e));
     window.addEventListener("resize", () => this.onResize());
+    // Hover a mark for his player card; leaving the field closes it.
+    root.canvas.addEventListener("mousemove", (e) => this.onFieldHover(e));
+    root.canvas.addEventListener("mouseleave", () => this.closeMarkCard());
     this.reducedQuery.addEventListener("change", () => this.render());
     this.applyTextSize();
     this.onResize();
@@ -182,8 +200,10 @@ export class App {
       case "ready":
         try {
           this.templates = parseTemplates(m.ui.uiTemplates);
+          this.motion = parseMotion(m.ui.uiMotion);
         } catch (e) {
-          this.fatal = { title: "Game data failed its check: data/ui/templates.json. This build can't run.", lines: [(e as Error).message] };
+          const file = e instanceof MotionError ? "data/ui/motion.json" : "data/ui/templates.json";
+          this.fatal = { title: `Game data failed its check: ${file}. This build can't run.`, lines: [(e as Error).message] };
           this.render();
           return;
         }
@@ -263,7 +283,27 @@ export class App {
   }
 
   private frameOpts(): FrameOpts {
-    return { numbers: this.numbers(), markLabels: this.settings.markLabels, routeAlpha: this.templates?.timing.routeAlpha ?? 0.4, textScale: this.settings.textSize / 100 };
+    return {
+      numbers: this.numbers(),
+      ratings: this.ratingLabels(),
+      showRatings: this.settings.ratingLabels,
+      focused: this.markCard,
+      markLabels: this.settings.markLabels,
+      routeAlpha: this.templates?.timing.routeAlpha ?? 0.4,
+      textScale: this.settings.textSize / 100,
+    };
+  }
+
+  /** Each player's key rating (the card rating, before home field; templates keyRating). */
+  private ratingLabels(): Record<string, number> {
+    const m = this.game?.matchup ?? this.matchup;
+    if (m === null || m === undefined || this.templates === null) return {};
+    const out: Record<string, number> = {};
+    for (const p of [...m.home.pool.players, ...m.away.pool.players]) {
+      const v = ratingValue(p, this.templates.keyRating[p.position] ?? "speed");
+      if (v !== undefined) out[p.id] = v;
+    }
+    return out;
   }
 
   private sceneFor(possession: Team, los: number, firstDown: number | null): FieldScene {
@@ -278,9 +318,13 @@ export class App {
   private async onStep(m: Extract<FromWorker, { t: "step" }>): Promise<void> {
     const fresh = this.game === null || m.resumed || this.game.matchup.seed !== m.matchup.seed;
     if (fresh) {
-      this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0, runoffShown: 0 };
+      this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0, runoffShown: 0, lastSame: false };
       this.stack = [{ id: "game" }];
-      if (!m.resumed) bumpLog((l) => l.gamesStarted++);
+      if (!m.resumed)
+        bumpLog((l) => {
+          l.gamesStarted++;
+          l.games = [...(l.games ?? []), { seed: m.matchup.seed, leagueSeed: m.matchup.leagueSeed, at: new Date().toISOString() }];
+        });
     }
     const g = this.game as GameView;
     const before = g.state;
@@ -313,7 +357,7 @@ export class App {
           g.eventLines = pre;
           pre = [];
           // A run-off the request's snapshot already showed before the snap isn't counted down again.
-          if (g.shownPending !== key) await this.animate(g, ev, Math.max(0, runoff - g.runoffShown), prev);
+          if (g.shownPending !== key) await this.animate(g, ev, runoff, prev);
           g.runoffShown = 0;
           g.shownPending = null;
           runoff = 0;
@@ -347,7 +391,7 @@ export class App {
     }
     g.requestAt = performance.now();
     this.highlight = 0;
-    if (m.request?.kind === "penalty" || m.request?.kind === "runoff") await this.showPending(g, m.request);
+    if (m.request?.kind === "penalty" || m.request?.kind === "runoff" || m.request?.kind === "challenge") await this.showPending(g, m.request);
     this.idleField(g);
     if (m.request === null && g.state?.phase === "final") {
       bumpLog((l) => l.gamesFinished++);
@@ -388,9 +432,16 @@ export class App {
   private async animate(g: GameView, ev: PlayEvent, runoff: number, prev: GameState | null): Promise<void> {
     if (this.templates === null || this.ui === null) return;
     const tl = timeline(
-      { event: ev, runoffSeconds: runoff, ...(prev === null || prev.trySpots === null ? {} : { tryKickSpot: prev.trySpots.kick }) },
+      {
+        event: ev,
+        runoffSeconds: Math.max(0, runoff - g.runoffShown),
+        ...(prev === null || prev.trySpots === null ? {} : { tryKickSpot: prev.trySpots.kick }),
+        // Their side breaks its huddle; yours starts lined up after the Calling state, or in the huddle after Same call.
+        human: ev.before.possession === g.human ? "offense" : "defense",
+        ownStart: g.lastSame ? "huddle" : "lined",
+      },
       this.templates,
-      { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers(), pxPerYard: this.layoutNow.s },
+      { presetPackage: this.ui.presetPackage, endZoneYards: this.ui.rules.field.endZoneYards, numbers: this.numbers(), pxPerYard: this.layoutNow.s, markPx: this.layoutNow.markPx, motion: this.motion as Motion },
     );
     const flip = g.framePossession !== null && g.framePossession !== ev.before.possession;
     if (flip) this.animator.idle(this.sceneFor(ev.before.possession, ev.before.spot, null), false, !this.reducedMotion());
@@ -410,7 +461,7 @@ export class App {
   }
 
   /** A penalty choice or a ten-second run-off comes after the snap: show the play first, then ask. */
-  private async showPending(g: GameView, req: Extract<DecisionRequest, { kind: "penalty" | "runoff" }>): Promise<void> {
+  private async showPending(g: GameView, req: Extract<DecisionRequest, { kind: "penalty" | "runoff" | "challenge" }>): Promise<void> {
     const key = JSON.stringify(req.play);
     if (g.shownPending === key || g.state === null) return;
     const before = { period: g.state.period, clock: g.state.clock, phase: g.state.phase, possession: g.state.possession, spot: g.state.spot, down: g.state.down, distance: g.state.distance, goalToGo: g.state.goalToGo, score: g.state.score, timeouts: g.state.timeouts, clockRunning: g.state.clockRunning, safetyKick: g.state.safetyKick };
@@ -474,6 +525,17 @@ export class App {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (this.layoutNow.tooSmall || this.fatal !== null || this.loading !== null) return;
     const k = e.key;
+    if (k === "m" || k === "M") {
+      // Cycle the player cards over the marks on the field (Joseph's amendment: hover or focus).
+      this.cycleMarkCard();
+      e.preventDefault();
+      return;
+    }
+    if (this.markCard !== null && (k === "Escape" || k === "Enter")) {
+      this.closeMarkCard();
+      e.preventDefault();
+      return;
+    }
     if (this.animating) {
       // Only skip and speed work during the animation; nothing else is buffered.
       if (k === " " || k === "Enter") this.animator.skip();
@@ -492,7 +554,14 @@ export class App {
     else if (k === "t" || k === "T") key = "T";
     else if (k === "Escape" || k === "Backspace") key = "Esc";
     else if (k === " ") key = list.some((r) => r.key === "Space") ? "Space" : null;
-    else if (k === "ArrowLeft") key = "Left";
+    else if ((k === "ArrowLeft" || k === "ArrowRight") && this.top()?.id === "game") {
+      // On a card grid, left and right move across the grid in reading order (wrapping).
+      if (list.length > 0) this.highlight = (this.highlight + (k === "ArrowRight" ? 1 : list.length - 1)) % list.length;
+      this.previewArmed = true;
+      this.render();
+      e.preventDefault();
+      return;
+    } else if (k === "ArrowLeft") key = "Left";
     else if (k === "ArrowRight") key = "Right";
     else if (k === "d" || k === "D") {
       if (this.top()?.id === "game" && this.game?.lastPlay !== null && this.game !== null) this.openOverlay({ id: "details" });
@@ -500,7 +569,13 @@ export class App {
       return;
     } else if (k === "ArrowDown" || k === "ArrowUp") {
       if (this.top()?.id === "roster") this.moveRosterSelection(k === "ArrowDown" ? 1 : -1);
-      else if (list.length > 0) this.highlight = (this.highlight + (k === "ArrowDown" ? 1 : list.length - 1)) % list.length;
+      else if (list.length > 0) {
+        // Up and down move within a column of the 3-column card grid; elsewhere one row.
+        const step = this.onCardScreen() ? 3 : 1;
+        const n = list.length;
+        this.highlight = Math.max(0, Math.min(n - 1, this.highlight + (k === "ArrowDown" ? step : -step)));
+      }
+      this.previewArmed = true;
       this.render();
       e.preventDefault();
       return;
@@ -571,6 +646,7 @@ export class App {
         const path = effect.answer.path;
         const row = menuRows(g.menu, this.menuData()).find((r) => r.key === key);
         if (row?.option === "sameCall") bumpLog((l) => l.sameCalls++);
+        g.lastSame = row?.option === "sameCall";
         const tempo = path[0] === "clock" && ["hurryUp", "normal", "runClock"].includes(path[1] ?? "");
         if (!tempo) {
           const secs = (performance.now() - g.requestAt) / 1000;
@@ -722,6 +798,9 @@ export class App {
       case "markLabels":
         this.settings.markLabels = this.settings.markLabels === "involved" ? "all" : this.settings.markLabels === "all" ? "none" : "involved";
         break;
+      case "ratingLabels":
+        this.settings.ratingLabels = !this.settings.ratingLabels;
+        break;
       case "copy":
         this.copyDetails(top);
         return;
@@ -801,6 +880,209 @@ export class App {
     if (!this.ranks.has(id)) this.client.send({ t: "ranks", playerId: id, leagueSeed: this.game?.matchup.leagueSeed ?? this.leagueSeed });
   }
 
+  // ------------------------------------------------------------ cards and the Calling preview
+
+  private onCardScreen(): boolean {
+    const m = this.game?.menu;
+    return this.top()?.id === "game" && m !== null && m !== undefined && cardKind(current(m)) !== null;
+  }
+
+  /** Compact fallback: small height or large text drops the art (spec, Layout of cards). */
+  private compact(): boolean {
+    return this.layoutNow.panel.height < 520 || this.settings.textSize >= 150;
+  }
+
+  private countsFor(m: MenuState, optionId: string): { counts: Readonly<Partial<Record<string, number>>>; side: "offense" | "defense"; unit: string; call: string | null } | null {
+    const ui = this.ui;
+    if (ui === null) return null;
+    const kind = cardKind(current(m));
+    const formation = m.picks[m.picks.indexOf("formation") + 1];
+    switch (kind) {
+      case "formation":
+        return { counts: ui.personnel.offense[optionId] ?? {}, side: "offense", unit: optionId, call: null };
+      case "play":
+        return formation === undefined ? null : { counts: ui.personnel.offense[formation] ?? {}, side: "offense", unit: formation, call: optionId };
+      case "package": {
+        const pkg = optionId === "specials" ? "goalLine" : optionId;
+        return { counts: ui.personnel.packages[pkg] ?? {}, side: "defense", unit: pkg, call: null };
+      }
+      case "coverage": {
+        const pkg = ui.presetPackage[optionId] ?? "base";
+        return { counts: ui.personnel.packages[pkg] ?? {}, side: "defense", unit: pkg, call: optionId };
+      }
+      default:
+        return null;
+    }
+  }
+
+  /** Text rows with the personnel line as the note (the compact fallback). */
+  private withPersonnel(m: MenuState, list: readonly MenuRow[]): MenuRow[] {
+    return list.map((r) => {
+      const c = r.option === undefined ? null : this.countsFor(m, r.option);
+      return c === null || (cardKind(current(m)) !== "formation" && cardKind(current(m)) !== "package") ? r : { ...r, note: personnelLine(c.counts, c.side) };
+    });
+  }
+
+  /** The card grid: each row as a card with its play art; Esc, Same call and T stay text rows under it. */
+  private cardGrid(m: MenuState, list: readonly MenuRow[]): HTMLElement {
+    const t = this.templates;
+    const kind = cardKind(current(m));
+    const grid = h("div", { class: "cards", role: "group", "aria-label": menuTitle(m) });
+    const rest: HTMLElement[] = [];
+    list.forEach((r, i) => {
+      const c = r.option === undefined || r.option === "sameCall" || r.option === "timeout" ? null : this.countsFor(m, r.option);
+      if (c === null || t === null || kind === null) {
+        rest.push(this.rowButton(r, i, () => (this.animating ? undefined : this.pick(r.key))));
+        return;
+      }
+      const personnel = kind === "formation" || kind === "package" ? personnelLine(c.counts, c.side) : null;
+      const desc = this.ui?.catalog.screens.flatMap((s) => s.choices).find((x) => x.id === r.option)?.description ?? "";
+      const name = [r.key, r.label, personnel].filter((x) => x !== null).join(", ");
+      const b = h(
+        "button",
+        { class: `card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
+        h("span", { class: "card-label" }, h("span", { class: "key mono" }, r.key), " ", r.label, r.on ? "" : ` (${r.reason ?? "not now"})`),
+      );
+      const art = h("span", { class: "card-art", "aria-hidden": "true" });
+      art.innerHTML = cardSvg(cardArt(kind, c.unit, c.call, c.counts, t), c.side);
+      b.append(art);
+      if (personnel !== null) b.append(h("span", { class: "card-personnel" }, personnel));
+      b.addEventListener("click", () => (this.animating ? undefined : this.pick(r.key)));
+      b.addEventListener("mouseenter", () => {
+        this.highlight = i;
+        this.previewArmed = true;
+        this.status = desc;
+        this.render();
+      });
+      grid.append(b);
+    });
+    return h("div", {}, grid, h("div", { class: "rows" }, ...rest));
+  }
+
+  /**
+   * The field while calling (Pre-snap state 2): your lineup for the focused or picked formation or
+   * package, the focused play's art faint, their huddle. State 1 (the last play's frame) until the
+   * first input on a first screen, and again on Esc back to it.
+   */
+  private updatePreview(): void {
+    const g = this.game;
+    if (g === null || g.menu === null || g.request === null || this.animating || this.templates === null || this.motion === null || g.state === null) return;
+    const req = g.request;
+    if (req.kind !== "offenseCall" && req.kind !== "try" && req.kind !== "defenseCall") return;
+    const m = g.menu;
+    const s = g.state;
+    const list = menuRows(m, this.menuData());
+    const focused = list[this.highlight]?.option;
+    let c = focused === undefined ? null : this.countsFor(m, focused);
+    // Off a card (the Back row) on a deeper screen: the picked formation, no art.
+    if (c === null && m.picks.includes("formation")) {
+      const f = m.picks[m.picks.indexOf("formation") + 1];
+      if (f !== undefined && this.ui !== null) c = { counts: this.ui.personnel.offense[f] ?? {}, side: "offense", unit: f, call: null };
+    }
+    const first = isFirstScreen(m);
+    if (c === null || (first && !this.previewArmed)) {
+      if (this.previewKey !== "") {
+        this.previewKey = "";
+        this.previewFrame = null;
+        this.animator.restoreLast(this.sceneFor(s.possession, s.spot, null));
+      }
+      return;
+    }
+    const key = JSON.stringify([req.seq, c.unit, c.call]);
+    if (key === this.previewKey) return;
+    this.previewKey = key;
+    const frame = callingFrame({
+      side: c.side,
+      los: s.spot,
+      firstDown: s.phase === "scrimmage" && !s.goalToGo ? s.spot + s.distance : null,
+      unit: c.unit,
+      call: c.call,
+      lineups: req.lineups,
+      counts: c.counts,
+      opponentCount: 11,
+      templates: this.templates,
+      motion: this.motion,
+      pxPerYard: this.layoutNow.s,
+      markPx: this.layoutNow.markPx,
+      endZoneYards: this.ui?.rules.field.endZoneYards ?? 10,
+    });
+    const ms = this.reducedMotion() ? 0 : this.motion.preSnap.glideMs;
+    const shown = glide(this.previewFrame, frame, ms);
+    this.previewFrame = frame;
+    this.animator.still(shown, this.sceneFor(s.possession, s.spot, frame.firstDown), this.previewFrame === null ? 0 : ms);
+  }
+
+  // ------------------------------------------------------------ the player card over a mark
+
+  private onFieldHover(e: MouseEvent): void {
+    const rect = this.root.canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const r = this.layoutNow.markPx / 2 + 4;
+    const hit = this.animator.marks().find((m) => Math.hypot(m.x - x, m.y - y) <= r);
+    if (hit === undefined) {
+      if (this.markCard !== null) this.closeMarkCard();
+      return;
+    }
+    if (hit.id !== this.markCard) this.openMarkCard(hit.id);
+  }
+
+  private openMarkCard(id: string): void {
+    this.markCard = id;
+    this.animator.pause();
+    this.requestRanks(id);
+    if (this.game !== null && this.box === null) this.client.send({ t: "box" });
+    this.render();
+    this.animator.redraw();
+  }
+
+  private closeMarkCard(): void {
+    if (this.markCard === null) return;
+    this.markCard = null;
+    this.animator.resume();
+    this.render();
+    this.animator.redraw();
+  }
+
+  /** M cycles the player cards over the marks on the field, offense and defense alike. */
+  private cycleMarkCard(): void {
+    const marks = this.animator.marks();
+    if (marks.length === 0) return;
+    const i = marks.findIndex((m) => m.id === this.markCard);
+    this.openMarkCard((marks[(i + 1) % marks.length] as { id: string }).id);
+  }
+
+  /** The card: name, number, position; every rating with its league rank; this play's credited roles; game totals. */
+  private markCardContent(): HTMLElement[] {
+    const id = this.markCard;
+    if (id === null) return [];
+    const found = this.playerById(id);
+    if (found === null) return [];
+    const { p, team } = found;
+    const ranks = this.ranks.get(id);
+    const plural = POSITION_PLURAL[p.position] ?? `${p.position}s`;
+    const ratings = [...Object.entries(p.ratings), ...Object.entries(p.skills)].map(([k, v]) => {
+      const r = ranks?.[k];
+      return h("li", { class: "mono" }, `${RATING_NAME[k] ?? k} ${v}${r === undefined ? "" : `: ${ordinalRank(r.rank)} of ${r.of} ${plural}`}`);
+    });
+    const play = playLines(id, this.game?.lastPlay ?? null);
+    const line = this.box?.players.find((l) => l.id === id);
+    return [
+      h(
+        "section",
+        { class: "mark-card", role: "dialog", "aria-label": `${p.name}, #${p.number}, ${p.position}`, "aria-live": "polite" },
+        h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)),
+        h("h3", {}, "Ratings"),
+        h("ul", { class: "ratings" }, ...ratings),
+        h("h3", {}, "This play"),
+        play.length === 0 ? h("p", { class: "soft" }, NO_PLAY_STAT) : h("ul", {}, ...play.map((x) => h("li", {}, x))),
+        h("h3", {}, "This game"),
+        h("p", {}, line === undefined ? "No stats yet" : statLine(line)),
+        h("p", { class: "hint" }, "M: next player. Esc or Enter: close."),
+      ),
+    ];
+  }
+
   // ------------------------------------------------------------ rendering
 
   private screenModel(): ScreenModel | null {
@@ -818,7 +1100,7 @@ export class App {
       case "ratingDetail":
         return ratingDetailScreen();
       case "pause":
-        return pauseScreen({ hasPlay: this.game?.lastPlay !== null && this.game !== null, speed: this.settings.speed });
+        return pauseScreen({ hasPlay: this.game?.lastPlay !== null && this.game !== null, speed: this.settings.speed, ...(this.game === null ? {} : { seed: this.game.matchup.seed, leagueSeed: this.game.matchup.leagueSeed }) });
       case "settings":
         return settingsScreen(this.settings);
       case "controls":
@@ -849,7 +1131,8 @@ export class App {
   private render(): void {
     this.renderTopBar();
     const p = this.root.panel;
-    p.replaceChildren(...this.panelContent());
+    p.replaceChildren(...this.markCardContent(), ...this.panelContent());
+    this.updatePreview();
     this.renderStatus();
     // Keep keyboard focus on the highlighted row, so screen readers follow the menu.
     const btn = p.querySelectorAll<HTMLButtonElement>("button.row")[this.highlight];
@@ -954,7 +1237,7 @@ export class App {
     if (top === undefined) return [];
     if (top.id === "game") return this.gamePanel();
     const model = this.screenModel() as ScreenModel;
-    return [h("h1", {}, model.title), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), h("p", { class: "status", role: "status" })];
+    return [h("h1", {}, model.title), ...(model.lines ?? []).map((l) => h("p", { class: "soft mono seeds" }, l)), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), h("p", { class: "status", role: "status" })];
   }
 
   private gamePanel(): HTMLElement[] {
@@ -980,8 +1263,11 @@ export class App {
       const crumbs = breadcrumb(m, this.menuData());
       const req = g.request;
       if (req.kind === "continue") out.push(h("p", { class: "lineup" }, continueText(req.about, this.textCtx(g))));
+      // M2 G: what is in doubt, then what a challenge risks, from the rule set (design "Challenge prompt").
+      if (req.kind === "challenge") out.push(h("p", { class: "lineup" }, `Close call: ${req.closeCall.question} ${req.challengesLeft} challenge${req.challengesLeft === 1 ? "" : "s"} left; ${req.failedCostsTimeout ? `a failed challenge costs a timeout (${req.timeoutsLeft} left)` : "a failed challenge costs nothing"}.`));
       out.push(h("h2", {}, menuTitle(m), crumbs === "" ? "" : `: ${crumbs}`));
-      out.push(this.rowsGroup(menuTitle(m), menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }))));
+      const list = menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }));
+      out.push(this.onCardScreen() && !this.compact() ? this.cardGrid(m, list) : this.rowsGroup(menuTitle(m), this.compact() ? this.withPersonnel(m, list) : list));
       if (current(m) === "offense.clock" && req.kind === "offenseCall") out.push(h("p", { class: "soft" }, `Clock ${req.clockRunning ? "running" : "stopped"}. Tempo: ${tempoText(req.tempo)} (resets each drive).`));
     } else if (this.animating) {
       out.push(h("p", { class: "soft" }, "Space: skip. S: speed (", this.settings.speed, ")."));
@@ -1054,7 +1340,6 @@ export class App {
     return [
       h("p", { class: "matchup" }, "You: ", teamLine(you, this.human), " vs ", teamLine(them, other(this.human))),
       h("div", { class: "unit-cols" }, unitBars(you), unitBars(them)),
-      h("p", { class: "soft mono" }, `Seed ${m.seed}, league seed ${m.leagueSeed}. Unit bars are averages of the players' ratings.`),
     ];
   }
 

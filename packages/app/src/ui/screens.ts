@@ -16,6 +16,8 @@ export interface ScreenModel {
   readonly id: string;
   readonly title: string;
   readonly rows: readonly ScreenRow[];
+  /** Plain lines shown above the rows (not choices). */
+  readonly lines?: readonly string[];
 }
 
 const row = (key: string, label: string, action: string, extra: Partial<ScreenRow> = {}): ScreenRow => ({ key, label, on: true, action, ...extra });
@@ -94,10 +96,16 @@ export function boxScreen(tab: BoxTab): ScreenModel {
 
 export type SpeedSetting = "1x" | "2x" | "skip";
 
-export function pauseScreen(o: { readonly hasPlay: boolean; readonly speed: SpeedSetting }): ScreenModel {
+/** The game's seeds, so any game can be replayed (shown in the Esc menu; Joseph moved them off Pregame). */
+export function seedLine(seed: number, leagueSeed: number): string {
+  return `Seed ${seed}, league seed ${leagueSeed}.`;
+}
+
+export function pauseScreen(o: { readonly hasPlay: boolean; readonly speed: SpeedSetting; readonly seed?: number; readonly leagueSeed?: number }): ScreenModel {
   return {
     id: "pause",
     title: "Paused",
+    ...(o.seed === undefined || o.leagueSeed === undefined ? {} : { lines: [seedLine(o.seed, o.leagueSeed)] }),
     rows: [
       row("1", "Resume", "resume"),
       o.hasPlay ? row("2", "Last play details", "details", { note: "D" }) : row("2", "Last play details", "details", { on: false, reason: "no plays yet" }),
@@ -117,7 +125,7 @@ export type MarkLabelSetting = "involved" | "all" | "none";
 export const MARK_LABEL_TEXT: Readonly<Record<MarkLabelSetting, string>> = { involved: "Named players during the play", all: "All", none: "None" };
 export const MOTION_TEXT: Readonly<Record<MotionSetting, string>> = { system: "Follow the system", on: "On", off: "Off" };
 
-export function settingsScreen(o: { readonly textSize: TextSize; readonly reducedMotion: MotionSetting; readonly markLabels: MarkLabelSetting }): ScreenModel {
+export function settingsScreen(o: { readonly textSize: TextSize; readonly reducedMotion: MotionSetting; readonly markLabels: MarkLabelSetting; readonly ratingLabels?: boolean }): ScreenModel {
   return {
     id: "settings",
     title: "Settings",
@@ -125,6 +133,7 @@ export function settingsScreen(o: { readonly textSize: TextSize; readonly reduce
       row("1", "Text size", "textSize", { note: `${o.textSize}%` }),
       row("2", "Reduced motion", "reducedMotion", { note: MOTION_TEXT[o.reducedMotion] }),
       row("3", "Mark labels", "markLabels", { note: MARK_LABEL_TEXT[o.markLabels] }),
+      row("4", "Rating labels", "ratingLabels", { note: o.ratingLabels === false ? "Off" : "On" }),
       row("Esc", "Back", "back"),
     ],
   };

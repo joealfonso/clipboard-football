@@ -66,6 +66,9 @@ function screenOf(m: MenuState): RequestScreen | undefined {
 }
 
 const FIXED: Readonly<Record<string, string>> = {
+  formation: "Formation",
+  run: "Run",
+  pass: "Pass",
   timeout: "Timeout",
   continue: "Continue",
   hurryUp: "Hurry-up",
@@ -78,6 +81,9 @@ const FIXED: Readonly<Record<string, string>> = {
   decline: "Decline",
   offset: "Offsetting fouls: replay the down",
   specials: "Specials",
+  // M2 G: the challenge prompt.
+  throwFlag: "Throw the flag",
+  letStand: "Let it stand",
 };
 
 function callText(c: OffenseCallChoice, labels: Readonly<Record<string, string>>): string {
@@ -150,8 +156,8 @@ export function breadcrumb(m: MenuState, data: MenuData): string {
 const TITLES: Readonly<Record<string, string>> = {
   "offense.playType": "Offense: Play type",
   "offense.playType.try": "Two-point try: Play type",
-  "offense.formation.run": "Offense: Formation",
-  "offense.formation.pass": "Offense: Formation",
+  "offense.formation": "Offense: Formation",
+  "offense.playClass": "Offense: Run or pass",
   "offense.run": "Offense: Run",
   "offense.pass": "Offense: Pass",
   "offense.kick": "Offense: Kick",
@@ -166,6 +172,7 @@ const TITLES: Readonly<Record<string, string>> = {
   continue: "Dead ball",
   penalty: "Penalty: your choice",
   runoff: "Ten-second run-off",
+  challenge: "Challenge?",
   toss: "Coin toss: you won",
   overtimeToss: "Overtime coin toss: you won",
 };

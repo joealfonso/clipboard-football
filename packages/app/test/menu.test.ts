@@ -67,46 +67,55 @@ describe("every real request (F3, F4, engine paths)", () => {
 });
 
 describe("the offense menus", () => {
-  it("the Play type screen is Run, Pass, Kick, Clock, Same call, T, Esc", () => {
+  it("the first screen is Formation, Kick, Clock, Same call, T, Esc (formation first, Joseph)", () => {
     const r = rows(openMenu(firstOf("offenseCall")), data);
-    expect(r.map((x) => `${x.key} ${x.label.replace(/:.*$/, "")}`)).toEqual(["1 Run", "2 Pass", "3 Kick", "4 Clock", "5 Same call", "T Timeout", "Esc Menu"]);
+    expect(r.map((x) => `${x.key} ${x.label.replace(/:.*$/, "")}`)).toEqual(["1 Formation", "2 Kick", "3 Clock", "4 Same call", "T Timeout", "Esc Menu"]);
   });
 
-  it("an off Kick keeps key 3 and only gives its reason", () => {
+  it("Formation opens the five formations, each opens Run or Pass", () => {
+    const req = firstOf("offenseCall");
+    const f = press(openMenu(req), "1", data).menu;
+    expect(current(f)).toBe("offense.formation");
+    expect(rows(f, data).map((x) => x.label)).toEqual(["Shotgun", "Under center", "Pistol", "Empty", "Heavy", "Back"]);
+    const c = press(f, "1", data).menu;
+    expect(current(c)).toBe("offense.playClass");
+    expect(rows(c, data).map((x) => x.label)).toEqual(["Run", "Pass", "Back"]);
+  });
+
+  it("an off Kick keeps key 2 and only gives its reason", () => {
     const req = firstOf("offenseCall", (r) => firstOption(r, "kick")?.legal === false);
     const m = openMenu(req);
-    expect(rows(m, data).find((x) => x.option === "kick")).toMatchObject({ key: "3", on: false, reason: "kickNotNow" });
-    const r = press(m, "3", data);
+    expect(rows(m, data).find((x) => x.option === "kick")).toMatchObject({ key: "2", on: false, reason: "kickNotNow" });
+    const r = press(m, "2", data);
     expect(r.effect).toEqual({ t: "reason", reason: "kickNotNow" });
     expect(r.menu).toBe(m);
   });
 
-  it("a pass is three keys and the formation comes first", () => {
+  it("a pass is four keys, formation first: Formation, the formation, Pass, the play", () => {
     const req = firstOf("offenseCall");
-    const m1 = press(openMenu(req), "2", data).menu;
-    expect(current(m1)).toBe("offense.formation.pass");
-    expect(run(openMenu(req), ["2", "1", "1"]).effect).toEqual({ t: "submit", answer: { seq: req.seq, path: ["pass", "shotgun", "shortPass"] } });
+    expect(run(openMenu(req), ["1", "1", "2", "1"]).effect).toEqual({ t: "submit", answer: { seq: req.seq, path: ["formation", "shotgun", "pass", "shortPass"] } });
+    expect(run(openMenu(req), ["1", "5", "1", "3"]).effect).toEqual({ t: "submit", answer: { seq: req.seq, path: ["formation", "heavy", "run", "qbSneak"] } });
   });
 
   it("a kick is two keys and the field goal row states the distance", () => {
     const req = firstOf("offenseCall", (r) => firstOption(r, "kick")?.legal === true);
-    const kick = press(openMenu(req), "3", data).menu;
+    const kick = press(openMenu(req), "2", data).menu;
     expect(rows(kick, data).find((x) => x.option === "fieldGoal")?.label).toBe(`Field goal (${req.fieldGoalYards} yd)`);
-    expect(run(openMenu(req), ["3", "1"]).effect).toEqual({ t: "submit", answer: { seq: req.seq, path: ["kick", "punt"] } });
+    expect(run(openMenu(req), ["2", "1"]).effect).toEqual({ t: "submit", answer: { seq: req.seq, path: ["kick", "punt"] } });
   });
 
   it("Same call is one key and names the last call; off with its reason before any call", () => {
     const off = firstOf("offenseCall", (r) => r.sameCall === null);
-    expect(press(openMenu(off), "5", data).effect).toEqual({ t: "reason", reason: "noEarlierCall" });
+    expect(press(openMenu(off), "4", data).effect).toEqual({ t: "reason", reason: "noEarlierCall" });
     const on = firstOf("offenseCall", (r) => firstOption(r, "sameCall")?.legal === true && r.sameCall?.formation !== undefined);
     const row = rows(openMenu(on), data).find((x) => x.option === "sameCall");
     expect(row?.label).toMatch(/^Same call: .+, .+$/);
-    expect(press(openMenu(on), "5", data).effect).toEqual({ t: "submit", answer: { seq: on.seq, path: ["sameCall"] } });
+    expect(press(openMenu(on), "4", data).effect).toEqual({ t: "submit", answer: { seq: on.seq, path: ["sameCall"] } });
   });
 
   it("Clock 3 to 5 set the tempo and mark the current one", () => {
     const req = firstOf("offenseCall");
-    const clock = press(openMenu(req), "4", data).menu;
+    const clock = press(openMenu(req), "3", data).menu;
     expect(rows(clock, data).map((r) => r.label)).toEqual(["Spike", "Kneel", "Hurry-up", "Normal", "Run the clock", "Back"]);
     expect(rows(clock, data).find((r) => r.option === req.tempo)?.note).toBe("now");
     expect(press(clock, "3", data).effect).toEqual({ t: "submit", answer: { seq: req.seq, path: ["clock", "hurryUp"] } });
@@ -115,11 +124,12 @@ describe("the offense menus", () => {
   it("Timeout is T on the first screen only, and Esc goes back, or to the pause menu first", () => {
     const req = firstOf("offenseCall");
     const m = openMenu(req);
-    const deep = run(m, ["2", "1"]).menu;
+    const deep = run(m, ["1", "1"]).menu;
+    expect(current(deep)).toBe("offense.playClass");
     expect(rows(deep, data).some((r) => r.key === "T")).toBe(false);
     const back = press(deep, "Esc", data).menu;
-    expect(current(back)).toBe("offense.formation.pass");
-    expect(back.picks).toEqual(["pass"]);
+    expect(current(back)).toBe("offense.formation");
+    expect(back.picks).toEqual(["formation"]);
     expect(press(m, "Esc", data).effect).toEqual({ t: "pause" });
   });
 });

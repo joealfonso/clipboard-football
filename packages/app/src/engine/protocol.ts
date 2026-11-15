@@ -25,6 +25,9 @@ export interface UiData {
   /** personnel.json: the defense package each preset lines up in, for the field diagram. */
   readonly presetPackage: Readonly<Record<string, string>>;
   readonly uiTemplates: unknown;
+  readonly uiMotion: unknown;
+  /** personnel.json slot counts, for the card personnel lines and the card art. */
+  readonly personnel: { readonly offense: Readonly<Record<string, Readonly<Partial<Record<string, number>>>>>; readonly packages: Readonly<Record<string, Readonly<Partial<Record<string, number>>>>> };
   readonly dataHash: string;
 }
 
