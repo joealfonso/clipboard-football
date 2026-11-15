@@ -192,3 +192,50 @@ export function parseGameData(files: GameFiles, engine: EngineData, rulesHash: s
     dataHashes,
   };
 }
+
+// ---------------------------------------------------------------- M2 F: pre-registered standout tolerances
+
+const standoutKindId = z.enum(["breakawayRun", "bigCatch", "sack", "pick", "longKick"]);
+const pp = z.number().positive();
+
+/** data/game/m2-standout-tolerances.json (designed, pre-registered; its sha256 is in DECISIONS.md, M2). */
+export const standoutTolerancesSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    designed: z.literal(true),
+    preRegistered: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    spec: z.string().min(1),
+    note: z.string().optional(),
+    threshold: z.strictObject({ cardRating: z.number().int().min(0).max(99), note: z.string().optional() }),
+    kinds: z
+      .array(
+        z.strictObject({
+          id: standoutKindId,
+          role: z.enum(["ballCarrier", "target", "sacker", "interceptor", "kicker"]),
+          positions: z.array(z.enum(["QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K", "P"])).min(1),
+          ratings: z.array(z.string().min(1)).min(1),
+          boosts: z.strictObject({ family: z.string().min(1), class: z.string().min(1), minDistance: z.number().int().positive().optional() }),
+        }),
+      )
+      .length(5),
+    f1: z.strictObject({
+      comparison: z.string().min(1),
+      scrimmageClassSharePp: pp,
+      pointsPerTeamGameMean: pp,
+      pointsPerTeamGameSd: pp,
+      turnoversPerTeamGame: pp,
+      fieldGoalMakeRate50PlusPp: pp,
+      noGatedStatusFlipToFail: z.literal(true),
+      note: z.string().optional(),
+    }),
+    f2: z.strictObject({
+      method: z.string().min(1),
+      minRelativeEffect: z.strictObject({ breakawayRun: pp, bigCatch: pp, sack: pp, pick: pp, longKick: pp }),
+      note: z.string().optional(),
+    }),
+    known_deviations: z.array(z.strictObject({ metric: z.string().min(1), approved_by: z.string().min(1), note: z.string().optional() })),
+  })
+  .superRefine((t, ctx) => {
+    const ids = t.kinds.map((k) => k.id);
+    if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "a standout kind is listed twice" });
+  });
