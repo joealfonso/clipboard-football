@@ -108,7 +108,12 @@ const about = z.discriminatedUnion("what", [
   z.strictObject({ what: z.literal("tossResult"), winner: team, choice: z.enum(["receive", "kick", "defer"]) }),
   z.strictObject({ what: z.literal("theyKickOff"), onside: z.boolean(), safetyKick: z.boolean() }),
   z.strictObject({ what: z.literal("theyLineUp"), call: id }),
-  z.strictObject({ what: z.literal("underReview"), kind: id, question: z.string().min(1), by: z.enum(["you", "them", "booth"]) }),
+  z.strictObject({
+    what: z.literal("underReview"), kind: id, question: z.string().min(1), by: z.enum(["you", "them", "booth"]),
+    // The ruling on the field, without the verdict, as in the challenge request.
+    play: z.looseObject({ kind: z.string(), detail: z.looseObject({ closeCall: z.looseObject({ kind: id }).refine((c) => !("verdict" in c), { message: "an under-review request shows the verdict" }) }) }),
+    offenseCall, defenseCall: id.nullable(),
+  }),
   z.strictObject({ what: z.literal("reviewResult"), kind: id, by: z.enum(["you", "them", "booth"]), verdict: z.enum(["stands", "reversed"]), play: z.looseObject({ kind: z.string() }), timeoutCharged: z.boolean() }),
 ]);
 /** The PlayResult is checked as an object here; its own shape is the sim's contract (play.ts). */

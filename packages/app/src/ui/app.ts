@@ -11,6 +11,7 @@ import { whyHeadline } from "../engine/headline";
 import type { FromWorker, Matchup, SimErrorInfo, TeamSummary, UiData } from "../engine/protocol";
 import { readDetail, type DecisionRequest, type GameEvent, type GameState, type PlayEvent, type PlayerLine, type RatingRank, type Team, type TraceEntry } from "../engine/types";
 import { Animator } from "./animator";
+import { pendingKey, pendingPlay, type PendingPlay } from "./pending";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
 import { layoutFor, type Layout } from "./layout";
@@ -365,7 +366,8 @@ export class App {
           continue;
         }
         if (ev.t === "play") {
-          const key = JSON.stringify(ev.play);
+          // Compared without a close call's verdict: a ruling that stood was shown without it (code review).
+          const key = pendingKey(ev.play);
           g.eventLines = pre;
           pre = [];
           // A run-off the request's snapshot already showed before the snap isn't counted down again.
@@ -403,7 +405,8 @@ export class App {
     }
     g.requestAt = performance.now();
     this.highlight = 0;
-    if (m.request?.kind === "penalty" || m.request?.kind === "runoff" || m.request?.kind === "challenge") await this.showPending(g, m.request);
+    const pending = pendingPlay(m.request);
+    if (pending !== null) await this.showPending(g, pending);
     this.idleField(g);
     if (m.request === null && g.state?.phase === "final") {
       bumpLog((l) => l.gamesFinished++);
@@ -472,9 +475,12 @@ export class App {
     this.animating = false;
   }
 
-  /** A penalty choice or a ten-second run-off comes after the snap: show the play first, then ask. */
-  private async showPending(g: GameView, req: Extract<DecisionRequest, { kind: "penalty" | "runoff" | "challenge" }>): Promise<void> {
-    const key = JSON.stringify(req.play);
+  /**
+   * A penalty choice, a ten-second run-off, a challenge or a review comes after the snap: show the
+   * ruled play first, then ask.
+   */
+  private async showPending(g: GameView, req: PendingPlay): Promise<void> {
+    const key = pendingKey(req.play);
     if (g.shownPending === key || g.state === null) return;
     const before = { period: g.state.period, clock: g.state.clock, phase: g.state.phase, possession: g.state.possession, spot: g.state.spot, down: g.state.down, distance: g.state.distance, goalToGo: g.state.goalToGo, score: g.state.score, timeouts: g.state.timeouts, clockRunning: g.state.clockRunning, safetyKick: g.state.safetyKick };
     const ev: PlayEvent = { t: "play", before, offense: req.offenseCall, defense: req.defenseCall, play: req.play, penalty: null, runoffTimeout: false, after: before };

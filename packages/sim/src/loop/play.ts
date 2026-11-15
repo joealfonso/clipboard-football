@@ -20,7 +20,7 @@ import { FORMATION_PLAYS, type OffenseCall } from "../caller/offense";
 import { createEngine, type Players, type ResolvePlay } from "../engine/resolve";
 import type { PenaltyOption } from "../game/enforce";
 import { other } from "../game/frame";
-import { applyPlay, callTimeout, chargeTimeout, newGame, peekToss, penaltyOptions, reviewRunoff, runPreSnap, startOvertime } from "../game/machine";
+import { applyPlay, callTimeout, challengeCost, newGame, peekToss, penaltyOptions, reviewRunoff, runPreSnap, startOvertime } from "../game/machine";
 import { isOvertime } from "../game/periods";
 import { GameRuleError } from "../game/errors";
 import { toSituation } from "../game/situation";
@@ -515,7 +515,11 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     if (by === null) return null;
     const reversed = cc.verdict === "reversed";
     const who = (b: "booth" | Team): "you" | "them" | "booth" => (b === "booth" ? "booth" : seat !== null && b === seat.team ? "you" : "them");
-    if (seat !== null) ask(() => continueRequest(seat.team, { what: "underReview", kind: cc.kind, question, by: who(by) }, null));
+    // The ruled play, without the verdict, so the app can show it before "Under review" (code review).
+    const { verdict: _w, ...shownCall } = cc;
+    void _w;
+    const shownPlay = { ...ruledPlay, detail: { ...ruledPlay.detail, closeCall: shownCall } } as PlayResult;
+    if (seat !== null) ask(() => continueRequest(seat.team, { what: "underReview", kind: cc.kind, question, by: who(by), play: shownPlay, offenseCall: cl.offense, defenseCall: cl.defense }, null));
     let next = counts;
     let charge: Team | null = null;
     if (by !== "booth") {
@@ -524,7 +528,7 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
       if (!reversed && rules.challenges.failedCostsTimeout) charge = by;
     }
     const used = reversed ? cc.alternative : ruledPlay;
-    if (seat !== null) ask(() => continueRequest(seat.team, { what: "reviewResult", kind: cc.kind, by: who(by), verdict: cc.verdict, play: used, timeoutCharged: charge !== null }, null));
+    if (seat !== null) ask(() => continueRequest(seat.team, { what: "reviewResult", kind: cc.kind, by: who(by), verdict: cc.verdict, play: used, timeoutCharged: charge !== null && s.timeouts[charge] > 0 }, null));
     keptChallenges = next;
     input();
     return {
@@ -704,7 +708,13 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
   const before = snapshot(s);
   const offenseTeam = s.possession;
   let next = applyPlay(s, rules, play, { ...(penalty === null ? {} : { penalty }), runoffTimeout });
-  if (rv !== null && rv.charge !== null && next.period === s.period && next.phase !== "final") next = chargeTimeout(next, rules, rv.charge);
+  // A failed challenge's cost carries across a quarter within the half (timeouts carry Q1 to Q2, Q3
+  // to Q4); it is waived only at the end of a half or the game, where timeouts reset (code review).
+  let timeoutCharged = false;
+  if (rv !== null && rv.charge !== null && next.phase !== "final" && next.phase !== "overtimeToss" && sameHalf(s.period, next.period, rules)) {
+    timeoutCharged = next.timeouts[rv.charge] > 0;
+    next = challengeCost(next, rules, rv.charge);
+  }
   if (rv !== null && rv.event.verdict === "reversed" && rv.afterWarning && rules.replay.reversalRunoffAfterTwoMinuteWarning) next = reviewRunoff(next, rules);
   const usedTimeout = runoffTimeout && next.timeouts[offenseTeam] < s.timeouts[offenseTeam] && play.kind !== "kickoff";
   const after = snapshot(next);
@@ -717,10 +727,18 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
       possession: offenseTeam,
       period: before.period,
     };
-  if (rv !== null) events.push(rv.event);
+  // The event says whether a timeout was in fact charged (none when waived at the half, or yards instead at 0).
+  if (rv !== null) events.push(rv.event.timeoutCharged === timeoutCharged ? rv.event : { ...rv.event, timeoutCharged });
   events.push(ev);
   stateEvents(s, next, events);
   return keep({ state: next, events, inputs, snaps, lastSnap });
+}
+
+/** Two periods of one half (regulation), where timeouts carry over. Overtime has no coach's challenges. */
+export function sameHalf(a: number, b: number, rules: RuleSet): boolean {
+  const g = rules.game;
+  if (a > g.regulationPeriods || b > g.regulationPeriods) return a === b;
+  return Math.ceil(a / g.periodsPerHalf) === Math.ceil(b / g.periodsPerHalf);
 }
 
 /**

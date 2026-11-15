@@ -56,6 +56,24 @@ describe("all 22 move from the snap (Joseph's amendment)", () => {
     expect(late).toEqual([]);
   });
 
+  it("with a tighter start cap in the motion data, every mark still starts within it (each cap is load-bearing)", () => {
+    // The shipped starts mostly sit under the shipped 150 ms cap, so removing one of the caps in
+    // timeline.ts would go unseen there. At 40 ms most positions' starts need the cap.
+    const cap = 40;
+    const tight: TimelineCtx = { ...ctx, motion: { ...motion, maxStartMs: cap } };
+    const late: string[] = [];
+    // A kneel's QB goes down once the ball reaches him (snapMs after the snap, by design), not on a start time.
+    for (const ev of live.filter((e) => e.play.kind !== "kneel")) {
+      const tl = timeline({ event: ev, runoffSeconds: 0, human: null, ownStart: "lined" }, templates, tight);
+      for (const m of tl.marks) {
+        const a = at(m.keys, tl.snapAt);
+        const p = at(m.keys, Math.min(tl.snapAt + cap + motion.keyMs, tl.liveEnd));
+        if (Math.hypot(p.x - a.x, p.y - a.y) < 1e-4) late.push(`${ev.play.kind} ${ev.offense.call}: ${m.side}${m.slot}`);
+      }
+    }
+    expect(late).toEqual([]);
+  });
+
   it("starts are staggered by reaction time: at least 4 distinct start times on a scrimmage play (M3)", () => {
     const tl = build(RUN);
     const starts = new Set(

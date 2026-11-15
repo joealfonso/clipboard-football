@@ -4,39 +4,43 @@
  "policy": "a seeded random legal path per request (Rng.fromSeed(game seed)), always throwFlag on a challenge request",
  "games": [
   {
-   "seed": 1,
-   "human": "away",
+   "seed": 2,
+   "human": "home",
    "inputs": [
     {
      "seq": 1,
-     "path": [
-      "receive"
-     ]
-    },
-    {
-     "seq": 2,
      "path": [
       "continue"
      ]
     },
     {
-     "seq": 3,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 4,
+     "seq": 2,
      "path": [
       "timeout"
      ]
     },
     {
+     "seq": 3,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 4,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
      "seq": 5,
      "path": [
-      "sameCall"
+      "formation",
+      "shotgun",
+      "pass",
+      "shortPass"
      ]
     },
     {
@@ -48,226 +52,223 @@
     {
      "seq": 7,
      "path": [
-      "clock",
-      "normal"
+      "sameCall"
      ]
     },
     {
      "seq": 8,
      "path": [
-      "kick",
-      "fieldGoal"
+      "timeout"
      ]
     },
     {
      "seq": 9,
      "path": [
-      "timeout"
+      "formation",
+      "shotgun",
+      "pass",
+      "screenPass"
      ]
     },
     {
      "seq": 10,
      "path": [
-      "specials",
-      "goalLine"
+      "timeout"
      ]
     },
     {
      "seq": 11,
      "path": [
-      "nickel",
-      "nickelCover4"
+      "formation",
+      "empty",
+      "run",
+      "qbSneak"
      ]
     },
     {
      "seq": 12,
      "path": [
-      "base",
-      "baseCover3"
+      "sameCall"
      ]
     },
     {
      "seq": 13,
      "path": [
-      "nickel",
-      "nickelCover4"
+      "sameCall"
      ]
     },
     {
      "seq": 14,
      "path": [
-      "continue"
+      "formation",
+      "empty",
+      "pass",
+      "intermediatePass"
      ]
     },
     {
      "seq": 15,
      "path": [
-      "continue"
+      "clock",
+      "normal"
      ]
     },
     {
      "seq": 16,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 17,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 18,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 19,
-     "path": [
-      "pass",
-      "empty",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 20,
-     "path": [
-      "run",
-      "heavy",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 21,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 22,
      "path": [
       "clock",
       "runClock"
      ]
     },
     {
-     "seq": 23,
+     "seq": 17,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 18,
      "path": [
       "clock",
-      "normal"
+      "kneel"
      ]
     },
     {
-     "seq": 24,
+     "seq": 19,
      "path": [
-      "run",
-      "empty",
-      "outsideRun"
+      "clock",
+      "hurryUp"
      ]
     },
     {
-     "seq": 25,
+     "seq": 20,
      "path": [
-      "run",
-      "heavy",
-      "outsideRun"
+      "clock",
+      "hurryUp"
      ]
     },
     {
-     "seq": 26,
+     "seq": 21,
      "path": [
       "sameCall"
      ]
     },
     {
+     "seq": 22,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 23,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 24,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 25,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 26,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
      "seq": 27,
      "path": [
-      "run",
-      "pistol",
-      "qbSneak"
+      "base",
+      "baseCover3"
      ]
     },
     {
      "seq": 28,
      "path": [
-      "pass",
-      "shotgun",
-      "playAction"
+      "sameCall"
      ]
     },
     {
      "seq": 29,
      "path": [
-      "run",
-      "empty",
-      "qbSneak"
+      "sameCall"
      ]
     },
     {
      "seq": 30,
      "path": [
-      "kick",
-      "fieldGoal"
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
      ]
     },
     {
      "seq": 31,
      "path": [
-      "timeout"
+      "clock",
+      "hurryUp"
      ]
     },
     {
      "seq": 32,
      "path": [
-      "kickoff"
+      "kick",
+      "punt"
      ]
     },
     {
      "seq": 33,
      "path": [
-      "nickel",
-      "nickelCover4"
+      "sameCall"
      ]
     },
     {
      "seq": 34,
      "path": [
-      "base",
-      "baseCover2"
+      "dime",
+      "dimeCover4"
      ]
     },
     {
      "seq": 35,
      "path": [
-      "nickel",
-      "nickelCover1"
+      "dime",
+      "dimeCover0Blitz"
      ]
     },
     {
      "seq": 36,
      "path": [
-      "continue"
+      "specials",
+      "goalLine"
      ]
     },
     {
      "seq": 37,
      "path": [
-      "pass",
-      "empty",
-      "shortPass"
+      "sameCall"
      ]
     },
     {
      "seq": 38,
      "path": [
-      "run",
-      "pistol",
-      "insideRun"
+      "clock",
+      "kneel"
      ]
     },
     {
@@ -279,663 +280,677 @@
     {
      "seq": 40,
      "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 41,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 42,
-     "path": [
-      "pass",
-      "empty",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 43,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 44,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 45,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 46,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 47,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 48,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 49,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 50,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 51,
-     "path": [
-      "pass",
-      "underCenter",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 52,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 53,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 54,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 55,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 56,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 57,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 58,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 59,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 60,
-     "path": [
-      "run",
-      "empty",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 61,
-     "path": [
-      "pass",
-      "shotgun",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 62,
-     "path": [
-      "run",
-      "heavy",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 63,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 64,
-     "path": [
-      "run",
-      "underCenter",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 65,
-     "path": [
       "clock",
       "normal"
      ]
     },
     {
-     "seq": 66,
+     "seq": 41,
      "path": [
-      "run",
-      "heavy",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 67,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 68,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 69,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 70,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 71,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 72,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 73,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 74,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 75,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 76,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 77,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 78,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 79,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 80,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 81,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 82,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 83,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 84,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 85,
-     "path": [
-      "pass",
-      "underCenter",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 86,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 87,
-     "path": [
-      "pass",
+      "formation",
       "shotgun",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 88,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 89,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 90,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 91,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 92,
-     "path": [
       "pass",
-      "empty",
-      "screenPass"
+      "playAction"
      ]
     },
     {
-     "seq": 93,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 94,
-     "path": [
-      "pass",
-      "empty",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 95,
-     "path": [
-      "pass",
-      "underCenter",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 96,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 97,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 98,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 99,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 100,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 101,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 102,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 103,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 104,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 105,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 106,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 107,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 108,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 109,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 110,
-     "path": [
-      "pass",
-      "pistol",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 111,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 112,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 113,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 114,
+     "seq": 42,
      "path": [
       "kick",
       "punt"
      ]
     },
     {
-     "seq": 115,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 116,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 117,
+     "seq": 43,
      "path": [
       "dime",
       "dimeCover0Blitz"
      ]
     },
     {
-     "seq": 118,
+     "seq": 44,
      "path": [
-      "base",
-      "baseCover3"
+      "specials",
+      "goalLine"
      ]
     },
     {
-     "seq": 119,
+     "seq": 45,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 46,
      "path": [
       "continue"
      ]
     },
     {
-     "seq": 120,
+     "seq": 47,
      "path": [
-      "onsideKick"
+      "formation",
+      "empty",
+      "pass",
+      "intermediatePass"
      ]
     },
     {
-     "seq": 121,
+     "seq": 48,
      "path": [
-      "dime",
-      "dimeCover0Blitz"
+      "clock",
+      "runClock"
      ]
     },
     {
-     "seq": 122,
+     "seq": 49,
      "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 123,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 124,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 125,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 126,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 127,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 128,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 129,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 130,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 131,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 132,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 133,
-     "path": [
+      "formation",
+      "empty",
       "run",
-      "pistol",
-      "insideRun"
+      "outsideRun"
      ]
     },
     {
-     "seq": 134,
+     "seq": 50,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 51,
      "path": [
       "clock",
       "hurryUp"
      ]
     },
     {
+     "seq": 52,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 53,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 54,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 55,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 56,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 57,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 58,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 59,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 60,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 61,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 62,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 63,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 64,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 65,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 66,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 67,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 68,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 69,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 70,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 71,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 72,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 73,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 74,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 75,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 76,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 77,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 78,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 79,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 80,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 81,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 82,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 83,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 84,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 85,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 86,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 87,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 88,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 89,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 90,
+     "path": [
+      "goForTwo",
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 91,
+     "path": [
+      "onsideKick"
+     ]
+    },
+    {
+     "seq": 92,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 93,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 94,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 95,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 96,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 97,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 98,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 99,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 100,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 101,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 102,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 103,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 104,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 105,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 106,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 107,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 108,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 109,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 110,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 111,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 112,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 113,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 114,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 115,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 116,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 117,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 118,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 119,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 120,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 121,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 122,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 123,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 124,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 125,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 126,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 127,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 128,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 129,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 130,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 131,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 132,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 133,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 134,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
      "seq": 135,
      "path": [
-      "run",
-      "underCenter",
-      "qbSneak"
+      "clock",
+      "runClock"
      ]
     },
     {
@@ -947,405 +962,385 @@
     {
      "seq": 137,
      "path": [
-      "pass",
-      "underCenter",
-      "intermediatePass"
+      "sameCall"
      ]
     },
     {
      "seq": 138,
      "path": [
-      "pass",
-      "pistol",
-      "playAction"
+      "sameCall"
      ]
     },
     {
      "seq": 139,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 140,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 141,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 142,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 143,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 144,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 145,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 146,
      "path": [
       "clock",
       "normal"
      ]
     },
     {
-     "seq": 140,
+     "seq": 147,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 148,
      "path": [
       "clock",
       "runClock"
      ]
     },
     {
-     "seq": 141,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 142,
-     "path": [
-      "pass",
-      "underCenter",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 143,
+     "seq": 149,
      "path": [
       "clock",
       "hurryUp"
      ]
     },
     {
-     "seq": 144,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 145,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 146,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 147,
-     "path": [
-      "pass",
-      "heavy",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 148,
-     "path": [
-      "pass",
-      "underCenter",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 149,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
      "seq": 150,
      "path": [
-      "pass",
+      "formation",
       "shotgun",
-      "playAction"
+      "run",
+      "qbSneak"
      ]
     },
     {
      "seq": 151,
      "path": [
-      "sameCall"
+      "clock",
+      "hurryUp"
      ]
     },
     {
      "seq": 152,
      "path": [
-      "dime",
-      "dimeCover4"
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
      ]
     },
     {
      "seq": 153,
+     "path": [
+      "extraPoint"
+     ]
+    },
+    {
+     "seq": 154,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 155,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 156,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 157,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 158,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 159,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 160,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 161,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 162,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 163,
      "path": [
       "specials",
       "goalLine"
      ]
     },
     {
-     "seq": 154,
+     "seq": 164,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 165,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 166,
      "path": [
       "specials",
       "prevent"
      ]
     },
     {
-     "seq": 155,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 156,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 157,
-     "path": [
-      "pass",
-      "empty",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 158,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 159,
-     "path": [
-      "pass",
-      "heavy",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 160,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 161,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 162,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 163,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 164,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 165,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 166,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
      "seq": 167,
      "path": [
-      "run",
-      "empty",
-      "insideRun"
+      "dime",
+      "dimeCover0Blitz"
      ]
     },
     {
      "seq": 168,
      "path": [
-      "run",
-      "pistol",
-      "qbSneak"
+      "dime",
+      "dimeCover4"
      ]
     },
     {
      "seq": 169,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 170,
-     "path": [
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 171,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 172,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 173,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 174,
      "path": [
       "nickel",
       "nickelCover1"
      ]
     },
     {
-     "seq": 175,
+     "seq": 170,
      "path": [
-      "sameCall"
+      "nickel",
+      "nickelCover1"
      ]
     },
     {
-     "seq": 176,
+     "seq": 171,
      "path": [
       "dime",
-      "dimeCover4"
+      "dimeCover0Blitz"
      ]
     },
     {
-     "seq": 177,
+     "seq": 172,
      "path": [
       "continue"
      ]
     },
     {
-     "seq": 178,
+     "seq": 173,
      "path": [
       "continue"
      ]
     },
     {
-     "seq": 179,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 180,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 181,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 182,
-     "path": [
-      "pass",
-      "empty",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 183,
+     "seq": 174,
      "path": [
       "clock",
       "hurryUp"
      ]
     },
     {
-     "seq": 184,
+     "seq": 175,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 176,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 177,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 178,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 179,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 180,
      "path": [
       "sameCall"
+     ]
+    },
+    {
+     "seq": 181,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 182,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 183,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 184,
+     "path": [
+      "decline"
      ]
     },
     {
      "seq": 185,
      "path": [
-      "pass",
-      "empty",
-      "playAction"
+      "dime",
+      "dimeCover0Blitz"
      ]
     },
     {
      "seq": 186,
      "path": [
-      "run",
-      "heavy",
-      "qbSneak"
+      "sameCall"
      ]
     },
     {
      "seq": 187,
      "path": [
-      "sameCall"
+      "dime",
+      "dimeCover0Blitz"
      ]
     },
     {
      "seq": 188,
      "path": [
-      "sameCall"
+      "nickel",
+      "nickelCover3"
      ]
     },
     {
      "seq": 189,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 190,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 191,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 192,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 193,
      "path": [
       "dime",
       "dimeCover4"
      ]
     },
     {
-     "seq": 194,
+     "seq": 190,
      "path": [
       "nickel",
-      "nickel2Man"
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 191,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 192,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 193,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 194,
+     "path": [
+      "sameCall"
      ]
     },
     {
@@ -1357,65 +1352,61 @@
     {
      "seq": 196,
      "path": [
-      "nickel",
-      "nickelCover1"
+      "sameCall"
      ]
     },
     {
      "seq": 197,
      "path": [
-      "nickel",
-      "nickelCover4"
+      "kick",
+      "punt"
      ]
     },
     {
      "seq": 198,
      "path": [
-      "dime",
-      "dimeCover0Blitz"
+      "base",
+      "baseCover2"
      ]
     },
     {
      "seq": 199,
      "path": [
-      "specials",
-      "prevent"
+      "sameCall"
      ]
     },
     {
      "seq": 200,
      "path": [
-      "nickel",
-      "nickel2Man"
+      "specials",
+      "goalLine"
      ]
     },
     {
      "seq": 201,
      "path": [
-      "clock",
-      "normal"
+      "specials",
+      "goalLine"
      ]
     },
     {
      "seq": 202,
      "path": [
-      "run",
-      "heavy",
-      "qbSneak"
+      "decline"
      ]
     },
     {
      "seq": 203,
      "path": [
-      "sameCall"
+      "specials",
+      "goalLine"
      ]
     },
     {
      "seq": 204,
      "path": [
-      "pass",
-      "heavy",
-      "playAction"
+      "nickel",
+      "nickelCover1"
      ]
     },
     {
@@ -1434,41 +1425,1643 @@
     {
      "seq": 207,
      "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 208,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 209,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 210,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 211,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 212,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 213,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 214,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 215,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 216,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 217,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 218,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 219,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 220,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 221,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 222,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 223,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 224,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 225,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 226,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 227,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 228,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 229,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 230,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 231,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 232,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 233,
+     "path": [
+      "continue"
+     ]
+    }
+   ],
+   "cases": [
+    "booth"
+   ]
+  },
+  {
+   "seed": 4,
+   "human": "home",
+   "inputs": [
+    {
+     "seq": 1,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 2,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 3,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 4,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 5,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 6,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 7,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 8,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 9,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 10,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 11,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 12,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 13,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 14,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 15,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 16,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 17,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 18,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 19,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 20,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 21,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 22,
+     "path": [
+      "throwFlag"
+     ]
+    },
+    {
+     "seq": 23,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 24,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 25,
+     "path": [
       "dime",
       "dimeCover4"
      ]
     },
     {
-     "seq": 208,
+     "seq": 26,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 27,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 28,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 29,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 30,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 31,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 32,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 33,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 34,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 35,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 36,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 37,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 38,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 39,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 40,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 41,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 42,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 43,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 44,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 45,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 46,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 47,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 48,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 49,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 50,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 51,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 52,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 53,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 54,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 55,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 56,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 57,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 58,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 59,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 60,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 61,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 62,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 63,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 64,
      "path": [
       "nickel",
       "nickel2Man"
      ]
     },
     {
-     "seq": 209,
+     "seq": 65,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 66,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 67,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 68,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 69,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 70,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 71,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 72,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 73,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 74,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 75,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 76,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 77,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 78,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 79,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 80,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 81,
+     "path": [
+      "goForTwo",
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 82,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 83,
      "path": [
       "specials",
       "prevent"
+     ]
+    },
+    {
+     "seq": 84,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 85,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 86,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 87,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 88,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 89,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 90,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 91,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 92,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 93,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 94,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 95,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 96,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 97,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 98,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 99,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 100,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 101,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 102,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 103,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 104,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 105,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 106,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 107,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 108,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 109,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 110,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 111,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 112,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 113,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 114,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 115,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 116,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 117,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 118,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 119,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 120,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 121,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 122,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 123,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 124,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 125,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 126,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 127,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 128,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 129,
+     "path": [
+      "onsideKick"
+     ]
+    },
+    {
+     "seq": 130,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 131,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 132,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 133,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 134,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 135,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 136,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 137,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 138,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 139,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 140,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 141,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 142,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 143,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 144,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 145,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 146,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 147,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 148,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 149,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 150,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 151,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 152,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 153,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 154,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 155,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 156,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 157,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 158,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 159,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 160,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 161,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 162,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 163,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 164,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 165,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 166,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 167,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 168,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 169,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 170,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 171,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 172,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 173,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 174,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 175,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 176,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 177,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 178,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 179,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 180,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 181,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 182,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 183,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 184,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 185,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 186,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 187,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 188,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 189,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 190,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 191,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 192,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 193,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 194,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 195,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 196,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 197,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 198,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 199,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 200,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 201,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 202,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 203,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 204,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 205,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 206,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 207,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 208,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 209,
+     "path": [
+      "sameCall"
      ]
     },
     {
      "seq": 210,
      "path": [
-      "specials",
-      "prevent"
+      "formation",
+      "empty",
+      "run",
+      "insideRun"
      ]
     },
     {
      "seq": 211,
      "path": [
-      "continue"
+      "sameCall"
      ]
     },
     {
      "seq": 212,
      "path": [
-      "continue"
+      "clock",
+      "kneel"
      ]
     },
     {
@@ -1481,7 +3074,4353 @@
     {
      "seq": 214,
      "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 215,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 216,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 217,
+     "path": [
       "sameCall"
+     ]
+    },
+    {
+     "seq": 218,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 219,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 220,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 221,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 222,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 223,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 224,
+     "path": [
+      "continue"
+     ]
+    }
+   ],
+   "cases": [
+    "humanStands"
+   ]
+  },
+  {
+   "seed": 23,
+   "human": "away",
+   "inputs": [
+    {
+     "seq": 1,
+     "path": [
+      "defer"
+     ]
+    },
+    {
+     "seq": 2,
+     "path": [
+      "onsideKick"
+     ]
+    },
+    {
+     "seq": 3,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 4,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 5,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 6,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 7,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 8,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 9,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 10,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 11,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 12,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 13,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 14,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 15,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 16,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 17,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 18,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 19,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 20,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 21,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 22,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 23,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 24,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 25,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 26,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 27,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 28,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 29,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 30,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 31,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 32,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 33,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 34,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 35,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 36,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 37,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 38,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 39,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 40,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 41,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 42,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 43,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 44,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 45,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 46,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 47,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 48,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 49,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 50,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 51,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 52,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 53,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 54,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 55,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 56,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 57,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 58,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 59,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 60,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 61,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 62,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 63,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 64,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 65,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 66,
+     "path": [
+      "extraPoint"
+     ]
+    },
+    {
+     "seq": 67,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 68,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 69,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 70,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 71,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 72,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 73,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 74,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 75,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 76,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 77,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 78,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 79,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 80,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 81,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 82,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 83,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 84,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 85,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 86,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 87,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 88,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 89,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 90,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 91,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 92,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 93,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 94,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 95,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 96,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 97,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 98,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 99,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 100,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 101,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 102,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 103,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 104,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 105,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 106,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 107,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 108,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 109,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 110,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 111,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 112,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 113,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 114,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 115,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 116,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 117,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 118,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 119,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 120,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 121,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 122,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 123,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 124,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 125,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 126,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 127,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 128,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 129,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 130,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 131,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 132,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 133,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 134,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 135,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 136,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 137,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 138,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 139,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 140,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 141,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 142,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 143,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 144,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 145,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 146,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 147,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 148,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 149,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 150,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 151,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 152,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 153,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 154,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 155,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 156,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 157,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 158,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 159,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 160,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 161,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 162,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 163,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 164,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 165,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 166,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 167,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 168,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 169,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 170,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 171,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 172,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 173,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 174,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 175,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 176,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 177,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 178,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 179,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 180,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 181,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 182,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 183,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 184,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 185,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 186,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 187,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 188,
+     "path": [
+      "continue"
+     ]
+    }
+   ],
+   "cases": [
+    "aiStands"
+   ]
+  },
+  {
+   "seed": 49,
+   "human": "away",
+   "inputs": [
+    {
+     "seq": 1,
+     "path": [
+      "defer"
+     ]
+    },
+    {
+     "seq": 2,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 3,
+     "path": [
+      "onsideKick"
+     ]
+    },
+    {
+     "seq": 4,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 5,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 6,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 7,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 8,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 9,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 10,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 11,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 12,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 13,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 14,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 15,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 16,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 17,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 18,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 19,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 20,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 21,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 22,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 23,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 24,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 25,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 26,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 27,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 28,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 29,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 30,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 31,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 32,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 33,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 34,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 35,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 36,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 37,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 38,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 39,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 40,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 41,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 42,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 43,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 44,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 45,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 46,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 47,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 48,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 49,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 50,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 51,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 52,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 53,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 54,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 55,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 56,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 57,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 58,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 59,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 60,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 61,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 62,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 63,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 64,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 65,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 66,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 67,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 68,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 69,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 70,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 71,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 72,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 73,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 74,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 75,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 76,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 77,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 78,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 79,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 80,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 81,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 82,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 83,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 84,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 85,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 86,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 87,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 88,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 89,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 90,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 91,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 92,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 93,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 94,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 95,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 96,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 97,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 98,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 99,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 100,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 101,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 102,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 103,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 104,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 105,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 106,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 107,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 108,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 109,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 110,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 111,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 112,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 113,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 114,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 115,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 116,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 117,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 118,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 119,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 120,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 121,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 122,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 123,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 124,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 125,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 126,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 127,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 128,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 129,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 130,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 131,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 132,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 133,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 134,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 135,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 136,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 137,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 138,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 139,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 140,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 141,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 142,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 143,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 144,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 145,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 146,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 147,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 148,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 149,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 150,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 151,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 152,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 153,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 154,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 155,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 156,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 157,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 158,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 159,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 160,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 161,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 162,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 163,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 164,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 165,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 166,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 167,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 168,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 169,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 170,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 171,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 172,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 173,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 174,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 175,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 176,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 177,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 178,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 179,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 180,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 181,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 182,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 183,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 184,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 185,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 186,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 187,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 188,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 189,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 190,
+     "path": [
+      "nickel",
+      "nickelCover1Blitz"
+     ]
+    },
+    {
+     "seq": 191,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 192,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 193,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 194,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 195,
+     "path": [
+      "goForTwo",
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 196,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 197,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 198,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 199,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 200,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 201,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 202,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 203,
+     "path": [
+      "formation",
+      "shotgun",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 204,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 205,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 206,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 207,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 208,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 209,
+     "path": [
+      "continue"
+     ]
+    }
+   ],
+   "cases": [
+    "booth",
+    "aiReversed"
+   ]
+  },
+  {
+   "seed": 164,
+   "human": "home",
+   "inputs": [
+    {
+     "seq": 1,
+     "path": [
+      "defer"
+     ]
+    },
+    {
+     "seq": 2,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 3,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 4,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 5,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 6,
+     "path": [
+      "throwFlag"
+     ]
+    },
+    {
+     "seq": 7,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 8,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 9,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 10,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 11,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 12,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 13,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 14,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 15,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 16,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 17,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 18,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 19,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 20,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 21,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 22,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 23,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 24,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 25,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 26,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 27,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 28,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 29,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 30,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 31,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 32,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 33,
+     "path": [
+      "nickel",
+      "nickelCover4"
+     ]
+    },
+    {
+     "seq": 34,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 35,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 36,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 37,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 38,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 39,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 40,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 41,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 42,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 43,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 44,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 45,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 46,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 47,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 48,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 49,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 50,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 51,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 52,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 53,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 54,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 55,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 56,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 57,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 58,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 59,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 60,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 61,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 62,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 63,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 64,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 65,
+     "path": [
+      "formation",
+      "heavy",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 66,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 67,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 68,
+     "path": [
+      "extraPoint"
+     ]
+    },
+    {
+     "seq": 69,
+     "path": [
+      "onsideKick"
+     ]
+    },
+    {
+     "seq": 70,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 71,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 72,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 73,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 74,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 75,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 76,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 77,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 78,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 79,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 80,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 81,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 82,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 83,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 84,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 85,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 86,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 87,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 88,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 89,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 90,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 91,
+     "path": [
+      "nickel",
+      "nickelCover1"
+     ]
+    },
+    {
+     "seq": 92,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 93,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 94,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 95,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 96,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 97,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 98,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 99,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 100,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 101,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 102,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 103,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 104,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 105,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 106,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 107,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 108,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 109,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 110,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 111,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 112,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 113,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 114,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 115,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 116,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 117,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 118,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 119,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 120,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 121,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 122,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 123,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 124,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 125,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 126,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 127,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 128,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 129,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 130,
+     "path": [
+      "timeout"
+     ]
+    },
+    {
+     "seq": 131,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 132,
+     "path": [
+      "goForTwo",
+      "formation",
+      "empty",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 133,
+     "path": [
+      "kickoff"
+     ]
+    },
+    {
+     "seq": 134,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 135,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 136,
+     "path": [
+      "base",
+      "baseCover3"
+     ]
+    },
+    {
+     "seq": 137,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 138,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 139,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 140,
+     "path": [
+      "nickel",
+      "nickelCover3"
+     ]
+    },
+    {
+     "seq": 141,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 142,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 143,
+     "path": [
+      "dime",
+      "dimeCover0Blitz"
+     ]
+    },
+    {
+     "seq": 144,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 145,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 146,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 147,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 148,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 149,
+     "path": [
+      "formation",
+      "pistol",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 150,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 151,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 152,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 153,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 154,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 155,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 156,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 157,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 158,
+     "path": [
+      "formation",
+      "pistol",
+      "run",
+      "outsideRun"
+     ]
+    },
+    {
+     "seq": 159,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 160,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 161,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 162,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 163,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 164,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 165,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 166,
+     "path": [
+      "specials",
+      "prevent"
+     ]
+    },
+    {
+     "seq": 167,
+     "path": [
+      "nickel",
+      "nickelCover2"
+     ]
+    },
+    {
+     "seq": 168,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 169,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 170,
+     "path": [
+      "formation",
+      "underCenter",
+      "run",
+      "insideRun"
+     ]
+    },
+    {
+     "seq": 171,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 172,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 173,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 174,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 175,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "screenPass"
+     ]
+    },
+    {
+     "seq": 176,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 177,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "deepPass"
+     ]
+    },
+    {
+     "seq": 178,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 179,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 180,
+     "path": [
+      "specials",
+      "goalLine"
+     ]
+    },
+    {
+     "seq": 181,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 182,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 183,
+     "path": [
+      "accept:0"
+     ]
+    },
+    {
+     "seq": 184,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 185,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 186,
+     "path": [
+      "clock",
+      "kneel"
+     ]
+    },
+    {
+     "seq": 187,
+     "path": [
+      "formation",
+      "shotgun",
+      "pass",
+      "playAction"
+     ]
+    },
+    {
+     "seq": 188,
+     "path": [
+      "clock",
+      "hurryUp"
+     ]
+    },
+    {
+     "seq": 189,
+     "path": [
+      "kick",
+      "fieldGoal"
+     ]
+    },
+    {
+     "seq": 190,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 191,
+     "path": [
+      "base",
+      "baseCover2"
+     ]
+    },
+    {
+     "seq": 192,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 193,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 194,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 195,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 196,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 197,
+     "path": [
+      "continue"
+     ]
+    },
+    {
+     "seq": 198,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 199,
+     "path": [
+      "clock",
+      "normal"
+     ]
+    },
+    {
+     "seq": 200,
+     "path": [
+      "formation",
+      "empty",
+      "run",
+      "qbSneak"
+     ]
+    },
+    {
+     "seq": 201,
+     "path": [
+      "formation",
+      "underCenter",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 202,
+     "path": [
+      "formation",
+      "empty",
+      "pass",
+      "intermediatePass"
+     ]
+    },
+    {
+     "seq": 203,
+     "path": [
+      "clock",
+      "spike"
+     ]
+    },
+    {
+     "seq": 204,
+     "path": [
+      "formation",
+      "heavy",
+      "pass",
+      "shortPass"
+     ]
+    },
+    {
+     "seq": 205,
+     "path": [
+      "clock",
+      "runClock"
+     ]
+    },
+    {
+     "seq": 206,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 207,
+     "path": [
+      "kick",
+      "punt"
+     ]
+    },
+    {
+     "seq": 208,
+     "path": [
+      "decline"
+     ]
+    },
+    {
+     "seq": 209,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 210,
+     "path": [
+      "sameCall"
+     ]
+    },
+    {
+     "seq": 211,
+     "path": [
+      "dime",
+      "dimeCover4"
+     ]
+    },
+    {
+     "seq": 212,
+     "path": [
+      "nickel",
+      "nickel2Man"
+     ]
+    },
+    {
+     "seq": 213,
+     "path": [
+      "base",
+      "runStuff"
+     ]
+    },
+    {
+     "seq": 214,
+     "path": [
+      "specials",
+      "prevent"
      ]
     },
     {
@@ -1493,9 +7432,8 @@
     {
      "seq": 216,
      "path": [
-      "pass",
-      "heavy",
-      "playAction"
+      "specials",
+      "goalLine"
      ]
     },
     {
@@ -1519,5411 +7457,6 @@
     },
     {
      "seq": 220,
-     "path": [
-      "continue"
-     ]
-    }
-   ],
-   "cases": [
-    "booth"
-   ]
-  },
-  {
-   "seed": 12,
-   "human": "home",
-   "inputs": [
-    {
-     "seq": 1,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 2,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 3,
-     "path": [
-      "pass",
-      "heavy",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 4,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 5,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 6,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 7,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 8,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 9,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 10,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 11,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 12,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 13,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 14,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 15,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 16,
-     "path": [
-      "pass",
-      "shotgun",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 17,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 18,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 19,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 20,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 21,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 22,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 23,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 24,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 25,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 26,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 27,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 28,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 29,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 30,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 31,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 32,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 33,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 34,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 35,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 36,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 37,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 38,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 39,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 40,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 41,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 42,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 43,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 44,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 45,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 46,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 47,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 48,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 49,
-     "path": [
-      "pass",
-      "empty",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 50,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 51,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 52,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 53,
-     "path": [
-      "pass",
-      "pistol",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 54,
-     "path": [
-      "pass",
-      "shotgun",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 55,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 56,
-     "path": [
-      "pass",
-      "pistol",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 57,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 58,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 59,
-     "path": [
-      "pass",
-      "shotgun",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 60,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 61,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 62,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 63,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 64,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 65,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 66,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 67,
-     "path": [
-      "pass",
-      "heavy",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 68,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 69,
-     "path": [
-      "pass",
-      "heavy",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 70,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 71,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 72,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 73,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 74,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 75,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 76,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 77,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 78,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 79,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 80,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 81,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 82,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 83,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 84,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 85,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 86,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 87,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 88,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 89,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 90,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 91,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 92,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 93,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 94,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 95,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 96,
-     "path": [
-      "run",
-      "shotgun",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 97,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 98,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 99,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 100,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 101,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 102,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 103,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 104,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 105,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 106,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 107,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 108,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 109,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 110,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 111,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 112,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 113,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 114,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 115,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 116,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 117,
-     "path": [
-      "kickoff"
-     ]
-    },
-    {
-     "seq": 118,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 119,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 120,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 121,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 122,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 123,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 124,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 125,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 126,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 127,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 128,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 129,
-     "path": [
-      "pass",
-      "shotgun",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 130,
-     "path": [
-      "pass",
-      "underCenter",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 131,
-     "path": [
-      "pass",
-      "heavy",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 132,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 133,
-     "path": [
-      "pass",
-      "pistol",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 134,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 135,
-     "path": [
-      "pass",
-      "shotgun",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 136,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 137,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 138,
-     "path": [
-      "goForTwo",
-      "pass",
-      "heavy",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 139,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 140,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 141,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 142,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 143,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 144,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 145,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 146,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 147,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 148,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 149,
-     "path": [
-      "pass",
-      "shotgun",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 150,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 151,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 152,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 153,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 154,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 155,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 156,
-     "path": [
-      "pass",
-      "shotgun",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 157,
-     "path": [
-      "pass",
-      "heavy",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 158,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 159,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 160,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 161,
-     "path": [
-      "pass",
-      "heavy",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 162,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 163,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 164,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 165,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 166,
-     "path": [
-      "run",
-      "heavy",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 167,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 168,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 169,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 170,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 171,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 172,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 173,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 174,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 175,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 176,
-     "path": [
-      "pass",
-      "heavy",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 177,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 178,
-     "path": [
-      "pass",
-      "shotgun",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 179,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 180,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 181,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 182,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 183,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 184,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 185,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 186,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 187,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 188,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 189,
-     "path": [
-      "run",
-      "heavy",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 190,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 191,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 192,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 193,
-     "path": [
-      "pass",
-      "shotgun",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 194,
-     "path": [
-      "pass",
-      "underCenter",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 195,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 196,
-     "path": [
-      "pass",
-      "underCenter",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 197,
-     "path": [
-      "pass",
-      "underCenter",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 198,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 199,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 200,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 201,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 202,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 203,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 204,
-     "path": [
-      "continue"
-     ]
-    }
-   ],
-   "cases": [
-    "aiStands"
-   ]
-  },
-  {
-   "seed": 30,
-   "human": "home",
-   "inputs": [
-    {
-     "seq": 1,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 2,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 3,
-     "path": [
-      "pass",
-      "underCenter",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 4,
-     "path": [
-      "pass",
-      "empty",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 5,
-     "path": [
-      "pass",
-      "shotgun",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 6,
-     "path": [
-      "pass",
-      "heavy",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 7,
-     "path": [
-      "pass",
-      "underCenter",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 8,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 9,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 10,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 11,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 12,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 13,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 14,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 15,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 16,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 17,
-     "path": [
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 18,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 19,
-     "path": [
-      "run",
-      "pistol",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 20,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 21,
-     "path": [
-      "pass",
-      "empty",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 22,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 23,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 24,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 25,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 26,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 27,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 28,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 29,
-     "path": [
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 30,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 31,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 32,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 33,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 34,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 35,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 36,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 37,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 38,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 39,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 40,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 41,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 42,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 43,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 44,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 45,
-     "path": [
-      "pass",
-      "shotgun",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 46,
-     "path": [
-      "run",
-      "underCenter",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 47,
-     "path": [
-      "run",
-      "heavy",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 48,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 49,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 50,
-     "path": [
-      "pass",
-      "shotgun",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 51,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 52,
-     "path": [
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 53,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 54,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 55,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 56,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 57,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 58,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 59,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 60,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 61,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 62,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 63,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 64,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 65,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 66,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 67,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 68,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 69,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 70,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 71,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 72,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 73,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 74,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 75,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 76,
-     "path": [
-      "pass",
-      "pistol",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 77,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 78,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 79,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 80,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 81,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 82,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 83,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 84,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 85,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 86,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 87,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 88,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 89,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 90,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 91,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 92,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 93,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 94,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 95,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 96,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 97,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 98,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 99,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 100,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 101,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 102,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 103,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 104,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 105,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 106,
-     "path": [
-      "pass",
-      "shotgun",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 107,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 108,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 109,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 110,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 111,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 112,
-     "path": [
-      "run",
-      "underCenter",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 113,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 114,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 115,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 116,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 117,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 118,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 119,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 120,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 121,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 122,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 123,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 124,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 125,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 126,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 127,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 128,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 129,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 130,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 131,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 132,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 133,
-     "path": [
-      "run",
-      "pistol",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 134,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 135,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 136,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 137,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 138,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 139,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 140,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 141,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 142,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 143,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 144,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 145,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 146,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 147,
-     "path": [
-      "pass",
-      "empty",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 148,
-     "path": [
-      "pass",
-      "heavy",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 149,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 150,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 151,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 152,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 153,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 154,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 155,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 156,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 157,
-     "path": [
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 158,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 159,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 160,
-     "path": [
-      "pass",
-      "pistol",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 161,
-     "path": [
-      "pass",
-      "empty",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 162,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 163,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 164,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 165,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 166,
-     "path": [
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 167,
-     "path": [
-      "pass",
-      "heavy",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 168,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 169,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 170,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 171,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 172,
-     "path": [
-      "goForTwo",
-      "pass",
-      "empty",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 173,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 174,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 175,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 176,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 177,
-     "path": [
-      "run",
-      "empty",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 178,
-     "path": [
-      "pass",
-      "underCenter",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 179,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 180,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 181,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 182,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 183,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 184,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 185,
-     "path": [
-      "continue"
-     ]
-    }
-   ],
-   "cases": [
-    "aiReversed"
-   ]
-  },
-  {
-   "seed": 110,
-   "human": "home",
-   "inputs": [
-    {
-     "seq": 1,
-     "path": [
-      "receive"
-     ]
-    },
-    {
-     "seq": 2,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 3,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 4,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 5,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 6,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 7,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 8,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 9,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 10,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 11,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 12,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 13,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 14,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 15,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 16,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 17,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 18,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 19,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 20,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 21,
-     "path": [
-      "run",
-      "empty",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 22,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 23,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 24,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 25,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 26,
-     "path": [
-      "run",
-      "heavy",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 27,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 28,
-     "path": [
-      "run",
-      "shotgun",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 29,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 30,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 31,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 32,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 33,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 34,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 35,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 36,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 37,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 38,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 39,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 40,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 41,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 42,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 43,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 44,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 45,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 46,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 47,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 48,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 49,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 50,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 51,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 52,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 53,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 54,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 55,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 56,
-     "path": [
-      "pass",
-      "shotgun",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 57,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 58,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 59,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 60,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 61,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 62,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 63,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 64,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 65,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 66,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 67,
-     "path": [
-      "accept:0"
-     ]
-    },
-    {
-     "seq": 68,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 69,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 70,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 71,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 72,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 73,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 74,
-     "path": [
-      "run",
-      "underCenter",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 75,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 76,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 77,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 78,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 79,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 80,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 81,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 82,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 83,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 84,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 85,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 86,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 87,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 88,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 89,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 90,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 91,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 92,
-     "path": [
-      "run",
-      "pistol",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 93,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 94,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 95,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 96,
-     "path": [
-      "pass",
-      "heavy",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 97,
-     "path": [
-      "pass",
-      "shotgun",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 98,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 99,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 100,
-     "path": [
-      "pass",
-      "shotgun",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 101,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 102,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 103,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 104,
-     "path": [
-      "extraPoint"
-     ]
-    },
-    {
-     "seq": 105,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 106,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 107,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 108,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 109,
-     "path": [
-      "run",
-      "empty",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 110,
-     "path": [
-      "pass",
-      "underCenter",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 111,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 112,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 113,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 114,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 115,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 116,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 117,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 118,
-     "path": [
-      "onsideKick"
-     ]
-    },
-    {
-     "seq": 119,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 120,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 121,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 122,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 123,
-     "path": [
-      "throwFlag"
-     ]
-    },
-    {
-     "seq": 124,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 125,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 126,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 127,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 128,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 129,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 130,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 131,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 132,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 133,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 134,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 135,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 136,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 137,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 138,
-     "path": [
-      "pass",
-      "heavy",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 139,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 140,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 141,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 142,
-     "path": [
-      "pass",
-      "shotgun",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 143,
-     "path": [
-      "pass",
-      "empty",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 144,
-     "path": [
-      "run",
-      "empty",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 145,
-     "path": [
-      "kick",
-      "punt"
-     ]
-    },
-    {
-     "seq": 146,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 147,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 148,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 149,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 150,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 151,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 152,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 153,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 154,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 155,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 156,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 157,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 158,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 159,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 160,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 161,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 162,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 163,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 164,
-     "path": [
-      "pass",
-      "empty",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 165,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 166,
-     "path": [
-      "pass",
-      "pistol",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 167,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 168,
-     "path": [
-      "nickel",
-      "nickelCover1"
-     ]
-    },
-    {
-     "seq": 169,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 170,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 171,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 172,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 173,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 174,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 175,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 176,
-     "path": [
-      "run",
-      "underCenter",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 177,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 178,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 179,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 180,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 181,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 182,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 183,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 184,
-     "path": [
-      "pass",
-      "empty",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 185,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 186,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 187,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 188,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 189,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 190,
-     "path": [
-      "run",
-      "heavy",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 191,
-     "path": [
-      "run",
-      "pistol",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 192,
-     "path": [
-      "run",
-      "empty",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 193,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 194,
-     "path": [
-      "pass",
-      "pistol",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 195,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 196,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 197,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 198,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 199,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 200,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 201,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 202,
-     "path": [
-      "continue"
-     ]
-    }
-   ],
-   "cases": [
-    "humanStands"
-   ]
-  },
-  {
-   "seed": 115,
-   "human": "away",
-   "inputs": [
-    {
-     "seq": 1,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 2,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 3,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 4,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 5,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 6,
-     "path": [
-      "pass",
-      "pistol",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 7,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 8,
-     "path": [
-      "throwFlag"
-     ]
-    },
-    {
-     "seq": 9,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 10,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 11,
-     "path": [
-      "pass",
-      "underCenter",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 12,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 13,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 14,
-     "path": [
-      "clock",
-      "runClock"
-     ]
-    },
-    {
-     "seq": 15,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 16,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 17,
-     "path": [
-      "kick",
-      "punt"
-     ]
-    },
-    {
-     "seq": 18,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 19,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 20,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 21,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 22,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 23,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 24,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 25,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 26,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 27,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 28,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 29,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 30,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 31,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 32,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 33,
-     "path": [
-      "nickel",
-      "nickelCover4"
-     ]
-    },
-    {
-     "seq": 34,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 35,
-     "path": [
-      "run",
-      "underCenter",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 36,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 37,
-     "path": [
-      "pass",
-      "underCenter",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 38,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 39,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 40,
-     "path": [
-      "run",
-      "heavy",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 41,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 42,
-     "path": [
-      "kick",
-      "punt"
-     ]
-    },
-    {
-     "seq": 43,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 44,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 45,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 46,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 47,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 48,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 49,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 50,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 51,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 52,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 53,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 54,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 55,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 56,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 57,
-     "path": [
-      "pass",
-      "underCenter",
-      "screenPass"
-     ]
-    },
-    {
-     "seq": 58,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 59,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 60,
-     "path": [
-      "pass",
-      "shotgun",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 61,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 62,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 63,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 64,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 65,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 66,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 67,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 68,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 69,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 70,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 71,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 72,
-     "path": [
-      "pass",
-      "empty",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 73,
-     "path": [
-      "pass",
-      "underCenter",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 74,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 75,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 76,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 77,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 78,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 79,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 80,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 81,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 82,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 83,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 84,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 85,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 86,
-     "path": [
-      "pass",
-      "pistol",
-      "shortPass"
-     ]
-    },
-    {
-     "seq": 87,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 88,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 89,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 90,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 91,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 92,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 93,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 94,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 95,
-     "path": [
-      "run",
-      "pistol",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 96,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 97,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 98,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 99,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 100,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 101,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 102,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 103,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 104,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 105,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 106,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 107,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 108,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 109,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 110,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 111,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 112,
-     "path": [
-      "kickoff"
-     ]
-    },
-    {
-     "seq": 113,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 114,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 115,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 116,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 117,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 118,
-     "path": [
-      "timeout"
-     ]
-    },
-    {
-     "seq": 119,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 120,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 121,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 122,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 123,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 124,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 125,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 126,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 127,
-     "path": [
-      "pass",
-      "empty",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 128,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 129,
-     "path": [
-      "nickel",
-      "nickel2Man"
-     ]
-    },
-    {
-     "seq": 130,
-     "path": [
-      "specials",
-      "goalLine"
-     ]
-    },
-    {
-     "seq": 131,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 132,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 133,
-     "path": [
-      "run",
-      "underCenter",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 134,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 135,
-     "path": [
-      "pass",
-      "shotgun",
-      "deepPass"
-     ]
-    },
-    {
-     "seq": 136,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 137,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 138,
-     "path": [
-      "kick",
-      "fieldGoal"
-     ]
-    },
-    {
-     "seq": 139,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 140,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 141,
-     "path": [
-      "decline"
-     ]
-    },
-    {
-     "seq": 142,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 143,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 144,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 145,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 146,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 147,
-     "path": [
-      "pass",
-      "pistol",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 148,
-     "path": [
-      "pass",
-      "shotgun",
-      "playAction"
-     ]
-    },
-    {
-     "seq": 149,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 150,
-     "path": [
-      "run",
-      "pistol",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 151,
-     "path": [
-      "run",
-      "heavy",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 152,
-     "path": [
-      "pass",
-      "shotgun",
-      "intermediatePass"
-     ]
-    },
-    {
-     "seq": 153,
-     "path": [
-      "goForTwo",
-      "run",
-      "shotgun",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 154,
-     "path": [
-      "kickoff"
-     ]
-    },
-    {
-     "seq": 155,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 156,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 157,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 158,
-     "path": [
-      "dime",
-      "dimeCover0Blitz"
-     ]
-    },
-    {
-     "seq": 159,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 160,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 161,
-     "path": [
-      "base",
-      "runStuff"
-     ]
-    },
-    {
-     "seq": 162,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 163,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 164,
-     "path": [
-      "base",
-      "baseCover3"
-     ]
-    },
-    {
-     "seq": 165,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 166,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 167,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 168,
-     "path": [
-      "run",
-      "pistol",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 169,
-     "path": [
-      "clock",
-      "spike"
-     ]
-    },
-    {
-     "seq": 170,
-     "path": [
-      "clock",
-      "hurryUp"
-     ]
-    },
-    {
-     "seq": 171,
-     "path": [
-      "kick",
-      "punt"
-     ]
-    },
-    {
-     "seq": 172,
-     "path": [
-      "nickel",
-      "nickelCover1Blitz"
-     ]
-    },
-    {
-     "seq": 173,
-     "path": [
-      "base",
-      "baseCover2"
-     ]
-    },
-    {
-     "seq": 174,
-     "path": [
-      "nickel",
-      "nickelCover2"
-     ]
-    },
-    {
-     "seq": 175,
-     "path": [
-      "nickel",
-      "nickelCover3"
-     ]
-    },
-    {
-     "seq": 176,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 177,
-     "path": [
-      "specials",
-      "prevent"
-     ]
-    },
-    {
-     "seq": 178,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 179,
-     "path": [
-      "dime",
-      "dimeCover4"
-     ]
-    },
-    {
-     "seq": 180,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 181,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 182,
-     "path": [
-      "clock",
-      "normal"
-     ]
-    },
-    {
-     "seq": 183,
-     "path": [
-      "clock",
-      "kneel"
-     ]
-    },
-    {
-     "seq": 184,
-     "path": [
-      "run",
-      "empty",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 185,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 186,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 187,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 188,
-     "path": [
-      "run",
-      "shotgun",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 189,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 190,
-     "path": [
-      "run",
-      "empty",
-      "insideRun"
-     ]
-    },
-    {
-     "seq": 191,
-     "path": [
-      "run",
-      "pistol",
-      "outsideRun"
-     ]
-    },
-    {
-     "seq": 192,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 193,
-     "path": [
-      "run",
-      "heavy",
-      "qbSneak"
-     ]
-    },
-    {
-     "seq": 194,
-     "path": [
-      "sameCall"
-     ]
-    },
-    {
-     "seq": 195,
-     "path": [
-      "continue"
-     ]
-    },
-    {
-     "seq": 196,
      "path": [
       "continue"
      ]

@@ -448,8 +448,12 @@ export type ContinueAbout =
   | { readonly what: "theyKickOff"; readonly onside: boolean; readonly safetyKick: boolean }
   /** The other team lines up for a kick, a kneel or a spike (visible before the snap). */
   | { readonly what: "theyLineUp"; readonly call: string }
-  /** M2 G: a review starts: by your challenge, theirs, or the Replay Official (the rules call for it). */
-  | { readonly what: "underReview"; readonly kind: string; readonly question: string; readonly by: "you" | "them" | "booth" }
+  /**
+   * M2 G: a review starts: by your challenge, theirs, or the Replay Official (the rules call for it).
+   * `play` is the ruling on the field without the verdict (as in the challenge request), with the
+   * calls, so the app shows the ruled play before "Under review" (code review).
+   */
+  | { readonly what: "underReview"; readonly kind: string; readonly question: string; readonly by: "you" | "them" | "booth"; readonly play: PlayResult; readonly offenseCall: OffenseCallChoice; readonly defenseCall: string | null }
   /** M2 G: what the review found, and what it cost. `play` is the play as it now stands. */
   | {
       readonly what: "reviewResult";

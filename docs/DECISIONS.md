@@ -1656,11 +1656,12 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
   - Close calls only on foul-free scrimmage plays, so a review never meets a penalty choice. The spec's edge case of a close call with a defensive foul and an untimed down is unreachable.
   - The post-review run-off is always taken (the rule lets either team avoid it with a timeout).
   - Rule 15-6-2 (a timeout returned after a reversal) is not modeled.
-  - A failed challenge on a play that ends the half charges no timeout.
+  - A failed challenge on a play that ends the half or the game charges no timeout (timeouts reset at the half). Across a quarter within the half (Q1 to Q2, Q3 to Q4) it is charged; see the G code review fixes below.
 - Checks:
   - Close calls and standouts off: all 10,000 in-sample outcome digests are identical to 04f0f5d, and the in-sample summary metrics are identical.
   - G3: 1,628,110 engine calls of the on run, each shadowed with close calls off from a copy of the stream; 0 mismatches, 7,650 close calls.
   - G8 (scripts/game/g8-reach.ts, games in test/fixtures/m2-g8-games.json, each replayed from its seed and input log alone): 5 games in league 2026 (seeds 1, 12, 30, 110, 115) reach a human challenge that stands and one reversed, an AI challenge both ways, and a Replay Official review.
+  - The fixture was regenerated after the formation-first merge (its input logs used the old run-or-pass-first paths and no longer replayed): now seeds 2, 4, 23, 49 and 164, covering the same five cases.
 - G7 (scripts/game/challenges.ts, docs/CHALLENGE_REPORT.md, against data/game/m2-challenge-tolerances.json): FAIL, stopped under the stop rule.
   - Inside: challenges per team-game 0.135 (band 0.112 to 0.189); reversal share 0.457 (band 0.329 to 0.514); every run class share; points per team-game -0.20 (0.3); turnovers -0.047 (0.05); no status flip.
   - Outside: the pass family's incompletion share, +0.216 pp against 0.2 (30.92% off, 31.14% on).
@@ -1690,6 +1691,17 @@ Spec: docs/specs/m2-play-calling-and-motion.md, Resolved 2 and 3 (Joseph). Edits
 
 ### Pins-only engine run 12 and game holdout run 17 (lead's call; engineer, 2026-11-14)
 - Run at the end of M2, once G was in, on a quiet machine (15-minute load 3.97 at the start), in pin-safe order. First the outcome digests (identical to 04f0f5d) and the G7 report, now "pass" with Joseph's accepted deviation. Then engine run 12 (every metric identical to run 11, the five generated tables byte-identical), the in-sample summary (metrics, diagnostics and invariants identical), and game holdout run 16's successor, run 17 (every metric, diagnostic and invariant count identical to run 16, 0 gated failures, 7.60 ms per game). C7 not rerun (it pins only the unchanged tolerances file).
+
+### G code review fixes (engineer, 2026-11-14)
+Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes byte-identical (they only touch the close-call path).
+- A reversed play keeps none of the ruled play's labels. The alternative's trace drops the ruled play's `standoutCandidate` and the role entries of players the alternative doesn't name (`altParticipants`); a role the alternative gives a ruled player under another role (fumbleToDown: the forcer is the tackler) is relabelled. A standout can only come from the play that finally stands. The ruled play's own detail is unchanged.
+- A failed challenge's timeout is charged across a quarter change within the half and waived only at the end of a half or the game (new `sameHalf(a, b, rules)` in loop/play.ts). The `review` event's `timeoutCharged` now says whether a timeout was in fact charged; the `reviewResult` request's flag is false when the team has no timeout left, and can't know of a half-end waive yet (it is asked before the play is applied).
+- Challenging with no timeouts (a rule set with `challenges.needsTimeout` false) no longer throws. A failed challenge by a team at 0 timeouts costs `challenges.withoutTimeoutsPenaltyYards` instead, through the new machine function `challengeCost(s, rules, team)` (a timeout when the team has one, `chargeTimeout`). Designed enforcement, between downs from the next snap's spot: half the distance to the goal at most, no change of down, a defense penalized to or past the line to gain gives a first down. Before a kickoff or a try the yards are waived. The shipped rules need a timeout, so this never applies to them.
+- Interface change: ContinueAbout `underReview` gains `play` (the ruled play, its closeCall without the verdict, as in the `challenge` request), `offenseCall` and `defenseCall`; the schema refuses a verdict there. The app shows the ruled play before "Under review" for booth reviews and the other coach's challenges, and compares the play event with what it already showed without the verdict (packages/app/src/ui/pending.ts), so a challenge that stood or was declined doesn't animate twice.
+- Reruns: outcome digests identical (10 leagues, 1,000 slice games). G7 still passes with Joseph's accepted deviation, but its on-run numbers moved slightly, because failed challenges at the end of Q1 and Q3 now cost a timeout and that changes later play (pass incompletion share 31.1365 against 31.1375 before; 7,649 close calls against 7,650). The off run is unchanged. The accepted value in m2-challenge-approvals.json was not touched.
+- Pins moved and not re-pinned: resolve.ts, machine.ts and play.ts are in the code-hash import graphs of data/engine/validation.json and the game calibration summaries, so their codeHash checks fail until a counted pins-only rerun (lead's call).
+- Set preview (UI, test-writer flag): a run block's set path can be shorter than the edge-of-mark trim and drew nothing; a block that short now draws a minimum tick (`blockTick` in marks.ts, designed 0.4 yards past the trim), so all 11 have a preview path.
+- Start cap (UI, test-writer flag): `startMs` in timeline.ts and the fact-leg builder both capped at maxStartMs, so removing either cap alone changed nothing and no test could see it. The cap now lives once per path (the fact-leg builder, and the other marks' start), and motion.test checks starts under a tighter cap (40 ms) in the motion data, which fails if either cap is removed.
 
 ## Publishing
 

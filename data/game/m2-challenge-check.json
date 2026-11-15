@@ -23,7 +23,7 @@
   {
    "id": "classShare.run.r1_3",
    "off": 36.80880276165072,
-   "on": 36.82624858193751,
+   "on": 36.82836589889791,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -31,7 +31,7 @@
   {
    "id": "classShare.run.r4_9",
    "off": 33.997136356504,
-   "on": 33.971870350815905,
+   "on": 33.971363239349536,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -39,7 +39,7 @@
   {
    "id": "classShare.run.loss",
    "off": 17.86168209634395,
-   "on": 17.912729785004064,
+   "on": 17.91279429227553,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -47,7 +47,7 @@
   {
    "id": "classShare.run.r10_19",
    "off": 8.327710654322924,
-   "on": 8.316813804960962,
+   "on": 8.315063250144753,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -55,7 +55,7 @@
   {
    "id": "classShare.run.fumble",
    "off": 0.6358857680841048,
-   "on": 0.60726440535586,
+   "on": 0.6072799002914708,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -63,7 +63,7 @@
   {
    "id": "classShare.run.r20",
    "off": 2.368782363094304,
-   "on": 2.3650730719256994,
+   "on": 2.365133419040796,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -71,7 +71,7 @@
   {
    "id": "classShare.pass.c1_9",
    "off": 28.94809241459841,
-   "on": 28.886702574799962,
+   "on": 28.887148135740553,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -79,7 +79,7 @@
   {
    "id": "classShare.pass.c10_19",
    "off": 16.107572205907434,
-   "on": 16.04010087487157,
+   "on": 16.04101258697366,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -87,7 +87,7 @@
   {
    "id": "classShare.pass.c20",
    "off": 7.589385193198497,
-   "on": 7.554157975030355,
+   "on": 7.554052253313623,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -95,7 +95,7 @@
   {
    "id": "classShare.pass.inc",
    "off": 30.92184296389985,
-   "on": 31.137457579625767,
+   "on": 31.136538837544975,
    "target": "within 0.2 pp",
    "pass": false,
    "status": "accepted"
@@ -103,7 +103,7 @@
   {
    "id": "classShare.pass.sack",
    "off": 6.49078231728647,
-   "on": 6.523241694946916,
+   "on": 6.522884331104533,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -111,7 +111,7 @@
   {
    "id": "classShare.pass.scramble",
    "off": 4.433376115564308,
-   "on": 4.422553628693296,
+   "on": 4.42256464414121,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -119,7 +119,7 @@
   {
    "id": "classShare.pass.int",
    "off": 2.0501859221977536,
-   "on": 2.0044210591861513,
+   "on": 2.0041769773080786,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -127,7 +127,7 @@
   {
    "id": "classShare.pass.c0",
    "off": 2.7920073995416366,
-   "on": 2.7853918241539275,
+   "on": 2.785523299039943,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -135,7 +135,7 @@
   {
    "id": "classShare.pass.fumbleCatch",
    "off": 0.6667554678056451,
-   "on": 0.6459727886920514,
+   "on": 0.6460989348334253,
    "target": "within 0.2 pp",
    "pass": true,
    "status": "pass"
@@ -143,7 +143,7 @@
   {
    "id": "points.perTeamGame.mean",
    "off": 22.05545,
-   "on": 21.85325,
+   "on": 21.85275,
    "target": "within 0.3",
    "pass": true,
    "status": "pass"
@@ -160,18 +160,18 @@
  "flips": [],
  "statusChanges": [],
  "g3": {
-  "engineCalls": 1628110,
-  "closeCalls": 7650,
+  "engineCalls": 1628096,
+  "closeCalls": 7649,
   "mismatches": 0,
   "examples": []
  },
  "reviews": {
   "coach": 2702,
   "coachReversed": 1236,
-  "booth": 3724,
-  "boothReversed": 2159,
+  "booth": 3723,
+  "boothReversed": 2158,
   "timeoutsCharged": 1466,
-  "perGame": 0.6426,
+  "perGame": 0.6425,
   "byKind": {
    "completionToIncomplete": {
     "coach": 2187,
@@ -180,8 +180,8 @@
    },
    "fumbleToDown": {
     "coach": 0,
-    "booth": 969,
-    "reversed": 603
+    "booth": 968,
+    "reversed": 602
    },
    "interceptionToIncomplete": {
     "coach": 0,
@@ -201,7 +201,7 @@
   }
  },
  "perf": {
-  "msPerGameOff": 8.17595988080003,
-  "msPerGameOn": 12.828412933099967
+  "msPerGameOff": 8.193390113700058,
+  "msPerGameOn": 16.201399152100088
  }
 }

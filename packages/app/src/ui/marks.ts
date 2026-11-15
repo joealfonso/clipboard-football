@@ -35,6 +35,23 @@ export function trimEnd(points: readonly P[], d: number): P[] | null {
   return null;
 }
 
+/** Designed: how far a short block's preview tick shows past the edge of the blocker's mark, yards. */
+export const BLOCK_TICK_YARDS = 0.4;
+
+/**
+ * A run block's set path can be shorter than the edge-of-mark trim, so it would draw nothing. It
+ * gets a minimum tick instead, in the block's direction, so every blocker has a preview path.
+ */
+export function blockTick(points: readonly P[], edgeYards: number): P[] | null {
+  const a = points[0];
+  const b = points[points.length - 1];
+  if (a === undefined || b === undefined) return null;
+  const len = dist(a, b);
+  if (len < 1e-9) return null;
+  const k = (edgeYards + BLOCK_TICK_YARDS) / len;
+  return [a, { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k }];
+}
+
 export type NumberMode = "involved" | "all" | "none";
 
 /**
@@ -73,7 +90,7 @@ export function pathPrimitives(tl: Timeline, t: number, edgeYards: number): Path
   if (t < tl.snapAt) {
     const art: Art | null = tl.preview;
     for (const p of art?.paths ?? []) {
-      const pts = trimEnd(p.points, edgeYards);
+      const pts = trimEnd(p.points, edgeYards) ?? (p.kind === "block" ? blockTick(p.points, edgeYards) : null);
       if (pts !== null) out.push({ side: p.side, points: pts, end: p.end, dashed: p.side === "X" || p.kind === "fake", faint: true, slot: p.slot });
     }
     return out;

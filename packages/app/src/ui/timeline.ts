@@ -275,7 +275,8 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   const startMs = (id: string): number => {
     const s = slotOf.get(id);
     const base = M.startMs[s?.position ?? "WR"] ?? 0;
-    return Math.min(M.maxStartMs, base + ((s?.index ?? 0) % 3) * M.slotOffsetMs);
+    // Uncapped here: every use is a fixedStart leg, which the leg builder caps at maxStartMs (one cap per path).
+    return base + ((s?.index ?? 0) % 3) * M.slotOffsetMs;
   };
   const recoveredText = (id: string | undefined): string => {
     const n = id === undefined ? undefined : ctx.numbers[id];

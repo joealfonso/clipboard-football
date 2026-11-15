@@ -10,22 +10,22 @@ Pre-registered tolerances: data/game/m2-challenge-tolerances.json, sha256 `abd44
 |---|---|---|---|---|
 | `challenges.perTeamGame` | - | 0.1351 | 0.112132 to 0.189453 (actual 0.149881) | pass |
 | `challenges.reversalShare` | - | 0.4574 | 0.328947 to 0.513514 (actual 0.43949) | pass |
-| `classShare.run.r1_3` | 36.8088 | 36.8262 | within 0.2 pp | pass |
-| `classShare.run.r4_9` | 33.9971 | 33.9719 | within 0.2 pp | pass |
-| `classShare.run.loss` | 17.8617 | 17.9127 | within 0.2 pp | pass |
-| `classShare.run.r10_19` | 8.3277 | 8.3168 | within 0.2 pp | pass |
+| `classShare.run.r1_3` | 36.8088 | 36.8284 | within 0.2 pp | pass |
+| `classShare.run.r4_9` | 33.9971 | 33.9714 | within 0.2 pp | pass |
+| `classShare.run.loss` | 17.8617 | 17.9128 | within 0.2 pp | pass |
+| `classShare.run.r10_19` | 8.3277 | 8.3151 | within 0.2 pp | pass |
 | `classShare.run.fumble` | 0.6359 | 0.6073 | within 0.2 pp | pass |
 | `classShare.run.r20` | 2.3688 | 2.3651 | within 0.2 pp | pass |
-| `classShare.pass.c1_9` | 28.9481 | 28.8867 | within 0.2 pp | pass |
-| `classShare.pass.c10_19` | 16.1076 | 16.0401 | within 0.2 pp | pass |
-| `classShare.pass.c20` | 7.5894 | 7.5542 | within 0.2 pp | pass |
-| `classShare.pass.inc` | 30.9218 | 31.1375 | within 0.2 pp | accepted |
-| `classShare.pass.sack` | 6.4908 | 6.5232 | within 0.2 pp | pass |
+| `classShare.pass.c1_9` | 28.9481 | 28.8871 | within 0.2 pp | pass |
+| `classShare.pass.c10_19` | 16.1076 | 16.0410 | within 0.2 pp | pass |
+| `classShare.pass.c20` | 7.5894 | 7.5541 | within 0.2 pp | pass |
+| `classShare.pass.inc` | 30.9218 | 31.1365 | within 0.2 pp | accepted |
+| `classShare.pass.sack` | 6.4908 | 6.5229 | within 0.2 pp | pass |
 | `classShare.pass.scramble` | 4.4334 | 4.4226 | within 0.2 pp | pass |
-| `classShare.pass.int` | 2.0502 | 2.0044 | within 0.2 pp | pass |
-| `classShare.pass.c0` | 2.7920 | 2.7854 | within 0.2 pp | pass |
-| `classShare.pass.fumbleCatch` | 0.6668 | 0.6460 | within 0.2 pp | pass |
-| `points.perTeamGame.mean` | 22.0555 | 21.8532 | within 0.3 | pass |
+| `classShare.pass.int` | 2.0502 | 2.0042 | within 0.2 pp | pass |
+| `classShare.pass.c0` | 2.7920 | 2.7855 | within 0.2 pp | pass |
+| `classShare.pass.fumbleCatch` | 0.6668 | 0.6461 | within 0.2 pp | pass |
+| `points.perTeamGame.mean` | 22.0555 | 21.8528 | within 0.3 | pass |
 | `turnovers.perTeamGame` | 1.2068 | 1.1601 | within 0.05 | pass |
 
 accepted: outside the pre-registered tolerance, accepted by Joseph (data/game/m2-challenge-approvals.json, with the reason).
@@ -36,16 +36,16 @@ No in-sample gated step 5 metric goes from pass to fail.
 
 ## G3: no extra outcome draw
 
-Every engine call of the on run (1628110, 7650 of them close calls) was shadowed by the same call with close calls off from a copy of the outcome stream: results apart from `detail.closeCall`, and the stream after the call, differed 0 times.
+Every engine call of the on run (1628096, 7649 of them close calls) was shadowed by the same call with close calls off from a copy of the outcome stream: results apart from `detail.closeCall`, and the stream after the call, differed 0 times.
 
 ## Reviews (report)
 
-0.643 reviews per game: 2702 coach's challenges (1236 reversed, 1466 timeouts charged) and 3724 Replay Official reviews (2159 reversed) over 10000 games.
+0.642 reviews per game: 2702 coach's challenges (1236 reversed, 1466 timeouts charged) and 3723 Replay Official reviews (2158 reversed) over 10000 games.
 
 | Kind | Challenges | Replay Official | Reversed |
 |---|---|---|---|
 | completionToIncomplete | 2187 | 598 | 1258 |
-| fumbleToDown | 0 | 969 | 603 |
+| fumbleToDown | 0 | 968 | 602 |
 | interceptionToIncomplete | 0 | 596 | 354 |
 | touchdownToShort | 0 | 1418 | 882 |
 | spotLineToGain | 515 | 143 | 298 |

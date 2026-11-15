@@ -652,9 +652,23 @@ export function createEngine(data: EngineData, options: EngineOptions = {}): Res
     const cc = markCloseCall(data.closeCalls, { play: out, family: family as "run" | "pass", los, distance: ctx.state.distance, fumbleSpot }, ctx.review);
     if (cc === null) return out;
     const d0 = out.detail as Record<string, unknown>;
-    const trace = [...(d0["trace"] as TraceEntry[]), { factor: "review" as const, kind: cc.kind, question: cc.kind }];
+    // The alternative's trace keeps the factors of the draw and drops what only the ruled play had
+    // (code review): its standout candidate, and the role entries of roles the alternative lacks.
+    // A standout can only come from the play that finally stands.
+    const altParts = altParticipants(cc.kind, d0["participants"] as Participants) as Readonly<Record<string, unknown>>;
+    const roleFactors = new Set(["passer", "target", "receiver", "ballCarrier", "tackler", "sacker", "interceptor", "fumbleForcer", "fumbleRecoverer", "kicker", "punter", "returner"]);
+    const ruled = d0["trace"] as TraceEntry[];
+    const kept = ruled.filter((e) => e.factor !== "standoutCandidate" && !(roleFactors.has(e.factor) && altParts[e.factor] !== e["id"]));
+    // A role the alternative gives to a ruled player under another role (fumbleToDown: the forcer is the tackler).
+    for (const role of roleFactors) {
+      const pid = altParts[role];
+      if (typeof pid !== "string" || kept.some((e) => e.factor === role)) continue;
+      const src = ruled.find((e) => roleFactors.has(e.factor) && e["id"] === pid);
+      if (src !== undefined) kept.push({ ...src, factor: role as TraceEntry["factor"] });
+    }
+    const trace = [...kept, { factor: "review" as const, kind: cc.kind, question: cc.kind }];
     const t = templateFor(why, "reversed", cc.edit.alt.kind, cc.kind);
-    const altDetail = { ...d0, class: cc.edit.cls, yards: cc.edit.yards, trace, participants: altParticipants(cc.kind, d0["participants"] as Participants), why: render(t, trace).text, whyTemplate: t.id, headline: renderHeadline(t, trace) };
+    const altDetail = { ...d0, class: cc.edit.cls, yards: cc.edit.yards, trace, participants: altParts, why: render(t, trace).text, whyTemplate: t.id, headline: renderHeadline(t, trace) };
     return { ...out, detail: { ...d0, closeCall: { kind: cc.kind, question: cc.kind, alternative: { ...cc.edit.alt, detail: altDetail }, verdict: cc.verdict } } } as PlayResult;
   }
 
