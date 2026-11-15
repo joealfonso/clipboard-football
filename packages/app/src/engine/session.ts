@@ -30,10 +30,16 @@ import type { DecisionAnswer, RatingRanks, Team } from "./types";
 
 export const DEFAULT_LEAGUE_SEED = 2026;
 /**
- * Save versions: 1 held the M1 adapter's answers; 2 the engine's answer paths; 3 adds `codeHash`.
- * Only the current version resumes; an older one reads as "from an older version".
+ * Save versions: 1 held the M1 adapter's answers; 2 the engine's answer paths; 3 adds `codeHash`;
+ * 4 adds `standouts`. Only the current version resumes; an older one reads as "from an older version".
  */
-export const SAVE_SCHEMA_VERSION = 3;
+export const SAVE_SCHEMA_VERSION = 4;
+
+/**
+ * M2 F (lead's call): the playable game runs with standout plays, a centered designed layer that
+ * F1 checked against the calibrated baseline (which has them off; data/engine/standouts.json).
+ */
+export const PLAY_STANDOUTS = true;
 
 /** Everything that rebuilds a game: plain JSON for IndexedDB. */
 export interface SaveData {
@@ -45,6 +51,8 @@ export interface SaveData {
    * answers replayed by different engine code can give a different game, so a mismatch reads as older.
    */
   readonly codeHash: string;
+  /** Whether the game was played with standout plays; a save replays only under the same setting. */
+  readonly standouts: boolean;
   readonly leagueSeed: number;
   readonly seed: number;
   readonly human: Team;
@@ -75,7 +83,7 @@ export function prepare(data: GameData, dataHash: string, codeHash: string): Pre
   };
   return {
     data,
-    kit: prepareGame(data),
+    kit: prepareGame(data, { standouts: PLAY_STANDOUTS }),
     dataHash,
     codeHash,
     league,
@@ -121,7 +129,7 @@ export function checkSave(v: unknown, dataHash: string, codeHash: string): { ok:
   const s = v as Record<string, unknown>;
   if (typeof s["schemaVersion"] !== "number") return { ok: false, reason: "damaged" };
   // A save from another version, other data or other engine code is not replayed (it could give a different game).
-  if (s["schemaVersion"] !== SAVE_SCHEMA_VERSION || s["dataHash"] !== dataHash || s["codeHash"] !== codeHash) {
+  if (s["schemaVersion"] !== SAVE_SCHEMA_VERSION || s["dataHash"] !== dataHash || s["codeHash"] !== codeHash || s["standouts"] !== PLAY_STANDOUTS) {
     return typeof s["dataHash"] === "string" ? { ok: false, reason: "older" } : { ok: false, reason: "damaged" };
   }
   const shapeOk =
@@ -161,7 +169,7 @@ export class Session {
   }
 
   private save(g: Game): SaveData {
-    return { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: this.p.dataHash, codeHash: this.p.codeHash, leagueSeed: g.matchup.leagueSeed, seed: g.matchup.seed, human: g.human, gameType: g.matchup.gameType, log: g.session.inputs };
+    return { schemaVersion: SAVE_SCHEMA_VERSION, dataHash: this.p.dataHash, codeHash: this.p.codeHash, standouts: PLAY_STANDOUTS, leagueSeed: g.matchup.leagueSeed, seed: g.matchup.seed, human: g.human, gameType: g.matchup.gameType, log: g.session.inputs };
   }
 
   private step(g: Game, resumed: boolean): void {

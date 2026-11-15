@@ -1,7 +1,9 @@
 // The headless CLI (M1 step 5, milestone E): plays one full game between two generated teams with
 // the average coach and prints it play by play with the engine's why line and a team box score.
 //
-//   pnpm sim:game -- --seed <n> [--league-seed <n>] [--game-type regular|postseason] [--format text|json]
+//   pnpm sim:game -- --seed <n> [--league-seed <n>] [--game-type regular|postseason] [--format text|json] [--standouts]
+//
+// --standouts plays with standout plays (M2 F), as the app does; without it, the calibrated baseline.
 //
 // The seed, league seed and game type are on the first lines of the output; the same inputs give
 // the same game, byte for byte. --format json writes the game record instead. --game-type
@@ -37,12 +39,19 @@ export function simGame(args: readonly string[]): string {
   const gameType = arg(args, "--game-type") ?? "regular";
   if (gameType !== "regular" && gameType !== "postseason") throw new Error(`--game-type must be regular or postseason, got ${gameType}`);
   const data = loadGameData();
-  const kit = prepareGame(data);
+  const standouts = args.includes("--standouts");
+  const kit = prepareGame(data, { standouts });
   const { teams } = leagueFromSeed(data, leagueSeed);
   const coach = averageCoachFor(data);
   const setup = setupGame(teams, leagueSeed, seed, () => coach, gameType === "postseason" ? "postseason" : "regularSeason");
   const record = playGame(setup, kit, Rng.fromSeed(seed));
-  return format === "json" ? JSON.stringify(record) + "\n" : renderGame(record, data);
+  if (format === "json") return JSON.stringify(record) + "\n";
+  const text = renderGame(record, data);
+  if (!standouts) return text;
+  // A third header line says so; the default output (and its golden) is unchanged.
+  const lines = text.split("\n");
+  lines.splice(2, 0, "standouts on (M2 F; the calibrated baseline has them off)");
+  return lines.join("\n");
 }
 
 if (import.meta.main) {

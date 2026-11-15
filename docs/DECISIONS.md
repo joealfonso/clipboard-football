@@ -1543,6 +1543,15 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
   Those are value re-points for the test-writer, plus an in-sample summary re-run and the CLI snapshot. With `enabled` false the game is exactly step 5's (the proof above), and F1 to F3 and F6 ran with standouts explicitly on.
 - Pins: resolve.ts, participants.ts and shared engine.ts are in the engine validation's import graph, and play.ts in the calibration's. So engine run 11 and game holdout run 16 are stale again, pending the lead (pins only would match: with `enabled` false nothing the engine validation or the game plays changes).
 
+### F: the lead's calls on the four F decisions (lead, 2026-11-14)
+- Standouts on for play, off for the calibration baseline. The calibrated baseline is the average-coach engine without standouts: `enabled` stays false in data/engine/standouts.json, and the step 5 summaries, accepted values and pinned tests stay as they are. Standouts are a centered designed layer, verified against that baseline by F1.
+  - The playable app runs with them (`PLAY_STANDOUTS` in packages/app/src/engine/session.ts passes `standouts: true` to `prepareGame`).
+  - The CLI has `--standouts`: a third header line says so, and the default output and its golden are unchanged.
+  - The app's save records the setting (save schema version 4, field `standouts`). A save made under another setting reads as from an older version, so a replay is exact; data hash and code hash were already in the save. The app test's fixture save gains `standouts: true` for the new required field.
+- F2 is read as the spec states it: an elite player against a league-average player in the same slot. All five kinds pass. Joseph judges the rate in the playtest (F6).
+- The pins-only engine run 12 and game holdout run 17 wait until G is done, then run once at the end of M2.
+- Sack and LB: no linebacker can be elite for sacks until a later milestone gives linebackers a Pass Rush rating. The kind stays as pre-registered.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
