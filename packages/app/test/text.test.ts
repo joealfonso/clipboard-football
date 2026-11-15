@@ -4,7 +4,6 @@
 import { describe, expect, it } from "vitest";
 import { callsLine, clockText, continueText, eventLine, nextText, penaltyChoiceText, penaltyText, periodText, playerRef, reasonText, resultLine, sideText, situationText, yardLineText, type TextCtx } from "../src/ui/text";
 import { REASON_CODES } from "@clipboard-football/shared";
-import { readDetail, PARTICIPANT_ROLES } from "../src/engine/types";
 import { whyHeadline } from "../src/engine/headline";
 import { ALL_FIXTURES, COMPLETE, FALSE_START, FIELD_GOAL_GOOD, HOLDING_ON_RUN, INCOMPLETE, INTERCEPTION, KICKOFF_RETURN, KICKOFF_TOUCHBACK, PUNT_RETURNED, RUN, SACK, STANDOUT_RUN, TOUCHDOWN, UNNAMED_COMPLETE, fixturePlayers, snap } from "./fixtures";
 
@@ -57,11 +56,8 @@ describe("down, distance and yard lines", () => {
 });
 
 describe("the result line names only players the engine named (H2)", () => {
-  it("a completion names passer and receiver with numbers", () => {
-    const n = fixturePlayers();
-    const qb = n.get("H-QB1");
-    const wr = n.get("H-WR2");
-    expect(resultLine(COMPLETE, ctx)).toBe(`#${qb?.number} P. QB1 to #${wr?.number} P. WR2 for 7. Your ball, 1st & 10 at OWN 47.`);
+  it("a completion describes the play and names nobody", () => {
+    expect(resultLine(COMPLETE, ctx)).toBe("Pass complete for 7. Your ball, 1st & 10 at OWN 47.");
   });
 
   it("with no participants it names nobody", () => {
@@ -70,40 +66,36 @@ describe("the result line names only players the engine named (H2)", () => {
     expect(line).not.toMatch(/#/);
   });
 
-  it("every name in every fixture's line is a participant of that play", () => {
-    const names = fixturePlayers();
+  it("no fixture's line names a player or a jersey number", () => {
+    const names = [...fixturePlayers().values()].map((v) => v.name.split(" ").slice(1).join(" "));
     for (const [k, ev] of Object.entries(ALL_FIXTURES)) {
       const line = resultLine(ev, ctx);
-      const p = readDetail(ev.play).participants ?? {};
-      const named = new Set([...PARTICIPANT_ROLES.map((r) => p[r]), ...(p.foulers ?? [])].filter((x): x is string => x !== undefined));
-      for (const m of line.matchAll(/#(\d+) /g)) {
-        const id = [...names.entries()].find(([, v]) => String(v.number) === m[1])?.[0];
-        expect(id !== undefined && named.has(id), `${k}: ${line}`).toBe(true);
-      }
+      expect(line, k).not.toMatch(/#\d/);
+      for (const n of names) expect(line.includes(n), `${k}: ${line}`).toBe(false);
     }
   });
 
-  it("an incompletion names the target", () => {
-    expect(resultLine(INCOMPLETE, ctx)).toMatch(/P\. QB1 incomplete, intended for #\d+ P\. WR1\./);
+  it("an incompletion says so without the target", () => {
+    expect(resultLine(INCOMPLETE, ctx)).toMatch(/^Pass incomplete\. /);
   });
 
   it("an interception, a sack, a run, a punt, a field goal, a kickoff", () => {
-    expect(resultLine(INTERCEPTION, ctx)).toMatch(/intercepted by #\d+ P\. S1\. Lanterns ball, 1st & 10 at OPP 48\./);
-    expect(resultLine(SACK, ctx)).toMatch(/sacked by #\d+ P\. DL2 for a loss of 7\./);
-    expect(resultLine(RUN, ctx)).toMatch(/^#\d+ P\. RB1 for 4\. Your ball, 3rd & 3 at OWN 44\.$/);
-    expect(resultLine(PUNT_RETURNED, ctx)).toMatch(/punts 45 yards, returned by #\d+ P\. WR1\./);
+    expect(resultLine(INTERCEPTION, ctx)).toMatch(/^Pass intercepted\. Lanterns ball, 1st & 10 at OPP 48\./);
+    expect(resultLine(SACK, ctx)).toMatch(/^Quarterback sacked for a loss of 7\./);
+    expect(resultLine(RUN, ctx)).toBe("Run for 4. Your ball, 3rd & 3 at OWN 44.");
+    expect(resultLine(PUNT_RETURNED, ctx)).toMatch(/^Punt 45 yards, returned\./);
     expect(resultLine(FIELD_GOAL_GOOD, ctx)).toMatch(/47-yard field goal is good\. Kickoff next\./);
-    expect(resultLine(KICKOFF_TOUCHBACK, ctx)).toMatch(/^#\d+ P\. K1 kicks off, touchback\. /);
-    expect(resultLine(KICKOFF_RETURN, ctx)).toMatch(/^#\d+ P\. K1 kicks off, returned by #\d+ P\. S1\. /);
+    expect(resultLine(KICKOFF_TOUCHBACK, ctx)).toMatch(/^Kickoff, touchback\. /);
+    expect(resultLine(KICKOFF_RETURN, ctx)).toMatch(/^Kickoff, returned\. /);
   });
 
   it("a touchdown says so", () => {
     expect(resultLine(TOUCHDOWN, ctx)).toMatch(/for 60\. Touchdown\. Try next\./);
   });
 
-  it("flags name the foul, the team and the fouling player", () => {
-    expect(penaltyText(FALSE_START, ctx)).toMatch(/^Flag: a false start on the Pilots \(#\d+ P\. OL2\), accepted\.$/);
-    expect(resultLine(HOLDING_ON_RUN, ctx)).toMatch(/Flag: holding on the Pilots \(#\d+ P\. OL4\), accepted\./);
+  it("flags name the foul and the team, not the player", () => {
+    expect(penaltyText(FALSE_START, ctx)).toBe("Flag: a false start on the Pilots, accepted.");
+    expect(resultLine(HOLDING_ON_RUN, ctx)).toMatch(/Flag: holding on the Pilots, accepted\./);
   });
 
   it("a standout play starts with Standout", () => {

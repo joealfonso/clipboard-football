@@ -120,76 +120,51 @@ const KICK_CLASS_TEXT: Readonly<Record<string, string>> = {
   blocked: "blocked",
 };
 
-/** The part of the result line that says what physically happened. */
+/**
+ * The part of the result line that says what physically happened. It names no players
+ * (Joseph, 2026-11-14: names don't matter, keep the description of the play); the player
+ * card still ties a mark to a name.
+ */
 export function playText(ev: PlayEvent, ctx: TextCtx): string {
   const { play, before, after } = ev;
-  const parts = readDetail(play).participants ?? {};
-  const who = (id: string | undefined): string | undefined => playerRef(id, ctx);
   const off = before.possession;
   const def = other(off);
   const lost = "end" in play && play.end !== undefined && play.end.possession === "defense";
   const d = readDetail(play);
   const fumbled = d.class === "fumble" || d.class === "fumbleCatch" || ("turnover" in play && play.turnover === "fumble");
-  const recovered = (): string => {
-    const r = who(parts.fumbleRecoverer);
-    if (r !== undefined) return `fumble, recovered by ${r}`;
-    return lost ? `fumble, recovered by the ${ctx.teams[def].nickname}` : `fumble, recovered by the ${ctx.teams[off].nickname}`;
-  };
+  const recovered = (): string => `fumble, recovered by the ${ctx.teams[lost ? def : off].nickname}`;
   const y = (): string => yardsPhrase(gainOf(ev));
+  const withFumble = (base: string): string => (fumbled ? `${base}, ${recovered()}` : base);
   switch (play.kind) {
-    case "run": {
-      const c = who(parts.ballCarrier);
-      const base = c === undefined ? `Run for ${y()}` : `${c} for ${y()}`;
-      return fumbled ? `${base}, ${recovered()}` : base;
-    }
-    case "scramble": {
-      const c = who(parts.ballCarrier ?? parts.passer);
-      const base = c === undefined ? `Scramble for ${y()}` : `${c} scrambles for ${y()}`;
-      return fumbled ? `${base}, ${recovered()}` : base;
-    }
-    case "sack": {
-      const q = who(parts.passer);
-      const s = who(parts.sacker);
-      const base = `${q ?? "Quarterback"} sacked${s === undefined ? "" : ` by ${s}`} for ${y()}`;
-      return fumbled ? `${base}, ${recovered()}` : base;
-    }
-    case "pass": {
-      const q = who(parts.passer);
-      if (play.turnover === "interception") {
-        const i = who(parts.interceptor);
-        return q === undefined ? `Intercepted${i === undefined ? "" : ` by ${i}`}` : `${q} intercepted${i === undefined ? "" : ` by ${i}`}`;
-      }
-      if (play.incomplete === true) {
-        const t = who(parts.target);
-        return `${q === undefined ? "Pass" : q} incomplete${t === undefined ? "" : `, intended for ${t}`}`;
-      }
-      const r = who(parts.receiver);
-      const base = q !== undefined && r !== undefined ? `${q} to ${r} for ${y()}` : r !== undefined ? `Pass to ${r} for ${y()}` : q !== undefined ? `${q} complete for ${y()}` : `Pass complete for ${y()}`;
-      return fumbled ? `${base}, ${recovered()}` : base;
-    }
+    case "run":
+      return withFumble(`Run for ${y()}`);
+    case "scramble":
+      return withFumble(`Quarterback scrambles for ${y()}`);
+    case "sack":
+      return withFumble(`Quarterback sacked for ${y()}`);
+    case "pass":
+      if (play.turnover === "interception") return "Pass intercepted";
+      if (play.incomplete === true) return "Pass incomplete";
+      return withFumble(`Pass complete for ${y()}`);
     case "kneel":
-      return `${who(parts.ballCarrier ?? parts.passer) ?? "Quarterback"} kneels`;
+      return "Quarterback kneels";
     case "spike":
-      return `${who(parts.passer) ?? "Quarterback"} spikes it, clock stopped`;
+      return "Quarterback spikes it, clock stopped";
     case "punt": {
-      const k = who(parts.punter);
       const cls = d.class === undefined ? undefined : KICK_CLASS_TEXT[d.class];
-      let t = `${k === undefined ? "Punt" : `${k} punts`}${d.gross === undefined ? "" : ` ${d.gross} yards`}`;
+      let t = `Punt${d.gross === undefined ? "" : ` ${d.gross} yards`}`;
       if (cls !== undefined) t += `, ${cls}`;
-      const r = who(parts.returner);
-      if (r !== undefined && cls === undefined) t += `, returned by ${r}`;
+      else if (readDetail(play).participants?.returner !== undefined) t += ", returned";
       return t;
     }
     case "fieldGoal": {
-      const k = who(parts.kicker);
       const dist = 100 - play.kickSpot + ctx.endZoneYards;
       const blocked = d.class === "blocked";
-      return `${k === undefined ? "" : `${k}: `}${dist}-yard field goal ${blocked ? "blocked" : play.good ? "is good" : "is no good"}`;
+      return `${dist}-yard field goal ${blocked ? "blocked" : play.good ? "is good" : "is no good"}`;
     }
     case "extraPoint": {
-      const k = who(parts.kicker);
       const good = after.score[off] - before.score[off] === 1;
-      return `${k === undefined ? "" : `${k}: `}extra point ${good ? "is good" : "is no good"}`;
+      return `Extra point ${good ? "is good" : "is no good"}`;
     }
     case "twoPoint": {
       const good = after.score[off] - before.score[off] === 2;
@@ -198,24 +173,21 @@ export function playText(ev: PlayEvent, ctx: TextCtx): string {
     case "kickoff":
     case "onsideKick": {
       // Plain words for what happened to the kick, from the engine's class and the result.
-      const k = who(parts.kicker);
-      const r = who(parts.returner);
-      const head = play.kind === "onsideKick" ? (k === undefined ? "Onside kick" : `${k} kicks onside`) : k === undefined ? "Kickoff" : `${k} kicks off`;
-      const by = r === undefined ? "" : ` by ${r}`;
+      const head = play.kind === "onsideKick" ? "Onside kick" : "Kickoff";
       const cls = d.class ?? ("outcome" in play ? play.outcome : "");
       if (play.kind === "onsideKick" || cls.startsWith("onside")) {
         if (cls === "onsideOutOfBounds" || ("outcome" in play && play.outcome === "outOfBounds")) return `${head}, out of bounds`;
         if (after.phase !== "scrimmage") return head;
-        return after.possession === off ? `${head}, recovered by the ${ctx.teams[off].nickname}` : `${head}, recovered by the ${ctx.teams[def].nickname}`;
+        return `${head}, recovered by the ${ctx.teams[after.possession === off ? off : def].nickname}`;
       }
       const KICKOFF: Readonly<Record<string, string>> = {
         touchbackEndZone: "touchback",
         touchbackLandingZone: "touchback",
         short: "short of the landing zone",
         outOfBounds: "out of bounds",
-        fairCatch: `fair catch${by}`,
-        returned: r === undefined ? "returned" : `returned${by}`,
-        returnTD: `returned for a touchdown${by}`,
+        fairCatch: "fair catch",
+        returned: "returned",
+        returnTD: "returned for a touchdown",
         kickersRecover: `recovered by the ${ctx.teams[off].nickname}`,
       };
       const what = KICKOFF[cls];
@@ -230,17 +202,11 @@ function foulTeam(ev: PlayEvent, by: "offense" | "defense"): Team {
   return by === "offense" ? ev.before.possession : other(ev.before.possession);
 }
 
-/** "Flag: holding on the Lanterns (#72 B. Cole), accepted." Names the fouling player only when the engine did. */
+/** "Flag: holding on the Lanterns, accepted." Names the team, never the player. */
 export function penaltyText(ev: PlayEvent, ctx: TextCtx): string {
   const fouls = ev.play.fouls ?? [];
   if (fouls.length === 0) return "";
-  const foulers = readDetail(ev.play).participants?.foulers ?? [];
-  const names = fouls
-    .map((f, i) => {
-      const who = playerRef(foulers[i], ctx);
-      return `${(ctx.labels[f.penalty] ?? f.penalty).toLowerCase()} on the ${ctx.teams[foulTeam(ev, f.by)].nickname}${who === undefined ? "" : ` (${who})`}`;
-    })
-    .join(" and ");
+  const names = fouls.map((f) => `${(ctx.labels[f.penalty] ?? f.penalty).toLowerCase()} on the ${ctx.teams[foulTeam(ev, f.by)].nickname}`).join(" and ");
   if (ev.penalty === null || ev.penalty.kind === "offset") return fouls.length > 1 ? `Offsetting fouls: ${names}. Replay the down.` : `Flag: ${names}.`;
   return `Flag: ${names}, ${ev.penalty.kind === "decline" ? "declined" : "accepted"}.`;
 }
