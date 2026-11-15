@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "preRegistered": "2026-11-14",
+  "spec": "docs/specs/m2-engine-and-game-loop.md, milestone F (standout plays)",
+  "note": "Pre-registered before any standout code, sim run or fit; tolerances confirmed by the lead as the spec's F1 proposals. Never changed after the first F run. Only Joseph adds known_deviations.",
+  "threshold": {
+    "cardRating": 90,
+    "note": "A player is elite for a kind when his card rating (the pool after the league's team-strength shift, before the home-field shift) for the kind's rating is at least this (spec resolved 8)."
+  },
+  "kinds": [
+    { "id": "breakawayRun", "role": "ballCarrier", "positions": ["RB", "QB"], "ratings": ["speed", "elusiveness"], "boosts": { "family": "run", "class": "r20" } },
+    { "id": "bigCatch", "role": "target", "positions": ["WR", "TE", "RB"], "ratings": ["speed", "hands"], "boosts": { "family": "pass", "class": "c20" } },
+    { "id": "sack", "role": "sacker", "positions": ["DL", "LB"], "ratings": ["passRush"], "boosts": { "family": "pass", "class": "sack" } },
+    { "id": "pick", "role": "interceptor", "positions": ["CB", "S"], "ratings": ["ballSkills"], "boosts": { "family": "pass", "class": "int" } },
+    { "id": "longKick", "role": "kicker", "positions": ["K"], "ratings": ["kickPower"], "boosts": { "family": "fieldGoal", "class": "good", "minDistance": 50 } }
+  ],
+  "f1": {
+    "comparison": "In-sample run (scripts/game/calibrate.ts --target insample, 10 leagues x 1,000 games), standouts on vs off, same seeds.",
+    "scrimmageClassSharePp": 0.2,
+    "pointsPerTeamGameMean": 0.3,
+    "pointsPerTeamGameSd": 0.3,
+    "turnoversPerTeamGame": 0.05,
+    "fieldGoalMakeRate50PlusPp": 1.0,
+    "noGatedStatusFlipToFail": true,
+    "note": "Every scrimmage class share (each class of the run and pass families, over all snaps that reach a class draw) within 0.2 percentage points; points per team-game mean within 0.3 points and SD within 0.3 points; turnovers per team-game within 0.05; field goal make rate on tries of 50+ yards within 1 percentage point; no in-sample gated step 5 metric goes from pass to fail."
+  },
+  "f2": {
+    "method": "Fixed seed, as step 4 D6: the same slot with a player at the threshold (90) vs a league-average player, all else equal; the boosted class's rate on the plays the kind applies to.",
+    "minRelativeEffect": {
+      "breakawayRun": 0.1,
+      "bigCatch": 0.1,
+      "sack": 0.1,
+      "pick": 0.1,
+      "longKick": 0.1
+    },
+    "note": "Designed (the engineer's choice; the spec sets no number): the boosted class must be at least 10% more likely, relative, with the elite player than with a league-average one. Step 4 D6's 0.02 (data/players/ratings.json minRelativeEffect) is the floor for any rating to count at all; a standout is meant to be visible, so it gets five times that."
+  },
+  "known_deviations": []
+}
