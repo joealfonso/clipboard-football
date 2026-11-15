@@ -501,3 +501,15 @@ Joseph: "each player should have a rating on them that i can hover over to see m
 - This works the same for offense and defense, at the set, during the play (it pauses the animation while the card is open) and at the whistle.
 - Accessibility: the card is reachable without a mouse, is announced to screen readers, and stays legible at 200% text.
 - Tests: every mark has a reachable card. A card's play section lists exactly the roles in `detail.participants` for that player, and no others. The ratings shown equal the card ratings.
+
+## Amended (Joseph, 2026-11-14): full-screen field, menus over it
+
+Joseph: "the field can be the full screen and the menu can appear over it since they happened at different times".
+- The field takes the whole window, under the top bar. There is no fixed side panel any more.
+- While you call (formation, play and other decision screens), the menu appears as an overlay panel over part of the field. It is translucent paper over the field, and it never covers the line of scrimmage, the line to gain, or your lineup. Place it on the side away from the ball, or let it collapse, so the pre-snap lineup stays visible.
+- When you confirm the last key, the overlay closes and the play runs on the full field.
+- At the whistle, the result line, the why line and the next call screen appear in the overlay again. The details view, box score and player cards are overlays too. Esc closes the top overlay.
+- The HUD top bar stays.
+- The 7-choice limit, the keys and the accessibility rules are unchanged. Overlay text keeps 4.5:1 contrast over the field, so use an opaque enough paper backing. Focus moves into the overlay when it opens and back when it closes.
+- At small windows the overlay may cover more of the field, but the "Make the window larger" floor is lowered wherever the field still fits.
+- Layout tests change from the two-column table to the overlay rules: the overlay never covers the line of scrimmage, the line to gain or your lineup at the set; no overlay shows during the live play; focus order holds.
