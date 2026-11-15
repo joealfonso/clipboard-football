@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "note": "Known deviations Joseph accepted for the M2 G7 check (scripts/game/challenges.ts reads this file; the pre-registered data/game/m2-challenge-tolerances.json stays frozen). A deviation applies only to its own metric and scope.",
+  "known_deviations": [
+    {
+      "metric": "classShare.pass.inc",
+      "scope": "insample",
+      "approved_by": "Joseph",
+      "date": "2026-11-14",
+      "value": { "off": 30.9218, "on": 31.1375, "difference": 0.2157, "tolerance": 0.2, "unit": "pp" },
+      "reason": "Sim reversals of completions and interceptions double-count: the fitted pools already hold real final rulings, so every reversed completion or interception adds an incompletion on top (spec resolved 3, known risk). Accepted for M2; centering the reversals is the post-M2 fix."
+    }
+  ]
+}

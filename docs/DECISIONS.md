@@ -1666,6 +1666,11 @@ Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions 
   - The first G7 attempt crashed on a reversal that ended the game (`reviewRunoff` on a final state), before any metric was computed. Fixed, then this single run.
 - For the lead: close calls are off in the app too (`PLAY_CLOSE_CALLS = false`) until a decision. No tolerance, rate or policy value was changed after the run.
 
+### G7: Joseph accepts the incompletion miss; close calls on for play (Joseph, 2026-11-14)
+- Decision (Joseph, question dialog, 2026-11-14, "Accept, turn them on"): the G7 pass-incompletion share, 31.14% on vs 30.92% off (+0.216 pp against the pre-registered 0.2), is a known deviation, scope in-sample. It is recorded in data/game/m2-challenge-approvals.json, which scripts/game/challenges.ts reads; the frozen tolerance file is unchanged. Reason: sim reversals double-count, because the fitted pools already hold real final rulings, so every reversed completion or interception adds an incompletion on top (spec resolved 3).
+- Close calls are on for play (`PLAY_CLOSE_CALLS = true` in the app; the save records it). The calibrated baseline stays without them (challenge-policy.json `enabled` false), as with standouts.
+- Known issue for the post-M2 round: the double-counted reversals. Centering the reversals is the likely fix: the classes a reversal produces (incompletions) and removes (completions, interceptions) are corrected so league class rates match the no-challenge run. Turnovers fell 0.047 per team-game for the same reason, just inside their tolerance.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)

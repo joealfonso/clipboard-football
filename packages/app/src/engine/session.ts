@@ -42,11 +42,10 @@ export const SAVE_SCHEMA_VERSION = 5;
 export const PLAY_STANDOUTS = true;
 
 /**
- * M2 G: close calls, challenges and reviews. Off until the lead decides on the G7 result (the in-sample
- * run put incompletions 0.216 pp above the no-challenge run, outside the pre-registered 0.2 pp;
- * docs/CHALLENGE_REPORT.md). The save records the setting either way.
+ * M2 G (Joseph, 2026-11-14): the playable game plays close calls, challenges and reviews; the
+ * calibrated baseline does not (data/game/challenge-policy.json enabled false). The save records it.
  */
-export const PLAY_CLOSE_CALLS = false;
+export const PLAY_CLOSE_CALLS = true;
 
 /** Everything that rebuilds a game: plain JSON for IndexedDB. */
 export interface SaveData {
