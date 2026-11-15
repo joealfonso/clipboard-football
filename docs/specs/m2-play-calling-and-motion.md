@@ -477,3 +477,14 @@ Open:
 3. Lineups in the call request: approved, as a shared type change. The request carries the human side's own lineup only, never the opponent's.
 
 Lead: the set-preview leak the designer found (field.ts skips the preview for the mark the result names) is fixed as part of this build (P3).
+
+## Amended (Joseph, 2026-11-14): all 22 players move as in a real play
+
+Joseph: "all players on the field should move at the same time as if a real play". From the snap, every one of the 22 marks moves, and nobody stands still while the play runs:
+- The line blocks and rushes.
+- Receivers run routes.
+- Backs run, block or check down.
+- Linebackers read, then flow or drop.
+- Defensive backs backpedal, turn and cover.
+- Everyone off the ball pursues the ball carrier once the ball is caught or handed off.
+Staggered starts mean reaction time only, at most 150 ms after the snap for any player. Unnamed players' motion is drawing only: it still obeys the 2.5-yard ring and lane rule, and never implies a different result. This replaces any reading of "staggered starts" that leaves players idle.
