@@ -1764,7 +1764,9 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 ### Splash: X's and O's run the play, no field (Joseph, 2026-11-15; designed)
 
 - Date: 2026-11-15. Designed. Display only.
-- Decision: the main menu art drops the field and shows only the marks, each running its template path on a loop with a dotted trail behind it. It cycles four designed plays, one per loop (play action, inside run, four-wide intermediate pass, screen against the blitz; `SPLASH_PLAYS`). Reduced motion gets one still frame of the first play, finished.
+- Decision: the main menu art drops the field and shows only the marks. Each loop generates a call for both sides and plays it out live in a designed toy simulation (`splashSim.ts`): own speeds and reaction times, blocks, a throw or handoff, pursuit, and a tackle, incompletion, sack or breakaway. Dotted trails follow every mark and the ball. Reduced motion gets one still frame of shotgun play action against nickel Cover 3, finished.
+- Not the engine: the splash makes no claim about real outcomes. Its odds (catch chance by coverage, shed times, broken tackles) are designed for the look, live only in splashSim.ts, and nothing in the game reads them. Why not the engine: the menu runs before a league or game exists, and the engine's results animate through the play timeline, which needs a game state.
+- Revised the same day: first a fixed list of four plays on one shared ease (Joseph: "doesn't seem live or engaging"), then this.
 - Why: Joseph asked for it. The moving X's and O's say what the game is faster than a still diagram on turf.
 - Reverses: the spec's rejected "animated looping play" and MM17 (no frame loop on the menu). The cost it named, a frame loop beside the rows, is accepted; the loop stops when the menu is gone.
 - Where: `packages/app/src/ui/splash.ts`, docs/specs/m2-main-menu.md (Splash composition, amended), DESIGN.md `menu.splashArt`.

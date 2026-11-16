@@ -1,15 +1,17 @@
 // The main menu's play diagram (docs/specs/m2-main-menu.md, "Splash composition"): a designed
 // illustration from the play-card templates, never model output. Shotgun play action against
 // nickel Cover 3, generic slots, no labels, no ball path, no zones, no first-down line.
-// No field under it (Joseph, 2026-11-15): just the X's and O's, running the play on a loop and
-// leaving a dotted trail behind them. Reduced motion: one still frame of the finished play.
+// No field under it (Joseph, 2026-11-15): just the X's and O's. Each loop generates a new call for
+// both sides and plays it out live (splashSim.ts), dotted trails behind every player. Reduced
+// motion: one still frame of the designed play, finished.
 //
-// splashFrame, splashMovers, pointAlong, splashPhase and artShown are pure; SplashLoop paints.
+// splashFrame, splashPlay, splashClock and artShown are pure; SplashLoop paints.
 
 import { defenseArt, offenseArt, slotsFromCounts, type Art } from "./art";
-import { drawMark, type FieldScene, type FrameOpts, type View } from "./field";
+import { drawBall, drawMark, type FieldScene, type FrameOpts, type View } from "./field";
 import { COLUMN_YARDS } from "./layout";
 import { MID_X, type Key, type Pt } from "./motion";
+import { DT, fitShift, pointAtDistance, randomCall, rng, simulateSplash, type SimMark, type SplashCall, type SplashScript } from "./splashSim";
 import type { Templates } from "./templates";
 import type { Timeline, TLMark } from "./timeline";
 import { SPLASH_INK } from "./tokens";
@@ -36,17 +38,8 @@ export const SPLASH = {
   maxTextSize: 150,
 } as const;
 
-/**
- * The plays the splash runs, one per loop, in order (designed, Joseph 2026-11-15: "add a
- * different play"). Each is a different look: play action, a run, a four-wide intermediate pass from empty, a
- * screen against the blitz. The first is SPLASH's own play, the still frame under reduced motion.
- */
-export const SPLASH_PLAYS: readonly { readonly formation: string; readonly play: string; readonly pkg: string; readonly preset: string }[] = [
-  { formation: SPLASH.formation, play: SPLASH.play, pkg: SPLASH.pkg, preset: SPLASH.preset },
-  { formation: "underCenter", play: "insideRun", pkg: "base", preset: "runStuff" },
-  { formation: "empty", play: "intermediatePass", pkg: "dime", preset: "dimeCover4" },
-  { formation: "pistol", play: "screenPass", pkg: "nickel", preset: "nickelCover1Blitz" },
-];
+/** The play the still frame and the play cards' own tests use: shotgun play action against nickel Cover 3. */
+export const SPLASH_CALL: SplashCall = { formation: SPLASH.formation, play: SPLASH.play, pkg: SPLASH.pkg, preset: SPLASH.preset };
 
 /** Personnel counts for the two units (personnel.json, via the worker's UiData). */
 export interface SplashPersonnel {
@@ -81,7 +74,7 @@ export function splashScene(): FieldScene {
  * The diagram as a still timeline: 11 O's and 11 X's on generic slots (`splash:` ids, so no mark
  * has a number), and the two calls' paths as its preview art, with no zones, bands or tethers.
  */
-export function splashFrame(templates: Templates, personnel: SplashPersonnel, pxPerYard: number, call: (typeof SPLASH_PLAYS)[number] = SPLASH_PLAYS[0] as (typeof SPLASH_PLAYS)[number]): Timeline {
+export function splashFrame(templates: Templates, personnel: SplashPersonnel, pxPerYard: number, call: SplashCall = SPLASH_CALL): Timeline {
   const los = SPLASH.los;
   const off = offenseArt(call.formation, call.play, slotsFromCounts(personnel.offense), templates, los, pxPerYard);
   const def = defenseArt(call.pkg, call.preset, slotsFromCounts(personnel.defense), templates, los, pxPerYard);
@@ -122,124 +115,129 @@ export function splashOpts(textScale: number): FrameOpts {
   return { numbers: {}, ratings: {}, labelContent: "rating", focused: null, markLabels: "none", routeAlpha: 1, textScale, ink };
 }
 
-/** One mark's run: where it lines up and the polyline it follows (its start first). */
-export interface Mover {
-  readonly side: "O" | "X";
-  readonly points: readonly Pt[];
-}
-
-/** Each mark with its path from the preview art (a mark with no path stands still). */
-export function splashMovers(tl: Timeline): Mover[] {
+/** The art's marks as the simulation takes them: start, position and every path the art gives each one. */
+export function simMarks(tl: Timeline): SimMark[] {
   const paths = tl.preview?.paths ?? [];
   return tl.marks.map((m) => {
     const k = m.keys[0] ?? { x: MID_X, y: tl.los };
-    const start = { x: k.x, y: k.y };
-    const p = paths.find((q) => q.slot === m.slot && q.side === m.side);
-    if (p === undefined || p.points.length === 0) return { side: m.side, points: [start] };
-    const first = p.points[0] as Pt;
-    const same = Math.hypot(first.x - start.x, first.y - start.y) < 1e-6;
-    return { side: m.side, points: same ? p.points : [start, ...p.points] };
+    return { side: m.side, position: m.position, slot: m.slot, start: { x: k.x, y: k.y }, paths: paths.filter((q) => q.slot === m.slot && q.side === m.side).map((q) => ({ kind: q.kind, points: q.points })) };
   });
 }
 
 /** The point a fraction `f` (0 to 1) of the way along a polyline, by length. */
 export function pointAlong(points: readonly Pt[], f: number): Pt {
-  const first = points[0] ?? { x: 0, y: 0 };
   let total = 0;
   for (let i = 1; i < points.length; i++) total += Math.hypot((points[i] as Pt).x - (points[i - 1] as Pt).x, (points[i] as Pt).y - (points[i - 1] as Pt).y);
-  if (total === 0) return first;
-  let left = Math.min(1, Math.max(0, f)) * total;
-  for (let i = 1; i < points.length; i++) {
-    const a = points[i - 1] as Pt;
-    const b = points[i] as Pt;
-    const d = Math.hypot(b.x - a.x, b.y - a.y);
-    if (left <= d && d > 0) return { x: a.x + ((b.x - a.x) * left) / d, y: a.y + ((b.y - a.y) * left) / d };
-    left -= d;
-  }
-  return points[points.length - 1] ?? first;
+  return pointAtDistance(points, Math.min(1, Math.max(0, f)) * total);
 }
 
-/** One loop of the splash (ms): lined up, the play, a hold at the end, then fade out and back in. */
-export const SPLASH_LOOP = { set: 900, play: 2800, hold: 1300, fadeOut: 450, fadeIn: 350 } as const;
-export const LOOP_MS = SPLASH_LOOP.set + SPLASH_LOOP.play + SPLASH_LOOP.hold + SPLASH_LOOP.fadeOut + SPLASH_LOOP.fadeIn;
-
-/** Which of `n` plays is up `ms` into the run: the next one each loop, back to the first after the last. */
-export function splashPlayIndex(ms: number, n: number): number {
-  if (n <= 0) return 0;
-  return Math.floor(Math.max(0, ms) / LOOP_MS) % n;
+/** The field yards the splash box shows, bottom to top. */
+export function splashBounds(v: View): { readonly bottom: number; readonly top: number } {
+  return { bottom: v.cameraY - v.height / v.s, top: v.cameraY };
 }
 
-const easeInOut = (f: number): number => (f < 0.5 ? 4 * f ** 3 : 1 - (-2 * f + 2) ** 3 / 2);
+/**
+ * One generated, played-out snap for loop `seed`: a random call for each side, lined up from
+ * the play-card art (`art`), shifted downfield so it fits the box, then simulated.
+ */
+export function splashPlay(art: (call: SplashCall, pxPerYard: number) => Timeline, v: View, seed: number, call?: SplashCall): SplashScript {
+  const c = call ?? randomCall(rng(seed));
+  const marks = simMarks(art(c, v.s));
+  const box = splashBounds(v);
+  const dy = fitShift(marks, box.bottom, box.top);
+  const moved = marks.map((m) => ({ ...m, start: { x: m.start.x, y: m.start.y + dy }, paths: m.paths.map((p) => ({ kind: p.kind, points: p.points.map((q) => ({ x: q.x, y: q.y + dy })) })) }));
+  return simulateSplash(c, moved, { ...box, los: SPLASH.los + dy }, seed);
+}
 
-/** How far along the play is (eased, 0 to 1) and the diagram's opacity, `ms` into the loop. */
-export function splashPhase(ms: number): { readonly f: number; readonly alpha: number } {
+/** One loop around a snap (ms): fade in, set, the live play (its own length), a hold on the result, fade out. */
+export const SPLASH_LOOP = { fadeIn: 300, set: 700, hold: 1400, fadeOut: 400 } as const;
+
+/** Where `ms` falls in a loop around `script`: the step to show, the opacity, and whether the loop is over. */
+export function splashClock(ms: number, script: SplashScript): { readonly step: number; readonly alpha: number; readonly done: boolean } {
   const L = SPLASH_LOOP;
-  const t = ((ms % LOOP_MS) + LOOP_MS) % LOOP_MS;
-  if (t < L.fadeIn) return { f: 0, alpha: t / L.fadeIn };
-  const u = t - L.fadeIn;
-  if (u < L.set) return { f: 0, alpha: 1 };
-  if (u < L.set + L.play) return { f: easeInOut((u - L.set) / L.play), alpha: 1 };
-  if (u < L.set + L.play + L.hold) return { f: 1, alpha: 1 };
-  return { f: 1, alpha: 1 - (u - L.set - L.play - L.hold) / L.fadeOut };
+  const live = (script.steps - 1) * DT * 1000;
+  const last = script.steps - 1;
+  if (ms < L.fadeIn) return { step: 0, alpha: Math.max(0, ms / L.fadeIn), done: false };
+  let u = ms - L.fadeIn;
+  if (u < L.set) return { step: 0, alpha: 1, done: false };
+  u -= L.set;
+  if (u < live) return { step: Math.min(last, Math.floor(u / (DT * 1000))), alpha: 1, done: false };
+  u -= live;
+  if (u < L.hold) return { step: last, alpha: 1, done: false };
+  u -= L.hold;
+  if (u < L.fadeOut) return { step: last, alpha: 1 - u / L.fadeOut, done: false };
+  return { step: last, alpha: 0, done: true };
 }
 
 const sx = (v: View, x: number): number => v.ox + (1 + x) * v.s;
 const sy = (v: View, y: number): number => (v.cameraY - y) * v.s;
+/** Trails sample every few steps: smooth enough, and a dotted dash pattern that doesn't crawl. */
+const TRAIL_EVERY = 3;
 
-/** One frame: each mark's dotted trail from where it lined up to where it is, then the marks. No field. */
-export function paintSplash(g: CanvasRenderingContext2D, v: View, movers: readonly Mover[], f: number, alpha: number): void {
-  const o = splashOpts(1).ink ?? { O: { fill: SPLASH_INK.O, ring: SPLASH_INK.outline }, X: { fill: SPLASH_INK.X, ring: SPLASH_INK.outline } };
+/** One frame of a snap at `step`: dotted trails behind every mark and behind the ball in the air, then the marks and the ball. No field. */
+export function paintSplash(g: CanvasRenderingContext2D, v: View, script: SplashScript, step: number, alpha: number): void {
+  const ink = splashOpts(1).ink ?? { O: { fill: SPLASH_INK.O, ring: SPLASH_INK.outline }, X: { fill: SPLASH_INK.X, ring: SPLASH_INK.outline } };
   g.clearRect(0, 0, v.width, v.height);
   if (alpha <= 0) return;
-  const r = v.markPx / 2;
+  const n = script.sides.length;
+  const at = Math.max(0, Math.min(script.steps - 1, Math.floor(step)));
+  const px = (i: number, j: number): Pt => ({ x: script.pos[(i * n + j) * 2] ?? 0, y: script.pos[(i * n + j) * 2 + 1] ?? 0 });
   g.lineCap = "round";
   g.lineJoin = "round";
   g.lineWidth = 2;
   g.strokeStyle = SPLASH_INK.O;
   g.setLineDash([1, 6]);
-  for (const m of movers) {
-    if (m.points.length < 2 || f <= 0) continue;
-    const end = pointAlong(m.points, f);
-    // The trail: every corner it has passed, then where the mark is now.
-    let total = 0;
-    for (let i = 1; i < m.points.length; i++) total += Math.hypot((m.points[i] as Pt).x - (m.points[i - 1] as Pt).x, (m.points[i] as Pt).y - (m.points[i - 1] as Pt).y);
-    let left = f * total;
-    g.globalAlpha = alpha * (m.side === "O" ? 0.7 : 0.45);
-    g.beginPath();
-    g.moveTo(sx(v, (m.points[0] as Pt).x), sy(v, (m.points[0] as Pt).y));
-    for (let i = 1; i < m.points.length; i++) {
-      const a = m.points[i - 1] as Pt;
-      const b = m.points[i] as Pt;
-      const d = Math.hypot(b.x - a.x, b.y - a.y);
-      if (left <= d) break;
-      g.lineTo(sx(v, b.x), sy(v, b.y));
-      left -= d;
+  if (at > 0) {
+    for (let j = 0; j < n; j++) {
+      g.globalAlpha = alpha * (script.sides[j] === "O" ? 0.7 : 0.45);
+      g.beginPath();
+      const p0 = px(0, j);
+      g.moveTo(sx(v, p0.x), sy(v, p0.y));
+      for (let i = TRAIL_EVERY; i < at; i += TRAIL_EVERY) {
+        const p = px(i, j);
+        g.lineTo(sx(v, p.x), sy(v, p.y));
+      }
+      const p = px(at, j);
+      g.lineTo(sx(v, p.x), sy(v, p.y));
+      g.stroke();
     }
-    g.lineTo(sx(v, end.x), sy(v, end.y));
+  }
+  // The ball's flight, dotted, from the throw to where it is (or came down).
+  if (script.throwStep >= 0 && at > script.throwStep) {
+    const end = script.landStep >= 0 ? Math.min(at, script.landStep) : at;
+    g.globalAlpha = alpha;
+    g.setLineDash([2, 5]);
+    g.beginPath();
+    g.moveTo(sx(v, script.ball[script.throwStep * 3] ?? 0), sy(v, script.ball[script.throwStep * 3 + 1] ?? 0));
+    g.lineTo(sx(v, script.ball[end * 3] ?? 0), sy(v, script.ball[end * 3 + 1] ?? 0));
     g.stroke();
   }
   g.setLineDash([]);
   g.lineCap = "butt";
   g.globalAlpha = alpha;
-  for (const m of movers) {
-    const p = pointAlong(m.points, f);
-    drawMark(g, m.side, o[m.side], sx(v, p.x), sy(v, p.y), r);
+  const r = v.markPx / 2;
+  for (let j = 0; j < n; j++) {
+    const p = px(at, j);
+    const side = script.sides[j] === "X" ? "X" : "O";
+    drawMark(g, side, ink[side], sx(v, p.x), sy(v, p.y), r);
   }
+  drawBall(g, v, script.ball[at * 3] ?? 0, script.ball[at * 3 + 1] ?? 0, script.ball[at * 3 + 2] ?? 1);
   g.globalAlpha = 1;
 }
 
 /**
- * Runs the diagram on `canvas`: sizes it for `width` CSS px, then animates until the canvas
- * leaves the page or `stop` is called, one play per loop from `frames` in order. `frames` empty
- * (templates still loading): an empty box, so the layout doesn't jump. `still`: one frame of the
- * first play finished, no loop (reduced motion).
+ * Runs the splash on `canvas`: sizes it for `width` CSS px, then plays one generated snap after
+ * another until the canvas leaves the page or `stop` is called. `art` null (templates still
+ * loading): an empty box, so the layout doesn't jump. `still` (reduced motion): the designed
+ * play's finished frame, no loop.
  */
 export class SplashLoop {
   private raf = 0;
-  private born = 0;
   running = false;
+  /** The next loop's seed: random per visit, so the menu never opens on the same snap. */
+  private seed = Math.floor(Math.random() * 2 ** 31);
 
-  run(canvas: HTMLCanvasElement, width: number, style: { readonly markYards: number; readonly markMinPx: number }, frames: readonly ((pxPerYard: number) => Timeline)[], still: boolean): void {
+  run(canvas: HTMLCanvasElement, width: number, style: { readonly markYards: number; readonly markMinPx: number }, art: ((call: SplashCall, pxPerYard: number) => Timeline) | null, still: boolean): void {
     this.stop();
     const v = splashView(width, (s) => Math.max(style.markMinPx, style.markYards * s));
     const dpr = window.devicePixelRatio || 1;
@@ -250,26 +248,31 @@ export class SplashLoop {
     const g = canvas.getContext("2d");
     if (g === null) return;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (frames.length === 0) {
+    if (art === null) {
       g.clearRect(0, 0, v.width, v.height);
       return;
     }
-    const plays = frames.map((f) => splashMovers(f(v.s)));
     if (still) {
-      paintSplash(g, v, plays[0] ?? [], 1, 1);
+      const s = splashPlay(art, v, 1, SPLASH_CALL);
+      paintSplash(g, v, s, s.steps - 1, 1);
       return;
     }
     this.running = true;
-    this.born = performance.now();
+    let script = splashPlay(art, v, this.seed++);
+    let born = performance.now();
     const tick = (now: number): void => {
       if (!this.running) return;
       if (!canvas.isConnected) {
         this.stop();
         return;
       }
-      const ms = now - this.born;
-      const ph = splashPhase(ms);
-      paintSplash(g, v, plays[splashPlayIndex(ms, plays.length)] ?? [], ph.f, ph.alpha);
+      let c = splashClock(now - born, script);
+      if (c.done) {
+        script = splashPlay(art, v, this.seed++);
+        born = now;
+        c = splashClock(0, script);
+      }
+      paintSplash(g, v, script, c.step, c.alpha);
       this.raf = requestAnimationFrame(tick);
     };
     this.raf = requestAnimationFrame(tick);

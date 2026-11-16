@@ -75,7 +75,8 @@ import { COLOR, darkTier, matchupInk, matchupSwatches, type TeamInk } from "./to
 import { regionsHidden, uiMode } from "./mode";
 import { fitBar, TOP_BAR_FIT_STEPS } from "./topbar";
 import { whenCanvasFontsReady } from "./fonts";
-import { artShown, SPLASH_PLAYS, splashFrame, SplashLoop } from "./splash";
+import { artShown, splashFrame, SplashLoop } from "./splash";
+import type { SplashCall } from "./splashSim";
 
 /** Menu-mode screens with rows only: the frame is at most 640 px wide (main menu spec). */
 const NARROW_MENU_SCREENS: ReadonlySet<string> = new Set(["settings", "controls", "saveError", "simError"]);
@@ -1547,8 +1548,8 @@ export class App {
     // A loop that stopped (the canvas left the page) restarts when the menu comes back.
     if (key === this.menuArtKey && (this.splashLoop.running || still || t === null || ui === null)) return;
     this.menuArtKey = key;
-    const frames = t !== null && ui !== null ? SPLASH_PLAYS.map((call) => (s: number) => splashFrame(t, { offense: ui.personnel.offense[call.formation] ?? {}, defense: ui.personnel.packages[call.pkg] ?? {} }, s, call)) : [];
-    this.splashLoop.run(c, width, t?.field ?? { markYards: 1.4, markMinPx: 14 }, frames, still);
+    const art = t !== null && ui !== null ? (call: SplashCall, s: number) => splashFrame(t, { offense: ui.personnel.offense[call.formation] ?? {}, defense: ui.personnel.packages[call.pkg] ?? {} }, s, call) : null;
+    this.splashLoop.run(c, width, t?.field ?? { markYards: 1.4, markMinPx: 14 }, art, still);
   }
 
   private renderStatus(): void {

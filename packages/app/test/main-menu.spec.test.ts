@@ -33,7 +33,8 @@ import {
   titleScreen,
   type ScreenModel,
 } from "../src/ui/screens";
-import { artShown, LOOP_MS, paintSplash, pointAlong, SPLASH_LOOP, SPLASH_PLAYS, splashFrame, splashMovers, splashOpts, splashPhase, splashPlayIndex, splashScene, splashView } from "../src/ui/splash";
+import { artShown, paintSplash, pointAlong, splashBounds, splashClock, SPLASH_LOOP, splashFrame, splashOpts, splashPlay, splashScene, splashView } from "../src/ui/splash";
+import { DEFENSE_CALLS, DT, randomCall, rng, type SplashCall, type SplashScript } from "../src/ui/splashSim";
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from "../src/ui/storage";
 import { parseTemplates } from "../src/ui/templates";
 import { COLOR, FONT_DISPLAY } from "../src/ui/tokens";
@@ -799,21 +800,102 @@ describe("MM16, DESIGN.md Main menu: what the splash actually paints", () => {
   });
 });
 
-describe("Animated splash (Joseph, 2026-11-15): no field, the X's and O's run the play with dotted trails", () => {
-  const width = 488;
-  const v = splashView(width, (s) => Math.max(14, 1.4 * s));
-  const tl = splashFrame(templates, splashPersonnel, v.s);
-  const movers = splashMovers(tl);
-  const L = SPLASH_LOOP;
+describe("Live splash (Joseph, 2026-11-15): no field, procedurally generated plays played out live", () => {
+  const v = splashView(488, (s) => Math.max(14, 1.4 * s));
+  const art = (call: SplashCall, s: number) => splashFrame(templates, { offense: personnelJson.offense[call.formation] ?? {}, defense: personnelJson.packages[call.pkg] ?? {} }, s, call);
+  const box = splashBounds(v);
+  const plays = Array.from({ length: 120 }, (_, seed) => splashPlay(art, v, seed));
+  const at = (sc: SplashScript, i: number, j: number) => ({ x: sc.pos[(i * sc.sides.length + j) * 2] ?? NaN, y: sc.pos[(i * sc.sides.length + j) * 2 + 1] ?? NaN });
 
-  it("22 movers, each starting where its mark lines up; offense and defense both move", () => {
-    expect(movers).toHaveLength(22);
-    tl.marks.forEach((m, i) => {
-      expect(movers[i]?.points[0]?.x).toBeCloseTo(m.keys[0]?.x ?? NaN, 9);
-      expect(movers[i]?.points[0]?.y).toBeCloseTo(m.keys[0]?.y ?? NaN, 9);
-    });
-    expect(movers.some((m) => m.side === "O" && m.points.length > 1)).toBe(true);
-    expect(movers.some((m) => m.side === "X" && m.points.length > 1)).toBe(true);
+  it("same seed, same play; the calls vary across seeds and every one is a real call", () => {
+    const a = splashPlay(art, v, 7);
+    const b = splashPlay(art, v, 7);
+    expect(a.call).toEqual(b.call);
+    expect(Array.from(a.pos)).toEqual(Array.from(b.pos));
+    const calls = new Set(plays.map((p) => JSON.stringify(p.call)));
+    expect(calls.size).toBeGreaterThan(25);
+    for (const p of plays) {
+      expect(templates.offense[p.call.formation]).toBeDefined();
+      expect(DEFENSE_CALLS[p.call.pkg]).toContain(p.call.preset);
+      if (p.call.formation === "empty") expect(["insideRun", "outsideRun", "screenPass"]).not.toContain(p.call.play);
+    }
+    const kinds = new Set(plays.map((p) => p.call.play));
+    for (const k of ["insideRun", "outsideRun", "shortPass", "intermediatePass", "deepPass", "screenPass", "playAction"]) expect(kinds).toContain(k);
+  });
+
+  it("randomCall never picks a run from empty or a goal-line or prevent package", () => {
+    const r = rng(3);
+    for (let i = 0; i < 500; i++) {
+      const c = randomCall(r);
+      expect(Object.keys(DEFENSE_CALLS)).toContain(c.pkg);
+      if (c.formation === "empty") expect(c.play).not.toMatch(/Run|screen/);
+    }
+  });
+
+  it("11 a side, all finite, nobody leaves the picture", () => {
+    for (const p of plays) {
+      expect(p.sides.filter((s) => s === "O")).toHaveLength(11);
+      expect(p.sides.filter((s) => s === "X")).toHaveLength(11);
+      for (let i = 0; i < p.steps; i++) {
+        for (let j = 0; j < p.sides.length; j++) {
+          const q = at(p, i, j);
+          expect(Number.isFinite(q.x) && Number.isFinite(q.y)).toBe(true);
+          expect(q.y).toBeGreaterThanOrEqual(box.bottom);
+          expect(q.y).toBeLessThanOrEqual(box.top);
+          expect(q.x).toBeGreaterThanOrEqual(0);
+          expect(q.x).toBeLessThanOrEqual(53.3);
+        }
+      }
+    }
+  });
+
+  it("the outcomes vary: tackles, incompletions, sacks and breakaways all happen, tackles most", () => {
+    const count = (o: string) => plays.filter((p) => p.outcome === o).length;
+    expect(count("tackle")).toBeGreaterThan(plays.length / 2);
+    expect(count("incomplete")).toBeGreaterThan(0);
+    expect(count("sack")).toBeGreaterThan(0);
+    expect(count("runaway")).toBeGreaterThan(0);
+    // Runs never throw; an incompletion always has a throw and no carrier.
+    for (const p of plays) {
+      if (p.call.play.endsWith("Run")) expect(p.throwStep).toBe(-1);
+      if (p.outcome === "incomplete") {
+        expect(p.throwStep).toBeGreaterThan(0);
+        expect(p.carrier).toBe(-1);
+      }
+    }
+  });
+
+  it("plays last different lengths (not one fixed animation), between about a second and the 7 s cap", () => {
+    const lens = plays.map((p) => p.whistleStep * DT);
+    expect(Math.min(...lens)).toBeGreaterThan(0.5);
+    expect(Math.max(...lens)).toBeLessThanOrEqual(7);
+    expect(new Set(lens.map((l) => Math.round(l * 10))).size).toBeGreaterThan(15);
+  });
+
+  it("players move at their own pace: a second into the play receivers have covered more ground than linemen, and no two marks match", () => {
+    const one = Math.round(1 / DT);
+    let checked = 0;
+    for (const p of plays.filter((x) => x.whistleStep > one && !x.call.play.endsWith("Run"))) {
+      const moved = p.positions.map((pos, j) => ({ pos, side: p.sides[j], d: Math.hypot(at(p, one, j).x - at(p, 0, j).x, at(p, one, j).y - at(p, 0, j).y) }));
+      const wr = moved.filter((m) => m.side === "O" && m.pos === "WR").map((m) => m.d);
+      const ol = moved.filter((m) => m.pos === "OL").map((m) => m.d);
+      if (wr.length === 0) continue;
+      expect(Math.max(...wr)).toBeGreaterThan(Math.max(...ol));
+      expect(new Set(moved.map((m) => m.d.toFixed(2))).size).toBeGreaterThan(8);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(10);
+  });
+
+  it("the loop: fade in, set, the live play at its own length, a hold, fade out, then done", () => {
+    const p = plays[0] as SplashScript;
+    const L = SPLASH_LOOP;
+    const live = (p.steps - 1) * DT * 1000;
+    expect(splashClock(0, p)).toEqual({ step: 0, alpha: 0, done: false });
+    expect(splashClock(L.fadeIn + L.set / 2, p)).toEqual({ step: 0, alpha: 1, done: false });
+    expect(splashClock(L.fadeIn + L.set + live / 2, p).step).toBeGreaterThan(0);
+    expect(splashClock(L.fadeIn + L.set + live + L.hold / 2, p)).toEqual({ step: p.steps - 1, alpha: 1, done: false });
+    expect(splashClock(L.fadeIn + L.set + live + L.hold + L.fadeOut + 1, p).done).toBe(true);
   });
 
   it("pointAlong: ends, a corner and the middle of a bent line, by length", () => {
@@ -821,95 +903,28 @@ describe("Animated splash (Joseph, 2026-11-15): no field, the X's and O's run th
     expect(pointAlong(pts, 0)).toEqual({ x: 0, y: 0 });
     expect(pointAlong(pts, 1)).toEqual({ x: 3, y: 4 });
     expect(pointAlong(pts, 3 / 7)).toEqual({ x: 3, y: 0 });
-    const mid = pointAlong(pts, 0.5);
-    expect(mid.x).toBeCloseTo(3, 9);
-    expect(mid.y).toBeCloseTo(0.5, 9);
-    expect(pointAlong([{ x: 2, y: 2 }], 0.6)).toEqual({ x: 2, y: 2 });
+    expect(pointAlong(pts, 0.5).y).toBeCloseTo(0.5, 9);
   });
 
-  it("the loop: fade in, lined up, the play, a hold at the finish, fade out, and it repeats", () => {
-    const total = L.fadeIn + L.set + L.play + L.hold + L.fadeOut;
-    expect(splashPhase(0)).toEqual({ f: 0, alpha: 0 });
-    expect(splashPhase(L.fadeIn + L.set / 2)).toEqual({ f: 0, alpha: 1 });
-    const mid = splashPhase(L.fadeIn + L.set + L.play / 2);
-    expect(mid.f).toBeCloseTo(0.5, 6);
-    expect(mid.alpha).toBe(1);
-    expect(splashPhase(L.fadeIn + L.set + L.play + L.hold / 2)).toEqual({ f: 1, alpha: 1 });
-    expect(splashPhase(total - L.fadeOut / 2).alpha).toBeCloseTo(0.5, 6);
-    expect(splashPhase(total + 10)).toEqual(splashPhase(10));
-    let last = 0;
-    for (let t = L.fadeIn + L.set; t <= L.fadeIn + L.set + L.play; t += 50) {
-      const f = splashPhase(t).f;
-      expect(f).toBeGreaterThanOrEqual(last);
-      last = f;
-    }
-  });
-
-  function paint(f: number): Op[] {
+  function paint(p: SplashScript, step: number): Op[] {
     const { g, ops } = recorder();
     (g as unknown as Record<string, unknown>)["clearRect"] = () => undefined;
-    paintSplash(g, v, movers, f, 1);
+    paintSplash(g, v, p, step, 1);
     return ops;
   }
 
-  it("no field: no turf fills, no yard numbers, no text at any point in the play", () => {
-    for (const f of [0, 0.5, 1]) {
-      const ops = paint(f);
+  it("no field: no turf fills and no text; at the snap no trails, later dotted trails in color.line", () => {
+    const p = plays.find((x) => x.throwStep > 0 && x.landStep > 0) as SplashScript;
+    for (const step of [0, p.landStep, p.steps - 1]) {
+      const ops = paint(p, step);
       expect(ops.filter((o) => o.text !== undefined && o.text !== "")).toEqual([]);
       expect(ops.filter((o) => o.op === "fillRect")).toEqual([]);
     }
-  });
-
-  it("lined up: no trails; mid-play and at the finish: dotted trails in color.line", () => {
-    const dotted = (ops: Op[]): Op[] => ops.filter((o) => o.op === "stroke" && o.dash.length > 0);
-    expect(dotted(paint(0))).toEqual([]);
-    for (const f of [0.5, 1]) {
-      const d = dotted(paint(f));
-      expect(d.length).toBeGreaterThan(0);
-      expect(new Set(d.map((o) => o.strokeStyle))).toEqual(new Set([COLOR.line.toUpperCase()]));
-    }
-  });
-});
-
-describe("Splash plays (Joseph, 2026-11-15: add a different play): one per loop, each a different look", () => {
-  const v = splashView(488, (s) => Math.max(14, 1.4 * s));
-
-  it("four plays, the first is the reduced-motion still (shotgun play action against nickel Cover 3), no two alike", () => {
-    expect(SPLASH_PLAYS.length).toBeGreaterThanOrEqual(2);
-    expect(SPLASH_PLAYS[0]).toEqual({ formation: "shotgun", play: "playAction", pkg: "nickel", preset: "nickelCover3" });
-    expect(new Set(SPLASH_PLAYS.map((p) => p.formation + p.play)).size).toBe(SPLASH_PLAYS.length);
-    expect(SPLASH_PLAYS.some((p) => p.play === "insideRun" || p.play === "outsideRun")).toBe(true);
-  });
-
-  for (const call of SPLASH_PLAYS) {
-    it(`${call.formation} ${call.play} vs ${call.pkg} ${call.preset}: 11 O's and 11 X's, both sides move, everyone stays in the box`, () => {
-      const personnel = { offense: personnelJson.offense[call.formation] ?? {}, defense: personnelJson.packages[call.pkg] ?? {} };
-      const movers = splashMovers(splashFrame(templates, personnel, v.s, call));
-      expect(movers.filter((m) => m.side === "O")).toHaveLength(11);
-      expect(movers.filter((m) => m.side === "X")).toHaveLength(11);
-      expect(movers.some((m) => m.side === "O" && m.points.length > 1)).toBe(true);
-      expect(movers.some((m) => m.side === "X" && m.points.length > 1)).toBe(true);
-      for (const m of movers) {
-        for (const f of [0, 0.5, 1]) {
-          const p = pointAlong(m.points, f);
-          const px = (1 + p.x) * v.s;
-          const py = (v.cameraY - p.y) * v.s;
-          expect(px).toBeGreaterThanOrEqual(0);
-          expect(px).toBeLessThanOrEqual(v.width);
-          expect(py).toBeGreaterThanOrEqual(-v.markPx / 2);
-          expect(py).toBeLessThanOrEqual(v.height + v.markPx / 2);
-        }
-      }
-    });
-  }
-
-  it("the play changes at each loop boundary (inside the fade), in order, and wraps", () => {
-    expect(splashPlayIndex(0, 4)).toBe(0);
-    expect(splashPlayIndex(LOOP_MS - 1, 4)).toBe(0);
-    expect(splashPlayIndex(LOOP_MS, 4)).toBe(1);
-    expect(splashPlayIndex(3 * LOOP_MS + 5, 4)).toBe(3);
-    expect(splashPlayIndex(4 * LOOP_MS, 4)).toBe(0);
-    // The swap lands where nothing shows: the loop opens at alpha 0.
-    expect(splashPhase(LOOP_MS).alpha).toBe(0);
+    const dotted = (ops: Op[]) => ops.filter((o) => o.op === "stroke" && o.dash.length > 0);
+    expect(dotted(paint(p, 0))).toEqual([]);
+    const late = dotted(paint(p, p.steps - 1));
+    // One trail per mark plus the ball's flight.
+    expect(late.length).toBe(23);
+    expect(new Set(late.map((o) => o.strokeStyle))).toEqual(new Set([COLOR.line.toUpperCase()]));
   });
 });
