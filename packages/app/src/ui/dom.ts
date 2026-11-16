@@ -1,5 +1,7 @@
 // A tiny element builder: the panel is rebuilt from state on every change.
 
+import { darkTier } from "./tokens";
+
 type Child = Node | string | null | undefined | false;
 
 export function h(tag: string, attrs: Readonly<Record<string, string | boolean | undefined>> = {}, ...children: Child[]): HTMLElement {
@@ -17,7 +19,8 @@ export function h(tag: string, attrs: Readonly<Record<string, string | boolean |
 }
 
 export function swatch(color: string): HTMLElement {
-  const s = h("span", { class: "swatch", "aria-hidden": "true" });
+  // Dark-tier fills take the stronger inset ring (DESIGN.md hud.teamSwatch).
+  const s = h("span", { class: darkTier(color) ? "swatch dark" : "swatch", "aria-hidden": "true" });
   s.style.background = color;
   return s;
 }

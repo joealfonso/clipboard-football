@@ -49,11 +49,13 @@ export function loadSettings(): Settings {
   }
 }
 
-export function saveSettings(s: Settings): void {
+/** Stores the settings; false when the browser refused (they last for this page: Settings says so). */
+export function saveSettings(s: Settings): boolean {
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+    return true;
   } catch {
-    // Settings that can't be stored last for this page.
+    return false;
   }
 }
 

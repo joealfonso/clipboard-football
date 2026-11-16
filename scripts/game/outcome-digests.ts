@@ -43,13 +43,30 @@ function stripDetail(detail: Readonly<Record<string, unknown>>): Record<string, 
   return out;
 }
 
-/** The record as step 5 wrote it: M2 fields out, provenance hashes set to the baseline's. */
+/** Step 5's event: M2 detail out, and a toss without the `period` M2 added (record schema 2). */
+function stepFiveEvent(e: GameRecord["events"][number]): unknown {
+  if (e.t === "play" && e.play.detail !== undefined) return { ...e, play: { ...e.play, detail: stripDetail(e.play.detail) } };
+  if (e.t === "toss") {
+    const { period: _p, ...rest } = e;
+    void _p;
+    return rest;
+  }
+  return e;
+}
+
+/**
+ * The record as step 5 wrote it: M2 fields out, provenance hashes set to the baseline's. Record
+ * schema 2 (M2) logs the opening coin toss as events[0] and adds `period` to every toss; step 5
+ * logged neither, so both come out here and the schema version reads as step 5's (1).
+ */
 export function outcomeRecord(record: GameRecord, base: Provenance): unknown {
+  const opening = record.events[0]?.t === "toss" && record.events[0].period === 1 ? 1 : 0;
   return {
     ...record,
+    schemaVersion: 1,
     rules: { ...record.rules, hash: base.rulesHash },
     dataHashes: base.dataHashes,
-    events: record.events.map((e) => (e.t === "play" && e.play.detail !== undefined ? { ...e, play: { ...e.play, detail: stripDetail(e.play.detail) } } : e)),
+    events: record.events.slice(opening).map(stepFiveEvent),
     final: { ...record.final, rules: { ...record.final.rules, hash: base.rulesHash } },
   };
 }

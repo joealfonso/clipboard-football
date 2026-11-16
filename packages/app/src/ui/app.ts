@@ -14,12 +14,14 @@ import { Animator } from "./animator";
 import { pendingKey, pendingPlay, type PendingPlay } from "./pending";
 import { bar, h, swatch } from "./dom";
 import type { FieldScene, FrameOpts } from "./field";
-import { layoutFor, type Layout } from "./layout";
-import { deepestUnit, FocusTrail, OVERLAY_IDS, overlayBackground, overlaysShown, placeOverlay, unitDepth, type Guard, type OverlayId, type Placement } from "./overlay";
+import { layoutFor, playStage, type Layout } from "./layout";
+import { callingPlacement, deepestUnit, FocusTrail, gameScreen, OVERLAY_IDS, overlayBackground, floatingCardPlacement, overlaysShown, placeOverlay, playCardPlacement, rgbOf, unitDepth, type GameScreen, type Guard, type OverlayId, type Placement } from "./overlay";
+import { ClickPicker, clickPicks } from "./click";
 import { breadcrumb, current, isFirstScreen, openMenu, press, rows as menuRows, title as menuTitle, type MenuData, type MenuExtra, type MenuKey, type MenuState, type Row } from "./menu";
 import {
   LABEL_LEGEND,
-  MARK_LABEL_TEXT,
+  SETTINGS_DESCRIPTION,
+  SETTINGS_NOT_STORED,
   UNITS,
   boxScreen,
   cardScreen,
@@ -28,7 +30,9 @@ import {
   endScreen,
   halftimeScreen,
   noticeScreen,
+  openingHighlight,
   pauseScreen,
+  pickRow,
   pregameScreen,
   ratingDetailScreen,
   rosterScreen,
@@ -67,7 +71,16 @@ import { timeline, type Timeline } from "./timeline";
 import { callingFrame, glide, kickoffFrame } from "./presnap";
 import { cardArt, cardScreen as cardKind, cardSvg, personnelLine } from "./cards";
 import { NO_PLAY_STAT, overallRating, playLines } from "./ratings";
-import { COLOR, matchupSwatches } from "./tokens";
+import { COLOR, darkTier, matchupInk, matchupSwatches, type TeamInk } from "./tokens";
+import { regionsHidden, uiMode } from "./mode";
+import { fitBar, TOP_BAR_FIT_STEPS } from "./topbar";
+import { whenCanvasFontsReady } from "./fonts";
+import { artShown, drawSplash, splashFrame } from "./splash";
+
+/** Menu-mode screens with rows only: the frame is at most 640 px wide (main menu spec). */
+const NARROW_MENU_SCREENS: ReadonlySet<string> = new Set(["settings", "controls", "saveError", "simError"]);
+const STORAGE_BLOCKED = "This game can't be saved in this browser window.";
+const SAVE_FAILED = "Your last game couldn't be saved. Continue resumes the last save that was written.";
 
 /** A menu row as displayed: its reason already in words. */
 type MenuRow = Omit<Row, "reason"> & { readonly reason?: string };
@@ -124,6 +137,18 @@ const RATING_NAME: Readonly<Record<string, string>> = {
 
 const randomSeed = (): number => Math.floor(Math.random() * 0xffffffff);
 
+/** A key hint (hud.keyHint) and its label, and a value when the key has one (S Speed 1x). */
+function keyHint(key: string, label: string, value?: string): HTMLElement {
+  return h("span", { class: "chip" }, h("kbd", {}, key), h("span", { class: "chip-label" }, label), value === undefined ? null : h("span", { class: "chip-value" }, value));
+}
+
+/** Runs a one-shot CSS entrance again (the class is removed, the style flushed, the class put back). */
+function restartAnimation(el: HTMLElement, cls: string): void {
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+}
+
 export class App {
   private readonly client: SimClient;
   private readonly animator: Animator;
@@ -137,6 +162,18 @@ export class App {
   private settings: Settings = { ...DEFAULT_SETTINGS };
   private storage = true;
   private hasSave = false;
+  /** The save check (storage, then the save) hasn't resolved yet: Continue says "checking". */
+  private checking = true;
+  /** The main menu's highlight follows Continue until the player moves or picks (spec decision 4). */
+  private autoHighlight = true;
+  /** The last settings write was stored; false: Settings says they last for this page. */
+  private settingsStored = true;
+  /** The last save write failed (storage works, the write didn't): the main menu says so once. */
+  private saveFailed = false;
+  /** The main menu's play diagram, kept across renders and redrawn only when its key changes. */
+  private readonly menuArt: HTMLCanvasElement;
+  private menuArtKey = "";
+  private readonly canvas2d: boolean;
   private storageWarning: string | null = null;
   private leagueSeed = 2026;
   private seed = randomSeed();
@@ -153,6 +190,8 @@ export class App {
   private previewArmed = false;
   private previewFrame: Timeline | null = null;
   private previewKey = "";
+  /** Click to pick: a press and release on one row of one screen (click.ts). */
+  private readonly clicks = new ClickPicker<unknown>();
   /** Data warnings from timeline() (States: a mark with no template), each logged once per session. */
   private readonly warned = new Set<string>();
   private box: { box: BoxScore; players: readonly PlayerLine[] } | null = null;
@@ -165,14 +204,27 @@ export class App {
   private readonly screenTrail = new FocusTrail<Overlay, number>();
   private readonly cardTrail = new FocusTrail<"markCard", Element | null>();
   private queue: Promise<void> = Promise.resolve();
+  /**
+   * The play rail's text for the play on the field (DESIGN.md Play screen): the calls, shown from
+   * the snap. Text only from the committed play event.
+   */
+  private railPlay: { readonly calls: readonly string[]; phase: "pre" | "snap" } | null = null;
+  /** The screen shown at the last render, so a switch fades the incoming screen in (DESIGN.md UI transitions). */
+  private screenShown: GameScreen | null = null;
+  private railKey = "";
   private readonly reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   constructor(
-    private readonly root: { topBar: HTMLElement; panel: HTMLElement; canvas: HTMLCanvasElement; live: HTMLElement; small: HTMLElement; markCard: HTMLElement; main: HTMLElement },
+    private readonly root: { topBar: HTMLElement; panel: HTMLElement; canvas: HTMLCanvasElement; live: HTMLElement; small: HTMLElement; markCard: HTMLElement; main: HTMLElement; menu: HTMLElement; rail: HTMLElement },
   ) {
     this.settings = loadSettings();
+    this.menuArt = document.createElement("canvas");
+    this.menuArt.id = "menu-art";
+    this.menuArt.className = "menu-art";
+    this.menuArt.setAttribute("aria-hidden", "true");
+    this.canvas2d = this.menuArt.getContext("2d") !== null;
     this.layoutNow = layoutFor(window.innerWidth, window.innerHeight);
-    this.animator = new Animator(root.canvas, () => this.layoutNow, () => this.templates as Templates, () => this.frameOpts());
+    this.animator = new Animator(root.canvas, () => this.fieldLayout(), () => this.templates as Templates, () => this.frameOpts());
     this.client = new SimClient(
       (m) => this.onWorker(m),
       (slow) => {
@@ -181,6 +233,18 @@ export class App {
       },
     );
     window.addEventListener("keydown", (e) => this.onKey(e));
+    // Click to pick (Joseph): pointer up over the row pressed picks it, even if the panel was rebuilt
+    // in between (click.ts).
+    // A modifier held (Ctrl-click opens the context menu on a Mac) picks nothing.
+    // The same rule on the main menu (main menu spec MM21).
+    for (const el of [root.panel, root.menu]) {
+      el.addEventListener("pointerdown", (e) => this.clicks.down(e.ctrlKey || e.metaKey || e.altKey ? null : this.rowKeyAt(e), this.clickScreen(), e.button));
+      el.addEventListener("pointerup", (e) => {
+        const key = this.clicks.up(this.rowKeyAt(e), this.clickScreen(), e.button);
+        if (key !== null && !this.animating) this.pick(key);
+      });
+      el.addEventListener("pointercancel", () => this.clicks.cancel());
+    }
     window.addEventListener("resize", () => this.onResize());
     // Hover a mark for his player card; leaving the field closes it.
     root.canvas.addEventListener("mousemove", (e) => this.onFieldHover(e));
@@ -196,12 +260,20 @@ export class App {
     this.onResize();
     void storageAvailable().then(async (ok) => {
       this.storage = ok;
-      if (!ok) this.storageWarning = "This game can't be saved in this browser window.";
+      if (!ok) this.storageWarning = STORAGE_BLOCKED;
       else this.hasSave = (await readSave().catch(() => undefined)) !== undefined;
+      this.checking = false;
       this.render();
     });
     this.client.send({ t: "init" });
     this.render();
+    // The bundled fonts arrive after the first paint: redraw the canvas (field and splash) and
+    // re-fit the score bug in the loaded faces.
+    void whenCanvasFontsReady(document.fonts, () => {
+      this.menuArtKey = "";
+      this.animator.redraw();
+      this.render();
+    });
   }
 
   // ------------------------------------------------------------ worker
@@ -321,7 +393,29 @@ export class App {
     const g = this.game;
     const m = g?.matchup ?? this.matchup;
     const name = (t: Team): string => (m === null || m === undefined ? "" : m[t].nickname);
-    return { los, firstDown, bottomName: name(possession), topName: name(other(possession)), endZoneYards: this.ui?.rules.field.endZoneYards ?? 10 };
+    const base = { los, firstDown, bottomName: name(possession), topName: name(other(possession)), endZoneYards: this.ui?.rules.field.endZoneYards ?? 10 };
+    if (m === null || m === undefined) return base;
+    // The matchup's two slots color the marks, paths and end zones (DESIGN.md Team colors).
+    const inks = this.inks(m);
+    const own = inks[possession];
+    const opp = inks[other(possession)];
+    return { ...base, endZones: { bottom: own.endZone, top: opp.endZone }, ink: { O: { fill: own.fill, ring: own.ring }, X: { fill: opp.fill, ring: opp.ring } } };
+  }
+
+  /** Each team's field colors in this matchup (the slots matchupSwatches resolves). */
+  private inks(m: Matchup): { readonly away: TeamInk; readonly home: TeamInk } {
+    return matchupInk(m.away.index, m.home.index);
+  }
+
+  /** A team's colors in the matchup on screen, or null with none. */
+  private teamInkOf(team: TeamSummary): TeamInk | null {
+    const m = this.game?.matchup ?? this.matchup;
+    return m === null || m === undefined ? null : this.inks(m)[m.home === team ? "home" : "away"];
+  }
+
+  /** The field layout the canvas draws: the play stage's centered column (DESIGN.md Play screen). */
+  private fieldLayout(): Layout {
+    return { ...this.layoutNow, column: playStage(this.layoutNow, this.settings.textSize / 100).column };
   }
 
   // ------------------------------------------------------------ the game loop on this side
@@ -331,6 +425,8 @@ export class App {
     if (fresh) {
       this.game = { matchup: m.matchup, human: m.human, state: m.state, request: null, menu: null, events: [], lastPlay: null, result: "", calls: "", eventLines: [], why: null, save: null, framePossession: null, shownPending: null, requestAt: 0, runoffShown: 0, lastSame: false };
       this.stack = [{ id: "game" }];
+      // Game mode from the first step: the cut (main menu spec decision 10).
+      this.applyMode();
       if (!m.resumed)
         bumpLog((l) => {
           l.gamesStarted++;
@@ -444,6 +540,8 @@ export class App {
 
   private async animate(g: GameView, ev: PlayEvent, runoff: number, prev: GameState | null): Promise<void> {
     if (this.templates === null || this.ui === null) return;
+    // The rail's calls, from this committed event only; they show from the snap.
+    this.railPlay = { calls: callsLine(ev, this.textCtx(g)).split(/(?<=\.) (?=They:)/), phase: "pre" };
     const tl = timeline(
       {
         event: ev,
@@ -473,9 +571,15 @@ export class App {
         this.clockOverride = s;
         this.renderTopBar();
       },
+      onSnap: () => {
+        if (this.railPlay === null || this.railPlay.phase === "snap") return;
+        this.railPlay.phase = "snap";
+        this.renderRail();
+      },
     });
     this.clockOverride = null;
     this.animating = false;
+    this.railPlay = null;
   }
 
   /**
@@ -488,14 +592,16 @@ export class App {
     const before = { period: g.state.period, clock: g.state.clock, phase: g.state.phase, possession: g.state.possession, spot: g.state.spot, down: g.state.down, distance: g.state.distance, goalToGo: g.state.goalToGo, score: g.state.score, timeouts: g.state.timeouts, clockRunning: g.state.clockRunning, safetyKick: g.state.safetyKick };
     const ev: PlayEvent = { t: "play", before, offense: req.offenseCall, defense: req.defenseCall, play: req.play, penalty: null, runoffTimeout: false, after: before };
     g.eventLines = [];
+    const ctx = this.textCtx(g);
+    const flag = penaltyText(ev, ctx);
+    const result = `${playText(ev, ctx).replace(/^./, (c) => c.toUpperCase())}.${flag === "" ? "" : ` ${flag}`}`;
+    const why = whyHeadline(ev.play);
     await this.animate(g, ev, 0, g.state);
     g.shownPending = key;
-    const ctx = this.textCtx(g);
     g.lastPlay = ev;
-    const flag = penaltyText(ev, ctx);
-    g.result = `${playText(ev, ctx).replace(/^./, (c) => c.toUpperCase())}.${flag === "" ? "" : ` ${flag}`}`;
+    g.result = result;
     g.calls = callsLine(ev, ctx);
-    g.why = whyHeadline(ev.play);
+    g.why = why;
     this.announce(g);
   }
 
@@ -513,15 +619,20 @@ export class App {
     if (!this.storage) return;
     writeSave(save)
       .then(() => {
+        const first = !this.hasSave;
         this.hasSave = true;
+        this.saveFailed = false;
         if (this.storageWarning !== null) {
           this.storageWarning = null;
           this.renderStatus();
         }
+        // Back on the main menu before this write landed: Continue turns on (and takes the highlight).
+        if (first && this.game === null && this.top()?.id === "title") this.render();
       })
       .catch(() => {
         // Quota or a denied write: say so, retry at the next dead ball, never block play.
-        this.storageWarning = "This game can't be saved in this browser window.";
+        this.storageWarning = STORAGE_BLOCKED;
+        this.saveFailed = true;
         this.renderStatus();
       });
   }
@@ -552,7 +663,7 @@ export class App {
     }
     if (k === "m" || k === "M") {
       // Cycle the player cards over the marks on the field (Joseph's amendment: hover or focus).
-      this.cycleMarkCard();
+      if (uiMode(this.game) === "game") this.cycleMarkCard();
       e.preventDefault();
       return;
     }
@@ -566,10 +677,11 @@ export class App {
       if (k === " " || k === "Enter") this.animator.skip();
       else if (k === "s" || k === "S") {
         this.settings.speed = this.animator.cycleSpeed(this.settings.speed);
-        saveSettings(this.settings);
+        this.settingsStored = saveSettings(this.settings);
         this.status = `Animation speed: ${this.settings.speed}`;
         this.renderStatus();
         this.renderTopBar();
+        this.renderRail();
       }
       e.preventDefault();
       return;
@@ -594,6 +706,8 @@ export class App {
       e.preventDefault();
       return;
     } else if (k === "ArrowDown" || k === "ArrowUp") {
+      // Once the player moves the highlight on the main menu, it is his (main menu spec decision 4).
+      if (this.top()?.id === "title") this.autoHighlight = false;
       if (this.top()?.id === "roster") this.moveRosterSelection(k === "ArrowDown" ? 1 : -1);
       else if (list.length > 0) {
         // Up and down move within a column of the card grid (as many columns as fit); elsewhere one row.
@@ -638,19 +752,25 @@ export class App {
   private pick(key: string): void {
     const top = this.top();
     if (top === undefined) return;
-    this.status = "";
-    if (top.id === "game") return this.pickInGame(key);
-    const model = this.screenModel();
-    const row = model?.rows.find((r) => r.key === key);
+    if (top.id === "game") {
+      this.status = "";
+      return this.pickInGame(key);
+    }
+    const picked = pickRow(this.screenModel(), key);
     // The pause menu's seven rows leave no room for Esc; Esc there resumes.
-    if (row === undefined && key === "Esc" && top.id === "pause") return this.back();
-    if (row === undefined) return;
-    if (!row.on) {
-      this.status = row.reason === undefined ? "Not available." : `${row.label}: ${row.reason}.`;
+    if (picked.t === "none" && key === "Esc" && top.id === "pause") {
+      this.status = "";
+      return this.back();
+    }
+    // A key with no row (Esc on the main menu) changes nothing, the status line included.
+    if (picked.t === "none") return;
+    this.status = "";
+    if (picked.t === "reason") {
+      this.status = picked.text;
       this.renderStatus();
       return;
     }
-    this.act(top, row);
+    this.act(top, picked.row);
   }
 
   private pickInGame(key: string): void {
@@ -700,11 +820,23 @@ export class App {
   private back(): void {
     const closed = this.stack.length > 1 ? this.stack.pop() : undefined;
     this.highlight = closed === undefined ? 0 : (this.screenTrail.close(closed) ?? 0);
+    // Back on the main menu by any path: the highlight follows Continue again (decision 4).
+    if (this.top()?.id === "title") this.autoHighlight = true;
     this.render();
+  }
+
+  /** Leaving the game: a player card open over the field closes and its pause on the animator ends. */
+  private dropMarkCard(): void {
+    if (this.markCard === null) return;
+    this.markCard = null;
+    this.animator.resume();
+    this.cardTrail.close("markCard");
   }
 
   private act(top: Overlay, row: ScreenRow): void {
     const a = row.action;
+    // A pick on the main menu ends the highlight following Continue; coming back restores his row.
+    if (top.id === "title") this.autoHighlight = false;
     switch (a) {
       case "back":
         if (top.id === "saveError") this.stack = [{ id: "title" }];
@@ -741,6 +873,7 @@ export class App {
         this.render();
         return;
       case "newMatchup":
+        this.dropMarkCard();
         this.seed = randomSeed();
         this.matchup = null;
         this.game = null;
@@ -749,6 +882,7 @@ export class App {
         this.render();
         return;
       case "rematch":
+        this.dropMarkCard();
         if (this.game !== null) {
           this.human = this.game.human;
           this.matchup = null;
@@ -799,7 +933,7 @@ export class App {
         return;
       case "speed":
         this.settings.speed = this.settings.speed === "1x" ? "2x" : this.settings.speed === "2x" ? "skip" : "1x";
-        saveSettings(this.settings);
+        this.settingsStored = saveSettings(this.settings);
         this.render();
         return;
       case "controls":
@@ -807,9 +941,13 @@ export class App {
         return;
       case "quit":
       case "title":
+        this.dropMarkCard();
         this.animator.stop();
+        this.animating = false;
         this.game = null;
         this.stack = [{ id: "title" }];
+        this.autoHighlight = true;
+        this.root.live.textContent = this.hasSave && !this.saveFailed && this.storageWarning === null ? "Main menu. Your game is saved." : "Main menu.";
         this.render();
         return;
       case "pause":
@@ -845,6 +983,7 @@ export class App {
         void deleteSave().finally(() => {
           this.hasSave = false;
           this.stack = [{ id: "title" }];
+          this.autoHighlight = true;
           this.render();
         });
         return;
@@ -861,7 +1000,7 @@ export class App {
         this.render();
         return;
     }
-    saveSettings(this.settings);
+    this.settingsStored = saveSettings(this.settings);
     this.animator.redraw();
     this.render();
   }
@@ -966,7 +1105,17 @@ export class App {
     const l = this.layoutNow;
     const markYards = l.markPx / Math.max(1e-9, l.s);
     const shown = overlaysShown({ animating: this.animating, markCard: this.markCard !== null });
-    const p = placeOverlay(l, this.animator.cameraY(), this.loading !== null || this.fatal !== null ? null : this.guard(), markYards, this.animator.ballX());
+    // In a game the screens switch (docs/specs/m2-screen-switch.md): calling fills the window, the
+    // play is the field alone. Out of a game, placeOverlay as before.
+    const screen = gameScreen({ inGame: this.game !== null && this.stack[0]?.id === "game", animating: this.animating });
+    const p = screen === "calling" ? callingPlacement(l) : placeOverlay(l, this.animator.cameraY(), this.loading !== null || this.fatal !== null ? null : this.guard(), markYards, this.animator.ballX());
+    this.root.canvas.style.visibility = screen === "calling" ? "hidden" : "";
+    // A switch fades the incoming screen in (DESIGN.md UI transitions); the timeline never waits on it.
+    if (screen !== this.screenShown) {
+      if (screen === "play") for (const el of [this.root.canvas, this.root.rail]) restartAnimation(el, "screen-in");
+      else if (screen === "calling" && this.screenShown === "play") restartAnimation(this.root.panel, "screen-in");
+      this.screenShown = screen;
+    }
     this.placement = p;
     const panel = this.root.panel;
     const hadFocus = panel.contains(document.activeElement);
@@ -979,25 +1128,33 @@ export class App {
     }
     if (!shown.panel && hadFocus) this.root.main.focus({ preventScroll: true });
     this.position(panel, p.left, p.width, p.top, p.maxHeight, p.anchor);
-    // The dark board (usability pass U1): opaque panel color on the panel only; the player card keeps its CSS paper.
-    panel.style.background = overlayBackground();
+    // The calling screen has no panel background: the stage shows through and the cards are glass
+    // (DESIGN.md Calling screen). Sheets placed by placeOverlay keep the opaque dark board (U1).
+    panel.style.background = p.where === "screen" ? "transparent" : overlayBackground();
     // In the side column the panel fills it, top bar to window bottom, so the footer sits at the bottom.
     panel.style.height = p.fill ? `${p.maxHeight}px` : "";
     panel.classList.toggle("side", p.where === "side");
-    panel.classList.toggle("wide", p.where !== "sheet" && p.where !== "side" && p.width >= 760);
+    panel.classList.toggle("screen", p.where === "screen");
+    // Two cards side by side at 760 px of content width and up (the content is at most 1160 px, 24 px padding each side).
+    const content = p.where === "screen" ? Math.min(1160, p.width - 48) : p.width;
+    panel.classList.toggle("wide", this.top()?.id === "game" && p.where !== "sheet" && p.where !== "side" && content >= 760);
     panel.classList.toggle("compact", p.compact);
     const card = this.root.markCard;
     if (shown["mark-card"]) {
-      if (p.where === "side") {
-        // In the side margin, over the panel: it covers nothing on the field.
+      // The play screen places the card from the drawn stage (the centered column and rail), never
+      // from layoutFor's flush-left side margin, so it never lands on the column.
+      const onCard = screen === "play" ? playCardPlacement(playStage(l, this.settings.textSize / 100)) : null;
+      if (onCard !== null) {
+        this.position(card, onCard.left, onCard.width, onCard.top, onCard.maxHeight, "top");
+      } else if (screen !== "play" && (p.where === "side" || p.where === "screen")) {
+        // Over the calling screen's panel (the field isn't shown), or menu mode's side column.
         this.position(card, p.left, Math.min(360, p.width), p.top, p.maxHeight, "top");
       } else {
         // Beside the panel's stretch, on the side away from the player; full height while the play is paused.
-        const w = Math.min(360, l.field.width - 16);
         const hit = this.animator.marks().find((x) => x.id === this.markCard);
-        const left = hit !== undefined && hit.x < l.field.width / 2 ? l.field.width - 8 - w : 8;
-        if (shown.panel) this.position(card, left, w, p.top, p.maxHeight, p.anchor);
-        else this.position(card, left, w, l.field.top + 8, l.field.height - 16, "top");
+        const f = floatingCardPlacement(l, hit?.x ?? null);
+        if (shown.panel) this.position(card, f.left, f.width, p.top, p.maxHeight, p.anchor);
+        else this.position(card, f.left, f.width, f.top, f.maxHeight, "top");
       }
     }
   }
@@ -1063,19 +1220,27 @@ export class App {
       const name = [r.key, r.label, personnel].filter((x) => x !== null).join(", ");
       const b = h(
         "button",
-        { class: `play-card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
-        h("span", { class: "play-card-label" }, h("span", { class: "key mono" }, r.key), " ", r.label, r.on ? "" : ` (${r.reason ?? "not now"})`),
+        { class: `play-card${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "data-key": r.key, "aria-label": name, "aria-description": desc, "aria-disabled": r.on ? undefined : "true" },
+        h("span", { class: "play-card-label" }, h("span", { class: "key" }, r.key), " ", r.label, r.on ? "" : ` (${r.reason ?? "not now"})`),
       );
       const art = h("span", { class: "play-card-art", "aria-hidden": "true" });
       art.innerHTML = cardSvg(cardArt(kind, c.unit, c.call, c.counts, t), c.side);
       b.append(art);
       if (personnel !== null) b.append(h("span", { class: "play-card-personnel" }, personnel));
-      b.addEventListener("click", () => (this.animating ? undefined : this.pick(r.key)));
+      b.addEventListener("click", (e) => {
+        if (clickPicks(e.detail) && !this.animating) this.pick(r.key);
+      });
+      // Hover moves the highlight and the field preview in place: rebuilding the panel here swapped
+      // the card out between press and release, and the click never picked (click.ts).
       b.addEventListener("mouseenter", () => {
+        if (this.highlight === i && this.previewArmed && this.status === desc) return;
         this.highlight = i;
         this.previewArmed = true;
         this.status = desc;
-        this.render();
+        this.markHighlight();
+        if (this.markCard === null && document.activeElement !== b) b.focus({ preventScroll: true });
+        this.updatePreview();
+        this.renderStatus();
       });
       grid.append(b);
     });
@@ -1200,6 +1365,8 @@ export class App {
     const { p, team } = found;
     const ranks = this.ranks.get(id);
     const plural = POSITION_PLURAL[p.position] ?? `${p.position}s`;
+    // The header band in the team's fill, its text in the slot's outline color (DESIGN.md card.panel).
+    const ink = this.teamInkOf(team);
     // One row per rating: name, value, league rank. "of N TEs" goes once in the header, not on every row.
     let of: number | undefined;
     const ratings = [...Object.entries(p.ratings), ...Object.entries(p.skills)].map(([k, v]) => {
@@ -1214,7 +1381,7 @@ export class App {
       h(
         "section",
         { class: "mark-card", role: "dialog", tabindex: "-1", "aria-label": `${p.name}, #${p.number}, ${p.position}`, "aria-live": "polite" },
-        h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)),
+        teamHead(ink, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "team-word" }, team.nickname)),
         h("h3", {}, "Ratings"),
         h("table", { class: "ratings" }, h("thead", {}, ratingHead), h("tbody", {}, h("tr", { class: "overall" }, h("th", { scope: "row" }, "Overall"), h("td", { class: "val" }, this.templates === null ? "" : String(overallRating(p, this.templates.overallWeights))), h("td", { class: "rank" }, "")), ...ratings)),
         h("h3", {}, "This play"),
@@ -1233,7 +1400,7 @@ export class App {
     if (top === undefined) return null;
     switch (top.id) {
       case "title":
-        return titleScreen({ hasSave: this.hasSave, storage: this.storage });
+        return titleScreen({ hasSave: this.hasSave, storage: this.storage, checking: this.checking });
       case "pregame":
         return pregameScreen();
       case "roster":
@@ -1245,7 +1412,7 @@ export class App {
       case "pause":
         return pauseScreen({ hasPlay: this.game?.lastPlay !== null && this.game !== null, speed: this.settings.speed, ...(this.game === null ? {} : { seed: this.game.matchup.seed, leagueSeed: this.game.matchup.leagueSeed }) });
       case "settings":
-        return settingsScreen(this.settings);
+        return settingsScreen({ ...this.settings, systemReduced: this.reducedQuery.matches });
       case "controls":
         return controlsScreen();
       case "details":
@@ -1271,28 +1438,131 @@ export class App {
     return (this.game?.matchup ?? this.matchup ?? undefined)?.[t];
   }
 
+  /** Shows the regions of the current mode and hides the others, together (main menu spec decision 1). */
+  private applyMode(): void {
+    const hidden = regionsHidden(uiMode(this.game));
+    this.root.menu.hidden = hidden.mainMenu;
+    this.root.topBar.hidden = hidden.topBar;
+    this.root.main.hidden = hidden.layout;
+  }
+
+  /** Where the current screen's rows are: #main-menu in menu mode, the game panel in game mode. */
+  private container(): HTMLElement {
+    return uiMode(this.game) === "menu" ? this.root.menu : this.root.panel;
+  }
+
   private render(): void {
+    // The in-game reduced-motion setting turns UI transitions off like the system setting does.
+    document.documentElement.classList.toggle("reduce-motion", this.reducedMotion());
+    this.applyMode();
+    if (uiMode(this.game) === "menu") return this.renderMenu();
     this.renderTopBar();
     const p = this.root.panel;
     p.replaceChildren(...this.panelContent());
     this.root.markCard.replaceChildren(...this.markCardContent());
     this.updatePreview();
     this.placeOverlays();
+    this.renderRail();
     this.renderStatus();
     // Keep keyboard focus on the highlighted row or card, so screen readers follow the menu; the
     // player card keeps focus while it is open.
     const btn = p.querySelector<HTMLButtonElement>(`button[data-i="${this.highlight}"]`);
     if (btn !== null && !p.hidden && this.markCard === null && document.activeElement !== btn) btn.focus({ preventScroll: true });
-    if (this.stack.length > 0 && this.game === null && this.templates !== null) {
-      this.animator.idle(this.sceneFor("home", 25, null), false, false);
+  }
+
+  /** Menu mode (no game): the screen fills #main-menu; no top bar, no field, no frame loop. */
+  private renderMenu(): void {
+    const top = this.top();
+    if (top?.id === "title" && this.autoHighlight) this.highlight = openingHighlight(this.screenModel() as ScreenModel);
+    const menu = this.root.menu;
+    menu.replaceChildren(this.menuFrame());
+    this.root.markCard.replaceChildren();
+    this.renderStatus();
+    this.drawMenuArt();
+    const btn = menu.querySelector<HTMLButtonElement>(`button[data-i="${this.highlight}"]`);
+    if (btn !== null && document.activeElement !== btn) btn.focus({ preventScroll: true });
+  }
+
+  /** The splash from first paint until a screen other than the main menu is up (no bare frame while loading). */
+  private splashScreen(): boolean {
+    return this.fatal === null && (this.loading !== null || this.stack.length === 0 || this.top()?.id === "title");
+  }
+
+  private menuFrame(): HTMLElement {
+    if (this.splashScreen()) {
+      const shown = artShown({ textSize: this.settings.textSize, windowWidth: window.innerWidth, canvas2d: this.canvas2d });
+      return h(
+        "div",
+        { class: `menu-frame splash${shown ? "" : " no-art"}` },
+        h("h1", { class: "wordmark" }, "Clipboard Football"),
+        h("div", { class: "menu-rule", "aria-hidden": "true" }),
+        h("div", { class: "menu-cols" }, h("div", { class: "menu-left" }, ...this.splashLeft()), shown ? h("div", { class: "menu-art-col" }, this.menuArt) : null),
+      );
     }
+    const top = this.top();
+    if (this.fatal !== null || top === undefined) {
+      const f = this.fatal;
+      return h("div", { class: "menu-frame narrow" }, h("h1", { class: "menu-title" }, f?.title ?? "Clipboard Football"), ...(f?.lines ?? []).map((l) => h("p", { class: "soft" }, l)));
+    }
+    const model = this.screenModel() as ScreenModel;
+    return h(
+      "div",
+      { class: `menu-frame${NARROW_MENU_SCREENS.has(top.id) ? " narrow" : ""}` },
+      h("h1", { class: "menu-title" }, model.title),
+      h("section", { class: "glass" }, ...(model.lines ?? []).map((l) => h("p", { class: "soft mono seeds" }, l)), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), ...this.afterRows(top), h("p", { class: "status", role: "status" })),
+      this.footer(false),
+    );
+  }
+
+  /** The main menu's left column: the tagline, then the loading meter, or the storage line and the rows. */
+  private splashLeft(): HTMLElement[] {
+    const tagline = h("p", { class: "tagline" }, "Call the plays. The X's and O's run them.");
+    // Before the worker's first progress message: the first paint's "Loading...", unchanged.
+    if (this.loading === null ? this.stack.length === 0 : this.loading.file === "" && this.loading.done === 0) return [tagline, h("p", { class: "menu-lead" }, "Loading...")];
+    if (this.loading !== null) {
+      const pct = Math.round((this.loading.done / Math.max(1, this.loading.total)) * 100);
+      const meter = h("div", { class: "progress", role: "progressbar", "aria-label": "Loading league data", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct) });
+      const fill = h("div", { class: "progress-fill" });
+      fill.style.width = `${pct}%`;
+      meter.append(fill);
+      return [tagline, h("p", { class: "menu-lead" }, "Loading league data"), h("div", { class: "progress-row" }, meter, h("span", { class: "soft mono" }, `${pct}%`)), h("p", { class: "soft mono" }, `${this.loading.done} of ${this.loading.total} files`)];
+    }
+    const model = this.screenModel() as ScreenModel;
+    // One storage line at most: blocked storage, else a failed last write (Continue resumes an older save).
+    const storageLine = !this.storage ? STORAGE_BLOCKED : this.saveFailed ? SAVE_FAILED : null;
+    return [tagline, storageLine === null ? null : h("p", { class: "soft" }, storageLine), this.rowsGroup("Main menu", model.rows), h("p", { class: "status", role: "status" }), this.footer(false)].filter((x): x is HTMLElement => x !== null);
+  }
+
+  /** Draws the splash diagram when it is in the page and its width, text size or data changed. */
+  private drawMenuArt(): void {
+    const c = this.menuArt;
+    if (!c.isConnected) return;
+    const width = Math.floor(c.parentElement?.clientWidth ?? 0);
+    if (width <= 0) return;
+    const t = this.templates;
+    const ui = this.ui;
+    const key = JSON.stringify([width, this.settings.textSize, t !== null && ui !== null, window.devicePixelRatio]);
+    if (key === this.menuArtKey) return;
+    this.menuArtKey = key;
+    const frame = t !== null && ui !== null ? (s: number) => splashFrame(t, { offense: ui.personnel.offense["shotgun"] ?? {}, defense: ui.personnel.packages["nickel"] ?? {} }, s) : null;
+    drawSplash(c, width, this.settings.textSize / 100, t?.field ?? { markYards: 1.4, markMinPx: 14 }, frame);
   }
 
   private renderStatus(): void {
-    const el = this.root.panel.querySelector<HTMLElement>(".status");
-    if (el === null) return;
-    const parts = [this.working ? "Working..." : "", this.status === "" ? this.offReason() : this.status, this.storageWarning ?? ""].filter((x) => x !== "");
-    el.textContent = parts.join(" ");
+    const box = this.container();
+    const el = box.querySelector<HTMLElement>(".status");
+    // In menu mode the storage line shows once, in the main menu's body (main menu spec decision 11).
+    const warning = uiMode(this.game) === "menu" ? "" : (this.storageWarning ?? "");
+    if (el !== null) el.textContent = [this.working ? "Working..." : "", this.status === "" ? this.offReason() : this.status, warning].filter((x) => x !== "").join(" ");
+    // Settings: what the highlighted row changes (decision 7).
+    const desc = box.querySelector<HTMLElement>(".setting-desc");
+    if (desc !== null) desc.textContent = SETTINGS_DESCRIPTION[this.screenModel()?.rows[this.highlight]?.action ?? ""] ?? "";
+  }
+
+  /** Lines under a screen's rows: on Settings, the highlighted row's description and the not-stored line. */
+  private afterRows(top: Overlay): HTMLElement[] {
+    if (top.id !== "settings") return [];
+    return [h("p", { class: "setting-desc soft" }), this.settingsStored ? null : h("p", { class: "soft" }, SETTINGS_NOT_STORED)].filter((x): x is HTMLElement => x !== null);
   }
 
   /** An off row under the highlight says why it is off in the status line too (usability pass U2). */
@@ -1323,8 +1593,9 @@ export class App {
   }
 
   /**
-   * The scoreboard (usability pass U5): each team's swatch, nickname, score, timeouts and the ball;
-   * the period and clock; down and distance; then the keys that work now.
+   * The score bug (DESIGN.md HUD, usability pass U5): grouped cells on the glass bar. Each team's cell
+   * (chip, name over timeout bars, score, possession), the game cell (period, clock, clock state,
+   * the Under 2:00 tag), the situation cell, the tempo tag, then the key hints that work now.
    */
   private renderTopBar(): void {
     const bar = this.root.topBar;
@@ -1333,99 +1604,163 @@ export class App {
       bar.replaceChildren(h("span", { class: "brand" }, "Clipboard Football"));
       return;
     }
-    const sw = this.swatches(g.matchup);
+    const inks = this.inks(g.matchup);
     const s = this.hudState(g);
-    const chip = (key: string, label: string, value?: string): HTMLElement => h("span", { class: "chip" }, h("kbd", {}, key), h("span", { class: "chip-label" }, label), value === undefined ? null : h("span", { class: "chip-value" }, value));
-    // No overlay during the live play, so skip, speed and the player card keys show here.
+    // During the play the rail holds Space, S and M when it fits; otherwise they show here.
+    const railShown = playStage(this.layoutNow, this.settings.textSize / 100).rail !== null;
     const keys = this.animating
-      ? h("span", { class: "bar-keys" }, chip("Space", "Skip"), chip("S", "Speed", this.settings.speed), chip("M", "Player card"))
+      ? h("span", { class: "bar-keys" }, ...(railShown ? [] : this.playKeys()))
       : this.top()?.id === "game"
-        ? h("span", { class: "bar-keys" }, chip("Esc", "Menu"))
+        ? h("span", { class: "bar-keys" }, keyHint("Esc", "Menu"))
         : h("span", { class: "bar-keys" });
-    const divider = (): HTMLElement => h("span", { class: "divider", "aria-hidden": "true" });
-    const name = (t: Team): HTMLElement[] => [h("span", { class: "name" }, g.matchup[t].nickname), ...(t === g.human ? [h("span", { class: "you" }, "(you)")] : [])];
+    const perHalf = this.ui?.rules.timeouts.perHalf ?? 3;
+    const team = (t: Team): HTMLElement => {
+      const ink = inks[t];
+      const cell = h("div", { class: "cell team" });
+      const [r, gg, b] = rgbOf(ink.fill);
+      cell.style.background = `linear-gradient(90deg, rgba(${r}, ${gg}, ${b}, 0.14) 0%, transparent 70%), var(--surface-raised)`;
+      const chip = h("span", { class: darkTier(ink.fill) ? "team-chip dark" : "team-chip", "aria-hidden": "true" });
+      chip.style.background = ink.fill;
+      const left = s === null ? perHalf : s.timeouts[t];
+      const pips = h("span", { class: "pips", "aria-label": `${left} timeouts left` });
+      for (let i = 0; i < perHalf; i++) pips.append(h("span", { class: i < left ? "pip on" : "pip", "aria-hidden": "true" }));
+      const name = h("span", { class: "team-name" }, h("span", { class: "name" }, g.matchup[t].nickname), t === g.human ? h("span", { class: "you" }, "You") : null);
+      const ball = s !== null && s.possession === t && s.phase !== "final";
+      cell.append(
+        chip,
+        h("span", { class: "team-id" }, name, pips),
+        h("span", { class: "score" }, String(s === null ? 0 : s.score[t])),
+        h("span", { class: "poss" }, ball ? h("span", { class: "dot", "aria-hidden": "true" }) : null, ball ? h("span", { class: "visually-hidden" }, "ball") : null),
+      );
+      return cell;
+    };
     if (s === null) {
       // Before the opening toss is settled.
-      bar.replaceChildren(...(["away", "home"] as const).map((t) => h("span", { class: "team" }, swatch(sw[t]), ...name(t), h("span", { class: "score mono" }, "0"))), divider(), h("span", { class: "time" }, "Coin toss"), keys);
+      bar.replaceChildren(h("div", { class: "bug" }, team("away"), team("home"), h("div", { class: "cell game" }, h("span", { class: "period" }, "Coin toss"))), keys);
       this.fitTopBar();
       return;
     }
-    const perHalf = this.ui?.rules.timeouts.perHalf ?? 3;
-    const team = (t: Team): HTMLElement => {
-      const pips = h("span", { class: "pips", "aria-label": `${s.timeouts[t]} timeouts left` });
-      for (let i = 0; i < perHalf; i++) pips.append(h("span", { class: i < s.timeouts[t] ? "pip on" : "pip", "aria-hidden": "true" }));
-      const ball = s.possession === t && s.phase !== "final" ? h("span", { class: "ball" }, h("span", { class: "dot", "aria-hidden": "true" }), h("span", { class: "ball-word" }, "ball")) : null;
-      return h("span", { class: "team" }, swatch(sw[t]), ...name(t), h("span", { class: "score mono" }, String(s.score[t])), pips, ball);
-    };
     const clock = this.clockOverride ?? s.clock;
     const regulation = this.ui?.rules.game.regulationPeriods ?? 4;
     const lateHalf = s.phase !== "final" && clock <= 120 && (s.period % 2 === 0 || s.period > regulation);
-    const clockEl = h("span", { class: lateHalf ? "clock mono late" : "clock mono" }, clockText(clock));
-    const tempo = g.request?.kind === "offenseCall" && g.request.tempo !== "normal" ? h("span", { class: "tempo" }, tempoText(g.request.tempo)) : null;
-    bar.replaceChildren(
-      team("away"),
-      team("home"),
-      divider(),
-      h(
-        "span",
-        { class: "time" },
-        h("span", { class: "period" }, s.phase === "final" ? "Final" : periodText(s.period, regulation)),
-        clockEl,
-        h("span", { class: "clock-state" }, s.clockRunning ? "running" : "stopped"),
-        lateHalf ? h("span", { class: "late-note" }, "under 2:00") : null,
-        tempo,
-      ),
-      ...(s.phase === "final" ? [] : [divider(), h("span", { class: "bar-dd mono" }, situationText(s, g.human))]),
-      keys,
+    const game = h(
+      "div",
+      { class: "cell game" },
+      h("span", { class: "period" }, s.phase === "final" ? "Final" : periodText(s.period, regulation)),
+      h("span", { class: lateHalf ? "clock late" : "clock" }, clockText(clock)),
+      s.phase === "final" ? null : h("span", { class: "clock-state" }, s.clockRunning ? "Running" : "Stopped"),
+      lateHalf ? h("span", { class: "tag late-tag" }, "Under 2:00") : null,
     );
+    // "1st & 10 at OPP 39": the down and distance in display caps, the spot beside it.
+    const sit = situationText(s, g.human);
+    const at = sit.indexOf(" at ");
+    const situation = s.phase === "final" ? null : h("div", { class: "cell situation" }, h("span", { class: "bar-dd" }, at < 0 ? sit : sit.slice(0, at)), at < 0 ? null : h("span", { class: "bar-spot" }, sit.slice(at + 1)));
+    const tempo = g.request?.kind === "offenseCall" && g.request.tempo !== "normal" ? h("span", { class: "tag tempo" }, tempoText(g.request.tempo)) : null;
+    bar.replaceChildren(h("div", { class: "bug" }, team("away"), team("home"), game, situation, tempo), keys);
     this.fitTopBar();
   }
 
+  /** Space, S and M: the keys that work during the play (top bar or rail). */
+  private playKeys(): HTMLElement[] {
+    return [keyHint("Space", "Skip"), keyHint("S", "Speed", this.settings.speed), keyHint("M", "Player card")];
+  }
+
   /**
-   * The bar never clips a score, the clock or down and distance: when it is wider than the window
-   * it drops the key chips' labels, then the clock state word, then the word "ball" (U5).
+   * The bar never clips a score, the clock or down and distance (U5): when it is wider than the
+   * window it applies TOP_BAR_FIT_STEPS in order (ui/topbar.ts).
    */
   private fitTopBar(): void {
     const bar = this.root.topBar;
-    const steps = ["fit-1", "fit-2", "fit-3"];
-    bar.classList.remove(...steps);
-    for (const c of steps) {
-      if (bar.scrollWidth <= bar.clientWidth) break;
-      bar.classList.add(c);
+    bar.classList.remove(...TOP_BAR_FIT_STEPS);
+    fitBar(
+      () => bar.scrollWidth > bar.clientWidth,
+      (c) => bar.classList.add(c),
+    );
+  }
+
+  /**
+   * The play rail (DESIGN.md Play screen, hud.playRail): read only, beside the field when it fits.
+   * This play from the snap and the keys that work now, pinned to the bottom (no result card:
+   * DESIGN.md Broadcast build review 5). Rebuilt only when its text or phase changes.
+   */
+  private renderRail(): void {
+    const el = this.root.rail;
+    const stage = playStage(this.layoutNow, this.settings.textSize / 100).rail;
+    const r = this.railPlay;
+    const show = this.animating && r !== null && stage !== null && uiMode(this.game) === "game" && !this.layoutNow.tooSmall;
+    el.hidden = !show;
+    if (!show || r === null || stage === null) {
+      this.railKey = "";
+      return;
     }
-    // With the word gone, the dot itself says who has the ball.
-    const dropped = bar.classList.contains("fit-3");
-    for (const d of bar.querySelectorAll(".ball .dot")) {
-      if (dropped) {
-        d.removeAttribute("aria-hidden");
-        d.setAttribute("role", "img");
-        d.setAttribute("aria-label", "has the ball");
-      } else {
-        d.setAttribute("aria-hidden", "true");
-        d.removeAttribute("role");
-        d.removeAttribute("aria-label");
-      }
+    el.style.left = `${stage.left}px`;
+    el.style.top = `${stage.top}px`;
+    el.style.width = `${stage.width}px`;
+    el.style.height = `${stage.height}px`;
+    const key = JSON.stringify([r.calls, r.phase]);
+    const keys = h("div", { class: "rail-card rail-keys" }, ...this.playKeys());
+    if (key === this.railKey) {
+      el.querySelector(".rail-keys")?.replaceWith(keys);
+      return;
     }
+    this.railKey = key;
+    const cards: HTMLElement[] = [];
+    if (r.phase !== "pre") cards.push(h("section", { class: "rail-card rail-play", "aria-label": "This play" }, h("p", { class: "section-label" }, "This play"), ...r.calls.map((c) => h("p", { class: "rail-calls" }, c))));
+    el.replaceChildren(...cards, keys);
   }
 
   private rowButton(r: { key: string; label: string; on: boolean; reason?: string; note?: string }, i: number, onClick: () => void): HTMLElement {
     const keyText = r.key === "Esc" ? "Esc" : r.key === "Space" ? "Space" : r.key === "Left" ? "←" : r.key === "Right" ? "→" : r.key;
     const b = h(
       "button",
-      { class: `row${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "aria-disabled": r.on ? undefined : "true" },
-      h("span", { class: "key mono" }, keyText),
+      { class: `row${r.on ? "" : " off"}${i === this.highlight ? " hl" : ""}`, type: "button", "data-i": String(i), "data-key": r.key, "aria-disabled": r.on ? undefined : "true" },
+      h("span", { class: "key" }, keyText),
       h("span", { class: "label" }, r.label),
       r.note === undefined ? null : h("span", { class: "note" }, `(${r.note})`),
       r.on ? null : h("span", { class: "reason" }, `(${r.reason ?? "not now"})`),
     );
-    b.addEventListener("click", onClick);
-    b.addEventListener("mouseenter", () => {
+    b.addEventListener("click", (e) => {
+      if (clickPicks(e.detail)) onClick();
+    });
+    const hover = (): void => {
       this.highlight = i;
-      for (const x of this.root.panel.querySelectorAll("button.row")) x.classList.remove("hl");
-      b.classList.add("hl");
+      this.markHighlight();
       this.renderStatus();
+    };
+    // On the main menu only a moving pointer takes the highlight: a row rebuilt under a resting
+    // cursor gets mouseenter too, and that must not pull the highlight off Continue (decision 4).
+    b.addEventListener("mouseenter", () => {
+      if (this.top()?.id !== "title") hover();
+    });
+    b.addEventListener("pointermove", (e) => {
+      if (this.top()?.id !== "title" || (e.movementX === 0 && e.movementY === 0)) return;
+      if (!this.autoHighlight && this.highlight === i) return;
+      this.autoHighlight = false;
+      hover();
     });
     return b;
+  }
+
+  /** The .hl class on the highlighted row or card only (rows and cards share data-i). */
+  private markHighlight(): void {
+    for (const x of this.container().querySelectorAll<HTMLElement>("button[data-i]")) x.classList.toggle("hl", x.dataset.i === String(this.highlight));
+  }
+
+  /**
+   * The row key under the pointer, or null off any row. Read at the point, not from the event
+   * target: a touch keeps its pressed button as the target, so lifting over another row would pick
+   * the first.
+   */
+  private rowKeyAt(e: PointerEvent): string | null {
+    const at = document.elementFromPoint(e.clientX, e.clientY);
+    const b = at !== null && this.container().contains(at) ? at.closest<HTMLElement>("button[data-key]") : null;
+    return b?.dataset.key ?? null;
+  }
+
+  /** What a click must start and end on: the game menu screen (a new object per screen), else the top overlay. */
+  private clickScreen(): unknown {
+    const top = this.top();
+    return top?.id === "game" ? (this.game?.menu ?? null) : top;
   }
 
   private rowsGroup(label: string, list: readonly { key: string; label: string; on: boolean; reason?: string; note?: string }[]): HTMLElement {
@@ -1448,7 +1783,12 @@ export class App {
     if (top === undefined) return [];
     if (top.id === "game") return this.gamePanel();
     const model = this.screenModel() as ScreenModel;
-    return [h("h1", {}, model.title), ...(model.lines ?? []).map((l) => h("p", { class: "soft mono seeds" }, l)), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), h("p", { class: "status", role: "status" }), this.footer(false)];
+    // The title, then the screen's content in one glass card (DESIGN.md Main menu, other screens).
+    return [
+      h("h1", {}, model.title),
+      h("section", { class: "glass" }, ...(model.lines ?? []).map((l) => h("p", { class: "soft mono seeds" }, l)), ...this.screenBody(top), this.rowsGroup(model.title, model.rows), ...this.afterRows(top), h("p", { class: "status", role: "status" })),
+      this.footer(false),
+    ];
   }
 
   private gamePanel(): HTMLElement[] {
@@ -1457,15 +1797,15 @@ export class App {
     const s = this.hudState(g);
     const header =
       s === null
-        ? h("div", { class: "situation" }, h("div", { class: "dd mono" }, "Coin toss"))
-        : h("div", { class: "situation" }, h("div", { class: "dd mono" }, situationText(s, g.human)), h("div", { class: "side" }, sideText(s, g.human)));
+        ? h("div", { class: "situation" }, h("div", { class: "dd" }, "Coin toss"))
+        : h("div", { class: "situation" }, h("div", { class: "dd" }, situationText(s, g.human)), h("div", { class: "side" }, sideText(s, g.human)));
     const playText = h(
       "div",
       { class: "report" },
-      // DESIGN.md Layout: what happened, why, then the calls and the event lines.
+      // The Last play card: the result line, then the event lines. Joseph (2026-11-15) asked to drop the why
+      // line and the calls line from this card; both stay in the details view (D).
+      h("p", { class: "section-label" }, "Last play"),
       g.result === "" ? h("p", { class: "result soft" }, "No plays yet.") : h("p", { class: "result" }, g.result),
-      g.lastPlay === null ? null : h("p", { class: "why" }, g.why ?? "No explanation for this play.", " ", h("span", { class: "hint" }, "D:\u00a0details")),
-      g.calls === "" ? null : h("p", { class: "calls" }, g.calls),
       ...g.eventLines.map((l) => h("p", { class: "event" }, l)),
     );
     // The report first, then the situation, then the call (usability pass U5, DESIGN.md Layout).
@@ -1478,14 +1818,14 @@ export class App {
       // M2 G: what is in doubt, then what a challenge risks, from the rule set (design "Challenge prompt").
       if (req.kind === "challenge") out.push(h("p", { class: "lineup" }, `Close call: ${req.closeCall.question} ${req.challengesLeft} challenge${req.challengesLeft === 1 ? "" : "s"} left; ${req.failedCostsTimeout ? `a failed challenge costs a timeout (${req.timeoutsLeft} left)` : "a failed challenge costs nothing"}.`));
       // The step name, and the earlier pick that changes what the rows mean, once and labeled (U3).
-      out.push(h("h2", {}, menuTitle(m)));
+      out.push(h("h2", { class: "section-label" }, menuTitle(m)));
       if (crumbs !== "") out.push(h("p", { class: "so-far" }, `So far: ${crumbs}`));
       const list = menuRows(m, this.menuData(), this.menuExtra(g)).map((r: Row) => (r.on ? r : { ...r, reason: reasonText(r.reason) }));
       out.push(this.onCardScreen() && !this.compact() ? this.cardGrid(m, list) : this.rowsGroup(menuTitle(m), this.compact() ? this.withPersonnel(m, list) : list));
       if (current(m) === "offense.clock" && req.kind === "offenseCall") out.push(h("p", { class: "soft" }, `Clock ${req.clockRunning ? "running" : "stopped"}. Tempo: ${tempoText(req.tempo)} (resets each drive).`));
     }
     out.push(h("p", { class: "status", role: "status" }));
-    return [h("div", { class: "ov-report" }, playText), h("div", { class: "ov-menu" }, ...out), this.footer(true)];
+    return [h("section", { class: "ov-report glass", "aria-label": "Last play" }, playText), h("section", { class: "ov-menu glass", "aria-label": "Your call" }, ...out), this.footer(true)];
   }
 
   /**
@@ -1493,18 +1833,18 @@ export class App {
    * labels are (U7). Visible text, not choices: no buttons, so the seven-choice count is unchanged.
    */
   private footer(game: boolean): HTMLElement {
-    const chip = (key: string, label: string): HTMLElement => h("span", { class: "chip" }, h("kbd", {}, key), h("span", { class: "chip-label" }, label));
+    const chip = (key: string, label: string): HTMLElement => keyHint(key, label);
     const keys = game
       ? [chip("Arrows", "Move"), chip("Enter", "Pick"), chip("D", "Details"), chip("M", "Player cards")]
-      : [this.top()?.id === "title" ? null : chip("Esc", "Back"), chip("Enter", "Pick")];
+      : this.top()?.id === "title"
+        ? [chip("Arrows", "Move"), chip("Enter", "Pick")]
+        : [chip("Esc", "Back"), chip("Enter", "Pick")];
     const legend = game || this.top()?.id === "settings" ? h("p", { class: "legend" }, LABEL_LEGEND[this.settings.labelContent]) : null;
     return h("footer", { class: "panel-foot" }, h("p", { class: "keys-line" }, ...keys), legend);
   }
 
   private screenBody(top: Overlay): HTMLElement[] {
     switch (top.id) {
-      case "title":
-        return [h("p", {}, "Call the plays. The X's and O's run them."), this.storage ? null : h("p", { class: "soft" }, "This game can't be saved in this browser window.")].filter((x): x is HTMLElement => x !== null);
       case "pregame":
         return this.pregameBody();
       case "roster":
@@ -1542,8 +1882,6 @@ export class App {
             ].map(([k, v]) => h("tr", {}, h("th", { class: "mono" }, k as string), h("td", {}, v as string))),
           ),
         ];
-      case "settings":
-        return [h("p", { class: "soft" }, `Mark labels: ${MARK_LABEL_TEXT[this.settings.markLabels]}.`)];
       case "saveError":
         return [h("p", {}, top.reason === "older" ? "This save is from an older version and can't be resumed." : "This save is damaged and can't be resumed.")];
       case "simError":
@@ -1611,7 +1949,7 @@ export class App {
     });
     const line = this.box?.players.find((l) => l.id === id);
     return [
-      h("div", { class: "card" }, h("div", { class: "card-head" }, h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "soft" }, team.nickname)), h("p", { class: "soft" }, `Compared with other ${plural}${ranks === undefined ? " (loading)" : ""}`), ...bars),
+      h("div", { class: "card" }, teamHead(this.teamInkOf(team), h("span", { class: "mono num" }, `#${p.number}`), h("span", { class: "name" }, p.name), h("span", { class: "pos" }, p.position), h("span", { class: "team-word" }, team.nickname)), h("p", { class: "soft" }, `Compared with other ${plural}${ranks === undefined ? " (loading)" : ""}`), ...bars),
       h("p", {}, `Today: ${line === undefined ? "no stats" : statLine(line)}`),
     ];
   }
@@ -1784,6 +2122,16 @@ export function traceText(e: TraceEntry): string {
         .map(([k, x]) => `${k} ${String(x)}`)
         .join(", ")}`;
   }
+}
+
+/** A player card's header band: the team fill with its outline color for text, or plain without a team. */
+function teamHead(ink: TeamInk | null, ...children: HTMLElement[]): HTMLElement {
+  const el = h("div", { class: ink === null ? "card-head" : "card-head team-band" }, ...children);
+  if (ink !== null) {
+    el.style.background = ink.fill;
+    el.style.color = ink.ring;
+  }
+  return el;
 }
 
 function ordinalRank(n: number): string {

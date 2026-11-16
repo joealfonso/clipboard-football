@@ -282,7 +282,7 @@ export function eventLine(ev: GameEvent, ctx: TextCtx): string | null {
     case "endPeriod":
       return ev.period < ctx.regulationPeriods ? `End of the ${periodText(ev.period, ctx.regulationPeriods)} quarter.` : ev.period === ctx.regulationPeriods ? "End of regulation." : "End of overtime.";
     case "toss":
-      return `Overtime coin toss: the ${ctx.teams[ev.winner].nickname} win and choose to ${ev.choice}. The ${ctx.teams[ev.receiver].nickname} receive.`;
+      return `${ev.period > ctx.regulationPeriods ? "Overtime coin toss" : "Coin toss"}: the ${ctx.teams[ev.winner].nickname} win and choose to ${ev.choice}. The ${ctx.teams[ev.receiver].nickname} receive.`;
     case "review": {
       // M2 G: "They throw the challenge flag" (design: an event line with no key), then the verdict.
       const who = ev.by === "booth" ? "Under review by the replay official" : ev.by === ctx.human ? "You throw the challenge flag" : `The ${ctx.teams[ev.by].nickname} throw the challenge flag`;

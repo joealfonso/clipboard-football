@@ -89,11 +89,12 @@ describe("A3: input order per phase", () => {
     let found: GameRecord | null = null;
     for (let seed = 1; seed < 400 && found === null; seed++) {
       const r = playGame(setupGame(teams, 2026, seed, () => coach), kit, Rng.fromSeed(seed));
-      if (r.events.some((e) => e.t === "toss")) found = r;
+      // Record schema 2: events[0] is the opening toss; an overtime toss opens a period past regulation.
+      if (r.events.some((e) => e.t === "toss" && e.period > data.engine.rules.game.regulationPeriods)) found = r;
     }
     expect(found, "an overtime game within 400 seeds").not.toBeNull();
     const ev = (found as GameRecord).events;
-    const tossAt = ev.findIndex((e) => e.t === "toss");
+    const tossAt = ev.findIndex((e) => e.t === "toss" && e.period > data.engine.rules.game.regulationPeriods);
     const toss = ev[tossAt] as Extract<GameRecord["events"][number], { t: "toss" }>;
     expect(ev.slice(0, tossAt).some((e) => e.t === "endPeriod" && e.period === data.engine.rules.game.regulationPeriods)).toBe(true);
     const next = ev.slice(tossAt + 1).find((e) => e.t === "play");

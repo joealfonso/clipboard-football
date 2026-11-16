@@ -154,7 +154,8 @@ export function eventLine(ev: GameEvent, record: GameRecord, data: GameData): st
   const names = labels(data);
   switch (ev.t) {
     case "toss":
-      return `${periodLabel(ev.before.period + 1, reg)} coin toss: ${codes[ev.winner]} wins and chooses to ${ev.choice}; ${codes[ev.receiver]} receives.`;
+      // The opening toss (period 1) reads "Coin toss"; an overtime toss names its period.
+      return `${ev.period > reg ? `${periodLabel(ev.period, reg)} coin toss` : "Coin toss"}: ${codes[ev.winner]} wins and chooses to ${ev.choice}; ${codes[ev.receiver]} receives.`;
     case "timeout":
       return `${periodLabel(ev.before.period, reg)} ${clock(ev.before.clock)}  Timeout ${codes[ev.team]} (${ev.side}), ${ev.left} left.`;
     case "runoff":

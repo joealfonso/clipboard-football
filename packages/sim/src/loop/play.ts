@@ -30,7 +30,8 @@ import { modeTempo, stateValue, type CoachPolicies, type Side } from "./coach";
 import { continueRequest, defenseAnswer, defenseRequest, kickoffRequest, offenseAnswer, offenseRequest, penaltyOptionId, timeoutOption, tossRequest, tryRequest, type RequestBody, type RequestDraft } from "./requests";
 import { coachView, kickView, type LastSnap } from "./views";
 
-export const RECORD_SCHEMA_VERSION = 1;
+/** 2: the opening coin toss is logged as the first event, and every toss event carries `period`. */
+export const RECORD_SCHEMA_VERSION = 2;
 
 export type GameLoopErrorCode = "inputCap" | "snapCap";
 
@@ -75,7 +76,12 @@ export interface Snapshot {
 }
 
 export type GameEvent =
-  | { readonly t: "toss"; readonly before: Snapshot; readonly winner: Team; readonly choice: string; readonly receiver: Team }
+  /**
+   * A coin toss: the opening toss (always events[0], period 1) or an overtime toss. `period` is the
+   * period the toss opens; read it rather than `before.period`. The opening toss has no earlier
+   * state, so its `before` is the state newGame returns (period 1, the opening kickoff set up).
+   */
+  | { readonly t: "toss"; readonly before: Snapshot; readonly period: number; readonly winner: Team; readonly choice: string; readonly receiver: Team }
   | { readonly t: "timeout"; readonly before: Snapshot; readonly team: Team; readonly side: Side; readonly left: number }
   | { readonly t: "runoff"; readonly before: Snapshot; readonly seconds: number; readonly drawn: number; readonly after: Snapshot }
   | {
@@ -202,7 +208,9 @@ export function gamePlayers(setup: GameSetup, data: GameData): Players {
 
 export function startGame(setup: GameSetup, data: GameData, rng: Rng, tossChoice?: TossChoice): GameRun {
   const state = newGame(data.engine.rules, { gameType: setup.gameType, seed: setup.seed, rulesHash: data.rulesHash, ...(tossChoice === undefined ? {} : { tossChoice }) }, rng);
-  return { state, events: [], inputs: 1, snaps: 0, lastSnap: null };
+  // The opening toss is the record's first event (read from the state newGame made, no new draw).
+  const toss: GameEvent = { t: "toss", before: snapshot(state), period: state.period, winner: state.toss.winner, choice: state.toss.choice, receiver: other(state.possession) };
+  return { state, events: [toss], inputs: 1, snaps: 0, lastSnap: null };
 }
 
 function onsideAllowed(s: GameState, rules: RuleSet): boolean {
@@ -553,9 +561,12 @@ export function stepGame(run: GameRun, setup: GameSetup, kit: GameKit, players: 
     advance(startOvertime(s, rules, rng, choice), (next) => ({
       t: "toss",
       before,
+      period: next.period,
       winner: next.overtime?.toss.winner ?? "home",
       choice: next.overtime?.toss.choice ?? "receive",
-      receiver: next.overtime?.firstTeam ?? "home",
+      // The team that receives this toss's kickoff: overtime.firstTeam keeps the first cycle's team
+      // after a re-toss (DECISIONS.md, "overtime record after a re-toss").
+      receiver: other(next.possession),
     }));
     return { ...run, state: s, events, inputs, lastSnap: null };
   }

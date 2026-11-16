@@ -107,6 +107,18 @@ export interface TeamInk {
   readonly endZone: string;
 }
 
+/**
+ * The 1 px inset ring on a team chip or swatch (DESIGN.md Broadcast build review 3): stronger on
+ * dark-tier fills, which sit under 3:1 on navy, so every chip keeps 3:1 against its cell.
+ */
+export const CHIP_RING = { dark: "rgba(255, 255, 255, 0.55)", light: "rgba(255, 255, 255, 0.35)" } as const;
+
+/** Whether a fill is a dark-tier slot (takes the color.line ring); unknown fills count as light. */
+export function darkTier(fill: string): boolean {
+  const k = SWATCHES.findIndex((x) => x.toUpperCase() === fill.toUpperCase());
+  return k >= 0 && TEAM_OUTLINE[k] === COLOR.line;
+}
+
 export function teamInk(slotIndex: number): TeamInk {
   const k = slot(slotIndex);
   return { fill: SWATCHES[k] as string, ring: TEAM_OUTLINE[k] as string, endZone: TEAM_END_ZONE[k] as string };

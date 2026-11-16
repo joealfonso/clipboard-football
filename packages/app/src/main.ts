@@ -21,13 +21,15 @@ const byId = (id: string): HTMLElement => {
 };
 
 if (missing.length > 0) {
-  const panel = byId("panel");
-  panel.replaceChildren();
-  const h1 = document.createElement("h1");
-  h1.textContent = "This browser can't run Clipboard Football.";
+  // In the main menu under the wordmark (the first paint), never in the hidden game panel.
+  const lead = byId("main-menu").querySelector(".menu-lead");
   const p = document.createElement("p");
-  p.textContent = `It needs ${missing.join(", ")}.`;
-  panel.append(h1, p);
+  p.className = "menu-lead";
+  p.textContent = "This browser can't run Clipboard Football.";
+  const needs = document.createElement("p");
+  needs.className = "soft";
+  needs.textContent = `It needs ${missing.join(", ")}.`;
+  lead?.replaceWith(p, needs);
 } else {
-  new App({ topBar: byId("top-bar"), panel: byId("panel"), canvas: byId("field") as HTMLCanvasElement, live: byId("live"), small: byId("too-small"), markCard: byId("mark-card"), main: byId("layout") });
+  new App({ topBar: byId("top-bar"), panel: byId("panel"), canvas: byId("field") as HTMLCanvasElement, live: byId("live"), small: byId("too-small"), markCard: byId("mark-card"), main: byId("layout"), menu: byId("main-menu"), rail: byId("play-rail") });
 }

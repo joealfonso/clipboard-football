@@ -2,7 +2,7 @@
 // view draws the body; these rows are the screen's choices, so one test can count every screen
 // against the seven-choice cap (spec F3). A scrollable table counts as one choice (lead).
 
-import { DEFAULT_LABEL_CONTENT } from "./storage";
+import { DEFAULT_LABEL_CONTENT, DEFAULT_SETTINGS } from "./storage";
 
 export interface ScreenRow {
   /** The key that picks it: "1".."7", "T", "Esc", "Space", "Enter", "Left", "Right". */
@@ -24,14 +24,40 @@ export interface ScreenModel {
 
 const row = (key: string, label: string, action: string, extra: Partial<ScreenRow> = {}): ScreenRow => ({ key, label, on: true, action, ...extra });
 
-export function titleScreen(o: { readonly hasSave: boolean; readonly storage: boolean }): ScreenModel {
-  const reason = !o.storage ? "saves aren't available in this browser window" : "no saved game";
+export type ScreenPick = { readonly t: "act"; readonly row: ScreenRow } | { readonly t: "reason"; readonly text: string } | { readonly t: "none" };
+
+/** What a key, Enter or a click does on a screen: an off row gives only its reason, a key with no row does nothing. */
+export function pickRow(model: ScreenModel | null | undefined, key: string): ScreenPick {
+  const r = model?.rows.find((x) => x.key === key);
+  if (r === undefined) return { t: "none" };
+  if (!r.on) return { t: "reason", text: r.reason === undefined ? "Not available." : `${r.label}: ${r.reason}.` };
+  return { t: "act", row: r };
+}
+
+/**
+ * The main menu (docs/specs/m2-main-menu.md, decision 3): New game, Continue, Settings, Controls.
+ * Continue is off while the save check runs ("checking"), with no save, or with storage blocked.
+ */
+export function titleScreen(o: { readonly hasSave: boolean; readonly storage: boolean; readonly checking?: boolean }): ScreenModel {
+  const reason = !o.storage ? "saves aren't available in this browser window" : o.checking === true ? "checking for a saved game" : "no saved game";
+  const can = o.hasSave && o.storage && o.checking !== true;
   return {
     id: "title",
     title: "Clipboard Football",
     // A new game replaces the autosave: say so once, as a note, not a confirm step (usability pass U9).
-    rows: [row("1", "New game", "newGame", o.hasSave && o.storage ? { note: "replaces your saved game" } : {}), o.hasSave && o.storage ? row("2", "Continue", "continue") : row("2", "Continue", "continue", { on: false, reason }), row("3", "Settings", "settings")],
+    rows: [
+      row("1", "New game", "newGame", o.hasSave && o.storage ? { note: "replaces your saved game" } : {}),
+      can ? row("2", "Continue", "continue") : row("2", "Continue", "continue", { on: false, reason }),
+      row("3", "Settings", "settings"),
+      row("4", "Controls", "controls"),
+    ],
   };
+}
+
+/** Where the main menu's highlight opens: Continue when it is on, else New game (decision 4). */
+export function openingHighlight(m: ScreenModel): number {
+  const i = m.rows.findIndex((r) => r.action === "continue" && r.on);
+  return i < 0 ? 0 : i;
 }
 
 export function pregameScreen(): ScreenModel {
@@ -83,7 +109,7 @@ export function halftimeScreen(): ScreenModel {
 }
 
 export function endScreen(): ScreenModel {
-  return { id: "end", title: "Final", rows: [row("1", "Box score", "box"), row("2", "Rematch", "rematch"), row("3", "New matchup", "newMatchup"), row("Esc", "Title", "title")] };
+  return { id: "end", title: "Final", rows: [row("1", "Box score", "box"), row("2", "Rematch", "rematch"), row("3", "New matchup", "newMatchup"), row("Esc", "Main menu", "title")] };
 }
 
 export const BOX_TABS = ["Team", "Offense players", "Defense players", "Kicking", "Drives"] as const;
@@ -116,7 +142,7 @@ export function pauseScreen(o: { readonly hasPlay: boolean; readonly speed: Spee
       row("4", "Animation speed", "speed", { note: o.speed }),
       row("5", "Settings", "settings"),
       row("6", "Controls", "controls"),
-      row("7", "Quit to title", "quit", { note: "save kept" }),
+      row("7", "Quit to main menu", "quit", { note: "save kept" }),
     ],
   };
 }
@@ -137,15 +163,38 @@ export const LABEL_LEGEND: Readonly<Record<LabelContent, string>> = {
 export const MARK_LABEL_TEXT: Readonly<Record<MarkLabelSetting, string>> = { involved: "Named players during the play", all: "All", none: "None" };
 export const MOTION_TEXT: Readonly<Record<MotionSetting, string>> = { system: "Follow the system", on: "On", off: "Off" };
 
-export function settingsScreen(o: { readonly textSize: TextSize; readonly reducedMotion: MotionSetting; readonly markLabels: MarkLabelSetting; readonly labelContent?: LabelContent }): ScreenModel {
+/** What each Settings row changes, shown under the rows for the highlighted row (decision 7). */
+export const SETTINGS_DESCRIPTION: Readonly<Record<string, string>> = {
+  textSize: "Changes every screen, including this one.",
+  reducedMotion: "On: plays jump to their last frame and the camera cuts instead of panning.",
+  markLabels: "Which marks keep their label while a play runs. Every mark gets its label back at the whistle.",
+  labelContent: "What the number beside each mark is: the player's overall rating or his jersey number.",
+  speed: "How fast plays run: 1x, 2x, or skip to the result. S changes it during a play.",
+};
+
+/** The line Settings shows when a change couldn't be stored (decision 12). */
+export const SETTINGS_NOT_STORED = "Settings last until you close this page.";
+
+export function settingsScreen(o: {
+  readonly textSize: TextSize;
+  readonly reducedMotion: MotionSetting;
+  readonly markLabels: MarkLabelSetting;
+  readonly labelContent?: LabelContent;
+  readonly speed?: SpeedSetting;
+  /** What prefers-reduced-motion says now, for the "Follow the system" note. */
+  readonly systemReduced?: boolean;
+}): ScreenModel {
+  const motion = o.reducedMotion === "system" && o.systemReduced !== undefined ? `${MOTION_TEXT.system} (now: ${o.systemReduced ? "on" : "off"})` : MOTION_TEXT[o.reducedMotion];
   return {
     id: "settings",
     title: "Settings",
     rows: [
       row("1", "Text size", "textSize", { note: `${o.textSize}%` }),
-      row("2", "Reduced motion", "reducedMotion", { note: MOTION_TEXT[o.reducedMotion] }),
+      row("2", "Reduced motion", "reducedMotion", { note: motion }),
       row("3", "Mark labels", "markLabels", { note: MARK_LABEL_TEXT[o.markLabels] }),
       row("4", "Mark label shows", "labelContent", { note: LABEL_CONTENT_TEXT[o.labelContent ?? DEFAULT_LABEL_CONTENT] }),
+      // Every field of Settings has a row (decision 6); the pause menu keeps its own speed row too.
+      row("5", "Animation speed", "speed", { note: o.speed ?? DEFAULT_SETTINGS.speed }),
       row("Esc", "Back", "back"),
     ],
   };
@@ -165,5 +214,5 @@ export function saveErrorScreen(reason: "older" | "damaged"): ScreenModel {
 }
 
 export function simErrorScreen(): ScreenModel {
-  return { id: "simError", title: "Something went wrong in the game engine.", rows: [row("1", "Copy details", "copy"), row("2", "Restart from last save", "restart"), row("Esc", "Title", "title")] };
+  return { id: "simError", title: "Something went wrong in the game engine.", rows: [row("1", "Copy details", "copy"), row("2", "Restart from last save", "restart"), row("Esc", "Main menu", "title")] };
 }

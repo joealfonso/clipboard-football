@@ -16,6 +16,13 @@ export interface PlayOpts {
   readonly reducedMotion: boolean;
   /** The game clock to show during the run-off beat. */
   readonly onClock: (seconds: number) => void;
+  /** The snap, when the animation reaches it (the play rail shows the calls from then). */
+  readonly onSnap?: () => void;
+}
+
+/** The scene's team colors, when it has them, over the frame options. */
+function withScene(o: FrameOpts, scene: FieldScene): FrameOpts {
+  return scene.ink === undefined ? o : { ...o, ink: scene.ink };
 }
 
 export class Animator {
@@ -96,11 +103,11 @@ export class Animator {
     const v = viewOf(l, this.camera);
     if (this.current !== null) {
       drawField(g, v, this.current.scene, this.frameOpts().textScale);
-      drawFrame(g, v, this.current.tl, this.t, this.frameOpts());
+      drawFrame(g, v, this.current.tl, this.t, withScene(this.frameOpts(), this.current.scene));
     } else if (this.idleScene !== null) {
       drawField(g, v, this.idleScene, this.frameOpts().textScale);
       // The ball waits on the line.
-      drawFrame(g, v, { ...emptyTimeline(this.idleScene.los) }, 0, this.frameOpts());
+      drawFrame(g, v, { ...emptyTimeline(this.idleScene.los) }, 0, withScene(this.frameOpts(), this.idleScene));
     }
   }
 
@@ -223,6 +230,7 @@ export class Animator {
       }
       let last = performance.now();
       this.t = 0;
+      let snapped = false;
       const frame = (now: number): void => {
         const dt = this.paused ? 0 : (now - last) * this.speedFactor;
         last = now;
@@ -231,6 +239,10 @@ export class Animator {
           return;
         }
         this.t = Math.min(tl.total, this.t + dt);
+        if (!snapped && this.t >= tl.snapAt) {
+          snapped = true;
+          o.onSnap?.();
+        }
         if (tl.runoff !== null && this.t <= tl.runoffMs) {
           const f = tl.runoffMs === 0 ? 1 : this.t / tl.runoffMs;
           o.onClock(Math.round(tl.runoff.from - (tl.runoff.from - tl.runoff.to) * f));
@@ -258,6 +270,7 @@ export class Animator {
     if (cur === null) return;
     const tl = cur.tl;
     if (tl.runoff !== null) o.onClock(tl.runoff.to);
+    o.onSnap?.();
     const l = this.layout();
     // Cut the camera to where a pan would have left it.
     let cam = this.startCamera(tl.los);

@@ -8,12 +8,13 @@
 // the column sits flush left and overlays go in the margin (SIDE_MARGIN_MIN); otherwise it is centered.
 
 /**
- * The smallest window the field still fits in: at 800x520 the scale is 9.44 px per yard, so marks
+ * The smallest window the field still fits in: at 800x528 the scale is 9.44 px per yard, so marks
  * stay 14 px with a gap on the line (layout.test, art.test), and an overlay still has room.
+ * DESIGN.md Broadcast (2026-11-15) raised it from 520 with the 56 px top bar, keeping that scale.
  */
 export const MIN_WIDTH = 800;
-export const MIN_HEIGHT = 520;
-export const TOP_BAR = 48;
+export const MIN_HEIGHT = 528;
+export const TOP_BAR = 56;
 export const FIELD_WIDTH_YARDS = 53.3;
 export const COLUMN_YARDS = FIELD_WIDTH_YARDS + 2;
 /** Field length the canvas always shows, so there is room above or below the line for an overlay. */
@@ -69,6 +70,36 @@ export function layoutFor(width: number, height: number, style: FieldStyle = { m
     visibleYards: s > 0 ? fieldHeight / s : 0,
     markPx: Math.max(style.markMinPx, style.markYards * s),
   };
+}
+
+/** The play rail (DESIGN.md Play screen): width clamp(300, 340 * text scale, 420), gap and stage padding. */
+export const RAIL = { min: 300, base: 340, max: 420, gap: 24, pad: 24, inset: 16 } as const;
+
+export interface PlayStage {
+  /** The field column, in canvas px (the canvas covers the window under the top bar). */
+  readonly column: Box;
+  /** The read-only play rail, in window px; null when the column and rail don't fit side by side. */
+  readonly rail: Box | null;
+}
+
+/**
+ * The play screen (DESIGN.md Layout, Play screen): the field column and the rail centered together
+ * on the stage when `column + gap + rail` fits inside the window less the stage padding; otherwise
+ * the column centered alone and no rail. The rail runs the field's height less 16 px top and bottom.
+ */
+export function playStage(l: Layout, textScale: number): PlayStage {
+  const w = l.field.width;
+  const cw = l.column.width;
+  const railW = Math.min(RAIL.max, Math.max(RAIL.min, Math.round(RAIL.base * textScale)));
+  const group = cw + RAIL.gap + railW;
+  if (group <= w - 2 * RAIL.pad) {
+    const left = Math.floor((w - group) / 2);
+    return {
+      column: { ...l.column, left },
+      rail: { left: left + cw + RAIL.gap, top: l.field.top + RAIL.inset, width: railW, height: Math.max(0, l.field.height - 2 * RAIL.inset) },
+    };
+  }
+  return { column: { ...l.column, left: Math.floor((w - cw) / 2) }, rail: null };
 }
 
 /** Canvas x of a field x (yards from the offense's left sideline). */

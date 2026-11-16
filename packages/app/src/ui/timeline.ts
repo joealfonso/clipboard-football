@@ -291,9 +291,9 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   // ------------------------------------------------------------ the plan
   const spotX = (loc: string | undefined): number => (loc === undefined ? MID_X : (LOCATION_X[loc] ?? MID_X));
   const end = "end" in play && play.end !== undefined ? play.end : undefined;
+  const ob = "outOfBounds" in play && play.outOfBounds === true;
   const endPt = (fromX: number): Pt => {
     const y = end?.spot ?? los;
-    const ob = "outOfBounds" in play && play.outOfBounds === true;
     const side = d.runLocation ?? d.passLocation;
     const x = ob ? (side === "left" ? 0 : side === "right" ? FIELD_WIDTH : fromX < MID_X ? 0 : FIELD_WIDTH) : spotX(side);
     return { x, y };
@@ -345,21 +345,38 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
   const snapMs = M.snapMs[unit.snapKey] ?? 120;
   const kind = play.kind === "twoPoint" ? (RUN_LEAVES.has(unit.leaf) ? "run" : "pass") : play.kind;
 
+  /**
+   * The points after `a` on a carrier's way to `b` (DECISIONS.md, "Out-of-bounds carry runs upfield
+   * first", designed, display only): on a play the engine ends out of bounds he runs straight
+   * upfield (toward b's y) at his x until the depth left equals the lateral distance left, then cuts
+   * at 45 degrees to b. With less depth than lateral left it is the straight line. Both ends are facts.
+   */
+  const obPath = (a: Pt, b: Pt): Pt[] => {
+    const lat = Math.abs(b.x - a.x);
+    const dep = Math.abs(b.y - a.y);
+    if (!ob || lat < 1e-6 || dep <= lat + 1e-6) return [b];
+    return [{ x: a.x, y: b.y - Math.sign(b.y - a.y) * lat }, b];
+  };
+  const pathLen = (r: readonly Pt[]): number => {
+    let len = 0;
+    for (let i = 1; i < r.length; i++) len += dist(r[i - 1] as Pt, r[i] as Pt);
+    return len;
+  };
   /** The carrier from `from` (holding the ball from t0) to the dead spot, with a fumble when the engine says so. */
   /** `read` is the play's R-C9 read (a fumble recoverer follows his unnamed track until it); t0 by default. */
   const carry = (carrier: string | undefined, pts: Pt[], t0: number, ballT0: number = t0, read: number = t0): void => {
-    const e = endPt((pts[pts.length - 1] as Pt).x);
-    const route = [...pts, e];
-    let len = 0;
-    for (let i = 1; i < route.length; i++) len += dist(route[i - 1] as Pt, route[i] as Pt);
-    const t1 = t0 + (len / speedOf(carrier ?? qb)) * 1000 + M.convergeMs;
+    const last = pts[pts.length - 1] as Pt;
+    const e = endPt(last.x);
+    const route = [...pts, ...obPath(last, e)];
+    const t1 = t0 + (pathLen(route) / speedOf(carrier ?? qb)) * 1000 + M.convergeMs;
     if (fumbled) {
       const loose = d.fumbleSpot === undefined ? e : { x: e.x, y: d.fumbleSpot };
+      const toLoose = [...pts, ...obPath(last, loose)];
       const tl = t1 - 350;
       const rec = parts.fumbleRecoverer;
-      leg(carrier, { pts: [...pts, loose], t0, t1: tl, restStart: t0 === 0, restEnd: true });
+      leg(carrier, { pts: toLoose, t0, t1: tl, restStart: t0 === 0, restEnd: true });
       if (known(carrier)) plan.ball.push({ kind: "hold", id: carrier, t0: ballT0, t1: tl });
-      else plan.ball.push({ kind: "move", pts: [...pts, loose], t0, t1: tl, apex: 1, endScale: 1 });
+      else plan.ball.push({ kind: "move", pts: toLoose, t0, t1: tl, apex: 1, endScale: 1 });
       const pop = { x: loose.x + 1.5, y: loose.y };
       plan.ball.push({ kind: "move", pts: [loose, pop], t0: tl, t1: tl + 200, apex: 0.8, endScale: 0.8 });
       if (known(rec)) {
@@ -368,8 +385,9 @@ export function timeline(input: TimelineInput, templates: Templates, ctx: Timeli
         const tRec = recover(rec, read, tl + 200, roll);
         plan.ball.push({ kind: "move", pts: [pop, roll], t0: tl + 200, t1: tRec, apex: 1, endScale: 1 });
         // His return from the ball to the dead spot, at his own speed (it used to be squeezed into a fixed 150 ms).
-        const t2 = tRec + Math.max(t1 - (tl + 200), travel(roll, e, rec));
-        leg(rec, { pts: [roll, e], t0: tRec, t1: t2, restStart: false, restEnd: true });
+        const back = [roll, ...obPath(roll, e)];
+        const t2 = tRec + Math.max(t1 - (tl + 200), (pathLen(back) / speedOf(rec)) * 1000 + M.decelMs / 2);
+        leg(rec, { pts: back, t0: tRec, t1: t2, restStart: false, restEnd: true });
         plan.ball.push({ kind: "hold", id: rec, t0: tRec, t1: t2 });
         plan.holder = rec;
         plan.labels.push({ text: recoveredText(rec), at: loose, t: t2, source: "participants.fumbleRecoverer" });

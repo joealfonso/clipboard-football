@@ -5,7 +5,7 @@
 // - an opaque dark board (color.panel) under chalk text (usability pass U1, 2026-11-14);
 // - focus goes back where it came from when an overlay closes.
 
-import type { Layout } from "./layout";
+import type { Layout, PlayStage } from "./layout";
 import type { Templates } from "./templates";
 import { COLOR } from "./tokens";
 
@@ -96,7 +96,7 @@ export interface Placement {
   readonly top: number;
   readonly maxHeight: number;
   readonly anchor: "top" | "bottom";
-  readonly where: "side" | "above" | "below" | "between" | "sheet";
+  readonly where: "side" | "above" | "below" | "between" | "sheet" | "screen";
   /** Text rows instead of card art (window narrower than CARD_MIN_WINDOW_WIDTH). */
   readonly compact: boolean;
   /** Fill the whole box (height, not only max-height): the side column, full bleed. */
@@ -146,6 +146,62 @@ export function placeOverlay(l: Layout, camera: number, guard: Guard | null, mar
   const left = ballLeft ? l.field.width - m - width : m;
   const maxHeight = Math.max(0, best.b - best.a);
   return { left: Math.round(left), width, top: best.a, maxHeight, anchor: best.anchor, where: best.where, compact, fill: false };
+}
+
+// ---------------------------------------------------------------- the calling and play screens
+
+/**
+ * Which screen a game shows (Joseph, 2026-11-15: "the experience should switch screens. during
+ * play and play calling"; docs/specs/m2-screen-switch.md). "calling": the game waits on you, and the
+ * panel fills the window under the top bar with no field. "play": snap to the end of the whistle
+ * hold, the field alone. Null out of a game (menu mode, placed by placeOverlay).
+ */
+export type GameScreen = "calling" | "play";
+
+export function gameScreen(o: { readonly inGame: boolean; readonly animating: boolean }): GameScreen | null {
+  if (!o.inGame) return null;
+  return o.animating ? "play" : "calling";
+}
+
+/** The calling screen: the whole window under the top bar. */
+export function callingPlacement(l: Layout): Placement {
+  const f = l.field;
+  return { left: f.left, width: f.width, top: f.top, maxHeight: f.height, anchor: "top", where: "screen", compact: f.width < CARD_MIN_WINDOW_WIDTH, fill: true };
+}
+
+// ---------------------------------------------------------------- the player card on the play screen
+
+/** The player card floating over the field is at most this wide (DESIGN.md Broadcast build review 7). */
+export const CARD_FLOAT_WIDTH = 280;
+
+export interface CardBox {
+  readonly left: number;
+  readonly width: number;
+  readonly top: number;
+  readonly maxHeight: number;
+}
+
+/**
+ * Where the player card goes on the play screen, from the drawn stage (playStage), so it never
+ * covers the field column: over the rail, at the rail's width and top, when there is one. Without
+ * a rail, null: the caller floats the card over the field on the half away from the player
+ * (floatingCardPlacement; opening it pauses the play, DESIGN.md Broadcast build review 7).
+ */
+export function playCardPlacement(stage: PlayStage): CardBox | null {
+  if (stage.rail === null) return null;
+  return { left: stage.rail.left, width: stage.rail.width, top: stage.rail.top, maxHeight: stage.rail.height };
+}
+
+/**
+ * No rail: the card floats over the field, min(280px, field width - 16px) wide, 8 px from the window
+ * edge and 8 px under the top bar, on the half of the window away from the player (`markX`,
+ * canvas px; null: the left).
+ */
+export function floatingCardPlacement(l: Layout, markX: number | null): CardBox {
+  const m = OVERLAY_MARGIN;
+  const width = Math.min(CARD_FLOAT_WIDTH, l.field.width - 2 * m);
+  const left = markX !== null && markX < l.field.width / 2 ? l.field.width - m - width : m;
+  return { left, width, top: l.field.top + m, maxHeight: l.field.height - 2 * m };
 }
 
 // ---------------------------------------------------------------- when overlays show

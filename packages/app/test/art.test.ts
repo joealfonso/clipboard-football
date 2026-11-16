@@ -230,10 +230,13 @@ describe("jersey numbers", () => {
   const mk = (id: string, x: number, y: number, over: Partial<MarkPx> = {}): MarkPx => ({ id, side: "O", x, y, ringed: false, named: false, number: 22, show: true, ...over });
   const overlaps = (a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }): boolean => Math.abs(a.x - b.x) * 2 < a.w + b.w && Math.abs(a.y - b.y) * 2 < a.h + b.h;
 
+  // DESIGN.md Broadcast: the label is a tag pill 14 px tall at the 12 px label, so its center is
+  // half the pill (7) past the 2 px gap.
   it("goes under an O and above an X, 2 px off the mark", () => {
     const [o, x] = placeNumbers([mk("o", 100, 100), mk("x", 300, 100, { side: "X" })], 14, 12);
-    expect(o?.y).toBe(100 + 7 + 2 + 6);
-    expect(x?.y).toBe(100 - 7 - 2 - 6);
+    expect(o?.h).toBe(14);
+    expect(o?.y).toBe(100 + 7 + 2 + 7);
+    expect(x?.y).toBe(100 - 7 - 2 - 7);
   });
 
   it("a ringed mark's number sits outside the ring", () => {

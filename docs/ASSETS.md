@@ -29,13 +29,35 @@ Slots added to DESIGN.md on 2026-11-12 with no asset yet. Nothing here is in the
 
 Removed 2026-11-12: `hud.playClock` (no play clock in a turn-based game).
 
+Main menu slots (approved 2026-11-15, art-director; DESIGN.md Main menu, docs/specs/m2-main-menu.md):
+
+| slot | added because | source | license | AI use | date |
+|---|---|---|---|---|---|
+| `menu.frame` | The full-window navy menu frame and its content width | not built (CSS, designed in-repo) | to log at intake | to log at intake | 2026-11-15 |
+| `menu.wordmark` | The game name in `font.display` caps on the main menu; live text, depends on the `font.display` intake row below | not built | to log at intake (font license from the `font.display` row) | to log at intake | 2026-11-15 |
+| `menu.rule` | The 2 px gold rule under the main menu wordmark (main menu only, not under other screen titles) | not built (CSS, designed in-repo) | to log at intake | to log at intake | 2026-11-15 |
+| `menu.splashArt` | The static play diagram on the main menu (Shotgun play action against Nickel Cover 3, drawn by the field code from data/ui/templates.json) | not built | to log at intake | to log at intake | 2026-11-15 |
+
 Planned for intake (proposed 2026-11-14, art-director):
 
 | slot | proposed asset | source to fetch | license | AI use | date |
 |---|---|---|---|---|---|
-| `font.ui` | Atkinson Hyperlegible, 400 and 700, regular and italic, self-hosted woff2 | Braille Institute's release (brailleinstitute.org), or its Google Fonts copy; confirm the primary source at intake | SIL OFL 1.1, to verify from the shipped license file | to log at intake | 2026-11-14 |
-| `font.mono` | IBM Plex Mono, 400, 500 and 600, self-hosted woff2 | IBM release (github.com/IBM/plex) | SIL OFL 1.1, to verify from the shipped license file | to log at intake | 2026-11-14 |
+| `font.ui` | WITHDRAWN 2026-11-15 (DESIGN.md Broadcast revision): Atkinson Hyperlegible, replaced by Inter (row below) | n/a | n/a | n/a | 2026-11-14 |
+| `font.mono` | WITHDRAWN 2026-11-15 (DESIGN.md Broadcast revision): IBM Plex Mono, slot retired; tabular Inter does its job | n/a | n/a | n/a | 2026-11-14 |
+| `font.ui` | DONE 2026-11-15: Inter, see "Bundled fonts" below | | | | 2026-11-15 |
 | `team.<id>.color` | one swatch color per team in the team data | designed in-repo | n/a until made | to log at intake | 2026-11-14 |
+| `font.display` | DONE 2026-11-15: Barlow Condensed 600 and 700, see "Bundled fonts" below | | | | 2026-11-15 |
+| `team.<id>.color`, `team.<id>.outline`, `team.<id>.endZone` | eight designed slots (fill, outline, end zone), DESIGN.md Team colors, replacing the 2026-11-14 row above | designed in-repo by art-director, hand-computed contrast | n/a (designed values, no third-party source) | none | 2026-11-15 |
+
+Bundled fonts (intake done 2026-11-15; Joseph approved bundling; the coordinator downloaded the files, engineer copied them into the repo and checked each sha256 against the download). Latin subset only (U+0000-00FF plus common punctuation and symbols); anything outside it falls back to the system face. Files in `packages/app/src/assets/fonts/`, loaded by `@font-face` in `packages/app/src/styles.css` with `font-display: swap`, fingerprinted by Vite. No CDN at runtime. License texts (OFL 1.1 condition 2): one copy beside the woff2 sources, and a byte-identical copy in `packages/app/public/fonts/`, which Vite copies to `dist/fonts/Inter-LICENSE.txt` and `dist/fonts/BarlowCondensed-LICENSE.txt` in every build (checked by packages/app/test/fonts.test.ts).
+
+| slot | file | source (version) | license | sha256 | size (bytes) | AI use | date | uses |
+|---|---|---|---|---|---|---|---|---|
+| `font.ui` | `inter-latin-wght-normal.woff2` (variable, wght 100 to 900, roman) | https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.3.0/files/ (Fontsource packaging of rsms/inter) | SIL OFL 1.1, `Inter-LICENSE.txt` beside the file (copied from @fontsource-variable/inter@5.3.0) | 3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62 | 48256 | none | 2026-11-15 | every UI word and off-field number, mark labels, on-field tags (DESIGN.md Typography) |
+| `font.display` | `barlow-condensed-latin-600-normal.woff2` | https://cdn.jsdelivr.net/npm/@fontsource/barlow-condensed@5.3.0/files/ (Fontsource packaging of jpt/barlow) | SIL OFL 1.1, `BarlowCondensed-LICENSE.txt` beside the file (copied from @fontsource/barlow-condensed@5.3.0) | 215a93c696f442034a46fbb382958f753fda60e30490683aeea6b235fcbb2b66 | 22308 | none | 2026-11-15 | score bug team names |
+| `font.display` | `barlow-condensed-latin-700-normal.woff2` | https://cdn.jsdelivr.net/npm/@fontsource/barlow-condensed@5.3.0/files/ (Fontsource packaging of jpt/barlow) | SIL OFL 1.1, `BarlowCondensed-LICENSE.txt` beside the file (copied from @fontsource/barlow-condensed@5.3.0) | 3787a5a419171630e6890cfa47c4da067474d005cd0ff8dc11ec090fdc3ee2b8 | 22444 | none | 2026-11-15 | score digits, down and distance, wordmark, yard numbers, end zone names, score and turnover toasts |
+
+Not yet checked at intake (no font tooling in the build sandbox): whether this Inter subset keeps the `cv05` and `cv08` features (tailed l, seriffed I; styles.css turns them on) and whether Barlow Condensed has tabular figures (the score keeps its `min-width: 2ch` right-aligned box either way). Source is Fontsource's packaging of the designers' releases, not the release zips DESIGN.md's planned rows named.
 
 ## Reviews
 

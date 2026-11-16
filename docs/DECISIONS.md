@@ -398,6 +398,7 @@ The first eight entries record the lead's resolutions of the spec's open questio
 
 - Date: 2026-11-11
 - Decision: one `rng.nextUint32()` per toss; its low bit names the winner (1 home, 0 away). `newGame` and `startOvertime` are the only functions that take an Rng. The seed is stored in GameState.
+- Since record schema 2 (2026-11-15) the game record logs every toss, the opening one included; see "Coin toss events in the game record". Logging adds no draw.
 
 ### Rule set identity
 
@@ -1732,6 +1733,15 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - What it never changes: the engine's facts. The third, when sent, is the engine's and the catch stays inside it; the dead spot, the tackler, the throw and the catch stay anchored. It is computed from the calls only (his template, which every receiver runs alike), so nothing drawn before the throw changes.
 - Where: `timeline()` in packages/app/src/ui/timeline.ts (the complete-pass branch).
 
+### Out-of-bounds carry runs upfield first (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Accepted by the lead on 2026-11-15.
+- Decision: on a play the engine ends out of bounds, the carrier's drawn path from his last point to the dead spot on the sideline runs straight upfield (toward the dead spot's y, so a return goes the returner's way) at his x until the depth left equals the lateral distance left, then cuts at 45 degrees to the dead spot. When the depth left is less than the lateral distance left, it stays the straight line. The same rule applies to the carrier's run to a fumble spot and to a fumble recoverer's return. No tuning value: the cut is always 45 degrees.
+- Why: Joseph saw a receiver past the defense run one long diagonal from the catch to the sideline, which read as wrong. A runner in the open goes for the end zone and is pushed out near the end.
+- What it never changes: the engine's facts. The dead spot, the out-of-bounds flag, the catch, the tackler and the fumble spot stay where they are; only the path between them changes. The carry to the dead spot and the recoverer's return are timed from their own path's length at the runner's speed. The run to a fumble spot is not: it ends 350 ms before the time the full path to the dead spot would take (the timing from before this change), so the new path changes its shape but not its length in time. No randomness: the same event gives the same path.
+- Not covered: the interception return, which draws its own path.
+- Where: `carry` in `timeline()`, packages/app/src/ui/timeline.ts.
+
 ### Sack time from the sacker's arrival (lead, 2026-11-15; designed)
 
 - Date: 2026-11-15. Designed, not fitted. Display only.
@@ -1740,6 +1750,16 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - Why: with the sacker converging only from the drop end (R9), a lineman at 5 yd/s could not cover the 5 to 8 yd to the QB in 600 ms and was drawn at 18 to 32 yd/s.
 - What it never changes: the engine's facts. The sacker on the QB, the sack spot and the dead spot stay; only when the sack is drawn moves.
 - Where: `timeline()` in packages/app/src/ui/timeline.ts (the sack block).
+
+### Coin toss events in the game record (engineer, 2026-11-15)
+
+- Date: 2026-11-15. Record schema 2 (`RECORD_SCHEMA_VERSION` in packages/sim/src/loop/play.ts).
+- Decision: `startGame` logs the opening coin toss as `record.events[0]`, a `t: "toss"` event with the winner, the choice (defer by default, or the human's) and the team that receives the opening kickoff. Before schema 2 only overtime tosses were logged. Every toss event now carries `period`, the period it opens: 1 for the opening toss, the first overtime period (or the next cycle's) for an overtime toss. Readers use `period`, not `before.period + 1`.
+- The opening toss has no earlier state, so its `before` is the state `newGame` returns (period 1, the opening kickoff set up).
+- No new Rng draw: the event is read from the state `newGame` made. Every play and score is the same for the same seed.
+- Text: the CLI and the app say "Coin toss: ..." for the opening toss and keep the overtime wording for an overtime toss. The app shows the line on the field until the opening kickoff, the same way it already showed the overtime toss after its toss screen.
+- Requests leave tosses out (`requestEvents`), as before.
+- Byte-identity proof: `outcomeRecord` in scripts/game/outcome-digests.ts drops the opening toss and the toss `period`, and reads the schema version as 1, so the pre-M2 baseline digests (test/fixtures/m2-baseline-digests.json) still check every other byte.
 
 ## Publishing
 

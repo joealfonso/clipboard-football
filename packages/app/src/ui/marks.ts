@@ -137,9 +137,17 @@ export interface NumberBox {
   readonly h: number;
 }
 
-/** The width a label takes at `px` (mono: 0.62 em per character, 1 px each side). */
+/**
+ * The width a label's tag pill takes at `px`: 0.62 em per character (an upper bound for Inter's
+ * digits) plus the pill's 2 px padding each side (DESIGN.md Marks, mark.label).
+ */
 export function labelWidth(text: string, px: number): number {
-  return text.length * px * 0.62 + 2;
+  return text.length * px * 0.62 + 4;
+}
+
+/** The height of a label's tag pill at `px`: 14 px at the 12 px label (DESIGN.md Marks). */
+export function labelHeight(px: number): number {
+  return px + 2;
 }
 
 /** Ring 6 px outside the mark (DESIGN.md mark.ballCarrier), 2 px stroke. */
@@ -166,7 +174,7 @@ export function placeNumbers(marks: readonly MarkPx[], markPx: number, numberPx:
   const placed: NumberBox[] = [];
   const order = [...marks.filter((m) => m.show && m.named), ...marks.filter((m) => m.show && !m.named)];
   for (const m of order) {
-    const h = numberPx;
+    const h = labelHeight(numberPx);
     const reach = (m.ringed ? r + RING_GAP + 1 : r) + 2;
     const number = String(m.number);
     const w = labelWidth(number, numberPx);
