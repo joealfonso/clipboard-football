@@ -291,7 +291,7 @@ function blockTick(g: CanvasRenderingContext2D, v: View, a: { x: number; y: numb
 }
 
 /** One mark (DESIGN.md Marks): a filled disc for O, a rounded X for D, each ringed, with shadow.mark. */
-function drawMark(g: CanvasRenderingContext2D, side: "O" | "X", s: SideInk, cx: number, cy: number, r: number): void {
+export function drawMark(g: CanvasRenderingContext2D, side: "O" | "X", s: SideInk, cx: number, cy: number, r: number): void {
   if (side === "O") {
     const rr = Math.max(0.5, r - 0.75);
     shadow(g, SHADOW.mark);

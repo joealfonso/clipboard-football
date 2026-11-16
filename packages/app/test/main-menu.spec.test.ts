@@ -33,7 +33,7 @@ import {
   titleScreen,
   type ScreenModel,
 } from "../src/ui/screens";
-import { artShown, splashFrame, splashOpts, splashScene, splashView } from "../src/ui/splash";
+import { artShown, LOOP_MS, paintSplash, pointAlong, SPLASH_LOOP, SPLASH_PLAYS, splashFrame, splashMovers, splashOpts, splashPhase, splashPlayIndex, splashScene, splashView } from "../src/ui/splash";
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from "../src/ui/storage";
 import { parseTemplates } from "../src/ui/templates";
 import { COLOR, FONT_DISPLAY } from "../src/ui/tokens";
@@ -796,5 +796,120 @@ describe("MM16, DESIGN.md Main menu: what the splash actually paints", () => {
     const lineStrokes = ops.filter((o) => o.op === "stroke" && o.strokeStyle === COLOR.line.toUpperCase());
     expect(lineStrokes.some((o) => o.dash.length > 0)).toBe(true);
     expect(lineStrokes.some((o) => o.dash.length === 0)).toBe(true);
+  });
+});
+
+describe("Animated splash (Joseph, 2026-11-15): no field, the X's and O's run the play with dotted trails", () => {
+  const width = 488;
+  const v = splashView(width, (s) => Math.max(14, 1.4 * s));
+  const tl = splashFrame(templates, splashPersonnel, v.s);
+  const movers = splashMovers(tl);
+  const L = SPLASH_LOOP;
+
+  it("22 movers, each starting where its mark lines up; offense and defense both move", () => {
+    expect(movers).toHaveLength(22);
+    tl.marks.forEach((m, i) => {
+      expect(movers[i]?.points[0]?.x).toBeCloseTo(m.keys[0]?.x ?? NaN, 9);
+      expect(movers[i]?.points[0]?.y).toBeCloseTo(m.keys[0]?.y ?? NaN, 9);
+    });
+    expect(movers.some((m) => m.side === "O" && m.points.length > 1)).toBe(true);
+    expect(movers.some((m) => m.side === "X" && m.points.length > 1)).toBe(true);
+  });
+
+  it("pointAlong: ends, a corner and the middle of a bent line, by length", () => {
+    const pts = [{ x: 0, y: 0 }, { x: 3, y: 0 }, { x: 3, y: 4 }];
+    expect(pointAlong(pts, 0)).toEqual({ x: 0, y: 0 });
+    expect(pointAlong(pts, 1)).toEqual({ x: 3, y: 4 });
+    expect(pointAlong(pts, 3 / 7)).toEqual({ x: 3, y: 0 });
+    const mid = pointAlong(pts, 0.5);
+    expect(mid.x).toBeCloseTo(3, 9);
+    expect(mid.y).toBeCloseTo(0.5, 9);
+    expect(pointAlong([{ x: 2, y: 2 }], 0.6)).toEqual({ x: 2, y: 2 });
+  });
+
+  it("the loop: fade in, lined up, the play, a hold at the finish, fade out, and it repeats", () => {
+    const total = L.fadeIn + L.set + L.play + L.hold + L.fadeOut;
+    expect(splashPhase(0)).toEqual({ f: 0, alpha: 0 });
+    expect(splashPhase(L.fadeIn + L.set / 2)).toEqual({ f: 0, alpha: 1 });
+    const mid = splashPhase(L.fadeIn + L.set + L.play / 2);
+    expect(mid.f).toBeCloseTo(0.5, 6);
+    expect(mid.alpha).toBe(1);
+    expect(splashPhase(L.fadeIn + L.set + L.play + L.hold / 2)).toEqual({ f: 1, alpha: 1 });
+    expect(splashPhase(total - L.fadeOut / 2).alpha).toBeCloseTo(0.5, 6);
+    expect(splashPhase(total + 10)).toEqual(splashPhase(10));
+    let last = 0;
+    for (let t = L.fadeIn + L.set; t <= L.fadeIn + L.set + L.play; t += 50) {
+      const f = splashPhase(t).f;
+      expect(f).toBeGreaterThanOrEqual(last);
+      last = f;
+    }
+  });
+
+  function paint(f: number): Op[] {
+    const { g, ops } = recorder();
+    (g as unknown as Record<string, unknown>)["clearRect"] = () => undefined;
+    paintSplash(g, v, movers, f, 1);
+    return ops;
+  }
+
+  it("no field: no turf fills, no yard numbers, no text at any point in the play", () => {
+    for (const f of [0, 0.5, 1]) {
+      const ops = paint(f);
+      expect(ops.filter((o) => o.text !== undefined && o.text !== "")).toEqual([]);
+      expect(ops.filter((o) => o.op === "fillRect")).toEqual([]);
+    }
+  });
+
+  it("lined up: no trails; mid-play and at the finish: dotted trails in color.line", () => {
+    const dotted = (ops: Op[]): Op[] => ops.filter((o) => o.op === "stroke" && o.dash.length > 0);
+    expect(dotted(paint(0))).toEqual([]);
+    for (const f of [0.5, 1]) {
+      const d = dotted(paint(f));
+      expect(d.length).toBeGreaterThan(0);
+      expect(new Set(d.map((o) => o.strokeStyle))).toEqual(new Set([COLOR.line.toUpperCase()]));
+    }
+  });
+});
+
+describe("Splash plays (Joseph, 2026-11-15: add a different play): one per loop, each a different look", () => {
+  const v = splashView(488, (s) => Math.max(14, 1.4 * s));
+
+  it("four plays, the first is the reduced-motion still (shotgun play action against nickel Cover 3), no two alike", () => {
+    expect(SPLASH_PLAYS.length).toBeGreaterThanOrEqual(2);
+    expect(SPLASH_PLAYS[0]).toEqual({ formation: "shotgun", play: "playAction", pkg: "nickel", preset: "nickelCover3" });
+    expect(new Set(SPLASH_PLAYS.map((p) => p.formation + p.play)).size).toBe(SPLASH_PLAYS.length);
+    expect(SPLASH_PLAYS.some((p) => p.play === "insideRun" || p.play === "outsideRun")).toBe(true);
+  });
+
+  for (const call of SPLASH_PLAYS) {
+    it(`${call.formation} ${call.play} vs ${call.pkg} ${call.preset}: 11 O's and 11 X's, both sides move, everyone stays in the box`, () => {
+      const personnel = { offense: personnelJson.offense[call.formation] ?? {}, defense: personnelJson.packages[call.pkg] ?? {} };
+      const movers = splashMovers(splashFrame(templates, personnel, v.s, call));
+      expect(movers.filter((m) => m.side === "O")).toHaveLength(11);
+      expect(movers.filter((m) => m.side === "X")).toHaveLength(11);
+      expect(movers.some((m) => m.side === "O" && m.points.length > 1)).toBe(true);
+      expect(movers.some((m) => m.side === "X" && m.points.length > 1)).toBe(true);
+      for (const m of movers) {
+        for (const f of [0, 0.5, 1]) {
+          const p = pointAlong(m.points, f);
+          const px = (1 + p.x) * v.s;
+          const py = (v.cameraY - p.y) * v.s;
+          expect(px).toBeGreaterThanOrEqual(0);
+          expect(px).toBeLessThanOrEqual(v.width);
+          expect(py).toBeGreaterThanOrEqual(-v.markPx / 2);
+          expect(py).toBeLessThanOrEqual(v.height + v.markPx / 2);
+        }
+      }
+    });
+  }
+
+  it("the play changes at each loop boundary (inside the fade), in order, and wraps", () => {
+    expect(splashPlayIndex(0, 4)).toBe(0);
+    expect(splashPlayIndex(LOOP_MS - 1, 4)).toBe(0);
+    expect(splashPlayIndex(LOOP_MS, 4)).toBe(1);
+    expect(splashPlayIndex(3 * LOOP_MS + 5, 4)).toBe(3);
+    expect(splashPlayIndex(4 * LOOP_MS, 4)).toBe(0);
+    // The swap lands where nothing shows: the loop opens at alpha 0.
+    expect(splashPhase(LOOP_MS).alpha).toBe(0);
   });
 });

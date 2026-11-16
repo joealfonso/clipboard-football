@@ -75,7 +75,7 @@ import { COLOR, darkTier, matchupInk, matchupSwatches, type TeamInk } from "./to
 import { regionsHidden, uiMode } from "./mode";
 import { fitBar, TOP_BAR_FIT_STEPS } from "./topbar";
 import { whenCanvasFontsReady } from "./fonts";
-import { artShown, drawSplash, splashFrame } from "./splash";
+import { artShown, SPLASH_PLAYS, splashFrame, SplashLoop } from "./splash";
 
 /** Menu-mode screens with rows only: the frame is at most 640 px wide (main menu spec). */
 const NARROW_MENU_SCREENS: ReadonlySet<string> = new Set(["settings", "controls", "saveError", "simError"]);
@@ -173,6 +173,7 @@ export class App {
   /** The main menu's play diagram, kept across renders and redrawn only when its key changes. */
   private readonly menuArt: HTMLCanvasElement;
   private menuArtKey = "";
+  private readonly splashLoop = new SplashLoop();
   private readonly canvas2d: boolean;
   private storageWarning: string | null = null;
   private leagueSeed = 2026;
@@ -1533,7 +1534,7 @@ export class App {
     return [tagline, storageLine === null ? null : h("p", { class: "soft" }, storageLine), this.rowsGroup("Main menu", model.rows), h("p", { class: "status", role: "status" }), this.footer(false)].filter((x): x is HTMLElement => x !== null);
   }
 
-  /** Draws the splash diagram when it is in the page and its width, text size or data changed. */
+  /** Starts the splash animation when it is in the page and its width, text size, motion setting or data changed. */
   private drawMenuArt(): void {
     const c = this.menuArt;
     if (!c.isConnected) return;
@@ -1541,11 +1542,13 @@ export class App {
     if (width <= 0) return;
     const t = this.templates;
     const ui = this.ui;
-    const key = JSON.stringify([width, this.settings.textSize, t !== null && ui !== null, window.devicePixelRatio]);
-    if (key === this.menuArtKey) return;
+    const still = this.reducedMotion();
+    const key = JSON.stringify([width, this.settings.textSize, t !== null && ui !== null, window.devicePixelRatio, still]);
+    // A loop that stopped (the canvas left the page) restarts when the menu comes back.
+    if (key === this.menuArtKey && (this.splashLoop.running || still || t === null || ui === null)) return;
     this.menuArtKey = key;
-    const frame = t !== null && ui !== null ? (s: number) => splashFrame(t, { offense: ui.personnel.offense["shotgun"] ?? {}, defense: ui.personnel.packages["nickel"] ?? {} }, s) : null;
-    drawSplash(c, width, this.settings.textSize / 100, t?.field ?? { markYards: 1.4, markMinPx: 14 }, frame);
+    const frames = t !== null && ui !== null ? SPLASH_PLAYS.map((call) => (s: number) => splashFrame(t, { offense: ui.personnel.offense[call.formation] ?? {}, defense: ui.personnel.packages[call.pkg] ?? {} }, s, call)) : [];
+    this.splashLoop.run(c, width, t?.field ?? { markYards: 1.4, markMinPx: 14 }, frames, still);
   }
 
   private renderStatus(): void {

@@ -109,6 +109,7 @@ The play diagram, drawn on `#menu-art` with the field's own drawing code (`field
 - Marks: 11 O's and 11 X's, generic slot ids, no labels. Proposed colors: `color.line` fill over a `color.outlineDark` outline for both sides and their paths, the light-tier outline rule. Shape and line style carry the side. Needs art-director (Open 3): there is no game, so no team colors apply.
 - No ball path, ball-carrier ring, labels, flags or text.
 - Static. Drawn once when shown, again on resize and on a text-size change. No animation loop while the menu is up, so reduced motion has nothing to change here.
+- **Amended 2026-11-15 (Joseph): no field, and the play runs.** The turf, yard lines and numbers are gone: only the 22 marks show, on the card's own background. Each mark runs its template path from the same art on a loop (fade in 350 ms, lined up 900 ms, the play 2800 ms eased, hold 1300 ms, fade out 450 ms) and leaves a dotted `color.line` trail behind it (offense 70%, defense 45%). The routes, arrowheads and block ticks are no longer drawn ahead of the marks. Reduced motion: one still frame of the finished play with its trails, no loop. The loop stops when the canvas leaves the page. It cycles four plays, one per loop, swapping while the card is faded out (`SPLASH_PLAYS`): shotgun play action vs nickel Cover 3 (the still frame under reduced motion), under-center inside run vs base run stuff, empty intermediate pass vs dime Cover 4, pistol screen vs nickel Cover 1 blitz. Empty deep pass was tried and left out: its routes run about 5 yards off the top of the box. This replaces the "Static" line above, the rejected animated loop below, and MM17. Code: `splash.ts` (`splashMovers`, `pointAlong`, `splashPhase`, `paintSplash`, `SplashLoop`).
 - Why this play: shotgun play action against nickel Cover 3 is an everyday NFL snap that uses every kind of line DESIGN.md defines (route, block, defense drop) in one picture, which is the coach's eye in one image.
 - Rejected: an animated looping play (motion beside a decision pulls the eye off the rows and costs a frame loop on the menu); a drawn clipboard or paper card object (decoration with no job, and close to the banned fake paper look); real team colors on the diagram (it would imply a matchup that doesn't exist).
 
@@ -118,7 +119,7 @@ The art is hidden, and the left column takes the frame width at most 640 px, whe
 - the frame is narrower than 880 px;
 - Canvas 2D is missing (unsupported browser).
 
-During loading the art box draws the turf with no marks (the field needs no league data), and the marks appear when the templates arrive. This keeps the layout from jumping from one column to two.
+During loading the art box is empty (amended 2026-11-15; it was the turf with no marks) (the field needs no league data), and the marks appear when the templates arrive. This keeps the layout from jumping from one column to two.
 
 ### Other menu-mode screens
 
@@ -220,7 +221,7 @@ The main menu shows no engine output. The diagram is a designed template drawing
 | MM14 | Below `MIN_WIDTH` x `MIN_HEIGHT`, `#too-small` shows in either mode on `color.panel` with `color.chalk` text; number keys do nothing. | Paper styling, or keys acting. |
 | MM15 | With `missingFeatures()` non-empty, the message is inside `#main-menu`, `#panel` is untouched, `#top-bar` and `#layout` stay hidden. | Message in the HUD. |
 | MM16 | The diagram's frame has 11 O and 11 X marks from `offenseArt("shotgun", "playAction", ...)` and `defenseArt("nickel", "nickelCover3", ...)`, no mark labels, no ball path, no zones. | Any extra element, or a label. |
-| MM17 | While the main menu is up, no animation frame loop runs: a `requestAnimationFrame` spy counts no calls over 1 s without input. | A loop on the menu. |
+| MM17 | Retired 2026-11-15 (the splash animates, see Splash composition). Was: while the main menu is up, no animation frame loop runs: a `requestAnimationFrame` spy counts no calls over 1 s without input. | A loop on the menu. |
 | MM18 | Esc on the main menu leaves the stack and status unchanged; Esc on Pregame lands on the main menu. | Stack change or a missing path. |
 | MM19 | Labels: pause row 7 "Quit to main menu", end screen Esc "Main menu", sim error Esc "Main menu". | "title" in any label. |
 | MM20 | With storage blocked, "This game can't be saved in this browser window." occurs exactly once in `#main-menu`'s text. | Zero or two. |

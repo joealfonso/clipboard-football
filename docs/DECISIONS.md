@@ -1761,6 +1761,14 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - Requests leave tosses out (`requestEvents`), as before.
 - Byte-identity proof: `outcomeRecord` in scripts/game/outcome-digests.ts drops the opening toss and the toss `period`, and reads the schema version as 1, so the pre-M2 baseline digests (test/fixtures/m2-baseline-digests.json) still check every other byte.
 
+### Splash: X's and O's run the play, no field (Joseph, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed. Display only.
+- Decision: the main menu art drops the field and shows only the marks, each running its template path on a loop with a dotted trail behind it. It cycles four designed plays, one per loop (play action, inside run, four-wide intermediate pass, screen against the blitz; `SPLASH_PLAYS`). Reduced motion gets one still frame of the first play, finished.
+- Why: Joseph asked for it. The moving X's and O's say what the game is faster than a still diagram on turf.
+- Reverses: the spec's rejected "animated looping play" and MM17 (no frame loop on the menu). The cost it named, a frame loop beside the rows, is accepted; the loop stops when the menu is gone.
+- Where: `packages/app/src/ui/splash.ts`, docs/specs/m2-main-menu.md (Splash composition, amended), DESIGN.md `menu.splashArt`.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
