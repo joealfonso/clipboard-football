@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { gamePlayers } from "../../sim/src/loop/play";
 import { pathPrimitives } from "../src/ui/marks";
+import { callingFrame } from "../src/ui/presnap";
 import { playLines } from "../src/ui/ratings";
 import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { timeline, type Timeline } from "../src/ui/timeline";
@@ -141,5 +142,52 @@ describe("player cards list only the roles the engine credited (Amended)", () =>
       all.push(...set);
     }
     expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+// Calling screen pass U1, CB3 (docs/specs/m2-calling-screen-pass.md): the board draws the calling
+// frames at its own scale (9.44 to 10 px per yard). They stay built from your call and the layout
+// only: the same call draws the same board whatever the result (P3), and before the line-up the
+// other side is the generic huddle, never a player of theirs, for every call they then made (P1).
+describe("CB3: the calling board's frames leak neither their call nor the result", () => {
+  const callingAt = (sB: number, los: number, side: "offense" | "defense", unit: string, call: string | null, lineups: Parameters<typeof callingFrame>[0]["lineups"]): Timeline =>
+    callingFrame({ side, los, firstDown: los + 10, unit, call, lineups, counts: {}, opponentCount: 11, templates, motion, pxPerYard: sB, markPx: Math.max(14, 1.4 * sB), endZoneYards: 10 });
+
+  it("one human call, three results: identical board frames and drawn layers before the snap (P3)", () => {
+    const results = [COMPLETE, { ...INCOMPLETE, offense: COMPLETE.offense, defense: COMPLETE.defense }, { ...INTERCEPTION, offense: COMPLETE.offense, defense: COMPLETE.defense }];
+    for (const sB of [9.44, 10]) {
+      const frames = results.map((e) => callingAt(sB, e.before.spot, "offense", e.offense.formation as string, e.offense.call, undefined));
+      expect(new Set(frames.map((f) => JSON.stringify(f))).size).toBe(1);
+      expect(new Set(frames.map((f) => JSON.stringify(pathPrimitives(f, 0, (Math.max(14, 1.4 * sB) / 2 + 1) / sB)))).size).toBe(1);
+    }
+  });
+
+  it("over a real game on defense, every board frame shows their side only as the huddle, whatever they called (P1)", () => {
+    const g = playGame(62, "away");
+    const first = g.sent.find((m) => m.t === "step");
+    if (first?.t !== "step") throw new Error("no step");
+    // The human coaches the away side: every home player is theirs.
+    const theirs = new Set(first.matchup.home.pool.players.map((p) => p.id));
+    expect(theirs.size).toBeGreaterThan(22);
+    const defense = g.requests.filter((r): r is Extract<(typeof g.requests)[number], { kind: "defenseCall" }> => r.kind === "defenseCall");
+    expect(defense.length).toBeGreaterThan(20);
+    const byState = new Map<string, string>();
+    for (const r of defense)
+      for (const pkg of ["base", "nickel", "dime"]) {
+        const spot = r.state?.spot ?? 25;
+        const f = callingAt(9.44, spot, "defense", pkg, null, r.lineups);
+        const opp = f.marks.filter((m) => m.side === "O");
+        expect(opp).toHaveLength(11);
+        for (const m of opp) {
+          expect(m.huddle).toBe(true);
+          expect(m.playerId.startsWith("huddle:")).toBe(true);
+        }
+        for (const m of f.marks) expect(theirs.has(m.playerId)).toBe(false);
+        // The same own call at the same spot draws the same board, whatever they then called.
+        const k = JSON.stringify([spot, pkg, r.lineups?.[pkg]]);
+        const s = JSON.stringify(f);
+        if (byState.has(k)) expect(s).toBe(byState.get(k));
+        else byState.set(k, s);
+      }
   });
 });

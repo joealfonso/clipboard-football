@@ -139,6 +139,9 @@ function checkPlay(ev: PlayEvent, label: string): void {
   // of his next 1.0 s of path); no unnamed mark touches the ball (1 yard) even between keys.
   // (Plain loop: an expect per sample is too slow.)
   const ring = templates.field.clearOfBallYards;
+  // Amended (natural motion, NM-Open 1, approved by Joseph 2026-11-15): while the ball is in the air
+  // (a pass or a kick, drawn as a ball path) the ring is motion.json natural.flightRingYards.
+  const inAir = (t: number): boolean => tl.paths.some((f) => f.kind === "ball" && t >= f.start && t <= f.end);
   const touches: string[] = [];
   const ballBefore = (t: number) => at(tl.ball, Math.min(t, tl.liveEnd - 1));
   for (const m of tl.marks) {
@@ -149,7 +152,7 @@ function checkPlay(ev: PlayEvent, label: string): void {
       const b = ballBefore(t);
       const r = Math.hypot(a.x - b.x, a.y - b.y);
       if (r < 1) touches.push(`${m.slot} touches the ball at ${t.toFixed(0)} ms`);
-      else if (onKey && m.side === "X" && r < ring - 1e-6) touches.push(`${m.slot} inside the ring at ${t.toFixed(0)} ms (${r.toFixed(2)} yd)`);
+      else if (onKey && m.side === "X" && r < (inAir(t) ? Math.min(ring, motion.natural.flightRingYards) : ring) - 1e-6) touches.push(`${m.slot} inside the ring at ${t.toFixed(0)} ms (${r.toFixed(2)} yd)`);
     }
   }
   expect(touches, `${label}: diagram marks too close to the ball`).toEqual([]);
@@ -171,14 +174,14 @@ describe("timeline purity (A1)", () => {
   });
 
   it("imports no Rng, no sim and no DOM, and never calls Math.random", () => {
-    // Amended: also the motion builder and playArt.
-    for (const f of ["timeline.ts", "templates.ts", "motion.ts", "art.ts"]) {
+    // Amended: also the motion builder and playArt; and natural.ts (natural motion revision, 2026-11-15).
+    for (const f of ["timeline.ts", "templates.ts", "motion.ts", "art.ts", "natural.ts"]) {
       // Code only: comments may say "window" or "Rng" in plain words.
       const src = readFileSync(join(import.meta.dirname, "../src/ui", f), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .replace(/\/\/.*$/gm, "");
       const imports = ts.preProcessFile(src, true, true).importedFiles.map((x) => x.fileName);
-      for (const i of imports) expect(["@clipboard-football/shared", "../engine/types", "./templates", "./art", "./motion"], `${f} imports ${i}`).toContain(i);
+      for (const i of imports) expect(["@clipboard-football/shared", "../engine/types", "./templates", "./art", "./motion", "./natural"], `${f} imports ${i}`).toContain(i);
       expect(src).not.toMatch(/Math\.random|document\.|window\.|performance\.|Date\./);
     }
   });

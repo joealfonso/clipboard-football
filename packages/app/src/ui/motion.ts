@@ -10,6 +10,8 @@ export interface Pt {
 
 export interface Key extends Pt {
   readonly t: number;
+  /** Inside a designed break or cut arc (a fillet), where the governor allows breakLateralAccel. */
+  readonly arc?: true;
 }
 
 export const FIELD_WIDTH = 53.3;
@@ -115,33 +117,103 @@ export interface DriveOpts {
   readonly restEnd: boolean;
   readonly keyMs: number;
   readonly fillet?: FilletOpts;
+  /**
+   * Natural motion (NM6): with restStart false, the speed he arrives with (yards per ms); he ramps
+   * from it to the leg's cruise. Absent: he starts at the cruise, as before.
+   */
+  readonly v0?: number;
 }
 
 /**
- * Moves along the waypoints from t0 to t1, arriving exactly at t1: from rest over accelMs when
- * restStart, to rest over decelMs when restEnd, slower through breaks. Keys on the global grid.
+ * A speed ramp from 0 to 1 over x in [0, 1] whose acceleration is a trapezoid: it rises over the
+ * first RISE share and falls over the last, so the jerk is bounded (natural motion, NM6). The
+ * mean is 1/2, like a linear ramp; the peak acceleration is 1 / (1 - RISE).
+ */
+const RISE = 0.1;
+const ACC = 1 / (1 - RISE);
+/** A ramp lasts this many times the linear one, so its peak acceleration is the old one's. */
+export const RAMP = ACC;
+export function rampSpeed(x: number): number {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  if (x < RISE) return (ACC * x * x) / (2 * RISE);
+  if (x > 1 - RISE) return 1 - (ACC * (1 - x) * (1 - x)) / (2 * RISE);
+  return ACC * (x - RISE / 2);
+}
+/** The integral of rampSpeed from 0 to x. */
+export function rampDist(x: number): number {
+  if (x <= 0) return 0;
+  if (x >= 1) return x - 0.5;
+  if (x < RISE) return (ACC * x * x * x) / (6 * RISE);
+  if (x > 1 - RISE) return x - 0.5 + rampDist(1 - x);
+  return (ACC * RISE * RISE) / 6 + (ACC * ((x - RISE / 2) ** 2 - (RISE * RISE) / 4)) / 2;
+}
+
+/**
+ * Moves along the waypoints from t0 to t1, arriving exactly at t1: from rest (or from `v0`) over a
+ * smooth ramp, to rest over a smooth ramp when restEnd, slower through breaks. Keys on the global
+ * grid; keys inside a fillet arc carry `arc`.
  */
 export function drive(points: readonly Pt[], t0: number, t1: number, o: DriveOpts): Key[] {
   const start = points[0] ?? { x: MID_X, y: 0 };
   if (points.length < 2 || t1 <= t0) return [{ t: t0, ...start }];
-  const f = o.fillet === undefined ? { pts: [...points], speed: points.slice(1).map(() => 1) } : fillet(points, o.fillet);
+  const f = o.fillet === undefined ? { pts: [...points], speed: points.slice(1).map(() => 1), arc: points.slice(1).map(() => -1) } : fillet(points, o.fillet);
   const eff: number[] = [0];
   for (let i = 1; i < f.pts.length; i++) eff.push((eff[i - 1] as number) + dist(f.pts[i - 1] as Pt, f.pts[i] as Pt) / Math.max(0.2, f.speed[i - 1] ?? 1));
   const total = eff[eff.length - 1] as number;
   const T = t1 - t0;
-  const a = o.restStart ? Math.min(o.accelMs, T / 2) : 0;
-  const d = o.restEnd ? Math.min(o.decelMs, T / 2) : 0;
-  const v = 1 / (T - a / 2 - d / 2);
+  // Speeds as a share of the whole leg per ms: u0 at the start, u at the cruise.
+  const u0 = o.restStart || o.v0 === undefined || total < 1e-9 ? 0 : o.v0 / total;
+  const keepStart = !o.restStart && o.v0 === undefined;
+  /**
+   * The speed change and the stop squeezed into a leg too short for both. Usually both shrink by the
+   * same share. A moving start into a stop (restEnd with a start speed) gives the stop the larger
+   * share, so he eases to rest on the last point rather than braking hard at the end. On any leg
+   * with a start speed, the speed change is capped so the cruise never goes backward
+   * (u0 x a / 2 < 1): the start speed is kept, so the speed stays continuous (code review, 2026-11-16).
+   */
+  const fit = (a0: number, d0: number): [number, number] => {
+    let a1 = a0;
+    let d1 = d0;
+    if (a1 + d1 > T) {
+      if (o.restEnd && u0 > 0) {
+        const w = 0.5 * a1;
+        a1 = (T * w) / Math.max(1e-12, w + d1);
+        d1 = T - a1;
+      } else {
+        const k = T / (a1 + d1);
+        a1 *= k;
+        d1 *= k;
+      }
+    }
+    if (u0 > 0 && (u0 * a1) / 2 > 0.98) a1 = 1.96 / u0;
+    return [a1, d1];
+  };
+  let d = o.restEnd ? RAMP * o.decelMs : 0;
+  let a = 0;
+  let u = 1 / T;
+  for (let it = 0; it < 6; it++) {
+    a = keepStart ? 0 : (RAMP * o.accelMs * Math.abs(u - u0)) / Math.max(u, u0, 1e-12);
+    let dd: number;
+    [a, dd] = fit(a, d);
+    u = (1 - (u0 * a) / 2) / Math.max(1e-9, T - a / 2 - dd / 2);
+    if (it === 5) d = dd;
+  }
+  [a, d] = fit(a, d);
   const frac = (tau: number): number => {
     if (tau <= 0) return 0;
     if (tau >= T) return 1;
-    if (a > 0 && tau < a) return (0.5 * v * tau * tau) / a;
-    if (d > 0 && tau > T - d) return 1 - (0.5 * v * (T - tau) * (T - tau)) / d;
-    return v * (tau - a / 2);
+    if (a > 0 && tau < a) return u0 * tau + (u - u0) * a * rampDist(tau / a);
+    const s1 = keepStart ? 0 : (u0 * a) / 2 + (u * a) / 2;
+    if (d > 0 && tau > T - d) {
+      const y = (tau - (T - d)) / d;
+      return s1 + u * (T - d - a) + u * d * (y - rampDist(y));
+    }
+    return s1 + u * (tau - a);
   };
   return grid(t0, t1, o.keyMs).map((t) => {
     if (total < 1e-9) return { t, ...start };
-    const e = frac(t - t0) * total;
+    const e = Math.min(1, Math.max(0, frac(t - t0))) * total;
     let i = 1;
     while (i < eff.length - 1 && (eff[i] as number) < e) i++;
     const e0 = eff[i - 1] as number;
@@ -149,7 +221,8 @@ export function drive(points: readonly Pt[], t0: number, t1: number, o: DriveOpt
     const s = e1 === e0 ? 1 : (e - e0) / (e1 - e0);
     const p0 = f.pts[i - 1] as Pt;
     const p1 = f.pts[i] as Pt;
-    return { t, x: p0.x + (p1.x - p0.x) * s, y: p0.y + (p1.y - p0.y) * s };
+    const k = { t, x: p0.x + (p1.x - p0.x) * s, y: p0.y + (p1.y - p0.y) * s };
+    return (f.arc[i - 1] ?? -1) >= 0 ? { ...k, arc: true as const } : k;
   });
 }
 
@@ -183,10 +256,20 @@ export interface PursueOpts {
   readonly brakeYards: number;
   /** The carrier's lane: stay out of a half-width band along his next `corridorMs` of path. */
   readonly corridor?: { readonly half: number; readonly ms: number };
+  /** Yards added to the corridor's half-width at a point of the lane (a kick return's cut-invariant band); none when absent. */
+  readonly corridorExtra?: (p: Pt) => number;
   /** Never go below this y (a DL past the OL he faced) or above it (an OL). */
   readonly minY?: number;
   readonly maxY?: number;
   readonly keyMs: number;
+  /** Natural motion (NM6): turns are limited to this lateral acceleration (yards per ms per ms). */
+  readonly lateral?: number;
+  /** Natural motion: false leaves the ring to the governor's slide (it still brakes for it). */
+  readonly hardRing?: boolean;
+  /** The ring at t when it changes (the flight ring while the ball is in the air, NM-Open 1); else `ring`. */
+  readonly ringAt?: (t: number) => number;
+  /** An offset added to the point he steers for, from where he is (kickoff coverage contains beside the carrier, KR9); none when absent. */
+  readonly aim?: (t: number, at: Pt) => Pt;
 }
 
 /**
@@ -204,15 +287,19 @@ export function pursue(o: PursueOpts): Key[] {
   const accel = (o.topSpeed / Math.max(1, o.accelMs)) * dt;
   for (const t of grid(o.t0, o.t1, dt).slice(1)) {
     const step = (t - (out[out.length - 1] as Key).t) / 1000;
-    const tgt = o.ball(Math.min(t + o.leadMs, o.t1));
+    const tb = o.ball(Math.min(t + o.leadMs, o.t1));
+    const off = o.aim?.(t, { x, y });
+    const tgt = off === undefined ? tb : { x: clampX(tb.x + off.x), y: tb.y + off.y };
     const want = Math.atan2(tgt.y - y, tgt.x - x);
     const diff = ((want - heading + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
     // A player turns faster as he slows (he plants and turns), and slows when facing the wrong way.
     const slow = 1 - Math.min(1, speed / Math.max(1e-6, o.topSpeed));
-    const turn = maxTurn * (1 + 3 * slow);
+    // speed is in yd/s here: the lateral limit (yd/ms^2) in yd/s^2 over the key, per yd/s.
+    const turn = Math.min(maxTurn * (1 + 3 * slow), o.lateral === undefined || speed < 1e-6 ? Infinity : (o.lateral * 1e6 * (dt / 1000)) / speed);
     heading += Math.max(-turn, Math.min(turn, diff));
     const b = o.ball(t);
-    const gap = Math.hypot(b.x - x, b.y - y) - o.ring;
+    const ringNow = o.ringAt?.(t) ?? o.ring;
+    const gap = Math.hypot(b.x - x, b.y - y) - ringNow;
     const facing = Math.max(0.25, Math.cos(Math.min(Math.PI, Math.abs(diff))));
     const target = o.topSpeed * facing * Math.max(0, Math.min(1, gap / o.brakeYards));
     speed = speed < target ? Math.min(target, speed + accel) : Math.max(target, speed - 2 * accel);
@@ -222,17 +309,18 @@ export function pursue(o: PursueOpts): Key[] {
       const lane: Pt[] = [b];
       for (let k = 1; k <= 5; k++) lane.push(o.ball(Math.min(o.t1, t + (k * o.corridor.ms) / 5)));
       for (let i = 1; i < lane.length; i++) {
-        const p = pushOutOfSegment({ x, y }, lane[i - 1] as Pt, lane[i] as Pt, o.corridor.half);
+        const extra = o.corridorExtra === undefined ? 0 : Math.max(o.corridorExtra(lane[i - 1] as Pt), o.corridorExtra(lane[i] as Pt));
+        const p = pushOutOfSegment({ x, y }, lane[i - 1] as Pt, lane[i] as Pt, o.corridor.half + extra);
         x = p.x;
         y = p.y;
       }
     }
     const r = Math.hypot(x - b.x, y - b.y);
-    if (r < o.ring) {
+    if (r < ringNow && o.hardRing !== false) {
       const ux = r < 1e-9 ? (x <= MID_X ? -1 : 1) : (x - b.x) / r;
       const uy = r < 1e-9 ? 0 : (y - b.y) / r;
-      x = b.x + ux * o.ring;
-      y = b.y + uy * o.ring;
+      x = b.x + ux * ringNow;
+      y = b.y + uy * ringNow;
     }
     if (o.minY !== undefined) y = Math.max(o.minY, y);
     if (o.maxY !== undefined) y = Math.min(o.maxY, y);
@@ -262,8 +350,8 @@ function pushOutOfSegment(p: Pt, a: Pt, b: Pt, h: number): Pt {
  * Keeps keys at least `ring` from the ball, key by key: pushed radially (turning at most 45
  * degrees a key, so never across the ball), or for linemen sideways only, holding their depth.
  */
-export function ringFix(keys: readonly Key[], ball: (t: number) => Pt, ring: number, from: number, to: number, mode: "radial" | "sideways", away: -1 | 1): Key[] {
-  const raw = ringFixRaw(keys, ball, ring, from, to, mode, away);
+export function ringFix(keys: readonly Key[], ball: (t: number) => Pt, ring: number, from: number, to: number, mode: "radial" | "sideways", away: -1 | 1, radius?: (t: number) => number): Key[] {
+  const raw = ringFixRaw(keys, ball, ring, from, to, mode, away, radius);
   // A mark that was pushed eases back to his own path, at most `back` yards a key beyond his own
   // movement, so a ball that has just passed can't be clipped between two keys.
   const back = 0.25;
@@ -281,18 +369,20 @@ export function ringFix(keys: readonly Key[], ball: (t: number) => Pt, ring: num
       off = len <= back ? want : { x: off.x + (dx / len) * back, y: off.y + (dy / len) * back };
       // Never ease back inside the ring: then the pushed point stands.
       const b = ball(Math.min(k.t, to - 1));
-      if (Math.hypot(clampX(nat.x + off.x) - b.x, nat.y + off.y - b.y) < ring) off = want;
+      if (Math.hypot(clampX(nat.x + off.x) - b.x, nat.y + off.y - b.y) < (radius?.(k.t) ?? ring)) off = want;
     }
     out.push({ t: k.t, x: clampX(nat.x + off.x), y: nat.y + off.y });
   });
   return out;
 }
 
-function ringFixRaw(keys: readonly Key[], ball: (t: number) => Pt, ring: number, from: number, to: number, mode: "radial" | "sideways", away: -1 | 1): Key[] {
+function ringFixRaw(keys: readonly Key[], ball: (t: number) => Pt, ring0: number, from: number, to: number, mode: "radial" | "sideways", away: -1 | 1, radius?: (t: number) => number): Key[] {
   let dir: number | null = null;
   let side = 0;
   return keys.map((k) => {
     if (k.t < from || k.t > to) return k;
+    // Natural motion (NM-Open 1, approved): a smaller ring while the ball is in the air.
+    const ring = radius?.(k.t) ?? ring0;
     const b = ball(Math.min(k.t, to - 1));
     const d = dist(k, b);
     if (mode === "sideways") {
@@ -409,6 +499,11 @@ export interface RunOpts {
   readonly pause: { readonly pace: number; readonly maxYards: number; readonly pauseLegShare: number };
   /** Speed at the start, yards per second (0: from rest). */
   readonly startSpeed?: number;
+  /**
+   * Natural motion (NM6): the speed profile is averaged over a centred window this long (ms), so
+   * a plant's deceleration builds up instead of switching on in one key. 0 or absent: none.
+   */
+  readonly smoothMs?: number;
 }
 
 export interface RunOut {
@@ -423,6 +518,8 @@ export interface RunOut {
 interface Sample {
   readonly t: number;
   readonly p: Pt;
+  /** On a fillet arc. */
+  readonly arc?: boolean;
 }
 
 const unit = (a: Pt, b: Pt): Pt => {
@@ -546,34 +643,175 @@ function section(raw: readonly Pt[], rawPaces: readonly number[], t0: number, v0
   const roomy = lastArc === undefined || total - (lastArc.sb + o.fillet.reaccelYards) >= needDecel;
   if (roomy) v[N - 1] = Math.min(v[N - 1] as number, Math.max(vEnd, 0));
   if (roomy) for (let k = N - 2; k >= 1; k--) v[k] = Math.min(v[k] as number, Math.sqrt((v[k + 1] as number) ** 2 + 2 * dcl * ((s[k + 1] as number) - (s[k] as number))));
-  const samples: Sample[] = [{ t: t0, p: ps[0] as Pt }];
+  const times: number[] = [t0];
   let t = t0;
   for (let k = 1; k < N; k++) {
     const ds = (s[k] as number) - (s[k - 1] as number);
     const sum = (v[k - 1] as number) + (v[k] as number);
     t += sum > 1e-9 ? (2 * ds) / sum : Math.sqrt((2 * ds) / a);
-    samples.push({ t, p: ps[k] as Pt });
+    times.push(t);
   }
+  const tt = (o.smoothMs ?? 0) > 0 ? smoothTimes(s, times, o.smoothMs as number) : times;
+  const onArc = (x: number): boolean => arcs.some((r) => x >= r.sa - 1e-9 && x <= r.sb + 1e-9);
+  const samples: Sample[] = s.map((x, k) => ({ t: tt[k] as number, p: ps[k] as Pt, ...(onArc(x) ? { arc: true } : {}) }));
   const end = f.pts[f.pts.length - 1] as Pt;
   const prev = f.pts[f.pts.length - 2] ?? (f.pts[0] as Pt);
   return { samples, speed: v[N - 1] as number, dir: unit(prev, end) };
 }
 
 /**
- * Samples of a settling drift from p along dir: from speed v0 (yards per ms), approaching L yards
- * and never past it. Hyperbolic, s = L v0 t / (L + v0 t): the speed falls as 1/t^2, so the mark
- * keeps creeping and is never frozen before the whistle.
+ * Samples of a settling drift from p along dir: an eased stop (natural motion, NM6) from speed v0
+ * (yards per ms) to rest after exactly L yards, the deceleration a smooth ramp (rampSpeed) over
+ * D = 2L / v0. It used to be hyperbolic, whose first deceleration was 2 v0^2 / L. After it the
+ * governor's idle sway keeps him from standing still.
  */
 function driftSamples(p: Pt, dir: Pt, v0: number, L: number, t0: number, t1: number, step: number): Sample[] {
   const out: Sample[] = [];
+  const D = L > 0 && v0 > 0 ? (2 * L) / v0 : 0;
   for (const t of grid(t0, t1, step)) {
-    const d = L > 0 && v0 > 0 ? (L * v0 * (t - t0)) / (L + v0 * (t - t0)) : 0;
+    const tau = t - t0;
+    const d = D <= 0 ? 0 : tau >= D ? L : v0 * (tau - D * rampDist(tau / D));
     out.push({ t, p: { x: p.x + dir.x * d, y: p.y + dir.y * d } });
   }
   return out;
 }
 
-/** Keys on the global grid from time samples. */
+/** The speed (yards per ms) of driftSamples' eased stop at tau after its start. */
+function driftSpeed(v0: number, L: number, tau: number): number {
+  const D = L > 0 && v0 > 0 ? (2 * L) / v0 : 0;
+  return D <= 0 ? 0 : v0 * (1 - rampSpeed(tau / D));
+}
+
+/**
+ * A creep (natural motion): from rest along dir at most L yards, easing in over rampMs to speed v
+ * (yards per ms) and easing out to rest at L. A QB stepping up in the pocket. Positions at t depend
+ * only on t - t0, never on how long the creep lasts.
+ */
+export function creep(p: Pt, dir: Pt, v: number, L: number, rampMs: number, t0: number, t1: number, keyMs: number): Key[] {
+  return grid(t0, t1, keyMs).map((t) => {
+    const d = creepAlong(v, L, rampMs, t - t0);
+    return { t, x: p.x + dir.x * d, y: p.y + dir.y * d };
+  });
+}
+
+/** How far a creep has gone tau ms after its start. */
+export function creepAlong(v: number, L: number, rampMs: number, tau: number): number {
+  if (L <= 0 || v <= 0 || tau <= 0) return 0;
+  const A = rampMs;
+  const vc = v * A > L ? L / A : v;
+  const mid = (L - vc * A) / vc;
+  if (tau < A) return vc * A * rampDist(tau / A);
+  if (tau < A + mid) return (vc * A) / 2 + vc * (tau - A);
+  const y = Math.min(1, (tau - A - mid) / A);
+  return Math.min(L, (vc * A) / 2 + vc * mid + vc * A * (y - rampDist(y)));
+}
+
+const smoothstep = (x: number): number => {
+  const c = Math.max(0, Math.min(1, x));
+  return c * c * (3 - 2 * c);
+};
+
+/**
+ * NM8's clock for the settle: from S0 time runs ever slower and stops at `end`, so a mark eases to
+ * rest from whatever speed he has, within his limits, and never speeds up. The rate is
+ * 1 - smoothstep over [S0, end]; it reaches S0 + (end - S0) / 2 at the end.
+ */
+export function settleClock(S0: number, end: number): (t: number) => number {
+  const W = end - S0;
+  return (t) => {
+    if (t <= S0 || W <= 1e-6) return t;
+    const x = Math.min(1, (t - S0) / W);
+    return S0 + W * (x - (x * x * x - (x * x * x * x) / 2));
+  };
+}
+
+/**
+ * The settle (NM8) on raw keys: from S0 on, the mark runs his own track on settleClock, to rest at
+ * `end`. Past his last key he carries on at his last velocity. Keys on the grid.
+ */
+export function settleWarp(keys: readonly Key[], S0: number, end: number, keyMs: number, live = Infinity, maxYards = Infinity): Key[] {
+  const before = keys.filter((k) => k.t < S0 - 1e-9);
+  if (end <= S0 + 1e-6) return [...before, { t: S0, ...at(keys, S0) }];
+  const clock = settleClock(S0, end);
+  const last = keys[keys.length - 1] as Key;
+  const v = velocity(keys, last.t, keyMs);
+  const pos = (u: number): Pt => (u <= last.t ? at(keys, u) : { x: clampX(last.x + v.x * (u - last.t)), y: last.y + v.y * (u - last.t) });
+  const out = grid(S0, end, keyMs).map((t) => ({ t, ...pos(clock(t)) }));
+  // After the whistle he moves at most maxYards (M7): the whole settle is scaled, so speed still only falls.
+  if (Number.isFinite(live) && live >= S0 && live <= end) {
+    const pw = pos(clock(live));
+    const pe = pos(clock(end));
+    const L = Math.hypot(pe.x - pw.x, pe.y - pw.y);
+    const f = L > maxYards ? maxYards / L : 1;
+    if (f < 1) return [...before, ...out.map((q) => (q.t <= live ? q : { t: q.t, x: pw.x + (q.x - pw.x) * f, y: pw.y + (q.y - pw.y) * f })), ...(out.some((q) => Math.abs(q.t - live) < 1e-9) ? [] : [])].sort((a, b) => a.t - b.t);
+  }
+  return [...before, ...out];
+}
+
+/**
+ * Natural motion (NM6): new times for a distance profile s(t) (samples s[k] at times[k]) whose
+ * distance is averaged over a centred window of W ms (so its speed is too), the window shrinking
+ * at both ends so the start, the end and the speeds there are kept exactly.
+ */
+function smoothTimes(s: readonly number[], times: readonly number[], W: number): number[] {
+  const N = s.length;
+  const tA = times[0] as number;
+  const tB = times[N - 1] as number;
+  const total = s[N - 1] as number;
+  if (N < 3 || tB - tA < 1e-6 || total < 1e-9) return [...times];
+  const sAt = (t: number): number => {
+    if (t <= tA) return 0;
+    if (t >= tB) return total;
+    let j = 0;
+    let hi = N - 1;
+    while (hi - j > 1) {
+      const m = (j + hi) >> 1;
+      if ((times[m] as number) <= t) j = m;
+      else hi = m;
+    }
+    const a = times[j] as number;
+    const b = times[j + 1] as number;
+    return (s[j] as number) + ((s[j + 1] as number) - (s[j] as number)) * (b - a < 1e-12 ? 1 : (t - a) / (b - a));
+  };
+  // The integral of s on a fine grid, so a window's mean distance is a difference of two values.
+  const dt = 5;
+  const gt: number[] = [];
+  for (let t = tA; t < tB - 1e-9; t += dt) gt.push(t);
+  gt.push(tB);
+  const gs = gt.map(sAt);
+  const I: number[] = [0];
+  for (let j = 1; j < gt.length; j++) I.push((I[j - 1] as number) + (((gs[j - 1] as number) + (gs[j] as number)) / 2) * ((gt[j] as number) - (gt[j - 1] as number)));
+  const iAt = (t: number): number => {
+    const x = Math.max(tA, Math.min(tB, t));
+    const j = Math.min(gt.length - 2, Math.max(0, Math.floor((x - tA) / dt)));
+    const a = gt[j] as number;
+    const b = gt[j + 1] as number;
+    const sa = gs[j] as number;
+    const f = b - a < 1e-12 ? 0 : (x - a) / (b - a);
+    // s is close to linear across one fine step: integrate it exactly as such.
+    const sx = sa + ((gs[j + 1] as number) - sa) * f;
+    return (I[j] as number) + ((sa + sx) / 2) * (x - a);
+  };
+  const ss = gt.map((t) => {
+    const h = Math.min(W / 2, t - tA, tB - t);
+    return h < 1e-6 ? sAt(t) : (iAt(t + h) - iAt(t - h)) / (2 * h);
+  });
+  for (let j = 1; j < ss.length; j++) ss[j] = Math.max(ss[j] as number, ss[j - 1] as number);
+  ss[ss.length - 1] = total;
+  // Invert: the time each sample's distance is reached.
+  let q = 0;
+  return s.map((x, k) => {
+    if (k === 0) return tA;
+    if (k === N - 1) return tB;
+    while (q < ss.length - 2 && (ss[q + 1] as number) < x) q++;
+    const a = ss[q] as number;
+    const b = ss[q + 1] as number;
+    const f = b - a < 1e-12 ? 1 : Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return (gt[q] as number) + ((gt[q + 1] as number) - (gt[q] as number)) * f;
+  });
+}
+
+/** Keys on the global grid from time samples; a key between two arc samples carries `arc`. */
 function resample(samples: readonly Sample[], step: number): Key[] {
   const first = samples[0];
   if (first === undefined) return [];
@@ -584,7 +822,8 @@ function resample(samples: readonly Sample[], step: number): Key[] {
     const A = samples[j - 1] as Sample;
     const B = samples[j] ?? A;
     const f = B.t - A.t < 1e-9 ? 1 : Math.max(0, Math.min(1, (t - A.t) / (B.t - A.t)));
-    return { t, x: A.p.x + (B.p.x - A.p.x) * f, y: A.p.y + (B.p.y - A.p.y) * f };
+    const k = { t, x: A.p.x + (B.p.x - A.p.x) * f, y: A.p.y + (B.p.y - A.p.y) * f };
+    return A.arc === true || B.arc === true ? { ...k, arc: true as const } : k;
   });
 }
 
@@ -622,7 +861,7 @@ export function runRoute(start: Pt, wps: readonly RouteWp[], t0: number, o: RunO
     const d = driftSamples(cur, u, speed, L, t, t + w.pauseMs, o.keyMs);
     samples.push(...d.slice(1));
     const endD = d[d.length - 1] as Sample;
-    v0 = L > 0 ? (speed * L * L) / (L + speed * w.pauseMs) ** 2 : 0;
+    v0 = driftSpeed(speed, L, w.pauseMs);
     t = endD.t;
     cur = endD.p;
     pts = [cur];
@@ -641,7 +880,7 @@ export function sitDrift(p: Pt, dir: Pt, v0: number, L: number, t0: number, t1: 
  * most `accel` (yards per ms per ms) when given; near the sideline margin he turns upfield (at most
  * turnDegPerS); at maxY he settles there with a drift of at most sitYards.
  */
-export function cruise(p: Pt, dir: Pt, v0: number, t0: number, t1: number, o: { readonly margin: number; readonly maxY: number; readonly turnDegPerS: number; readonly sitYards: number; readonly keyMs: number; readonly vTarget?: number; readonly accel?: number }): Key[] {
+export function cruise(p: Pt, dir: Pt, v0: number, t0: number, t1: number, o: { readonly margin: number; readonly maxY: number; readonly turnDegPerS: number; readonly sitYards: number; readonly keyMs: number; readonly vTarget?: number; readonly accel?: number; readonly lateral?: number }): Key[] {
   let v = v0;
   const out: Key[] = [{ t: t0, ...p }];
   let x = p.x;
@@ -658,7 +897,7 @@ export function cruise(p: Pt, dir: Pt, v0: number, t0: number, t1: number, o: { 
     if (near) {
       const want = Math.PI / 2;
       const diff = ((want - h + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
-      const turn = ((o.turnDegPerS * Math.PI) / 180) * (dt / 1000);
+      const turn = Math.min(((o.turnDegPerS * Math.PI) / 180) * (dt / 1000), o.lateral === undefined || v < 1e-9 ? Infinity : (o.lateral * dt) / v);
       h += Math.max(-turn, Math.min(turn, diff));
     }
     x = Math.max(lo, Math.min(hi, x + Math.cos(h) * v * dt));
@@ -694,6 +933,8 @@ export interface FollowOpts {
    * offset from him, moving exactly with him.
    */
   readonly lock?: { readonly to: (t: number) => Pt; readonly within: number };
+  /** Natural motion (NM6): on contact he takes his man's velocity over this long, not in one key. */
+  readonly lockBlendMs?: number;
 }
 
 /** Steers toward a moving target point, at most top speed, changing velocity at most top/accelMs. */
@@ -707,13 +948,22 @@ export function follow(o: FollowOpts): Key[] {
   const acc = top / Math.max(1, o.accelMs);
   const ts = grid(o.t0, o.t1, o.keyMs);
   let locked: Pt | null = null;
+  let lockedAt = 0;
+  let lockVel: Pt = { x: 0, y: 0 };
   for (let i = 1; i < ts.length; i++) {
     const t = ts[i] as number;
     const dt = t - (ts[i - 1] as number);
     const g = o.target(t);
     if (locked !== null && o.lock !== undefined) {
-      // Engaged: he keeps his offset from his man and moves with him.
+      // Engaged: he keeps his offset from his man and moves with him; with a blend, his own velocity
+      // fades into his man's over lockBlendMs, so contact is not a jump in speed.
       const m = o.lock.to(t);
+      const B = o.lockBlendMs ?? 0;
+      if (B > 0 && t - lockedAt < B) {
+        const m0 = o.lock.to(t - dt);
+        const w = 1 - smoothstep((t - lockedAt) / B);
+        locked = { x: locked.x + (lockVel.x - (m.x - m0.x) / dt) * w * dt, y: locked.y + (lockVel.y - (m.y - m0.y) / dt) * w * dt };
+      }
       x = clampX(m.x + locked.x);
       y = m.y + locked.y;
       out.push({ t, x, y });
@@ -749,7 +999,11 @@ export function follow(o: FollowOpts): Key[] {
     out.push({ t, x, y });
     if (o.lock !== undefined) {
       const m = o.lock.to(t);
-      if (Math.hypot(m.x - x, m.y - y) <= o.lock.within) locked = { x: x - m.x, y: y - m.y };
+      if (Math.hypot(m.x - x, m.y - y) <= o.lock.within) {
+        locked = { x: x - m.x, y: y - m.y };
+        lockedAt = t;
+        lockVel = { x: vx, y: vy };
+      }
     }
   }
   return out;

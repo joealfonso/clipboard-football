@@ -78,11 +78,20 @@ export function sideText(s: Snapshot, human: Team): string {
   return s.possession === human ? "You're on offense" : "You're on defense";
 }
 
+/** Ids playerRef couldn't find, each warned about once (U2 States: role left out, one console warning per id). */
+const unknownIds = new Set<string>();
+
 /** "#81 D. Okafor", or undefined when the engine named nobody (never a made-up name). */
 export function playerRef(id: string | undefined, ctx: TextCtx): string | undefined {
   if (id === undefined) return undefined;
   const p = ctx.players.get(id);
-  if (p === undefined) return undefined;
+  if (p === undefined) {
+    if (!unknownIds.has(id)) {
+      unknownIds.add(id);
+      console.warn(`Player ${id} is in no team's pool: left out of the text.`);
+    }
+    return undefined;
+  }
   const parts = p.name.split(" ");
   const last = parts.slice(1).join(" ") || p.name;
   const first = parts.length > 1 ? `${(parts[0] ?? "").charAt(0)}. ` : "";
@@ -99,7 +108,7 @@ function cap(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function gainOf(ev: PlayEvent): number {
+export function gainOf(ev: PlayEvent): number {
   const { play, before } = ev;
   const d = readDetail(play);
   if (!("end" in play) || play.end === undefined) return 0;
@@ -107,23 +116,26 @@ function gainOf(ev: PlayEvent): number {
   return Math.max(0, Math.min(100, play.end.spot)) - before.spot;
 }
 
-const KICK_CLASS_TEXT: Readonly<Record<string, string>> = {
+const PUNT_CLASS_TEXT: Readonly<Record<string, string>> = {
   touchback: "touchback",
   touchbackEndZone: "touchback",
   touchbackLandingZone: "touchback",
-  fairCatchShort: "fair catch",
-  fairCatchLong: "fair catch",
-  fairCatch: "fair catch",
   muffed: "muffed",
-  downed: "downed",
-  outOfBounds: "out of bounds",
   blocked: "blocked",
 };
 
+/** The play's dead spot in the field (offense frame), or null when the ball died in an end zone or the play has none. */
+function fieldSpot(play: PlayEvent["play"]): number | null {
+  if (!("end" in play) || play.end === undefined) return null;
+  const s = play.end.spot;
+  return s > 0 && s < 100 ? s : null;
+}
+
 /**
- * The part of the result line that says what physically happened. It names no players
- * (Joseph, 2026-11-14: names don't matter, keep the description of the play); the player
- * card still ties a mark to a name.
+ * The part of the result line that says what physically happened, naming the players the engine
+ * credited (U2, approved by Joseph 2026-11-15, reversing the 2026-11-14 "names don't matter" note).
+ * Every name comes from detail.participants; a role the engine didn't name is left out of the
+ * sentence, never guessed (M2 design H2).
  */
 export function playText(ev: PlayEvent, ctx: TextCtx): string {
   const { play, before, after } = ev;
@@ -131,70 +143,137 @@ export function playText(ev: PlayEvent, ctx: TextCtx): string {
   const def = other(off);
   const lost = "end" in play && play.end !== undefined && play.end.possession === "defense";
   const d = readDetail(play);
+  const parts = d.participants ?? {};
+  const P = (role: keyof typeof parts): string | undefined => (role === "foulers" ? undefined : playerRef(parts[role] as string | undefined, ctx));
+  const at = (spot: number): string => yardLineText(spot, off, ctx.human);
+  const tackled = (): string => {
+    const t = P("tackler");
+    return t === undefined ? "" : `, tackled by ${t}`;
+  };
   const fumbled = d.class === "fumble" || d.class === "fumbleCatch" || ("turnover" in play && play.turnover === "fumble");
-  const recovered = (): string => `fumble, recovered by the ${ctx.teams[lost ? def : off].nickname}`;
+  const withFumble = (base: string): string => {
+    if (!fumbled) return base;
+    const forcer = P("fumbleForcer");
+    const rec = P("fumbleRecoverer");
+    const team = ctx.teams[lost ? def : off].nickname;
+    return `${base}, fumble${forcer === undefined ? "" : ` forced by ${forcer}`}, recovered by ${rec === undefined ? `the ${team}` : `${rec} (${team})`}`;
+  };
   const y = (): string => yardsPhrase(gainOf(ev));
-  const withFumble = (base: string): string => (fumbled ? `${base}, ${recovered()}` : base);
+  const runSentence = (verb: "runs" | "scrambles", carrier: string | undefined, fallback: string): string => (carrier === undefined ? `${fallback} for ${y()}` : `${carrier} ${verb} for ${y()}`);
+  const passSentence = (): string => {
+    const passer = P("passer");
+    if (play.kind === "pass" && play.turnover === "interception") {
+      const by = P("interceptor");
+      const spot = fieldSpot(play);
+      return `${passer ?? "Pass"} intercepted${by === undefined ? "" : ` by ${by}`}${spot === null ? "" : `, returned to ${at(spot)}`}${tackled()}`;
+    }
+    if ("incomplete" in play && play.incomplete === true) {
+      const target = P("target");
+      return `${passer === undefined ? "Pass" : passer} incomplete${target === undefined ? "" : `, intended for ${target}`}`;
+    }
+    const catcher = P("receiver") ?? P("target");
+    const head = passer === undefined ? (catcher === undefined ? "Pass complete" : `Pass to ${catcher}`) : catcher === undefined ? `${passer} complete` : `${passer} to ${catcher}`;
+    return withFumble(`${head} for ${y()}${tackled()}`);
+  };
   switch (play.kind) {
     case "run":
-      return withFumble(`Run for ${y()}`);
+      return withFumble(`${runSentence("runs", P("ballCarrier"), "Run")}${tackled()}`);
     case "scramble":
-      return withFumble(`Quarterback scrambles for ${y()}`);
-    case "sack":
-      return withFumble(`Quarterback sacked for ${y()}`);
+      return withFumble(`${runSentence("scrambles", P("ballCarrier") ?? P("passer"), "Quarterback scrambles")}${tackled()}`);
+    case "sack": {
+      const by = P("sacker");
+      return withFumble(`${P("passer") ?? "Quarterback"} sacked${by === undefined ? "" : ` by ${by}`} for ${y()}`);
+    }
     case "pass":
-      if (play.turnover === "interception") return "Pass intercepted";
-      if (play.incomplete === true) return "Pass incomplete";
-      return withFumble(`Pass complete for ${y()}`);
-    case "kneel":
-      return "Quarterback kneels";
-    case "spike":
-      return "Quarterback spikes it, clock stopped";
+      return passSentence();
+    case "kneel": {
+      const who = P("ballCarrier") ?? P("passer");
+      return who === undefined ? "Quarterback kneels" : `${who} kneels`;
+    }
+    case "spike": {
+      const who = P("passer") ?? P("ballCarrier");
+      return `${who ?? "Quarterback"} spikes it, clock stopped`;
+    }
     case "punt": {
-      const cls = d.class === undefined ? undefined : KICK_CLASS_TEXT[d.class];
-      let t = `Punt${d.gross === undefined ? "" : ` ${d.gross} yards`}`;
-      if (cls !== undefined) t += `, ${cls}`;
-      else if (readDetail(play).participants?.returner !== undefined) t += ", returned";
-      return t;
+      const punter = P("punter");
+      const returner = P("returner");
+      const gross = d.gross === undefined ? "" : `, ${d.gross} yards`;
+      const head = `Punt${punter === undefined ? "" : ` by ${punter}`}${gross}`;
+      const cls = d.class ?? "";
+      const spot = fieldSpot(play);
+      const fixed = PUNT_CLASS_TEXT[cls];
+      if (fixed !== undefined) return `${head}, ${fixed}`;
+      if (cls.startsWith("fairCatch")) return `${head}, fair catch${returner === undefined ? "" : ` by ${returner}`}${spot === null ? "" : ` at ${at(spot)}`}`;
+      if (cls.startsWith("downed")) return `${head}, downed${spot === null ? "" : ` at ${at(spot)}`}`;
+      if (cls.startsWith("outOfBounds")) return `${head}, out of bounds${spot === null ? "" : ` at ${at(spot)}`}`;
+      if (returner !== undefined || cls.startsWith("returned")) {
+        // Return yards only when the spots agree (a field clamp can move the end spot after the draw).
+        const end = "end" in play && play.end !== undefined ? play.end.spot : null;
+        const agree = d.gross !== undefined && d.returnYards !== undefined && end !== null && before.spot + d.gross - d.returnYards === end;
+        const yards = agree ? ` ${d.returnYards} yard${d.returnYards === 1 ? "" : "s"}` : "";
+        const to = spot === null ? "" : ` to ${at(spot)}`;
+        return returner === undefined ? `${head}, returned${yards}${to}${tackled()}` : `${head}. ${returner} returns it${yards}${to}${tackled()}`;
+      }
+      return head;
     }
     case "fieldGoal": {
       const dist = 100 - play.kickSpot + ctx.endZoneYards;
+      const k = P("kicker");
       const blocked = d.class === "blocked";
-      return `${dist}-yard field goal ${blocked ? "blocked" : play.good ? "is good" : "is no good"}`;
+      return `${dist}-yard field goal${k === undefined ? "" : ` by ${k}`} ${blocked ? "blocked" : play.good ? "is good" : "is no good"}`;
     }
     case "extraPoint": {
       const good = after.score[off] - before.score[off] === 1;
-      return `Extra point ${good ? "is good" : "is no good"}`;
+      const k = P("kicker");
+      return `Extra point${k === undefined ? "" : ` by ${k}`} ${good ? "is good" : "is no good"}`;
     }
     case "twoPoint": {
       const good = after.score[off] - before.score[off] === 2;
-      return `Two-point try ${good ? "is good" : "fails"}`;
+      const tail = `Two-point try ${good ? "is good" : "fails"}`;
+      const sentence = parts.passer !== undefined ? passSentence() : parts.ballCarrier !== undefined || parts.tackler !== undefined ? withFumble(`${runSentence("runs", P("ballCarrier"), "Run")}${tackled()}`) : null;
+      return sentence === null ? tail : `${sentence}. ${tail}`;
     }
     case "kickoff":
     case "onsideKick": {
       // Plain words for what happened to the kick, from the engine's class and the result.
-      const head = play.kind === "onsideKick" ? "Onside kick" : "Kickoff";
+      const k = P("kicker");
+      const head = `${play.kind === "onsideKick" ? "Onside kick" : "Kickoff"}${k === undefined ? "" : ` by ${k}`}`;
       const cls = d.class ?? ("outcome" in play ? play.outcome : "");
+      const spot = fieldSpot(play);
+      const recoveredBy = (team: Team): string => `recovered by the ${ctx.teams[team].nickname}`;
       if (play.kind === "onsideKick" || cls.startsWith("onside")) {
         if (cls === "onsideOutOfBounds" || ("outcome" in play && play.outcome === "outOfBounds")) return `${head}, out of bounds`;
         if (after.phase !== "scrimmage") return head;
-        return `${head}, recovered by the ${ctx.teams[after.possession === off ? off : def].nickname}`;
+        return `${head}, ${recoveredBy(after.possession === off ? off : def)}${spot === null ? "" : ` at ${at(spot)}`}`;
       }
-      const KICKOFF: Readonly<Record<string, string>> = {
-        touchbackEndZone: "touchback",
-        touchbackLandingZone: "touchback",
-        short: "short of the landing zone",
-        outOfBounds: "out of bounds",
-        fairCatch: "fair catch",
-        returned: "returned",
-        returnTD: "returned for a touchdown",
-        kickersRecover: `recovered by the ${ctx.teams[off].nickname}`,
-      };
-      const what = KICKOFF[cls];
-      return what === undefined ? head : `${head}, ${what}`;
+      const returner = P("returner");
+      switch (cls) {
+        case "touchbackEndZone":
+        case "touchbackLandingZone":
+          return `${head}, touchback`;
+        case "short":
+          return `${head}, short of the landing zone`;
+        case "outOfBounds":
+          return `${head}, out of bounds`;
+        case "fairCatch":
+          return `${head}, fair catch${returner === undefined ? "" : ` by ${returner}`}${spot === null ? "" : ` at ${at(spot)}`}`;
+        case "kickersRecover":
+          return `${head}, ${recoveredBy(off)}`;
+        case "returnTD":
+          return returner === undefined ? `${head}, returned for a touchdown` : `${head}. ${returner} returns it for a touchdown`;
+        case "returned": {
+          // No return yards: the kickoff result has only where the ball died (spec U2, Open O1).
+          const to = spot === null ? "" : ` to ${at(spot)}`;
+          return returner === undefined ? `${head}, returned${to}${tackled()}` : `${head}. ${returner} returns it${to}${tackled()}`;
+        }
+        default:
+          return head;
+      }
     }
-    case "noPlay":
-      return "No play";
+    case "noPlay": {
+      const fouls = play.fouls ?? [];
+      return fouls.length === 0 ? "No play" : `Flag before the snap: ${foulsPhrase(ev, ctx)}`;
+    }
   }
 }
 
@@ -202,11 +281,23 @@ function foulTeam(ev: PlayEvent, by: "offense" | "defense"): Team {
   return by === "offense" ? ev.before.possession : other(ev.before.possession);
 }
 
-/** "Flag: holding on the Lanterns, accepted." Names the team, never the player. */
+/** "holding on #74 B. Smith (Cranes) and ...": each foul, its fouler named when the engine named him, else the team. */
+function foulsPhrase(ev: PlayEvent, ctx: TextCtx): string {
+  const foulers = readDetail(ev.play).participants?.foulers ?? [];
+  return (ev.play.fouls ?? [])
+    .map((f, i) => {
+      const team = ctx.teams[foulTeam(ev, f.by)].nickname;
+      const who = playerRef(foulers[i], ctx);
+      return `${(ctx.labels[f.penalty] ?? f.penalty).toLowerCase()} on ${who === undefined ? `the ${team}` : `${who} (${team})`}`;
+    })
+    .join(" and ");
+}
+
+/** "Flag: holding on #74 B. Smith (Lanterns), accepted." The fouler when the engine named him, else the team. */
 export function penaltyText(ev: PlayEvent, ctx: TextCtx): string {
   const fouls = ev.play.fouls ?? [];
   if (fouls.length === 0) return "";
-  const names = fouls.map((f) => `${(ctx.labels[f.penalty] ?? f.penalty).toLowerCase()} on the ${ctx.teams[foulTeam(ev, f.by)].nickname}`).join(" and ");
+  const names = foulsPhrase(ev, ctx);
   if (ev.penalty === null || ev.penalty.kind === "offset") return fouls.length > 1 ? `Offsetting fouls: ${names}. Replay the down.` : `Flag: ${names}.`;
   return `Flag: ${names}, ${ev.penalty.kind === "decline" ? "declined" : "accepted"}.`;
 }
@@ -229,16 +320,22 @@ export function nextText(after: Snapshot, ctx: TextCtx): string {
   }
 }
 
-/** The result line: what happened, the score it made, the flag, then where things stand. */
-export function resultLine(ev: PlayEvent, ctx: TextCtx): string {
+/** The result's first sentence: what physically happened, "Standout: " first on a standout (the compact Last play card, U1). */
+export function resultHead(ev: PlayEvent, ctx: TextCtx): string {
+  const head = cap(playText(ev, ctx)) + ".";
+  // M2 F (code review): the loop's final standout, never a candidate a flag took away.
+  return (ev.standout ?? readDetail(ev.play).standout) === undefined ? head : `Standout: ${head}`;
+}
+
+/**
+ * The result line without where things stand (U2): what happened, the score it made, the flag.
+ * The Last play card and the game log show this; the plate already says the next situation.
+ */
+export function playResultText(ev: PlayEvent, ctx: TextCtx): string {
   const { before, after, play } = ev;
   const off = before.possession;
   const def = other(off);
-  const out: string[] = [];
-  const d = readDetail(play);
-  const head = cap(playText(ev, ctx)) + ".";
-  // M2 F (code review): the loop's final standout, never a candidate a flag took away.
-  out.push((ev.standout ?? d.standout) === undefined ? head : `Standout: ${head}`);
+  const out: string[] = [resultHead(ev, ctx)];
   const gOff = after.score[off] - before.score[off];
   const gDef = after.score[def] - before.score[def];
   if (play.kind !== "extraPoint" && play.kind !== "twoPoint" && play.kind !== "fieldGoal") {
@@ -249,10 +346,15 @@ export function resultLine(ev: PlayEvent, ctx: TextCtx): string {
   // A score the physical play reached that a penalty took away.
   const reached = "end" in play && play.end !== undefined && play.end.possession === "offense" && play.end.spot >= 100 && before.phase === "scrimmage";
   if (reached && gOff < 6) out.push("The touchdown doesn't count.");
-  const p = penaltyText(ev, ctx);
+  // A no-play's sentence is already its flag.
+  const p = play.kind === "noPlay" ? "" : penaltyText(ev, ctx);
   if (p !== "") out.push(p);
-  out.push(nextText(after, ctx));
   return out.join(" ");
+}
+
+/** The result line: what happened, the score it made, the flag, then where things stand (the live region). */
+export function resultLine(ev: PlayEvent, ctx: TextCtx): string {
+  return `${playResultText(ev, ctx)} ${nextText(ev.after, ctx)}`;
 }
 
 function callLabel(o: OffenseCallChoice, ctx: TextCtx): string {
@@ -265,8 +367,10 @@ function callLabel(o: OffenseCallChoice, ctx: TextCtx): string {
 /** "You: Shotgun, Short pass. They: Nickel Cover 1 Blitz." Shown only after the snap. */
 export function callsLine(ev: PlayEvent, ctx: TextCtx): string {
   const offense = callLabel(ev.offense, ctx);
-  const defense = ev.defense === null ? "no call" : (ctx.labels[ev.defense] ?? ev.defense);
   const humanOnOffense = ev.before.possession === ctx.human;
+  // No defense call (kicks, kneels, spikes, tries): only the kicking side's call (U2).
+  if (ev.defense === null) return humanOnOffense ? `You: ${offense}.` : `They: ${offense}.`;
+  const defense = ctx.labels[ev.defense] ?? ev.defense;
   return humanOnOffense ? `You: ${offense}. They: ${defense}.` : `You: ${defense}. They: ${offense}.`;
 }
 

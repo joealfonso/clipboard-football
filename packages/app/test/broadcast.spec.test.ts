@@ -137,30 +137,35 @@ const rgb = (s: string): Rgb => parseColor(s).rgb;
 
 // ================================================================ Layout: play screen geometry
 
+// Amended by DESIGN.md Prime Time (2026-11-15): the top bar grows to 64 px and the floor to 800x536.
 describe("Layout: the top bar and the window floor", () => {
-  it("TOP_BAR is 56 and the minimum window is 800x528, and the canvas starts under the bar", () => {
-    expect(TOP_BAR).toBe(56);
-    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 528]);
-    expect(layoutFor(1280, 720).field.top).toBe(56);
-    expect(layoutFor(800, 528).tooSmall).toBe(false);
-    expect(layoutFor(800, 527).tooSmall).toBe(true);
+  it("TOP_BAR is 64 and the minimum window is 800x536, and the canvas starts under the bar", () => {
+    expect(TOP_BAR).toBe(64);
+    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 536]);
+    expect(layoutFor(1280, 720).field.top).toBe(64);
+    expect(layoutFor(800, 536).tooSmall).toBe(false);
+    expect(layoutFor(800, 535).tooSmall).toBe(true);
   });
 
-  it("styles.css puts the top bar at 56 px and the field layout under it", () => {
-    expect(declsFor(".top-bar")["height"]).toBe("56px");
-    expect(norm(declsFor(".layout")["inset"])).toBe("56px 0 0 0");
+  it("styles.css puts the top bar at 64 px and the field layout under it", () => {
+    expect(declsFor(".top-bar")["height"]).toBe("64px");
+    expect(norm(declsFor(".layout")["inset"])).toBe("64px 0 0 0");
   });
 });
 
 describe("Layout, Play screen: playStage centers the field column and the rail together (DESIGN.md examples)", () => {
   // [window w, h, text scale, column width, column left, rail left or null, rail width]
+  // DESIGN.md's examples (734, 601, 1132 px) are for the 56 px bar. Prime Time: "the 64 px top bar
+  // takes 8 px more height from the column, so the column widths above shrink by a few pixels;
+  // playStage and its tests recompute them, and the rule does not change." Recomputed by that rule:
+  // floor(55.3 yards * min(w / 55.3, (h - 64) / 50)).
   const EXAMPLES: readonly [number, number, number, number, number, number | null, number][] = [
-    // "At 1280x720 that is a 734 px column at x 91 and a 340 px rail".
-    [1280, 720, 1, 734, 91, 91 + 734 + 24, 340],
-    // "at 1024x600, 601 px and 340 px".
-    [1024, 600, 1, 601, Math.floor((1024 - (601 + 24 + 340)) / 2), Math.floor((1024 - (601 + 24 + 340)) / 2) + 601 + 24, 340],
-    // "at 1920x1080, 1132 px and 340 px".
-    [1920, 1080, 1, 1132, Math.floor((1920 - (1132 + 24 + 340)) / 2), Math.floor((1920 - (1132 + 24 + 340)) / 2) + 1132 + 24, 340],
+    // 1280x720: floor(55.3 * 656 / 50) = 725.
+    [1280, 720, 1, 725, 95, 95 + 725 + 24, 340],
+    // 1024x600: floor(55.3 * 536 / 50) = 592.
+    [1024, 600, 1, 592, Math.floor((1024 - (592 + 24 + 340)) / 2), Math.floor((1024 - (592 + 24 + 340)) / 2) + 592 + 24, 340],
+    // 1920x1080: floor(55.3 * 1016 / 50) = 1123.
+    [1920, 1080, 1, 1123, Math.floor((1920 - (1123 + 24 + 340)) / 2), Math.floor((1920 - (1123 + 24 + 340)) / 2) + 1123 + 24, 340],
   ];
   it.each(EXAMPLES)("%ix%i at text scale %d: a %i px column at x %i, the rail at x %s, %i px wide", (w, h, ts, cw, cl, rl, rw) => {
     const l = layoutFor(w, h);
@@ -188,12 +193,12 @@ describe("Layout, Play screen: playStage centers the field column and the rail t
     }
   });
 
-  it("800x528: no rail, the column centered alone", () => {
-    const l = layoutFor(800, 528);
+  it("800x536 (the floor, Prime Time): no rail, the column centered alone", () => {
+    const l = layoutFor(800, 536);
     const st = playStage(l, 1);
     expect(st.rail).toBeNull();
     expect(Math.abs(st.column.left * 2 + st.column.width - 800)).toBeLessThanOrEqual(1);
-    expect(st.column.height).toBe(528 - TOP_BAR);
+    expect(st.column.height).toBe(536 - TOP_BAR);
   });
 
   it("1024x600 at 125% text: no rail (the rail would be 420 px and the group no longer fits), the column centered", () => {
@@ -211,7 +216,7 @@ describe("Layout, Play screen: playStage centers the field column and the rail t
 
   it("the rail shows exactly when column + 24 + rail fits inside the window less 24 px stage padding each side", () => {
     for (let w = 800; w <= 1400; w += 7) {
-      for (const h of [528, 600, 720]) {
+      for (const h of [536, 600, 720]) {
         for (const ts of [1, 1.25, 1.5]) {
           const l = layoutFor(w, h);
           const railW = Math.min(420, Math.max(300, 340 * ts));
@@ -265,6 +270,15 @@ describe("Tokens: tokens.ts holds DESIGN.md's token table", () => {
     ball: "#7A4A1E",
     tag: "rgba(7, 12, 22, 0.78)",
     turfLight: "rgba(255, 255, 255, 0.05)",
+    // DESIGN.md "Color: Prime Time additions", the two chunk 1 draws with (the score box and the
+    // tracker's line of scrimmage). The rest arrive with the chunks that draw them.
+    scoreBox: "#07101F",
+    los: "#3D8BFF",
+    // Chunk 2 (field paint): the midfield wordmark and the carrier trail's head stop.
+    midfieldPaint: "rgba(245, 247, 242, 0.18)",
+    trail: "rgba(245, 247, 242, 0.45)",
+    // Chunk 3 (moments): the banner's sub line strip, color.surfaceSolid at 0.96.
+    bannerStrip: "rgba(18, 34, 63, 0.96)",
   };
 
   it.each(Object.entries(COLORS))("color.%s is %s", (k, want) => {
@@ -292,9 +306,11 @@ describe("Tokens: tokens.ts holds DESIGN.md's token table", () => {
     }
   });
 
-  it("radii 6, 10, 14, 20, 999 and UI durations 120, 180, 260, 240 ms", () => {
+  // Amended by DESIGN.md Prime Time: dur.tick 360 ms (the odometer, the tracker and the possession
+  // slide), dur.snap 320 ms and dur.wipe 220 ms (Motion (UI)).
+  it("radii 6, 10, 14, 20, 999 and UI durations 120, 180, 260, 240, 360, 320, 220 ms", () => {
     expect(RADIUS).toEqual({ sm: 6, md: 10, lg: 14, xl: 20, pill: 999 });
-    expect(DUR).toEqual({ fast: 120, base: 180, slow: 260, screen: 240 });
+    expect(DUR).toEqual({ fast: 120, base: 180, slow: 260, screen: 240, tick: 360, snap: 320, wipe: 220 });
   });
 
   it("two font families: FONT_UI and FONT_DISPLAY are the Typography variables; font.mono is retired (no FONT_MONO)", () => {
@@ -333,6 +349,7 @@ describe("Tokens: styles.css :root mirrors them in kebab case", () => {
     "--dur-base": "180ms",
     "--dur-slow": "260ms",
     "--dur-screen": "240ms",
+    "--dur-tick": "360ms",
     "--ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
     "--ease-out": "cubic-bezier(0, 0, 0.2, 1)",
     // Typography.
@@ -449,17 +466,21 @@ describe("Rows (hud.playMenu): rest, key hint, selected, off", () => {
     expect(k["color"]).toBe("var(--ink)");
   });
 
-  it("fill and shadow transition over dur.base ease.standard; pressed is scale(0.99) over dur.fast", () => {
+  // Amended by DESIGN.md Prime Time (Rows, Pressed): scale(0.98) for dur.fast, the key hint chalk with ink text.
+  it("fill and shadow transition over dur.base ease.standard; pressed is scale(0.98) over dur.fast, key hint chalk on ink", () => {
     const t = norm(declsFor(".row")["transition"]);
     expect(t).toMatch(/background(-color|-image)? var\(--dur-base\) var\(--ease-standard\)/);
     expect(t).toContain("box-shadow var(--dur-base) var(--ease-standard)");
     expect(t).toContain("transform var(--dur-fast) var(--ease-standard)");
-    expect(norm(declsFor(".row:active")["transform"])).toBe("scale(0.99)");
+    expect(norm(declsFor(".row:active")["transform"])).toBe("scale(0.98)");
+    const k = declsFor(".row:active .key");
+    expect([k["background"], k["color"]]).toEqual(["var(--chalk)", "var(--ink)"]);
   });
 
-  it("keyboard focus: 2 px color.chalk outline, offset 2 px", () => {
+  // Amended by DESIGN.md Prime Time (Rows, Keyboard focus): gold on a row; the chalk ring read as a hard cream border.
+  it("keyboard focus: 2 px color.gold outline, offset 2 px", () => {
     const d = declsFor(".row:focus-visible");
-    expect(norm(d["outline"])).toBe("2px solid var(--chalk)");
+    expect(norm(d["outline"])).toBe("2px solid var(--gold)");
     expect(d["outline-offset"]).toBe("2px");
   });
 
@@ -523,8 +544,11 @@ describe("Motion (UI): reduced motion makes every UI transition 0 ms", () => {
         if (v === undefined || /^none/.test(v)) continue;
         const literals = v.replace(/var\(--[a-z0-9-]+\)/gi, "");
         expect(literals, `${r.selectors.join(", ")} ${k}`).not.toMatch(/\b\d+(\.\d+)?m?s\b|cubic-bezier|\bease(-in|-out|-in-out)?\b|\blinear\b|steps\(/);
-        expect(v, `${r.selectors.join(", ")} ${k}`).toMatch(/var\(--dur-(fast|base|slow|screen)\)/);
-        expect(v, `${r.selectors.join(", ")} ${k}`).toMatch(/var\(--ease-(standard|out)\)/);
+        // Prime Time adds dur.tick and dur.wipe (DESIGN.md Motion (UI)), and the timings DESIGN gives
+        // in words for menu.enter (--menu-enter) and the matchup intro (--intro-*), mirrored as variables.
+        expect(v, `${r.selectors.join(", ")} ${k}`).toMatch(/var\(--(dur-(fast|base|slow|screen|tick|wipe)|menu-enter|intro-[a-z-]+)\)/);
+        // ease.slam (Prime Time) is the curve for text that slams in.
+        expect(v, `${r.selectors.join(", ")} ${k}`).toMatch(/var\(--ease-(standard|out|slam)\)/);
       }
     }
   });
@@ -553,9 +577,14 @@ describe("Motion (UI): reduced motion makes every UI transition 0 ms", () => {
   it("no outgoing fade: ease.in is gone from the tokens and the CSS, and no keyframes fade anything out", () => {
     expect(rootVars["--ease-in"]).toBeUndefined();
     expect(css).not.toMatch(/--ease-in\b/);
-    expect(Object.keys(tokens).some((k) => /ease/i.test(k))).toBe(false);
+    // Amended (DESIGN.md Prime Time adds ease.slam and ease.exit, which the canvas banner reads): tokens.EASE has no ease.in.
+    expect(Object.keys(tokens.EASE)).not.toContain("in");
+    // Prime Time names one fade-out outside the screens: the bug's old down and distance "moves up
+    // 8 px and fades over dur.fast" (DESIGN.md "How the bug moves"). It is the only one allowed.
     const fadeOuts = rules.filter((r) => r.at.some((a) => a.startsWith("@keyframes")) && r.selectors.includes("to") && r.decls["opacity"] === "0");
-    expect(fadeOuts.map((r) => r.at.join(" "))).toEqual([]);
+    expect(fadeOuts.map((r) => r.at.join(" "))).toEqual(["@keyframes dd-out"]);
+    const ddOut = rules.filter((r) => /^dd-out\b/.test(r.decls["animation"] ?? "")).map((r) => r.selectors.join(", "));
+    expect(ddOut.sort()).toEqual([".sit-down.swap .sit-dd-old", ".swap .dd-old"]);
     // The app restarts an entrance on the incoming screen only.
     const body = /private placeOverlays\(\)[\s\S]*?\n {2}\}\n/.exec(appSource)?.[0] ?? "";
     expect(body).toMatch(/restartAnimation\(/);
@@ -575,98 +604,119 @@ describe("Motion (UI): reduced motion makes every UI transition 0 ms", () => {
 
 // ================================================================ HUD: the score bug
 
-describe("HUD, score bug (hud.scoreboard): a glass strip of grouped cells", () => {
-  it("top bar: gradient.topBar, glass blur, 1 px hairline bottom border, shadow.2, 12 px in, no gold rule", () => {
+// Amended by DESIGN.md Prime Time (2026-11-15, HUD Score bug): the separate pill cells, the 6 by 28
+// px team chip and the 34 px score are superseded by one fused bug with team name plates and dark
+// score boxes. Every value below is typed in from that section.
+describe("HUD, score bug (hud.scoreboard): one fused bug on the glass strip", () => {
+  it("top bar: gradient.topBar, glass blur, 1 px hairline bottom border, shadow.2, the bug 16 px in, no gold rule", () => {
     const d = declsFor(".top-bar");
     expect(norm(resolve(d["background"]))).toBe(norm("linear-gradient(180deg, rgba(19, 38, 74, 0.90) 0%, rgba(10, 20, 40, 0.90) 100%)"));
     expect(norm(d["backdrop-filter"])).toBe("blur(18px) saturate(140%)");
     expect(norm(d["-webkit-backdrop-filter"])).toBe("blur(18px) saturate(140%)");
     expect(norm(d["border-bottom"])).toBe("1px solid var(--hairline)");
     expect(d["box-shadow"]).toBe("var(--shadow-2)");
-    expect(norm(d["padding"])).toMatch(/^0 12px/);
+    expect(norm(d["padding"])).toMatch(/^0 16px/);
+    expect(d["align-items"]).toBe("center");
     // No gold rule: no top-bar rule paints a border, outline or background in gold.
     for (const r of topRules.filter((x) => x.selectors.some((s) => s.startsWith(".top-bar")))) {
       for (const [k, v] of Object.entries(r.decls)) if (/^(border|outline|background|box-shadow)/.test(k)) expect(v, `${r.selectors.join(", ")} ${k}`).not.toMatch(/--gold|--signal|255, 203, 61/);
     }
   });
 
-  it("cells: 44 px tall, radius.md, color.surfaceRaised, padding 0 12 px, 6 px between cells", () => {
-    const d = declsFor(".cell");
-    expect(d["height"]).toBe("44px");
+  it("the bug: one unit 48 px tall, radius.md outer corners, overflow hidden, 1 px hairlineStrong ring and shadow.2; segments flush with 1 px hairline dividers", () => {
+    const d = declsFor(".bug");
+    expect(d["height"]).toBe("48px");
     expect(d["border-radius"]).toBe("var(--radius-md)");
-    expect(d["background"]).toBe("var(--surface-raised)");
-    expect(norm(d["padding"])).toBe("0 12px");
-    expect(declsFor(".bug")["gap"]).toBe("6px");
+    expect(d["overflow"]).toBe("hidden");
+    expect(norm(d["box-shadow"])).toBe("0 0 0 1px var(--hairline-strong), var(--shadow-2)");
+    expect(d["gap"]).toBeUndefined();
+    expect(norm(declsFor(".bug > .cell + .cell")["border-left"])).toBe("1px solid var(--hairline)");
+    expect(norm(declsFor(".cell")["padding"])).toBe("0 14px");
   });
 
-  // Amended by DESIGN.md "Broadcast build review" 3: the ring is 0.55 on dark-tier fills, 0.35 on light-tier.
-  it("team chip: a 6 by 28 px bar, radius 3 px, 1 px inset ring rgba(255, 255, 255, 0.35); dark tier rgba(255, 255, 255, 0.55)", () => {
-    const d = declsFor(".team-chip");
-    expect([d["width"], d["height"], d["border-radius"]]).toEqual(["6px", "28px", "3px"]);
-    expect(norm(d["box-shadow"])).toBe(norm("inset 0 0 0 1px rgba(255, 255, 255, 0.35)"));
-    for (const sel of [".team-chip.dark", ".swatch.dark"]) expect(norm(declsFor(sel)["box-shadow"]), sel).toBe(norm("inset 0 0 0 1px rgba(255, 255, 255, 0.55)"));
+  it("name plate: the team fill set inline with the slot's outline color, padding 0 14, the tier's inset ring (0.35 light, 0.55 dark)", () => {
+    expect(norm(declsFor(".plate")["box-shadow"])).toBe(norm("inset 0 0 0 1px rgba(255, 255, 255, 0.35)"));
+    for (const sel of [".plate.dark", ".swatch.dark"]) expect(norm(declsFor(sel)["box-shadow"]), sel).toBe(norm("inset 0 0 0 1px rgba(255, 255, 255, 0.55)"));
     expect(norm(declsFor(".swatch")["box-shadow"])).toBe(norm("inset 0 0 0 1px rgba(255, 255, 255, 0.35)"));
     // Dark tier is exactly the four fills DESIGN.md rings in color.line: red, cobalt, black, purple.
     expect(SWATCHES.filter((f) => tokens.darkTier(f)).map((f) => f.toUpperCase())).toEqual(["#C62F2F", "#3263D2", "#1D1E22", "#7A4EBA"]);
-    // Both the bug chip and every swatch take the class by tier.
-    expect(appSource).toMatch(/darkTier\(ink\.fill\) \? "team-chip dark" : "team-chip"/);
+    expect(appSource).toMatch(/darkTier\(ink\.fill\) \? "cell plate dark" : "cell plate"/);
+    expect(appSource).toMatch(/el\.style\.background = ink\.fill;\s*el\.style\.color = ink\.ring;/);
     expect(readFileSync(join(appDir, "src/ui/dom.ts"), "utf8")).toMatch(/darkTier\(color\) \? "swatch dark" : "swatch"/);
   });
 
-  it("name: display 600 20 px caps, 0.02em, chalk; the You tag a pill on rgba(255, 255, 255, 0.10), small chalkSoft, padding 1 6", () => {
+  it("name: type.bugName, display 700 22 px caps, 0.03em, in the plate's outline color; the You tag a scoreBox pill, small 600 chalk, padding 1 6", () => {
     const n = declsFor(".top-bar .name");
     expect(n["font-family"]).toBe("var(--font-display)");
-    expect(n["font-weight"]).toBe("600");
-    expect(norm(n["font-size"])).toMatch(/^(20px|calc\(20px \* var\(--(?:text|bar)-scale\)\))$/);
+    expect(n["font-weight"]).toBe("700");
+    expect(norm(n["font-size"])).toBe("calc(22px * var(--bar-scale))");
     expect(n["text-transform"]).toBe("uppercase");
-    expect(n["letter-spacing"]).toBe("0.02em");
-    expect(n["color"]).toBe("var(--chalk)");
+    expect(n["letter-spacing"]).toBe("0.03em");
+    expect(n["color"]).toBe("inherit");
     const y = declsFor(".top-bar .you");
     expect(y["border-radius"]).toBe("var(--radius-pill)");
-    expect(parseColor(y["background"] ?? "")).toEqual(parseColor("rgba(255, 255, 255, 0.10)"));
-    expect(y["color"]).toBe("var(--chalk-soft)");
+    expect(y["background"]).toBe("var(--score-box)");
+    expect(y["color"]).toBe("var(--chalk)");
+    expect(y["font-weight"]).toBe("600");
+    expect(norm(y["font-size"])).toBe("calc(12px * var(--bar-scale))");
     expect(norm(y["padding"])).toBe("1px 6px");
   });
 
-  it("timeouts: 14 by 4 px bars, radius 2 px, gap 3 px; left chalk, spent rgba(255, 255, 255, 0.18)", () => {
+  it("timeouts: 14 by 4 px bars, radius 2 px, gap 3 px, 4 px under the name; left in the outline color, spent in it at 0.30", () => {
     const p = declsFor(".pip");
     expect([p["width"], p["height"], p["border-radius"]]).toEqual(["14px", "4px", "2px"]);
-    expect(parseColor(p["background"] ?? "")).toEqual(parseColor("rgba(255, 255, 255, 0.18)"));
-    expect(declsFor(".pip.on")["background"]).toBe("var(--chalk)");
+    expect(p["background"]).toBe("currentColor");
+    expect(p["opacity"]).toBe("0.3");
+    expect(declsFor(".pip.on")["opacity"]).toBe("1");
     expect(declsFor(".pips")["gap"]).toBe("3px");
+    expect(declsFor(".plate")["gap"]).toBe("4px");
   });
 
-  it("score: display 700 34 px tabular, min-width 2ch, right aligned, chalk, and the largest text in the bar", () => {
+  it("score box: color.scoreBox, min-width 64, padding 0 12; score display 700 44 px tabular, never above 44, min-width 2ch, right aligned, chalk, the largest text in the bar", () => {
+    const b = declsFor(".score-box");
+    expect(b["background"]).toBe("var(--score-box)");
+    expect(b["min-width"]).toBe("64px");
+    expect(norm(b["padding"])).toBe("0 12px");
+    expect(norm(rootVars["--score-box"])).toBe("#07101f");
     const s = declsFor(".top-bar .score");
     expect(s["font-family"]).toBe("var(--font-display)");
     expect(s["font-weight"]).toBe("700");
-    expect(norm(s["font-size"])).toMatch(/^(34px|calc\(34px \* var\(--(?:text|bar)-scale\)\))$/);
+    expect(norm(s["font-size"])).toBe("min(calc(44px * var(--bar-scale)), 44px)");
     expect(s["font-variant-numeric"]).toBe("tabular-nums");
     expect(s["min-width"]).toBe("2ch");
     expect(s["text-align"]).toBe("right");
     expect(s["color"]).toBe("var(--chalk)");
+    // The odometer clips inside the box.
+    expect(s["overflow"]).toBe("hidden");
     const px = (v: string | undefined): number => Number(/(\d+(?:\.\d+)?)px/.exec(v ?? "")?.[1] ?? 0);
-    for (const sel of [".top-bar .name", ".clock", ".bar-dd", ".bar-spot", ".period", ".clock-state", ".tag", ".top-bar"]) expect(px(declsFor(sel)["font-size"]), sel).toBeLessThan(34);
+    for (const sel of [".top-bar .name", ".clock", ".bar-dd", ".bar-spot", ".period", ".clock-state", ".tag", ".top-bar", ".top-bar .you"]) expect(px(declsFor(sel)["font-size"]), sel).toBeLessThan(44);
   });
 
-  it("possession: a 10 by 6 px color.signal ellipse", () => {
+  it("possession: a 12 by 7 px color.signal ellipse inside the score box, 6 px left of the digits; the word ball for screen readers", () => {
     const d = declsFor(".poss .dot");
-    expect([d["width"], d["height"], d["border-radius"], d["background"]]).toEqual(["10px", "6px", "50%", "var(--signal)"]);
+    expect([d["width"], d["height"], d["border-radius"], d["background"]]).toEqual(["12px", "7px", "50%", "var(--signal)"]);
+    expect(declsFor(".score-box")["gap"]).toBe("6px");
+    expect(appSource).toMatch(/class: "visually-hidden" \}, "ball"/);
   });
 
-  it("game cell: period and clock state small chalkSoft, clock ui 700 22 px tabular chalk; under 2:00 the clock is signal and the tag is signal on gold at 0.16", () => {
+  it("game segment: surfaceRaised; period display 700 16 caps chalkSoft, clock ui 700 24 tabular chalk on one baseline; state small chalkSoft right aligned; under 2:00 the clock is signal and the tag is signal on gold at 0.16", () => {
+    expect(declsFor(".seg")["background"]).toBe("var(--surface-raised)");
+    expect(declsFor(".game")["align-items"]).toBe("flex-end");
+    expect(declsFor(".game-line")["align-items"]).toBe("baseline");
+    expect(declsFor(".game-line")["gap"]).toBe("6px");
+    const pe = declsFor(".period");
+    expect([pe["font-family"], pe["font-weight"], pe["text-transform"], pe["color"]]).toEqual(["var(--font-display)", "700", "uppercase", "var(--chalk-soft)"]);
+    expect(norm(pe["font-size"])).toBe("calc(16px * var(--bar-scale))");
     const c = declsFor(".clock");
     expect(c["font-weight"]).toBe("700");
-    expect(norm(c["font-size"])).toMatch(/^(22px|calc\(22px \* var\(--(?:text|bar)-scale\)\))$/);
+    expect(norm(c["font-size"])).toBe("calc(24px * var(--bar-scale))");
     expect(c["font-variant-numeric"]).toBe("tabular-nums");
     expect(c["color"]).toBe("var(--chalk)");
     expect(c["font-family"] ?? "var(--font-ui)").toBe("var(--font-ui)");
     expect(declsFor(".clock.late")["color"]).toBe("var(--signal)");
-    for (const sel of [".period", ".clock-state"]) {
-      const d = declsFor(sel);
-      expect(d["color"], sel).toBe("var(--chalk-soft)");
-      expect(norm(d["font-size"]), sel).toMatch(/^(12px|calc\(12px \* var\(--(?:text|bar)-scale\)\))$/);
-    }
+    const st = declsFor(".clock-state");
+    expect(st["color"]).toBe("var(--chalk-soft)");
+    expect(norm(st["font-size"])).toBe("calc(12px * var(--bar-scale))");
     const late = declsFor(".late-tag");
     expect(parseColor(late["background"] ?? "")).toEqual(parseColor("rgba(255, 203, 61, 0.16)"));
     expect(late["color"]).toBe("var(--signal)");
@@ -674,14 +724,16 @@ describe("HUD, score bug (hud.scoreboard): a glass strip of grouped cells", () =
     expect(declsFor(".tag")["font-weight"]).toBe("600");
   });
 
-  it("situation cell: down and distance in display 700 22 px caps chalk, the spot small chalkSoft; tempo chalkSoft on surfaceRaised", () => {
+  it("down segment: surfaceRaised; down and distance display 700 26 px caps chalk, the spot small 600 chalkSoft under it; tempo chalkSoft on surfaceRaised", () => {
     const d = declsFor(".bar-dd");
     expect(d["font-family"]).toBe("var(--font-display)");
     expect(d["font-weight"]).toBe("700");
-    expect(norm(d["font-size"])).toMatch(/^(22px|calc\(22px \* var\(--(?:text|bar)-scale\)\))$/);
+    expect(norm(d["font-size"])).toBe("calc(26px * var(--bar-scale))");
     expect(d["text-transform"]).toBe("uppercase");
     expect(d["color"]).toBe("var(--chalk)");
-    expect(declsFor(".bar-spot")["color"]).toBe("var(--chalk-soft)");
+    const sp = declsFor(".bar-spot");
+    expect([sp["color"], sp["font-weight"]]).toEqual(["var(--chalk-soft)", "600"]);
+    expect(declsFor(".down")["flex-direction"]).toBe("column");
     const t = declsFor(".tempo");
     expect([t["background"], t["color"]]).toEqual(["var(--surface-raised)", "var(--chalk-soft)"]);
   });
@@ -692,38 +744,55 @@ describe("HUD, score bug (hud.scoreboard): a glass strip of grouped cells", () =
     expect(hidden("fit-2")).toEqual([".clock-state"]);
     expect(hidden("fit-3")).toEqual([".bar-keys"]);
     // DESIGN.md "Broadcast build review" 4: then the tempo tag, the Under 2:00 tag, the You tag
-    // (visually hidden), type at 100%, 85% with 8 px padding, and names at 16 px.
+    // (visually hidden), type at 100%, 85% with 8 px padding (Prime Time: and a 52 px score box),
+    // and names at 16 px.
     expect(hidden("fit-4")).toEqual([".tempo"]);
     expect(hidden("fit-5")).toEqual([".late-tag"]);
     expect(declsFor(".top-bar.fit-6 .you")["clip-path"]).toBe("inset(50%)");
     expect(norm(declsFor(".top-bar.fit-7")["--bar-scale"])).toBe("min(var(--text-scale), 1)");
     expect(declsFor(".top-bar.fit-8")["--bar-scale"]).toBe("0.85");
     expect(norm(declsFor(".top-bar.fit-8 .cell")["padding"])).toBe("0 8px");
+    expect(declsFor(".top-bar.fit-8 .score-box")["min-width"]).toBe("52px");
     expect(norm(declsFor(".top-bar.fit-9 .name")["font-size"])).toBe("calc(16px * var(--bar-scale))");
     expect(norm(rootVars["--bar-scale"] ?? declsFor(".top-bar")["--bar-scale"])).toBe("min(var(--text-scale), 1.25)");
     const steps = readFileSync(join(appDir, "src/ui/topbar.ts"), "utf8");
     expect([...steps.matchAll(/"(fit-\d+)"/g)].map((m) => m[1])).toEqual(["fit-1", "fit-2", "fit-3", "fit-4", "fit-5", "fit-6", "fit-7", "fit-8", "fit-9"]);
     // Names are never cut or hidden, at any step.
-    for (const r of topRules.filter((x) => x.selectors.some((s) => /^\.top-bar\.fit-\d+/.test(s) && /\.(name|team-name|team-id)(?![\w-])/.test(s)))) {
+    for (const r of topRules.filter((x) => x.selectors.some((s) => /^\.top-bar\.fit-\d+/.test(s) && /\.(name|plate)(?![\w-])/.test(s)))) {
       for (const k of ["display", "clip-path", "max-width", "text-overflow", "visibility"]) expect(r.decls[k], `${r.selectors.join(", ")} ${k}`).toBeUndefined();
     }
     const all = topRules.filter((r) => r.decls["display"] === "none").flatMap((r) => r.selectors).filter((s) => s.startsWith(".top-bar"));
-    for (const s of all) expect(s).not.toMatch(/\.score|\.clock(?!-state)|\.bar-dd|\.cell\b|\.bug\b/);
+    for (const s of all) expect(s).not.toMatch(/\.score|\.clock(?!-state)|\.bar-dd|\.cell\b|\.bug\b|\.plate|\.name/);
   });
 
-  // Static check of app.ts (no jsdom): the team cell's children in DESIGN.md's grid order, and the
-  // bug's cells left to right: away, home, game, situation, tempo.
-  it("static: the team cell is chip | name over timeouts | score | possession, and the bug is away, home, game, situation, tempo", () => {
+  // Static check of app.ts (no jsdom): the plate's and score box's children, and the bug left to
+  // right: away plate, away score, home plate, home score, game, down; the tags and keys outside it.
+  it("static: plate is name over timeouts and You; score box is possession then digits; the bug is away, home, game, down, with the Under 2:00 and tempo tags outside", () => {
     const body = /private renderTopBar\(\)[\s\S]*?\n {2}\}\n/.exec(appSource)?.[0] ?? "";
     expect(body).not.toBe("");
-    const append = /cell\.append\(([\s\S]*?)\);/.exec(body)?.[1] ?? "";
-    const order = ["chip", '"team-id"', '"score"', '"poss"'].map((k) => append.indexOf(k));
-    expect(order.every((i) => i >= 0), append).toBe(true);
-    expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(/h\("span", \{ class: "team-id" \}, name, pips\)/.test(append)).toBe(true);
-    expect(body).toMatch(/h\("div", \{ class: "bug" \}, team\("away"\), team\("home"\), game, situation, tempo\)/);
-    // The word "ball" for screen readers, visually hidden.
-    expect(body).toMatch(/class: "visually-hidden" \}, "ball"/);
+    expect(body).toMatch(/el\.append\(h\("span", \{ class: "name" \}, g\.matchup\[t\]\.nickname\), h\("span", \{ class: "plate-sub" \}, pips, t === g\.human \? h\("span", \{ class: "you" \}, "You"\) : null\)\)/);
+    expect(body).toMatch(/box\.append\(h\("span", \{ class: "poss" \}[\s\S]*?\), digits\)/);
+    expect(body).toMatch(/h\("div", \{ class: "bug" \}, plate\("away"\), scoreBox\("away"\), plate\("home"\), scoreBox\("home"\), game, down\), late, tempo, keys\]/);
+  });
+
+  it("the bug's motion: odometer and possession over dur.tick, the down swap (out dur.fast, in dur.base ease.out from 8 px below), one first-down flash after the swap", () => {
+    expect(norm(rootVars["--dur-tick"])).toBe("360ms");
+    expect(norm(declsFor(".odo .score-now")["animation"])).toMatch(/^odo-in var\(--dur-tick\) var\(--ease-standard\)/);
+    expect(norm(declsFor(".odo .score-old")["animation"])).toMatch(/^odo-out var\(--dur-tick\) var\(--ease-standard\)/);
+    expect(norm(declsFor(".poss .dot.slide")["animation"])).toMatch(/^poss-slide var\(--dur-tick\) var\(--ease-standard\)/);
+    expect(norm(declsFor(".swap .dd-old")["animation"])).toMatch(/^dd-out var\(--dur-fast\)/);
+    expect(norm(declsFor(".swap .dd-now")["animation"])).toMatch(/^dd-in var\(--dur-base\) var\(--ease-out\)/);
+    const kf = (name: string, sel: string): Record<string, string> => rules.find((r) => r.at.includes(`@keyframes ${name}`) && r.selectors.includes(sel))?.decls ?? {};
+    expect(norm(kf("odo-in", "from")["transform"])).toBe("translatey(100%)");
+    expect(norm(kf("odo-out", "to")["transform"])).toBe("translatey(-100%)");
+    expect(norm(kf("dd-in", "from")["transform"])).toBe("translatey(8px)");
+    expect(norm(kf("dd-out", "to")["transform"])).toBe("translatey(-8px)");
+    // The first-down flash starts dur.base in (after the swap) and runs 900 ms; ink on signal.
+    expect(norm(declsFor(".down.first-down")["animation"])).toContain("calc(var(--dur-base) - var(--fd-since))");
+    expect(norm(rootVars["--first-down-flash"])).toBe("900ms");
+    expect(tokens.BUG_MOTION.firstDownFlash).toBe(900);
+    expect(declsFor(".down.first-down-still")["background"]).toBe("var(--signal)");
+    expect(declsFor(".down.first-down-still .bar-dd")["color"]).toBe("var(--ink)");
   });
 });
 
@@ -1047,12 +1116,21 @@ describe("Field (Broadcast): turf light, field shadow, the cased first-down line
     }
   });
 
-  it("line of scrimmage: solid color.outlineDark 3 px, round caps", () => {
+  // Amended (DESIGN.md Prime Time, field.scrimmageLine): a color.los 3 px core over a 5 px outlineDark casing.
+  it("line of scrimmage: solid color.los 3 px over a 5 px color.outlineDark casing, round caps", () => {
     const r = recorder();
     drawField(r.g, v, { ...scene, firstDown: null }, 1);
-    const los = r.ops.filter((o) => o.op === "stroke" && o.strokeStyle === COLOR.outlineDark.toUpperCase() && o.lineWidth === 3);
-    expect(los.length).toBeGreaterThan(0);
-    for (const o of los) {
+    const core = r.ops.filter((o) => o.op === "stroke" && o.strokeStyle === COLOR.los.toUpperCase());
+    expect(core.length).toBeGreaterThan(0);
+    for (const o of core) {
+      expect(o.lineWidth).toBe(3);
+      expect(o.dash).toEqual([]);
+      expect(o.lineCap).toBe("round");
+    }
+    const coreAt = r.ops.indexOf(core[0] as Op);
+    const casing = r.ops.slice(0, coreAt).filter((o) => o.op === "stroke" && o.strokeStyle === COLOR.outlineDark.toUpperCase() && o.lineWidth === 5);
+    expect(casing.length).toBeGreaterThan(0);
+    for (const o of casing) {
       expect(o.dash).toEqual([]);
       expect(o.lineCap).toBe("round");
     }

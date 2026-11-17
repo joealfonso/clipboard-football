@@ -83,6 +83,8 @@ export interface PlayDetail {
   readonly class?: string;
   readonly yards?: number;
   readonly gross?: number;
+  /** Punts: the return yards the engine drew (before any field clamp moved the end spot). */
+  readonly returnYards?: number;
   readonly distance?: number;
   readonly fluke?: boolean;
   /** Future pipeline milestone (spec need 3): absent today, drawn neutral. */
@@ -159,6 +161,7 @@ export function readDetail(play: PlayResult): PlayDetail {
   put("class", str(d["class"]));
   put("yards", num(d["yards"]));
   put("gross", num(d["gross"]));
+  put("returnYards", num(d["returnYards"]));
   put("distance", num(d["distance"]));
   if (typeof d["fluke"] === "boolean") put("fluke", d["fluke"]);
   put("passLocation", side(d["passLocation"]));

@@ -90,6 +90,11 @@ export interface Templates {
   /** A screen's catch may follow a route that sits behind the screen depth, no deeper than this past the line (negative: behind it). */
   readonly screenFloorYards: number;
   /**
+   * Per pass play (deepPass 20, designed): on a completion with no air yards the catch is at least
+   * this far past the line, or at the dead spot on a shorter gain (spec amendment 2026-11-15, B1).
+   */
+  readonly catchFloorYards: Readonly<Record<string, number>>;
+  /**
    * OL and DL movement by play family (run, pass, kick) and by leaf (falling back to the family):
    * they stop at contact (path.block), whatever the call. `OLT` and `DLE`, the outermost each side,
    * fall back to `OL` and `DL`.
@@ -198,6 +203,8 @@ export function parseTemplates(v: unknown): Templates {
   }
   if (!isObj(v["passDepth"]) || !Object.values(v["passDepth"]).every(isNum)) throw new TemplateError("passDepth must map pass plays to yards");
   if (!isNum(v["screenFloorYards"]) || v["screenFloorYards"] > 0) throw new TemplateError("screenFloorYards must be a number of yards behind the line (0 or less)");
+  if (!isObj(v["catchFloorYards"]) || !Object.values(v["catchFloorYards"]).every((x) => isNum(x) && x >= 0)) throw new TemplateError("catchFloorYards must map pass plays to yards past the line (0 or more)");
+  for (const leaf of Object.keys(v["catchFloorYards"])) if ((v["passDepth"] as Record<string, unknown>)[leaf] === undefined) throw new TemplateError(`catchFloorYards.${leaf} is not a pass play in passDepth`);
   return v as unknown as Templates;
 }
 
@@ -236,7 +243,8 @@ export interface Motion {
   /** A `sit` finish (and a pause) drifts at most maxYards, from sit pace; a `block` finish at most blockMaxYards. */
   readonly sit: { readonly pace: number; readonly maxYards: number; readonly blockMaxYards: number; readonly pauseLegShare: number };
   /** The throw waits for the target's route at most this long after the drop ends (R8). */
-  readonly throwHold: { readonly maxMs: number; readonly searchMs: number };
+  /** leafMaxMs: a longer hold for one pass play (deepPass, Joseph 2026-11-15, Open item 2), else maxMs. */
+  readonly throwHold: { readonly maxMs: number; readonly searchMs: number; readonly leafMaxMs: Readonly<Record<string, number>> };
   readonly man: { readonly cushionYards: number; readonly pressCushionYards: number; readonly lagMs: number };
   readonly zoneDrift: { readonly maxYards: number; readonly pace: number };
   /** A stalk block: the shadow point's distance and lag behind his man; once that close to him he is engaged and moves with him. */
@@ -259,6 +267,155 @@ export interface Motion {
   readonly sack: { readonly minDelayMs: number };
   /** A loose ball rolls this far while its recoverer gets to it. */
   readonly fumble: { readonly rollYards: number };
+  /**
+   * How an incompletion is drawn (spec amendment 2026-11-15, A1 to A4): the target's reach toward
+   * the ball, the speed that counts as moving, where the ball lands for each kind of miss, how near
+   * a defender may stand to a loose ball, how far out of bounds it may land, its roll, and the
+   * break-up (the gap to the target, the breaker's hand, the pace he may need, the deflection).
+   */
+  readonly miss: {
+    readonly reachMs: number;
+    readonly reachYards: number;
+    readonly movingYps: number;
+    readonly overYards: number;
+    readonly behindYards: number;
+    readonly shortYards: number;
+    readonly clearYards: number;
+    readonly outYards: number;
+    readonly rollYards: number;
+    /** The roll or deflection after the landing takes rollMs (the label then shows); the ball rests restMs more before the whistle and the respot. */
+    readonly rollMs: number;
+    readonly restMs: number;
+    /** The clear check's allowance for where a defender is drawn at the arrival against where it predicts him. */
+    readonly clearMarginYards: number;
+    readonly breakup: { readonly gapYards: number; readonly handYards: number; readonly maxPace: number; readonly deflectYards: number };
+  };
+  /**
+   * Natural motion (spec revision 2026-11-15, as built; version 3), designed: the hash tie-breaker
+   * spread (NM4), the cruise wobble (NM5), the profile smoothing (ms, also the stalk lock blend),
+   * the lateral acceleration that limits pursuit turns (yd/s^2), the anchor blend, the line's hand
+   * fight and the idle sway (NM7), and the ring while the ball is in the air (NM-Open 1, approved).
+   */
+  readonly natural: {
+    readonly spread: { readonly topShare: number; readonly accelShare: number; readonly reactionMs: number; readonly startMs: number };
+    readonly wobble: { readonly share: number; readonly periodMinMs: number; readonly periodMaxMs: number };
+    readonly smoothMs: number;
+    readonly lateralAccel: number;
+    readonly anchorBlendMs: number;
+    readonly line: { readonly pushYards: number; readonly shuffleYards: number; readonly periodMinMs: number; readonly periodMaxMs: number; readonly rampMs: number };
+    readonly idle: { readonly swayYards: number; readonly minYps: number; readonly periodMinMs: number; readonly periodMaxMs: number; readonly rampMs: number };
+    readonly flightRingYards: number;
+  };
+  /**
+   * Ratings drive motion (Joseph, 2026-11-15, decision 12 reversed), designed: a rating from lo to
+   * hi maps linearly onto each band [at lo, at hi]: a share of top speed (speed), a share of accelMs
+   * (agility), ms added to the reaction and to the start (awareness). byPosition overrides default.
+   */
+  readonly ratings: {
+    readonly lo: number;
+    readonly hi: number;
+    readonly default: RatingBand;
+    readonly byPosition: Readonly<Record<string, RatingBand>>;
+  };
+  /** Moments (DESIGN.md Prime Time, Motion, Moments), designed: each moment's minimum whistle hold at 1x, the big-play yards, the bug's first-down flash. */
+  readonly moments: Moments;
+  /**
+   * Kick plays (calling screen pass Q4, approved by Joseph 2026-11-15), designed: every unnamed
+   * player's path is a trail whose points fade out over fadeMs (timeline ms) after he passes them.
+   */
+  readonly kickTrail: { readonly fadeMs: number };
+  /** Kickoff returns (version 4, spec KR1 to KR9), designed: the wall, the blocks and the returner's cut. */
+  readonly kickReturn: KickReturn;
+}
+
+/** motion.json `kickReturn` (version 4): yards in the kicking team's frame, paces as shares of top speed, times in ms. */
+export interface KickReturn {
+  readonly wallDepthYards: number;
+  readonly wallRowYards: number;
+  readonly laneSpreadYards: number;
+  readonly wallWidthYards: number;
+  readonly setupPace: number;
+  readonly setupYards: number;
+  readonly blockPace: number;
+  readonly contactYards: number;
+  readonly engageYards: number;
+  readonly blockDriftYps: number;
+  readonly blockEaseMs: number;
+  readonly minBlockMs: number;
+  readonly leadYards: number;
+  readonly leadPace: number;
+  readonly corridorMarginYards: number;
+  readonly containYards: number;
+  readonly behindToleranceYards: number;
+  readonly whistleWindowMs: number;
+  readonly upfieldYards: number;
+  readonly cutYards: number;
+  readonly cutDepthYards: number;
+  readonly cutRadiusYards: number;
+  readonly cutPace: number;
+  readonly cutLateralAccel: number;
+  readonly cutMinReturnYards: number;
+  readonly cutLagsMs: readonly number[];
+  readonly lateCutMs: number;
+  readonly readLeadMs: number;
+  readonly stableMs: number;
+  readonly deadbandYards: number;
+  readonly cutDeg: number;
+  readonly headingMs: number;
+}
+
+const KICK_RETURN_KEYS = ["wallDepthYards", "wallRowYards", "laneSpreadYards", "wallWidthYards", "setupPace", "setupYards", "blockPace", "contactYards", "engageYards", "blockDriftYps", "blockEaseMs", "minBlockMs", "leadYards", "leadPace", "corridorMarginYards", "containYards", "behindToleranceYards", "whistleWindowMs", "upfieldYards", "cutYards", "cutDepthYards", "cutRadiusYards", "cutPace", "cutLateralAccel", "cutMinReturnYards", "lateCutMs", "readLeadMs", "stableMs", "deadbandYards", "cutDeg", "headingMs"] as const;
+
+function parseKickReturn(v: unknown, bad: (m: string) => never): void {
+  if (!isObj(v)) bad("kickReturn must be an object");
+  const o = v as Record<string, unknown>;
+  for (const k of KICK_RETURN_KEYS) if (!isNum(o[k]) || (o[k] as number) < 0) bad(`kickReturn.${k} must be a number, not negative`);
+  const lags = o["cutLagsMs"];
+  if (!Array.isArray(lags) || lags.length === 0 || !lags.every((x) => isNum(x) && x >= 0)) bad("kickReturn.cutLagsMs must be a list of ms, not empty, none negative");
+  const n = o as Record<string, number>;
+  if ((n["cutDeg"] as number) <= 0 || (n["cutDeg"] as number) >= 90) bad("kickReturn.cutDeg must be in (0, 90)");
+  if ((n["headingMs"] as number) <= 0) bad("kickReturn.headingMs must be above 0");
+  for (const k of ["setupPace", "blockPace", "leadPace", "cutPace"] as const) if ((n[k] as number) <= 0 || (n[k] as number) > 1) bad(`kickReturn.${k} must be a pace in (0, 1]`);
+  if ((n["wallWidthYards"] as number) < (n["laneSpreadYards"] as number)) bad("kickReturn.wallWidthYards must not be below laneSpreadYards");
+  if ((n["contactYards"] as number) >= (n["engageYards"] as number)) bad("kickReturn.contactYards must be below engageYards");
+  if ((n["cutRadiusYards"] as number) <= 0) bad("kickReturn.cutRadiusYards must be above 0");
+  if ((n["cutLateralAccel"] as number) <= 0) bad("kickReturn.cutLateralAccel must be above 0");
+  // The cut and both its rounded corners must fit in the shortest return that cuts.
+  const tan = (n["cutRadiusYards"] as number) * Math.tan(Math.atan2(n["cutYards"] as number, n["cutDepthYards"] as number) / 2);
+  if ((n["upfieldYards"] as number) + (n["cutDepthYards"] as number) + 2 * tan >= (n["cutMinReturnYards"] as number)) bad("kickReturn.upfieldYards + cutDepthYards and the cut's two rounded corners must fit inside cutMinReturnYards");
+}
+
+/** One position's rating bands, each [value at lo, value at hi]. */
+export interface RatingBand {
+  readonly topShare: readonly [number, number];
+  readonly accelShare: readonly [number, number];
+  readonly reactionMs: readonly [number, number];
+  readonly startMs: readonly [number, number];
+}
+
+/** motion.json `moments` (DESIGN.md Prime Time, Moments): each moment's minimum whistle hold at 1x (ms), the big-play yards, the bug's first-down flash (ms, mirrored in styles.css --first-down-flash). */
+export interface Moments {
+  readonly touchdown: { readonly minHoldMs: number };
+  readonly fieldGoal: { readonly minHoldMs: number };
+  readonly safety: { readonly minHoldMs: number };
+  readonly twoPoint: { readonly minHoldMs: number };
+  readonly turnover: { readonly minHoldMs: number };
+  readonly bigPlay: { readonly minHoldMs: number; readonly minYards: number };
+  readonly firstDown: { readonly flashMs: number };
+}
+
+function parseMoments(v: unknown, bad: (m: string) => never): void {
+  if (!isObj(v)) bad("moments must be an object");
+  const m = v as Record<string, unknown>;
+  const num = (k: string, f: string): void => {
+    const b = m[k];
+    if (!isObj(b)) bad(`moments.${k} must be an object`);
+    const n = (b as Record<string, unknown>)[f];
+    if (!isNum(n) || (n as number) < 0) bad(`moments.${k}.${f} must be a number, not negative`);
+  };
+  for (const k of ["touchdown", "fieldGoal", "safety", "twoPoint", "turnover", "bigPlay"]) num(k, "minHoldMs");
+  num("bigPlay", "minYards");
+  num("firstDown", "flashMs");
 }
 
 export class MotionError extends Error {
@@ -274,7 +431,7 @@ export function parseMotion(v: unknown): Motion {
   const bad = (m: string): never => {
     throw new MotionError(m);
   };
-  if (!isObj(v) || v["designed"] !== true || v["version"] !== 2) bad("needs version 2 and designed: true");
+  if (!isObj(v) || v["designed"] !== true || v["version"] !== 4) bad("needs version 4 and designed: true");
   const o = v as Record<string, unknown>;
   for (const k of ["keyMs", "decelMs", "slotOffsetMs", "maxStartMs", "hitchMs", "handoffMs", "convergeMs", "settleMs", "settleMaxYards", "fakeMs", "sidelineMarginYards"]) if (!isNum(o[k])) bad(`${k} must be a number`);
   for (const k of ["routePace", "continuePace"]) if (!isNum(o[k]) || (o[k] as number) <= 0 || (o[k] as number) > 1) bad(`${k} must be a pace in (0, 1]`);
@@ -309,6 +466,22 @@ export function parseMotion(v: unknown): Motion {
   sub("bend", ["leadYards", "leadShare"]);
   sub("sack", ["minDelayMs"]);
   sub("fumble", ["rollYards"]);
+  sub("miss", ["reachMs", "reachYards", "movingYps", "overYards", "behindYards", "shortYards", "clearYards", "outYards", "rollYards", "rollMs", "restMs", "clearMarginYards"]);
+  if (!isObj((o["miss"] as Record<string, unknown>)["breakup"])) bad("miss.breakup must be an object");
+  const bu = (o["miss"] as Record<string, unknown>)["breakup"] as Record<string, unknown>;
+  for (const x of ["gapYards", "handYards", "maxPace", "deflectYards"]) if (!isNum(bu[x]) || (bu[x] as number) < 0) bad(`miss.breakup.${x} must be a number, not negative`);
+  if ((bu["maxPace"] as number) <= 0) bad("miss.breakup.maxPace must be above 0");
+  const ms = o["miss"] as Record<string, number>;
+  // The reach must leave a gap on every kind of miss (R-C16), and a loose ball's clearance can't be
+  // more than the ring that keeps unnamed defenders off it (contract 3).
+  if ((ms["reachYards"] as number) >= Math.min(ms["overYards"] as number, ms["behindYards"] as number, ms["shortYards"] as number, bu["gapYards"] as number)) bad("miss.reachYards must be below overYards, behindYards, shortYards and breakup.gapYards");
+  if ((ms["clearYards"] as number) > ((o["pursuit"] as Record<string, number>)["ringYards"] as number)) bad("miss.clearYards must not be above pursuit.ringYards");
+  const lh = (o["throwHold"] as Record<string, unknown>)["leafMaxMs"];
+  if (!isObj(lh)) bad("throwHold.leafMaxMs must map pass plays to ms");
+  for (const [leaf, x] of Object.entries(lh as Record<string, unknown>)) {
+    if ((o["dropMs"] as Record<string, unknown>)[leaf] === undefined) bad(`throwHold.leafMaxMs.${leaf} is not a pass play in dropMs`);
+    if (!isNum(x) || x < 0) bad(`throwHold.leafMaxMs.${leaf} must be a number of ms, not negative`);
+  }
   const pace = (k: string, x: string): void => {
     const n = (o[k] as Record<string, number>)[x] as number;
     if (n <= 0 || n > 1) bad(`${k}.${x} must be a pace in (0, 1]`);
@@ -321,10 +494,53 @@ export function parseMotion(v: unknown): Motion {
   pace("sit", "pauseLegShare");
   pace("sackArc", "depthShare");
   pace("bend", "leadShare");
-  for (const [k, x] of [["fillet", "plantYards"], ["fillet", "reaccelYards"], ["sit", "maxYards"], ["sit", "blockMaxYards"], ["throwHold", "maxMs"], ["man", "cushionYards"], ["man", "pressCushionYards"], ["man", "lagMs"], ["zoneDrift", "maxYards"], ["stalk", "contactYards"], ["stalk", "lagMs"], ["pocket", "yards"], ["throwHold", "searchMs"], ["sackArc", "outYards"], ["sackArc", "minYards"], ["bend", "leadYards"], ["sack", "minDelayMs"], ["fumble", "rollYards"]] as const)
+  for (const [k, x] of [["fillet", "plantYards"], ["fillet", "reaccelYards"], ["sit", "maxYards"], ["sit", "blockMaxYards"], ["throwHold", "maxMs"], ["man", "cushionYards"], ["man", "pressCushionYards"], ["man", "lagMs"], ["zoneDrift", "maxYards"], ["stalk", "contactYards"], ["stalk", "lagMs"], ["pocket", "yards"], ["throwHold", "searchMs"], ["sackArc", "outYards"], ["sackArc", "minYards"], ["bend", "leadYards"], ["sack", "minDelayMs"], ["fumble", "rollYards"], ["miss", "reachMs"], ["miss", "reachYards"], ["miss", "movingYps"], ["miss", "overYards"], ["miss", "behindYards"], ["miss", "shortYards"], ["miss", "clearYards"], ["miss", "outYards"], ["miss", "rollYards"], ["miss", "rollMs"], ["miss", "restMs"], ["miss", "clearMarginYards"]] as const)
     if (((o[k] as Record<string, number>)[x] as number) < 0) bad(`${k}.${x} must not be negative`);
   const live = o["live"] as Record<string, number>;
   if ((live["minMs"] as number) > (live["maxMs"] as number)) bad("live.minMs is above live.maxMs");
   if ((o["maxStartMs"] as number) > 150) bad("maxStartMs is over 150 (Joseph: every player moves within 150 ms of the snap)");
+  // Natural motion (version 3): every key a number, none negative, min never above max, shares in [0, 0.2].
+  const nat = o["natural"];
+  if (!isObj(nat)) bad("natural must be an object");
+  const N = nat as Record<string, unknown>;
+  const block = (k: string, keys: readonly string[]): Record<string, number> => {
+    const b = N[k];
+    if (!isObj(b)) bad(`natural.${k} must be an object`);
+    for (const x of keys) {
+      const n = (b as Record<string, unknown>)[x];
+      if (!isNum(n) || n < 0) bad(`natural.${k}.${x} must be a number, not negative`);
+    }
+    return b as Record<string, number>;
+  };
+  const spread = block("spread", ["topShare", "accelShare", "reactionMs", "startMs"]);
+  const wobble = block("wobble", ["share", "periodMinMs", "periodMaxMs"]);
+  for (const x of ["smoothMs", "lateralAccel", "anchorBlendMs"]) if (!isNum(N[x]) || (N[x] as number) < 0) bad(`natural.${x} must be a number, not negative`);
+  if ((N["lateralAccel"] as number) <= 0) bad("natural.lateralAccel must be above 0");
+  const line = block("line", ["pushYards", "shuffleYards", "periodMinMs", "periodMaxMs", "rampMs"]);
+  const idle = block("idle", ["swayYards", "minYps", "periodMinMs", "periodMaxMs", "rampMs"]);
+  if (!isNum(N["flightRingYards"]) || (N["flightRingYards"] as number) < 0) bad("natural.flightRingYards must be a number, not negative");
+  for (const [k, b] of [["spread.topShare", spread["topShare"]], ["spread.accelShare", spread["accelShare"]], ["wobble.share", wobble["share"]]] as const) if ((b as number) > 0.2) bad(`natural.${k} must be a share in [0, 0.2]`);
+  for (const [k, b] of [["wobble", wobble], ["line", line], ["idle", idle]] as const) if ((b["periodMinMs"] as number) > (b["periodMaxMs"] as number)) bad(`natural.${k}.periodMinMs is above periodMaxMs`);
+  for (const [k, x] of [["wobble", "periodMinMs"], ["line", "periodMinMs"], ["idle", "periodMinMs"], ["line", "rampMs"], ["idle", "rampMs"]] as const) if ((({ wobble, line, idle })[k][x] as number) <= 0) bad(`natural.${k}.${x} must be above 0`);
+  // Ratings (version 3): lo below hi; every band a pair of numbers, top and accel shares within 0.5.
+  const rt = o["ratings"];
+  if (!isObj(rt)) bad("ratings must be an object");
+  const RT = rt as Record<string, unknown>;
+  if (!isNum(RT["lo"]) || !isNum(RT["hi"]) || (RT["lo"] as number) >= (RT["hi"] as number)) bad("ratings.lo and ratings.hi must be numbers, lo below hi");
+  const band = (name: string, b: unknown): void => {
+    if (!isObj(b)) bad(`ratings.${name} must be an object`);
+    for (const x of ["topShare", "accelShare", "reactionMs", "startMs"]) {
+      const pr = (b as Record<string, unknown>)[x];
+      if (!Array.isArray(pr) || pr.length !== 2 || !pr.every(isNum)) bad(`ratings.${name}.${x} must be a pair of numbers`);
+      if ((x === "topShare" || x === "accelShare") && (pr as number[]).some((n) => Math.abs(n) > 0.5)) bad(`ratings.${name}.${x} must stay within 0.5`);
+    }
+  };
+  band("default", RT["default"]);
+  if (!isObj(RT["byPosition"])) bad("ratings.byPosition must be an object");
+  for (const [pos, b] of Object.entries(RT["byPosition"] as Record<string, unknown>)) band(`byPosition.${pos}`, b);
+  parseMoments(o["moments"], bad);
+  const kt = o["kickTrail"];
+  if (!isObj(kt) || !isNum((kt as Record<string, unknown>)["fadeMs"]) || ((kt as Record<string, number>)["fadeMs"] as number) <= 0) bad("kickTrail.fadeMs must be a number of ms above 0");
+  parseKickReturn(o["kickReturn"], bad);
   return v as unknown as Motion;
 }

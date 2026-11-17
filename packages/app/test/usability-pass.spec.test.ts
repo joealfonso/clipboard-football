@@ -318,7 +318,8 @@ describe("AC 3: matchupSwatches always gives two different swatches (U4)", () =>
       expect(Math.max(c(s, COLOR.panel), contrast(ring, rgbOf(COLOR.panel))), s).toBeGreaterThanOrEqual(3.0);
     }
     const css = readFileSync(join(root, "packages/app/src/styles.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-    for (const sel of [".swatch", ".team-chip"]) {
+    // DESIGN.md Prime Time: the bug's team chip became the name plate (hud.teamSwatch in the bug), same ring.
+    for (const sel of [".swatch", ".plate"]) {
       const body = new RegExp(`(?:^|\\n|\\})\\s*\\${sel}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? "";
       expect(body.replace(/\s+/g, " "), sel).toContain("box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35)");
     }
@@ -714,11 +715,12 @@ describe("AC 9: the label setting (U7, amended by Joseph: one label per mark)", 
     expect(lc()).toBe("rating");
   });
 
-  // Amended by docs/specs/m2-main-menu.md (decision 6): Animation speed is row 5, so 6 rows. The rows changed, not the rule.
-  it("settingsScreen has 6 rows; row 4 is 'Mark label shows', noting Jersey number or Overall rating", () => {
+  // Amended by docs/specs/m2-main-menu.md (decision 6): Animation speed is row 5, so 6 rows; then by
+  // docs/specs/m2-calling-screen-pass.md (Q1): Auto-advance is row 6, so 7. The rows changed, not the rule.
+  it("settingsScreen has 7 rows; row 4 is 'Mark label shows', noting Jersey number or Overall rating", () => {
     for (const [v, note] of [["number", "Jersey number"], ["rating", "Overall rating"]] as const) {
       const s = settingsScreen({ textSize: 100, reducedMotion: "system", markLabels: "involved", labelContent: v });
-      expect(s.rows).toHaveLength(6);
+      expect(s.rows).toHaveLength(7);
       const r4 = s.rows[3];
       expect(r4?.key).toBe("4");
       expect(r4?.label).toBe("Mark label shows");
@@ -903,10 +905,10 @@ describe("U1, as amended by Broadcast: the canvas outside the field column is tr
 // ---------------------------------------------------------------- U9: title screen and copy
 
 describe("U9: new game with a save, and out-of-date copy", () => {
-  it("with a save, row 1 reads New game with the note 'replaces your saved game'; no confirm step", () => {
+  it("with a save, row 1 reads Quick play with the note 'replaces your saved game'; no confirm step", () => {
     const s = titleScreen({ hasSave: true, storage: true });
     expect(s.rows[0]?.key).toBe("1");
-    expect(s.rows[0]?.label).toBe("New game");
+    expect(s.rows[0]?.label).toBe("Quick play");
     expect(s.rows[0]?.note).toBe("replaces your saved game");
     expect(s.rows[0]?.action).toBe("newGame");
   });

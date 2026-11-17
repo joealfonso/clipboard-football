@@ -35,7 +35,8 @@ export function pickRow(model: ScreenModel | null | undefined, key: string): Scr
 }
 
 /**
- * The main menu (docs/specs/m2-main-menu.md, decision 3): New game, Continue, Settings, Controls.
+ * The main menu (docs/specs/m2-main-menu.md, decision 3): Quick play, Continue, Settings, Controls.
+ * Quick play starts a random matchup at once; the pregame screen is out of the flow for now.
  * Continue is off while the save check runs ("checking"), with no save, or with storage blocked.
  */
 export function titleScreen(o: { readonly hasSave: boolean; readonly storage: boolean; readonly checking?: boolean }): ScreenModel {
@@ -46,7 +47,7 @@ export function titleScreen(o: { readonly hasSave: boolean; readonly storage: bo
     title: "Clipboard Football",
     // A new game replaces the autosave: say so once, as a note, not a confirm step (usability pass U9).
     rows: [
-      row("1", "New game", "newGame", o.hasSave && o.storage ? { note: "replaces your saved game" } : {}),
+      row("1", "Quick play", "newGame", o.hasSave && o.storage ? { note: "replaces your saved game" } : {}),
       can ? row("2", "Continue", "continue") : row("2", "Continue", "continue", { on: false, reason }),
       row("3", "Settings", "settings"),
       row("4", "Controls", "controls"),
@@ -54,7 +55,7 @@ export function titleScreen(o: { readonly hasSave: boolean; readonly storage: bo
   };
 }
 
-/** Where the main menu's highlight opens: Continue when it is on, else New game (decision 4). */
+/** Where the main menu's highlight opens: Continue when it is on, else Quick play (decision 4). */
 export function openingHighlight(m: ScreenModel): number {
   const i = m.rows.findIndex((r) => r.action === "continue" && r.on);
   return i < 0 ? 0 : i;
@@ -112,7 +113,8 @@ export function endScreen(): ScreenModel {
   return { id: "end", title: "Final", rows: [row("1", "Box score", "box"), row("2", "Rematch", "rematch"), row("3", "New matchup", "newMatchup"), row("Esc", "Main menu", "title")] };
 }
 
-export const BOX_TABS = ["Team", "Offense players", "Defense players", "Kicking", "Drives"] as const;
+/** Tab 5 is the game log (calling screen pass Q2; it was "Drives"): drives and every play, newest first. */
+export const BOX_TABS = ["Team", "Offense players", "Defense players", "Kicking", "Game log"] as const;
 export type BoxTab = (typeof BOX_TABS)[number];
 
 export function boxScreen(tab: BoxTab): ScreenModel {
@@ -138,7 +140,7 @@ export function pauseScreen(o: { readonly hasPlay: boolean; readonly speed: Spee
     rows: [
       row("1", "Resume", "resume"),
       o.hasPlay ? row("2", "Last play details", "details", { note: "D" }) : row("2", "Last play details", "details", { on: false, reason: "no plays yet" }),
-      row("3", "Box score", "box"),
+      row("3", "Box score", "box", { note: "L" }),
       row("4", "Animation speed", "speed", { note: o.speed }),
       row("5", "Settings", "settings"),
       row("6", "Controls", "controls"),
@@ -150,6 +152,9 @@ export function pauseScreen(o: { readonly hasPlay: boolean; readonly speed: Spee
 export type TextSize = 100 | 125 | 150 | 200;
 export type MotionSetting = "system" | "on" | "off";
 export type MarkLabelSetting = "involved" | "all" | "none";
+/** Q1: Off; skip qualifying dead balls when you can't call a timeout there; skip them even when you could. */
+export type AutoAdvance = "off" | "noDecision" | "all";
+export const AUTO_ADVANCE_TEXT: Readonly<Record<AutoAdvance, string>> = { off: "Off", noDecision: "When there's nothing to decide", all: "Also skip my timeout chances" };
 
 /** What a mark's one label shows (usability pass U7; Joseph, 2026-11-14: the overall by default). */
 export type LabelContent = "rating" | "number";
@@ -170,6 +175,7 @@ export const SETTINGS_DESCRIPTION: Readonly<Record<string, string>> = {
   markLabels: "Which marks keep their label while a play runs. Every mark gets its label back at the whistle.",
   labelContent: "What the number beside each mark is: the player's overall rating or his jersey number.",
   speed: "How fast plays run: 1x, 2x, or skip to the result. S changes it during a play.",
+  autoAdvance: "Plays with nothing for you to choose (their kickoffs, punts, field goals, extra points, kneels and spikes) run without waiting for Space. Off by default. The middle setting still stops when you could call a timeout.",
 };
 
 /** The line Settings shows when a change couldn't be stored (decision 12). */
@@ -181,6 +187,7 @@ export function settingsScreen(o: {
   readonly markLabels: MarkLabelSetting;
   readonly labelContent?: LabelContent;
   readonly speed?: SpeedSetting;
+  readonly autoAdvance?: AutoAdvance;
   /** What prefers-reduced-motion says now, for the "Follow the system" note. */
   readonly systemReduced?: boolean;
 }): ScreenModel {
@@ -195,6 +202,7 @@ export function settingsScreen(o: {
       row("4", "Mark label shows", "labelContent", { note: LABEL_CONTENT_TEXT[o.labelContent ?? DEFAULT_LABEL_CONTENT] }),
       // Every field of Settings has a row (decision 6); the pause menu keeps its own speed row too.
       row("5", "Animation speed", "speed", { note: o.speed ?? DEFAULT_SETTINGS.speed }),
+      row("6", "Auto-advance", "autoAdvance", { note: AUTO_ADVANCE_TEXT[o.autoAdvance ?? DEFAULT_SETTINGS.autoAdvance] }),
       row("Esc", "Back", "back"),
     ],
   };

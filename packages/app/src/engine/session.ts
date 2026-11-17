@@ -25,7 +25,7 @@ import {
   type LeagueTeam,
   type Session as EngineSession,
 } from "@clipboard-football/sim";
-import type { FromWorker, Matchup, TeamSummary, ToWorker, UiData } from "./protocol";
+import type { FromWorker, Matchup, OpenDrive, TeamSummary, ToWorker, UiData } from "./protocol";
 import type { DecisionAnswer, RatingRanks, Team } from "./types";
 
 export const DEFAULT_LEAGUE_SEED = 2026;
@@ -193,7 +193,23 @@ export class Session {
       const r = decisionRequestSchema.safeParse(req);
       if (!r.success) throw new Error(`the engine sent a request its schema rejects: ${r.error.message}`);
     }
-    this.send({ t: "step", matchup: g.matchup, human: g.human, events, request: g.session.request, state: run?.state ?? null, save: this.save(g), resumed });
+    this.send({ t: "step", matchup: g.matchup, human: g.human, events, request: g.session.request, state: run?.state ?? null, save: this.save(g), resumed, drive: this.openDrive(g) });
+  }
+
+  /**
+   * The drive in progress, read from boxScore's drives so the tracker counts plays the way the
+   * box score's Drives tab does. boxScore closes an open drive as "endOfHalf" at the end of the log;
+   * a drive really ended by the half belongs to an earlier half, so an "endOfHalf" drive of the team
+   * with the ball in the current half is the open one.
+   */
+  private openDrive(g: Game): OpenDrive | null {
+    const run = g.session.run;
+    if (run === null || run.state.phase !== "scrimmage") return null;
+    const rules = this.p.data.engine.rules;
+    const last = boxScore(sessionRecord(g.session, g.setup, this.p.kit), rules).drives.at(-1);
+    const half = (period: number): number => (period <= rules.game.regulationPeriods ? Math.ceil(period / rules.game.periodsPerHalf) : period);
+    if (last === undefined || last.result !== "endOfHalf" || last.team !== run.state.possession || half(last.period) !== half(run.state.period)) return null;
+    return { team: last.team, start: last.start, plays: last.plays };
   }
 
   private begin(leagueSeed: number, seed: number, human: Team, gameType: GameType, log: readonly DecisionAnswer[] | null): Game {
@@ -265,7 +281,7 @@ export class Session {
           if (g === null || g.session.run === null) return;
           const record = sessionRecord(g.session, g.setup, this.p.kit);
           const rules = this.p.data.engine.rules;
-          this.send({ t: "box", box: boxScore(record, rules), players: playerBoxScore(record, rules) });
+          this.send({ t: "box", box: boxScore(record, rules), players: playerBoxScore(record, rules), ...(m.tag === undefined ? {} : { tag: m.tag }) });
           return;
         }
         case "ranks": {

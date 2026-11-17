@@ -1,4 +1,4 @@
-// DESIGN.md's tokens ("Broadcast", 2026-11-15). Every color, shadow, radius and timing the canvas
+// DESIGN.md's tokens ("Broadcast", with the "Prime Time" additions, 2026-11-15). Every color, shadow, radius and timing the canvas
 // draws comes from here; styles.css mirrors them as custom properties in :root.
 
 export const COLOR = {
@@ -46,6 +46,21 @@ export const COLOR = {
   paperShade: "#E6E0CF",
   ink: "#22272B",
   inkSoft: "#4F565B",
+  /** Prime Time: the opaque box behind each score in the bug and the "You" tag. */
+  scoreBox: "#07101F",
+  /** Prime Time: line of scrimmage core (the drive tracker in chunk 1), always cased in outlineDark. */
+  los: "#3D8BFF",
+  /** Prime Time: the midfield home wordmark (field.midfield). Never higher than 0.18: a lit white ring over it drops under 3:1. */
+  midfieldPaint: "rgba(245, 247, 242, 0.18)",
+  /** Prime Time: the carrier trail's head stop (fx.carrierTrail, gradient.trail). */
+  trail: "rgba(245, 247, 242, 0.45)",
+  /** Prime Time: the sub line strip under a moment banner (color.surfaceSolid at 0.96). */
+  bannerStrip: "rgba(18, 34, 63, 0.96)",
+} as const;
+
+/** Canvas gradients with fixed stops (DESIGN.md Gradients). gradient.trail: color.trail at the carrier to the same white at 0 at the tail. */
+export const GRADIENT = {
+  trail: { head: COLOR.trail, tail: "rgba(245, 247, 242, 0)" },
 } as const;
 
 /** Canvas shadows (DESIGN.md Elevation): set, draw the outline pass, then reset with NO_SHADOW. */
@@ -64,8 +79,52 @@ export const NO_SHADOW: CanvasShadow = { color: "rgba(0, 0, 0, 0)", blur: 0, off
 
 export const RADIUS = { sm: 6, md: 10, lg: 14, xl: 20, pill: 999 } as const;
 
-/** UI motion, ms (DESIGN.md Motion (UI)). */
-export const DUR = { fast: 120, base: 180, slow: 260, screen: 240 } as const;
+/** UI motion, ms (DESIGN.md Motion (UI)). `tick`: the score odometer, the tracker slide, the possession glyph slide. */
+export const DUR = { fast: 120, base: 180, slow: 260, screen: 240, tick: 360, snap: 320, wipe: 220 } as const;
+
+/**
+ * Easing curves (DESIGN.md Motion (UI)) as cubic-bezier control points, mirrored in styles.css as
+ * --ease-*. `slam`: moment text arriving (fast in, hard stop, no overshoot); `exit`: a moment
+ * banner leaving. Every control point stays inside 0..1 (no bounce or overshoot).
+ */
+export const EASE = {
+  standard: [0.2, 0, 0, 1],
+  out: [0, 0, 0.2, 1],
+  slam: [0.05, 0.7, 0.1, 1],
+  exit: [0.4, 0, 1, 1],
+} as const satisfies Record<string, readonly [number, number, number, number]>;
+
+/** The eased progress (0..1) of a cubic-bezier(x1, y1, x2, y2) curve at linear progress f, for canvas motion. */
+export function ease(curve: readonly [number, number, number, number], f: number): number {
+  if (f <= 0) return 0;
+  if (f >= 1) return 1;
+  const [x1, y1, x2, y2] = curve;
+  const bx = (u: number): number => 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u;
+  const by = (u: number): number => 3 * (1 - u) * (1 - u) * u * y1 + 3 * (1 - u) * u * u * y2 + u * u * u;
+  // x(u) is monotonic for control points in 0..1: bisect for the u that gives x = f.
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2;
+    if (bx(mid) < f) lo = mid;
+    else hi = mid;
+  }
+  return by((lo + hi) / 2);
+}
+
+/**
+ * Prime Time timings DESIGN.md gives in words, mirrored in styles.css (--first-down-flash,
+ * --row-stagger): the bug's one first-down flash, 900 ms in all (DESIGN.md says "data": it moves
+ * to data/ui/motion.json with the moments block in chunk 3), and the menu change's 24 ms per row.
+ */
+export const BUG_MOTION = { firstDownFlash: 900, rowStagger: 24 } as const;
+
+/**
+ * menu.enter (DESIGN.md Main menu, Prime Time), given in words, mirrored in styles.css
+ * (--menu-enter, --menu-enter-rule-at, --menu-enter-rows-at): the wordmark fades in and rises
+ * 12 px over 400 ms; the accent bar grows over dur.base from 200 ms; the rows enter from 240 ms.
+ */
+export const MENU_ENTER = { wordmarkMs: 400, ruleAt: 200, rowsAt: 240, risePx: 12 } as const;
 
 /**
  * The main menu diagram's ink (docs/specs/m2-main-menu.md, Open 3): no game, so no team colors.

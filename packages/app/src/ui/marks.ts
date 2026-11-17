@@ -71,31 +71,83 @@ export function numberShown(mode: NumberMode, phase: "lineup" | "set" | "live" |
 export interface PathPrim {
   readonly side: "O" | "X";
   readonly points: readonly P[];
-  readonly end: "arrow" | "block" | "none";
-  readonly dashed: boolean;
-  /** 1 for a drawn path, the route alpha for the preview art. */
+  /**
+   * How the path ends (DESIGN.md Paths, Prime Time): an arrowhead for offense routes, a tick for
+   * blocks, a dot for defense; "none" while the path is still drawing on behind its mark.
+   */
+  readonly end: "arrow" | "block" | "dot" | "none";
+  /** True for the preview art of your call (drawn at the route alpha), false for a drawn path. */
   readonly faint: boolean;
+  /** 1, except the preview's fade-out over the first `fadeMs` after the snap (1 to 0), and a kick trail piece's alpha (Q4). */
+  readonly fade: number;
   readonly slot: string;
+  /** A piece of a kick trail (Q4): drawn at `fade`, its alpha falling from 1 at the mark to 0 at the tail. */
+  readonly trail?: boolean;
+}
+
+/** A kick trail's longest piece, in timeline ms: its alpha changes by at most step / fadeMs along it. */
+export const TRAIL_STEP_MS = 25;
+
+/**
+ * A kick trail (calling screen pass Q4): the last `fadeMs` of an unnamed player's travel up to t,
+ * in pieces between his keys, each at the alpha of its middle (1 at the mark, 0 at the tail), cut
+ * back to the mark's edge. Nothing at the whistle and after.
+ */
+export function trailPieces(m: Timeline["marks"][number], tl: Pick<Timeline, "snapAt" | "liveEnd">, t: number, fadeMs: number, edgeYards: number): PathPrim[] {
+  if (t <= tl.snapAt || t >= tl.liveEnd || fadeMs <= 0) return [];
+  const from = Math.max(tl.snapAt, t - fadeMs);
+  // Cut at his keys and at least every TRAIL_STEP_MS, so a piece's alpha (taken at its middle) is
+  // about 1 at the mark however far apart his keys are (code review S3).
+  const steps: number[] = [];
+  for (let x = t - TRAIL_STEP_MS; x > from; x -= TRAIL_STEP_MS) steps.push(x);
+  const times = [...new Set([from, ...m.keys.filter((k: TKey) => k.t > from && k.t < t).map((k) => k.t), ...steps, t])].sort((a, b) => a - b);
+  const pts: P[] = times.map((x) => atKeys(m.keys, x));
+  const trimmed = trimEnd(pts, edgeYards);
+  if (trimmed === null) return [];
+  const out: PathPrim[] = [];
+  for (let i = 1; i < trimmed.length; i++) {
+    const a = trimmed[i - 1] as P;
+    const b = trimmed[i] as P;
+    if (dist(a, b) < 1e-6) continue;
+    const mid = ((times[i - 1] as number) + (times[i] as number)) / 2;
+    out.push({ side: m.side, points: [a, b], end: "none", faint: false, fade: Math.max(0, Math.min(1, 1 - (t - mid) / fadeMs)), slot: m.slot, trail: true });
+  }
+  return out;
+}
+
+/** The preview art's opacity factor at t: 1 before the snap, fading to 0 over `fadeMs` after it. */
+export function previewFade(tl: Pick<Timeline, "snapAt">, t: number, fadeMs: number): number {
+  if (t < tl.snapAt) return 1;
+  if (fadeMs <= 0 || t >= tl.snapAt + fadeMs) return 0;
+  return 1 - (t - tl.snapAt) / fadeMs;
 }
 
 /**
  * Every path the field draws at time t, in field yards: before the snap the preview art of your
- * call (from the calls, never the result: P3); from the snap each mark's path up to its path end
+ * call (from the calls, never the result: P3), fading out over `fadeMs` after the snap; from the
+ * snap each mark's path drawn on behind him, up to where he is now and never past his path end
  * (the read for unnamed players, the whistle for named ones: decision 13), cut back to the mark's
- * edge (DESIGN.md Shapes), ending in a block tick for linemen who blocked and an arrowhead for other
- * offense.
+ * edge (DESIGN.md Shapes). Once a path has ended it takes its end cap: a block tick for linemen
+ * who blocked, an arrowhead for other offense, a dot for defense. Every path is solid.
  */
-export function pathPrimitives(tl: Timeline, t: number, edgeYards: number): PathPrim[] {
+export function pathPrimitives(tl: Timeline, t: number, edgeYards: number, fadeMs = 0): PathPrim[] {
   const out: PathPrim[] = [];
-  if (t < tl.snapAt) {
+  const fade = previewFade(tl, t, fadeMs);
+  if (fade > 0) {
     const art: Art | null = tl.preview;
     for (const p of art?.paths ?? []) {
       const pts = trimEnd(p.points, edgeYards) ?? (p.kind === "block" ? blockTick(p.points, edgeYards) : null);
-      if (pts !== null) out.push({ side: p.side, points: pts, end: p.end, dashed: p.side === "X" || p.kind === "fake", faint: true, slot: p.slot });
+      if (pts !== null) out.push({ side: p.side, points: pts, end: p.side === "X" ? "dot" : p.end, faint: true, fade, slot: p.slot });
     }
-    return out;
   }
+  if (t < tl.snapAt) return out;
+  const trail = tl.kickTrail;
   for (const m of tl.marks) {
+    // Q4: on a kick, a player the result doesn't name draws a fading trail, and nothing at the whistle.
+    if (trail !== undefined && !tl.involved.includes(m.playerId)) {
+      out.push(...trailPieces(m, tl, t, trail.fadeMs, edgeYards));
+      continue;
+    }
     const upto = Math.min(t, m.pathEnd);
     if (upto <= tl.snapAt) continue;
     const keys = m.keys.filter((k: TKey) => k.t >= tl.snapAt && k.t < upto);
@@ -108,7 +160,7 @@ export function pathPrimitives(tl: Timeline, t: number, edgeYards: number): Path
     const drawn = atMark ? trimEnd(pts, edgeYards) : pts;
     if (drawn === null) continue;
     const ended = t >= m.pathEnd;
-    out.push({ side: m.side, points: drawn, end: !ended ? "none" : m.pathStyle, dashed: m.side === "X", faint: false, slot: m.slot });
+    out.push({ side: m.side, points: drawn, end: !ended ? "none" : m.side === "X" ? "dot" : m.pathStyle, faint: false, fade: 1, slot: m.slot });
   }
   return out;
 }

@@ -1,4 +1,4 @@
-/* DESIGN.md "Broadcast" tokens (2026-11-15), mirrored from ui/tokens.ts. Depth is allowed, one job
+/* DESIGN.md "Broadcast" tokens with the "Prime Time" additions (2026-11-15), mirrored from ui/tokens.ts. Depth is allowed, one job
    per effect (DESIGN.md How depth works). */
 
 /* font.ui and font.display, bundled locally (docs/ASSETS.md, intake 2026-11-15): latin subsets from
@@ -53,6 +53,12 @@
   --paper-shade: #e6e0cf;
   --ink: #22272b;
   --ink-soft: #4f565b;
+  /* Prime Time. */
+  --score-box: #07101f;
+  --los: #3d8bff;
+  --midfield-paint: rgba(245, 247, 242, 0.18);
+  --trail: rgba(245, 247, 242, 0.45);
+  --banner-strip: rgba(18, 34, 63, 0.96);
   /* Field. */
   --turf: #2f7237;
   --turf-stripe: #327739;
@@ -84,8 +90,20 @@
   --dur-base: 180ms;
   --dur-slow: 260ms;
   --dur-screen: 240ms;
+  --dur-tick: 360ms;
+  --dur-snap: 320ms;
+  --dur-wipe: 220ms;
+  /* Prime Time timings given in words (ui/tokens.ts BUG_MOTION): the bug's first-down flash and the
+     menu change's per-row stagger. --since and --fd-since are a flight's age (ui/flights.ts). */
+  --first-down-flash: 900ms;
+  --row-stagger: 24ms;
+  --since: 0ms;
+  --fd-since: 0ms;
+  --row-i: 0;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-slam: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --text-scale: 1;
   /* font.ui and font.display: the @font-face faces above, then the system face while they load. */
   --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -96,7 +114,23 @@
   --menu-frame-padding: 32px;
   --menu-narrow-max: 640px;
   --menu-wordmark-size: 56px;
-  --menu-title-size: 28px;
+  /* type.hero (Prime Time): the main menu wordmark, 88 px over two lines. */
+  --menu-hero-size: 88px;
+  /* menu.enter (Prime Time), given in DESIGN.md in words: the wordmark's 400 ms rise, the accent
+     bar from 200 ms, the rows from 240 ms (ui/tokens.ts MENU_ENTER). */
+  --menu-enter: 400ms;
+  --menu-enter-rule-at: 200ms;
+  --menu-enter-rows-at: 240ms;
+  /* moment.matchupIntro (Prime Time) timings, ms (ui/intro.ts INTRO). */
+  --intro-wipe: 300ms;
+  --intro-slam-at: 200ms;
+  --intro-slam: 220ms;
+  --intro-vs-at: 500ms;
+  --intro-shrink-at: 1900ms;
+  --intro-shrink: 400ms;
+  /* menu.scoreHero: halftime and final scores count up over 600 ms (ui/faceoff.ts COUNT_UP_MS). */
+  --score-count: 600ms;
+  --menu-title-size: 40px;
   --menu-rule: var(--gold);
   --menu-left: 440px;
   --menu-gap: 48px;
@@ -164,10 +198,13 @@ body {
 }
 
 /* ---------------------------------------------------------------- top bar: the score bug */
+/* DESIGN.md Prime Time, HUD Score bug: a 64 px glass strip; inside it, 16 px from the left, one
+   fused 48 px bug (team plates, dark score boxes, the game and down segments), then the tags and
+   the key hints outside it. */
 .top-bar {
   position: fixed;
   inset: 0 0 auto 0;
-  height: 56px;
+  height: 64px;
   background: var(--top-bar);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   backdrop-filter: blur(18px) saturate(140%);
@@ -176,13 +213,13 @@ body {
   color: var(--chalk);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 12px;
+  gap: 8px;
+  padding: 0 16px;
   font-size: calc(15px * var(--bar-scale));
   white-space: nowrap;
   overflow: hidden;
   z-index: 4;
-  /* The bar is 56 px tall at any text size: its type follows the text size up to 125%, and the
+  /* The bar is 64 px tall at any text size: its type follows the text size up to 125%, and the
      last fit steps shrink it so score, clock and down and distance always fit (U5). */
   --bar-scale: min(var(--text-scale), 1.25);
 }
@@ -191,85 +228,65 @@ body {
 .top-bar[hidden] {
   display: none;
 }
+/* One fused unit: outer corners rounded, segments flush with 1 px hairline dividers, no gaps. */
 .bug {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
+  height: 48px;
   flex: none;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--hairline-strong), var(--shadow-2);
 }
 .cell {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 12px;
-  border-radius: var(--radius-md);
-  background: var(--surface-raised);
+  padding: 0 14px;
   flex: none;
 }
-.team-chip {
-  width: 6px;
-  height: 28px;
-  border-radius: 3px;
+.bug > .cell + .cell {
+  border-left: 1px solid var(--hairline);
+}
+/* hud.team name plate: a solid team block with the tier's inset ring; text in the slot's outline
+   color (set inline). */
+.plate {
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-  flex: none;
 }
-/* Dark-tier fills (red, cobalt, black, purple): the stronger ring keeps 3:1 against the cell. */
-.team-chip.dark,
+/* Dark-tier fills (red, cobalt, black, purple): the stronger ring keeps 3:1 against the bar. */
+.plate.dark,
+.sit-edge.dark,
 .swatch.dark {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
-.team-id {
+.plate-sub {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.team-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 8px;
 }
 .top-bar .name {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: calc(20px * var(--bar-scale));
+  font-weight: 700;
+  font-size: calc(22px * var(--bar-scale));
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--chalk);
+  color: inherit;
 }
 .top-bar .you {
   padding: 1px 6px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--chalk-soft);
-  font-size: calc(12px * var(--bar-scale));
-  font-weight: 500;
-  line-height: 1.2;
-}
-.top-bar .score {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: calc(34px * var(--bar-scale));
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  min-width: 2ch;
-  text-align: right;
+  background: var(--score-box);
   color: var(--chalk);
+  font-size: calc(12px * var(--bar-scale));
+  font-weight: 600;
+  line-height: 1;
 }
-/* hud.possession: a 10 by 6 signal ellipse; the slot keeps its width so the bug never shifts. */
-.poss {
-  width: 10px;
-  display: inline-flex;
-  align-items: center;
-  flex: none;
-}
-.poss .dot {
-  width: 10px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--signal);
-}
+/* hud.timeouts: bars in the plate's outline color; spent ones at 0.30 on purpose (they read as gone). */
 .pips {
   display: inline-flex;
   gap: 3px;
@@ -278,12 +295,78 @@ body {
   width: 14px;
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.18);
+  background: currentColor;
+  opacity: 0.3;
 }
 .pip.on {
-  background: var(--chalk);
+  opacity: 1;
 }
-.period,
+/* hud.score: the biggest text in the bar on its darkest surface; never above 44 px. */
+.score-box {
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 64px;
+  padding: 0 12px;
+  background: var(--score-box);
+}
+.top-bar .score {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: min(calc(44px * var(--bar-scale)), 44px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+  color: var(--chalk);
+}
+.score > span {
+  display: block;
+}
+.score .score-old {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+/* hud.possession: a 12 by 7 signal ellipse; both boxes keep the slot so the bug never shifts. */
+.poss {
+  width: 12px;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+.poss .dot {
+  position: relative;
+  z-index: 2;
+  width: 12px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+/* The game segment: period and clock on one baseline, the clock state under it, right aligned. */
+.seg {
+  background: var(--surface-raised);
+}
+.game {
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+}
+.game-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.period {
+  color: var(--chalk-soft);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(16px * var(--bar-scale));
+  line-height: 1;
+  text-transform: uppercase;
+}
 .clock-state {
   color: var(--chalk-soft);
   font-size: calc(12px * var(--bar-scale));
@@ -292,7 +375,7 @@ body {
 }
 .clock {
   font-weight: 700;
-  font-size: calc(22px * var(--bar-scale));
+  font-size: calc(24px * var(--bar-scale));
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--chalk);
@@ -308,20 +391,64 @@ body {
   font-size: calc(12px * var(--bar-scale));
   font-weight: 600;
   line-height: 1.2;
+  flex: none;
 }
 .late-tag {
   background: rgba(255, 203, 61, 0.16);
   color: var(--signal);
 }
+/* moment.twoMinute: the clock turns signal over dur.base; the Under 2:00 tag comes in from 8 px left with a fade. */
+.clock.late.two-min {
+  animation: two-min-clock var(--dur-base) var(--ease-standard) calc(-1 * var(--since)) both;
+}
+.late-tag.two-min {
+  animation: two-min-tag var(--dur-base) var(--ease-out) calc(-1 * var(--since)) both;
+}
+@keyframes two-min-clock {
+  from {
+    color: var(--chalk);
+  }
+  to {
+    color: var(--signal);
+  }
+}
+@keyframes two-min-tag {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 .tempo {
   background: var(--surface-raised);
   color: var(--chalk-soft);
-  flex: none;
+}
+/* hud.downDistance: "3RD & 4" over the spot. */
+.down {
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.dd-now,
+.dd-old {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.dd-old {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  padding: inherit;
 }
 .bar-dd {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: calc(22px * var(--bar-scale));
+  font-size: calc(26px * var(--bar-scale));
   line-height: 1;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
@@ -330,7 +457,141 @@ body {
 .bar-spot {
   color: var(--chalk-soft);
   font-size: calc(12px * var(--bar-scale));
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.2;
+}
+/* The bug's motion (DESIGN.md "How the bug moves"). Each starts --since ms in (ui/flights.ts), so a
+   rebuilt bar picks up mid-change. Reduced motion (the rules at the end) shows the new value at once. */
+.score-box.flash {
+  animation: score-flash calc(var(--dur-fast) * 5) var(--ease-standard) calc(-1 * var(--since)) backwards;
+}
+.odo .score-now {
+  animation: odo-in var(--dur-tick) var(--ease-standard) calc(-1 * var(--since)) both;
+}
+.odo .score-old {
+  animation: odo-out var(--dur-tick) var(--ease-standard) calc(-1 * var(--since)) both;
+}
+.poss .dot.slide {
+  animation: poss-slide var(--dur-tick) var(--ease-standard) calc(-1 * var(--since)) both;
+}
+.swap .dd-now {
+  animation: dd-in var(--dur-base) var(--ease-out) calc(-1 * var(--since)) both;
+}
+.swap .dd-old {
+  animation: dd-out var(--dur-fast) var(--ease-standard) calc(-1 * var(--since)) both;
+}
+/* fx.firstDown in the bug: after the swap, one signal fill with ink text, 900 ms in all. */
+.down.first-down {
+  animation: first-down var(--first-down-flash) var(--ease-standard) calc(var(--dur-base) - var(--fd-since)) backwards;
+}
+.down.first-down .bar-dd {
+  animation: first-down-ink var(--first-down-flash) var(--ease-standard) calc(var(--dur-base) - var(--fd-since)) backwards;
+}
+.down.first-down .bar-spot {
+  animation: first-down-ink-soft var(--first-down-flash) var(--ease-standard) calc(var(--dur-base) - var(--fd-since)) backwards;
+}
+/* Reduced motion: the first-down fill still shows, as a state, without its fades. */
+.down.first-down-still {
+  background: var(--signal);
+}
+.down.first-down-still .bar-dd,
+.down.first-down-still .bar-spot {
+  color: var(--ink);
+}
+/* The scoring team's fill at 0.35 (--flash, set inline) over dur.fast, back over 480 ms. */
+@keyframes score-flash {
+  0% {
+    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0);
+  }
+  20% {
+    box-shadow: inset 0 0 0 999px var(--flash);
+  }
+  100% {
+    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0);
+  }
+}
+@keyframes odo-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes odo-out {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+/* --poss-dx: from the old score box's glyph slot to this one (measured in app.ts). */
+@keyframes poss-slide {
+  from {
+    transform: translateX(var(--poss-dx, 0px));
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes dd-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* The old down and distance leaves: the one fade-out DESIGN.md names outside the moments. */
+@keyframes dd-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+/* 120 of 900 ms in, held, 180 ms back. */
+@keyframes first-down {
+  0% {
+    background-color: var(--surface-raised);
+  }
+  13.33%,
+  80% {
+    background-color: var(--signal);
+  }
+  100% {
+    background-color: var(--surface-raised);
+  }
+}
+@keyframes first-down-ink {
+  0% {
+    color: var(--chalk);
+  }
+  13.33%,
+  80% {
+    color: var(--ink);
+  }
+  100% {
+    color: var(--chalk);
+  }
+}
+@keyframes first-down-ink-soft {
+  0% {
+    color: var(--chalk-soft);
+  }
+  13.33%,
+  80% {
+    color: var(--ink);
+  }
+  100% {
+    color: var(--chalk-soft);
+  }
 }
 .top-bar .bar-keys {
   margin-left: auto;
@@ -342,8 +603,8 @@ body {
 /* Drop order when the bar is too narrow (ui/topbar.ts TOP_BAR_FIT_STEPS, one class each, cumulative):
    key hint labels, the clock state word, the key hints (DESIGN.md), then the tempo tag, the
    Under 2:00 tag (the clock stays signal), the You tag (kept for screen readers), the bug's type at
-   100%, then 85% with 8 px padding, then names at 16 px. Names, score, clock and down and distance
-   are never cut or hidden (DESIGN.md Broadcast build review 4). */
+   100%, then 85% with 8 px padding and a 52 px score box, then names at 16 px. Names, score, clock
+   and down and distance are never cut or hidden (DESIGN.md Broadcast build review 4). */
 .top-bar.fit-1 .chip-label,
 .top-bar.fit-2 .clock-state,
 .top-bar.fit-3 .bar-keys,
@@ -367,6 +628,9 @@ body {
 }
 .top-bar.fit-8 .cell {
   padding: 0 8px;
+}
+.top-bar.fit-8 .score-box {
+  min-width: 52px;
 }
 .top-bar.fit-9 .name {
   font-size: calc(16px * var(--bar-scale));
@@ -431,7 +695,7 @@ kbd,
 /* ---------------------------------------------------------------- layout */
 .layout {
   position: fixed;
-  inset: 56px 0 0 0;
+  inset: 64px 0 0 0;
 }
 .layout:focus {
   outline: none;
@@ -487,9 +751,12 @@ kbd,
   padding: 0;
 }
 /* Two cards side by side, top aligned: last play 5 parts, your call 7 (DESIGN.md Calling screen). */
+/* Rows: the situation plate, the cards, then the legend. The panel fills the window, so the spare
+   height goes to the legend's row (it sits at the bottom), never between the plate and the cards. */
 .panel.wide {
   display: grid;
   grid-template-columns: minmax(260px, 5fr) 7fr;
+  grid-template-rows: auto auto 1fr;
   column-gap: 24px;
   row-gap: 16px;
   align-items: start;
@@ -518,6 +785,7 @@ kbd,
 }
 .panel.wide .panel-foot {
   grid-column: 1 / -1;
+  align-self: end;
 }
 .panel-foot p {
   margin: 4px 0;
@@ -532,11 +800,14 @@ kbd,
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   column-gap: 8px;
 }
+/* type.screenTitle (Prime Time): display 700 40 px caps, then 16 px of space. */
 .panel h1 {
-  font-size: calc(28px * var(--text-scale));
+  font-family: var(--font-display);
+  font-size: calc(40px * var(--text-scale));
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
   margin: 0 0 16px;
 }
 .panel h2 {
@@ -555,14 +826,9 @@ kbd,
   color: var(--chalk-soft);
 }
 .report > .section-label:first-child,
-.rail-card > .section-label:first-child {
+.rail-card > .section-label:first-child,
+.ov-menu > .section-label:first-child {
   margin-top: 0;
-}
-.so-far {
-  font-size: calc(15px * var(--text-scale));
-  line-height: 1.4;
-  color: var(--chalk-soft);
-  margin: 0 0 4px;
 }
 .panel h3,
 .main-menu h3 {
@@ -577,17 +843,222 @@ kbd,
   color: var(--chalk-soft);
 }
 
-/* The call card header: type.callHeader, then "You're on offense" in type.note. */
-.situation .dd {
-  font-size: calc(28px * var(--text-scale));
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
+/* hud.situation (Prime Time, Calling screen Step A): the situation, readable from across the room.
+   Full content width over the cards, read only. Down, spot, then the drive tracker. */
+.situation-plate {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 24px;
+  row-gap: 8px;
+  min-height: 96px;
+  overflow: hidden;
 }
-.situation .side {
+.panel > .situation-plate {
+  padding: 16px 24px;
+}
+.panel.wide > .situation-plate {
+  grid-column: 1 / -1;
+}
+/* The team edge: 6 px of the team with the ball, inside the plate's left edge, with the inset ring. */
+.sit-edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+/* The down block, on gradient.teamTint (set inline) that runs to the plate's edges. */
+.sit-down {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  margin: -16px 0 -16px -24px;
+  padding: 16px 0 16px 24px;
+}
+.sit-dd,
+.sit-dd-old {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(52px * var(--text-scale));
+  line-height: 0.95;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk);
+}
+.sit-dd-old {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  translate: 0 -50%;
+}
+.sit-down.swap .sit-dd {
+  animation: dd-in var(--dur-base) var(--ease-out) calc(-1 * var(--since)) both;
+}
+.sit-down.swap .sit-dd-old {
+  animation: dd-out var(--dur-fast) var(--ease-standard) calc(-1 * var(--since)) both;
+}
+.sit-divider {
+  width: 1px;
+  height: 48px;
+  background: var(--hairline);
+  flex: none;
+}
+.sit-spot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: none;
+}
+.sit-yard {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: calc(28px * var(--text-scale));
+  line-height: 1;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk);
+}
+.sit-side {
   font-size: calc(15px * var(--text-scale));
+  line-height: 1.4;
   color: var(--chalk-soft);
+}
+/* hud.driveTracker: the rest of the width; app.ts hides it under 280 px. */
+.tracker-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.tracker-wrap[hidden] {
+  display: none;
+}
+/* hud.lineScore in the plate (moment.periodEnd): after the 1st and 3rd quarters, in place of the
+   drive tracker until the next snap. Display 700 22 px tabular; quarters chalkSoft, totals chalk. */
+.line-score-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.line-score-wrap.wipe-in {
+  animation: wipe-in var(--dur-wipe) var(--ease-out) calc(-1 * var(--since)) both;
+}
+.line-score {
+  border-collapse: collapse;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(22px * var(--text-scale));
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+}
+.line-score th,
+.line-score td {
+  padding: 0 8px;
+  text-align: right;
+}
+.line-score th[scope="row"] {
+  text-align: left;
+  color: var(--chalk);
+  white-space: nowrap;
+}
+.line-score th[scope="col"] {
+  font-size: calc(13px * var(--text-scale));
+  color: var(--chalk-soft);
+}
+.line-score .ls-q {
+  color: var(--chalk-soft);
+}
+.line-score .ls-total {
+  color: var(--chalk);
+}
+@keyframes wipe-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.tracker {
+  position: relative;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--turf);
+  box-shadow: 0 0 0 1px var(--hairline-strong);
+}
+.tracker > * {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.tk-ez {
+  width: calc(100% / 12);
+}
+.tk-ez.right {
+  right: 0;
+}
+.tk-yl {
+  width: 1px;
+  background: rgba(245, 247, 242, 0.35);
+}
+.tk-yl.mid {
+  background: rgba(245, 247, 242, 0.6);
+}
+.tk-fd,
+.tk-los {
+  width: 3px;
+  translate: -50% 0;
+  box-shadow: 0 0 0 1px var(--outline-dark);
+}
+.tk-fd {
+  background: var(--signal);
+}
+.tk-los {
+  background: var(--los);
+}
+.tracker > .tk-ball {
+  top: 50%;
+  bottom: auto;
+  width: 8px;
+  height: 5px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--ball);
+  box-shadow: 0 0 0 1.5px var(--line), 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+/* After a play the ball, both lines and the band slide from their old spots (--from-left and
+   --from-width, set inline); on a change of possession the tracker is redrawn with a fade. */
+.tracker.slide > .from {
+  animation: tk-slide var(--dur-tick) var(--ease-standard) calc(-1 * var(--since)) backwards;
+}
+.tracker.slide > .tk-band.from {
+  animation-name: tk-band;
+}
+.tracker.fade {
+  animation: fade-in var(--dur-base) var(--ease-out) calc(-1 * var(--since)) backwards;
+}
+@keyframes tk-slide {
+  from {
+    left: var(--from-left);
+  }
+}
+@keyframes tk-band {
+  from {
+    left: var(--from-left);
+    width: var(--from-width);
+  }
+}
+.drive-line {
+  margin: 4px 0 0;
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--chalk-soft);
+  font-variant-numeric: tabular-nums;
 }
 .report {
   min-height: 0;
@@ -621,6 +1092,7 @@ kbd,
 
 /* ---------------------------------------------------------------- menu rows (hud.playMenu) */
 .rows {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -685,12 +1157,135 @@ kbd,
   background: var(--gold);
   color: var(--ink);
 }
+/* Keyboard focus on a row (Prime Time): 2 px gold, offset 2 px, following the row's radius. A chalk
+   ring around the gold selection read as a hard cream border (a banned look). */
 .row:focus-visible {
-  outline: 2px solid var(--chalk);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
+/* Pressed: the row scales to 0.98 and its key hint goes chalk with ink text for dur.fast. A key
+   press gets the same through .pressed (app.ts), for as long as the row stays on screen. */
 .row:active {
-  transform: scale(0.99);
+  transform: scale(0.98);
+}
+.row:active .key {
+  background: var(--chalk);
+  color: var(--ink);
+}
+.row.pressed {
+  animation: press var(--dur-fast) var(--ease-standard) calc(-1 * var(--since)) backwards;
+}
+.row.pressed .key {
+  animation: press-key var(--dur-fast) var(--ease-standard) calc(-1 * var(--since)) backwards;
+}
+@keyframes press {
+  from {
+    transform: scale(0.98);
+  }
+  to {
+    transform: scale(0.98);
+  }
+}
+@keyframes press-key {
+  from {
+    background-color: var(--chalk);
+    color: var(--ink);
+  }
+  to {
+    background-color: var(--chalk);
+    color: var(--ink);
+  }
+}
+/* Selection travel (Prime Time): one highlight per menu carries the fill, ring, shadow and accent
+   bar and slides to the selected row (app.ts places it; .travel once it is placed). Until then, and
+   in groups without one, the row paints its own selection as above. */
+.row-hl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  border-radius: var(--radius-md);
+  background: var(--select);
+  box-shadow: var(--shadow-select);
+  pointer-events: none;
+  transition: transform var(--dur-base) var(--ease-standard), height var(--dur-base) var(--ease-standard);
+}
+.row-hl::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--gold);
+}
+.row-hl[hidden],
+.rows:not(.travel) > .row-hl {
+  display: none;
+}
+.row-hl.no-anim {
+  transition: none;
+}
+.rows.travel > .row.hl,
+.rows.travel > .row:hover {
+  background: transparent;
+  box-shadow: none;
+}
+.rows.travel > .row:hover:not(.hl) {
+  background: var(--row-rest);
+}
+.rows.travel > .row.hl::before,
+.rows.travel > .row:hover::before {
+  transform: scaleY(0);
+}
+.rows.travel > .row:hover:not(.hl) .label {
+  font-weight: 500;
+}
+.rows.travel > .row:hover:not(.hl) .key {
+  background: var(--surface-raised);
+  color: var(--chalk-soft);
+}
+/* The label weight and the gold key switch on the row the highlight arrives at, at the end of the slide. */
+.rows.sliding > .row.hl .label {
+  font-weight: 500;
+}
+.rows.sliding > .row.hl .key {
+  background: var(--surface-raised);
+  color: var(--chalk-soft);
+}
+/* Menu change: a pick's next rows enter from 12 px right (Esc and Back from the left) with a fade,
+   24 ms apart. Keys work from the first frame; nothing waits for this. */
+.rows.enter > .row,
+.rows.enter-back > .row {
+  animation: row-in var(--dur-base) var(--ease-out) calc(var(--row-i) * var(--row-stagger) - var(--since)) backwards;
+}
+.rows.enter-back > .row {
+  animation-name: row-in-back;
+}
+.rows.enter > .row-hl,
+.rows.enter-back > .row-hl {
+  animation: fade-in var(--dur-base) var(--ease-out) calc(-1 * var(--since)) backwards;
+}
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes row-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .row.off {
   background: transparent;
@@ -1063,7 +1658,7 @@ td.mono {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 120px;
+  max-height: var(--card-art-max, 120px);
   border-radius: 6px;
 }
 .play-card-personnel {
@@ -1072,7 +1667,7 @@ td.mono {
 }
 @media (max-height: 640px) {
   .play-card-art svg {
-    max-height: 72px;
+    max-height: var(--card-art-max, 72px);
   }
 }
 :root[style*="--text-scale: 2"] .cards {
@@ -1183,33 +1778,98 @@ td.mono {
   flex: none;
   min-width: 0;
 }
+/* menu.wordmark (Prime Time, menu.hero): type.hero, display 700 88 px / 0.92, caps, 0.005em, on two
+   lines ("CLIPBOARD" over "FOOTBALL"); type.wordmark (56 px / 1.0, 0.01em, may wrap) when the frame
+   is under 720 px or the text scale is 150% or more (.small, set by the app). */
 .wordmark {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: calc(var(--menu-wordmark-size) * var(--text-scale));
-  line-height: 1;
-  letter-spacing: 0.01em;
+  font-size: calc(var(--menu-hero-size) * var(--text-scale));
+  line-height: 0.92;
+  letter-spacing: 0.005em;
   text-transform: uppercase;
   color: var(--chalk);
   overflow-wrap: break-word;
 }
-/* menu.rule: a 48 px gold accent bar under the main menu's wordmark only (DESIGN.md Broadcast). */
+.wordmark .wm-line {
+  display: block;
+}
+.wordmark.small {
+  font-size: calc(var(--menu-wordmark-size) * var(--text-scale));
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.wordmark.small .wm-line {
+  display: inline;
+}
+/* menu.rule: the accent bar, 64 by 4 px, radius 2, color.gold, 16 px under the wordmark (main menu only). */
 .menu-rule {
-  width: 48px;
-  height: 3px;
+  width: 64px;
+  height: 4px;
   border-radius: 2px;
   background: var(--menu-rule);
-  margin-top: 14px;
+  margin-top: 16px;
+  transform-origin: left center;
 }
-/* Other menu screens: the title in the UI face, sentence case, then 16 px of space, no accent bar. */
+/* menu.enter: on the first show after the app loads only. Keys work from the first frame. */
+.menu-frame.enter .wordmark {
+  animation: hero-in var(--menu-enter) var(--ease-out) calc(-1 * var(--since)) both;
+}
+.menu-frame.enter .menu-rule {
+  animation: rule-grow var(--dur-base) var(--ease-out) calc(var(--menu-enter-rule-at) - var(--since)) both;
+}
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes rule-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+/* Screen push (menu mode): the incoming screen enters from 24 px right with a fade over dur.screen;
+   Back enters from 24 px left. The outgoing screen hides in one frame. */
+.menu-frame.push-in {
+  animation: push-in var(--dur-screen) var(--ease-out) both;
+}
+.menu-frame.push-back {
+  animation: push-back var(--dur-screen) var(--ease-out) both;
+}
+@keyframes push-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes push-back {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+/* Sheets (pause, details, box score): rise 12 px and fade in over dur.slow; hide in one frame. */
+.panel.sheet-in {
+  animation: sheet-in var(--dur-slow) var(--ease-out) both;
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+/* Other menu screens: type.screenTitle (Prime Time), display 700 40 px caps, then 16 px of space,
+   no accent bar. */
 .menu-title {
   margin: 0 0 16px;
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: calc(var(--menu-title-size) * var(--text-scale));
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
   color: var(--chalk);
   overflow-wrap: break-word;
 }
@@ -1271,4 +1931,400 @@ td.mono {
 }
 .main-menu .unit-cols {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+/* ---------------------------------------------------------------- calling screen pass (docs/specs/m2-calling-screen-pass.md) */
+/* U1: the left column holds the Last play card, then the board; the call card keeps the right column. */
+.call-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.call-left.swap-in {
+  animation: fade-in var(--dur-base) var(--ease-standard) both;
+}
+/* The board (DESIGN.md Step B): radius.lg, its edge clips the marks, 1 px hairline, shadow.2. */
+.call-board {
+  display: block;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-2);
+  box-sizing: border-box;
+}
+/* U2: the why headline in type.body chalk; the calls line in type.note chalkSoft (.calls above). */
+.why-line {
+  font-size: calc(17px * var(--text-scale));
+  line-height: 1.45;
+  color: var(--chalk);
+}
+.key-hints .chip {
+  color: var(--chalk-soft);
+}
+.before-label {
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--chalk-soft);
+  margin-top: 8px;
+}
+/* U3: the details sheet's groups. */
+.detail-group h3 {
+  margin-top: 12px;
+}
+.note {
+  font-size: calc(14px * var(--text-scale));
+}
+/* Q2: the game log, one scrollable list, newest first. */
+.game-log {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.game-log:focus-visible {
+  outline: 2px solid var(--gold, #f5c84c);
+  outline-offset: 2px;
+}
+.log-head {
+  font-weight: 600;
+  margin: 16px 0 4px;
+}
+.log-play {
+  margin: 8px 0 12px;
+}
+.log-play p {
+  margin: 2px 0;
+}
+.log-event {
+  font-size: calc(14px * var(--text-scale));
+  color: var(--chalk-soft);
+}
+
+/* ---------------------------------------------------------------- the face-off (Prime Time) */
+/* pregame.faceoff and menu.scoreHero: away half left, home half right, each gradient.teamBlock in its
+   team fill with the tier's inset ring, meeting at a 12-degree seam (21 px each way at 200 px tall),
+   the VS disc on the seam. Every word on a half is in the slot's outline color (set inline). */
+.faceoff {
+  --fo-h: 200px;
+  --seam: calc(var(--fo-h) * 0.105);
+  position: relative;
+  height: var(--fo-h);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
+  margin: 0 0 24px;
+}
+@media (max-width: 963px) {
+  .faceoff {
+    --fo-h: 160px;
+  }
+}
+.fo-half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(50% + var(--seam));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  background: var(--sheen), var(--team-fill);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.fo-half.dark {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.fo-half.away {
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 2 * var(--seam)) 100%, 0 100%);
+}
+.fo-half.home {
+  right: 0;
+  flex-direction: row-reverse;
+  text-align: right;
+  clip-path: polygon(calc(2 * var(--seam)) 0, 100% 0, 100% 100%, 0 100%);
+}
+.fo-words {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fo-half.home .fo-words {
+  align-items: flex-end;
+}
+.fo-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.fo-side .you {
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--score-box);
+  color: var(--chalk);
+  font-size: calc(12px * var(--text-scale));
+}
+.fo-city {
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.2;
+}
+/* type.faceoffName: display 700 64 px / 0.95 caps (48 under 900 px of content). */
+.fo-name {
+  font-family: var(--font-display);
+  font-size: calc(64px * var(--text-scale));
+  font-weight: 700;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+/* 48 px under 900 px of content (the 32 px menu frame padding each side: windows under 964 px). */
+@media (max-width: 963px) {
+  .fo-name {
+    font-size: calc(48px * var(--text-scale));
+  }
+}
+/* type.faceoffScore: display 700 96 px / 0.9, tabular. */
+.fo-score {
+  font-family: var(--font-display);
+  font-size: calc(96px * var(--text-scale));
+  font-weight: 700;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: center;
+}
+.fo-vs {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--score-box);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--chalk);
+}
+/* Halftime and end: the halves slide in 40 px from their outer edges with a fade over dur.screen. */
+.faceoff.hero-in .fo-half.away {
+  animation: fo-from-left var(--dur-screen) var(--ease-out) calc(-1 * var(--since)) both;
+}
+.faceoff.hero-in .fo-half.home {
+  animation: fo-from-right var(--dur-screen) var(--ease-out) calc(-1 * var(--since)) both;
+}
+@keyframes fo-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+}
+@keyframes fo-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+.hero-title {
+  margin: 0 0 16px;
+}
+.pregame-label {
+  margin: 0 0 16px;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--chalk-soft);
+}
+/* The tale of the tape: one row per unit, 40 px apart; values at the far ends, bars growing outward. */
+.tape {
+  display: flex;
+  flex-direction: column;
+  /* Rows 40 px apart (DESIGN Pregame, tale of the tape): a 28 px row (the 28 px value) plus 12. */
+  gap: 12px;
+  margin: 0 0 24px;
+}
+.tape-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
+  align-items: center;
+  column-gap: 16px;
+  min-height: 28px;
+}
+.tape-val {
+  font-family: var(--font-display);
+  font-size: calc(28px * var(--text-scale));
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk-soft);
+  min-width: 2ch;
+}
+.tape-val.lead {
+  color: var(--chalk);
+}
+.tape-label {
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--chalk-soft);
+  text-align: center;
+}
+.tape-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--track);
+  overflow: hidden;
+}
+.tape-bar.away {
+  justify-content: flex-end;
+}
+.tape-fill {
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.tape-fill.dark {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.line-score.hero {
+  margin: 0 0 24px;
+}
+/* ---------------------------------------------------------------- moment.matchupIntro */
+/* On the stage under the top bar (the bug waits there, unseen, and fades in while the halves shrink
+   into its plates); everything else on screen is covered until the intro ends or is skipped. */
+.intro {
+  position: fixed;
+  top: 64px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  display: grid;
+  align-items: center;
+  background: var(--stage);
+  background-color: var(--bg);
+}
+.intro-band {
+  --fo-h: 240px;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  margin: 0;
+}
+.intro-slot {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(50% + var(--seam));
+  transform-origin: 0 0;
+  animation: intro-shrink var(--intro-shrink) var(--ease-standard) var(--intro-shrink-at) both;
+}
+.intro-slot.away {
+  left: 0;
+}
+.intro-slot.home {
+  right: 0;
+}
+.intro-slot > .fo-half {
+  inset: 0;
+  width: auto;
+}
+.intro-slot.away > .fo-half {
+  animation: intro-wipe-left var(--intro-wipe) var(--ease-out) both;
+}
+.intro-slot.home > .fo-half {
+  animation: intro-wipe-right var(--intro-wipe) var(--ease-out) both;
+}
+.intro-slot .fo-words {
+  animation: intro-slam var(--intro-slam) var(--ease-slam) var(--intro-slam-at) both;
+}
+/* The VS disc comes in at 500 ms, and leaves with the halves: it scales away over the same 400 ms. */
+.intro-band > .fo-vs {
+  animation:
+    intro-vs var(--dur-base) var(--ease-out) var(--intro-vs-at) both,
+    intro-vs-out var(--intro-shrink) var(--ease-standard) var(--intro-shrink-at) forwards;
+}
+.top-bar.intro-wait {
+  animation: intro-bug var(--intro-shrink) var(--ease-standard) var(--intro-shrink-at) both;
+}
+@keyframes intro-wipe-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes intro-wipe-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes intro-slam {
+  from {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+@keyframes intro-vs {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+@keyframes intro-vs-out {
+  to {
+    transform: scale(0);
+  }
+}
+@keyframes intro-shrink {
+  to {
+    transform: translate(var(--to-x, 0), var(--to-y, 0)) scale(var(--to-sx, 1), var(--to-sy, 1));
+  }
+}
+@keyframes intro-bug {
+  from {
+    opacity: 0;
+  }
+}
+/* U1: the compact Last play card (state 2): tighter padding, the label and the D hint on one line. */
+.ov-report.compact {
+  padding: 12px 16px;
+}
+.compact-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.compact-head .section-label,
+.compact-head .key-hints {
+  margin: 0;
+}
+.compact-card .result {
+  margin: 4px 0 0;
+}
+/* K5 (calling screen pass review): text rows that would run past the legend take tighter spacing. */
+.ov-menu.tight {
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+.ov-menu.tight .rows {
+  gap: 4px;
+  margin: 4px 0;
+}
+.ov-menu.tight .row {
+  min-height: 42px;
+}
+.ov-menu.tight .status:empty {
+  display: none;
 }

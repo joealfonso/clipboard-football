@@ -86,12 +86,42 @@ export interface KickoffOpts {
  * here reads a result.
  */
 export function kickoffFrame(o: KickoffOpts): Timeline {
+  return publicLineupFrame({ ...o, call: "kickoff" });
+}
+
+/** The calls whose lineups are public before the snap (U8; calling screen pass U1 What it draws). */
+export type PublicCall = "kickoff" | "punt" | "fieldGoal" | "extraPoint" | "kneel" | "spike";
+
+export interface PublicLineupOpts extends KickoffOpts {
+  readonly call: PublicCall;
+  /** personnel.json slot counts for the kneel and spike units (an offense formation and a defense package); kick units use their templates' slots. */
+  readonly counts?: { readonly offense: Readonly<Partial<Record<string, number>>>; readonly defense: Readonly<Partial<Record<string, number>>> };
+}
+
+/**
+ * Both units lined up for a call that is public before the snap: a kickoff, punt, field goal or
+ * extra point, a kneel or a spike (their line-up, or your Kick rows on focus). The units are the
+ * ones the play's timeline lines up (timeline.ts unitOf), with generic ids (`own:` for your side,
+ * `huddle:` for theirs), so no numbers show and hover skips them. Nothing here reads a result.
+ */
+export function publicLineupFrame(o: PublicLineupOpts): Timeline {
+  const T = o.templates;
+  const units: Readonly<Record<PublicCall, readonly [Readonly<Record<string, unknown>> | undefined, Readonly<Record<string, unknown>> | undefined]>> = {
+    kickoff: [T.kick["kickoff"], T.returnUnits["kickoff"]],
+    punt: [T.kick["punt"], T.returnUnits["punt"]],
+    fieldGoal: [T.kick["fieldGoal"], T.returnUnits["fieldGoal"]],
+    extraPoint: [T.kick["extraPoint"], T.returnUnits["fieldGoal"]],
+    kneel: [T.offense["underCenter"], T.defense["base"]],
+    spike: [T.offense["underCenter"], T.defense["base"]],
+  };
+  const clock = o.call === "kneel" || o.call === "spike";
   const unit = (side: "O" | "X"): TLMark[] => {
-    const tmpl = side === "O" ? o.templates.kick["kickoff"] : o.templates.returnUnits["kickoff"];
-    const slots: SlotRef[] = Object.keys(tmpl ?? {}).map((slot) => ({ slot, position: slot.replace(/\d+$/, "") as Position }));
-    const pts = lineUp(slots, tmpl, side, o.los, o.templates, o.pxPerYard);
+    const tmpl = units[o.call][side === "O" ? 0 : 1] as Parameters<typeof lineUp>[1];
+    const counts = o.counts === undefined ? undefined : side === "O" ? o.counts.offense : o.counts.defense;
+    const slots: SlotRef[] = clock && counts !== undefined ? slotsFromCounts(counts) : Object.keys(tmpl ?? {}).map((slot) => ({ slot, position: slot.replace(/\d+$/, "") as Position }));
+    const pts = lineUp(slots, tmpl, side, o.los, T, o.pxPerYard);
     const prefix = (side === "O") === o.humanKicks ? "own" : "huddle";
-    return slots.map((s, i) => ({ slot: s.slot, side, position: s.position, playerId: `${prefix}:${s.slot}`, keys: [{ t: 0, ...(pts[i] as Pt) }], roles: [], fact: false, pathEnd: 0, pathStyle: "none", huddle: false }));
+    return slots.map((sl, i) => ({ slot: sl.slot, side, position: sl.position, playerId: `${prefix}:${sl.slot}`, keys: [{ t: 0, ...(pts[i] as Pt) }], roles: [], fact: false, pathEnd: 0, pathStyle: "none", huddle: false }));
   };
   return stillTimeline(o.los, null, [...unit("O"), ...unit("X")], null);
 }

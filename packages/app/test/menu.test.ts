@@ -50,7 +50,8 @@ describe("every real request (F3, F4, engine paths)", () => {
         const list = rows(m, data);
         expect(list.length, current(m)).toBeLessThanOrEqual(MAX_ROWS);
         expect(new Set(list.map((r) => r.key)).size).toBe(list.length);
-        for (const r of list) if (!r.on) expect(r.reason, `${current(m)} ${r.label}`).toBeDefined();
+        // An off row carries its reason: an engine reason code, or (Earlier call, U5) the UI's own words.
+        for (const r of list) if (!r.on) expect(r.reason ?? r.reasonText, `${current(m)} ${r.label}`).toBeDefined();
         for (const k of KEYS) {
           const { menu, effect } = press(m, k, data);
           if (effect.t === "submit") {
@@ -67,9 +68,10 @@ describe("every real request (F3, F4, engine paths)", () => {
 });
 
 describe("the offense menus", () => {
-  it("the first screen is Formation, Kick, Clock, Same call, T, Esc (formation first, Joseph)", () => {
+  // Calling screen pass U5: 5 Earlier call after Same call (7 choices with T and Esc).
+  it("the first screen is Formation, Kick, Clock, Same call, Earlier call, T, Esc (formation first, Joseph)", () => {
     const r = rows(openMenu(firstOf("offenseCall")), data);
-    expect(r.map((x) => `${x.key} ${x.label.replace(/:.*$/, "")}`)).toEqual(["1 Formation", "2 Kick", "3 Clock", "4 Same call", "T Timeout", "Esc Menu"]);
+    expect(r.map((x) => `${x.key} ${x.label.replace(/:.*$/, "")}`)).toEqual(["1 Formation", "2 Kick", "3 Clock", "4 Same call", "5 Earlier call", "T Timeout", "Esc Menu"]);
   });
 
   it("Formation opens the five formations, each opens Run or Pass", () => {

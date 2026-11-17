@@ -8,6 +8,7 @@ const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object
 const isInt = (v: unknown): v is number => Number.isSafeInteger(v);
 const isTeam = (v: unknown): boolean => v === "home" || v === "away";
 const isStr = (v: unknown): v is string => typeof v === "string";
+const isTag = (v: unknown): boolean => isObj(v) && isInt(v["seed"]) && isInt(v["events"]);
 
 /** An answer as the engine takes it: a positive seq and a non-empty path of ids. */
 export function isAnswerShape(v: unknown): boolean {
@@ -19,8 +20,9 @@ export function isToWorker(v: unknown): v is ToWorker {
   if (!isObj(v) || !isStr(v["t"])) return false;
   switch (v["t"]) {
     case "init":
-    case "box":
       return true;
+    case "box":
+      return v["tag"] === undefined || isTag(v["tag"]);
     case "matchup":
     case "rematch":
       return isInt(v["leagueSeed"]) && isInt(v["seed"]);
@@ -58,14 +60,15 @@ export function isFromWorker(v: unknown): v is FromWorker {
         (v["request"] === null || (isObj(v["request"]) && isStr(v["request"]["kind"]) && isInt(v["request"]["seq"]) && Array.isArray(v["request"]["screens"]))) &&
         (v["state"] === null || isObj(v["state"])) &&
         isObj(v["save"]) &&
-        typeof v["resumed"] === "boolean"
+        typeof v["resumed"] === "boolean" &&
+        (v["drive"] === undefined || v["drive"] === null || (isObj(v["drive"]) && isTeam(v["drive"]["team"]) && isInt(v["drive"]["start"]) && isInt(v["drive"]["plays"])))
       );
     case "answerError":
       return isStr(v["code"]) && isStr(v["message"]);
     case "saveError":
       return v["reason"] === "older" || v["reason"] === "damaged";
     case "box":
-      return isObj(v["box"]) && isObj(v["players"]);
+      return isObj(v["box"]) && isObj(v["players"]) && (v["tag"] === undefined || isTag(v["tag"]));
     case "ranks":
       return isStr(v["playerId"]) && isObj(v["ranks"]);
     case "simError":

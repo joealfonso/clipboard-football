@@ -2,7 +2,7 @@
 // browser. Every call tolerates blocked storage (private windows, denied permission): the game
 // plays and the status line says it can't be saved.
 
-import type { LabelContent, MarkLabelSetting, MotionSetting, SpeedSetting, TextSize } from "./screens";
+import type { AutoAdvance, LabelContent, MarkLabelSetting, MotionSetting, SpeedSetting, TextSize } from "./screens";
 
 export interface Settings {
   textSize: TextSize;
@@ -11,6 +11,8 @@ export interface Settings {
   speed: SpeedSetting;
   /** What each mark's label shows: jersey number, overall rating, or both (usability pass U7). */
   labelContent: LabelContent;
+  /** Plays with nothing to decide run without waiting for Space (calling screen pass Q1); Off by default. */
+  autoAdvance: AutoAdvance;
 }
 
 /**
@@ -21,7 +23,7 @@ export const DEFAULT_LABEL_CONTENT: LabelContent = "rating";
 
 const SETTINGS_KEY = "clipboard-football.settings";
 const LOG_KEY = "clipboard-football.log";
-export const DEFAULT_SETTINGS: Settings = { textSize: 100, reducedMotion: "system", markLabels: "involved", speed: "1x", labelContent: DEFAULT_LABEL_CONTENT };
+export const DEFAULT_SETTINGS: Settings = { textSize: 100, reducedMotion: "system", markLabels: "involved", speed: "1x", labelContent: DEFAULT_LABEL_CONTENT, autoAdvance: "off" };
 
 export function loadSettings(): Settings {
   try {
@@ -43,6 +45,8 @@ export function loadSettings(): Settings {
             : v.ratingLabels === false
               ? "number"
               : DEFAULT_LABEL_CONTENT,
+      // A stored setting from before Q1 has no field: Off (decision 17 holds by default).
+      autoAdvance: v.autoAdvance === "noDecision" || v.autoAdvance === "all" ? v.autoAdvance : "off",
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -143,15 +147,30 @@ export interface PlayLog {
   detailsOpens: number;
   challenges: number;
   sameCalls: number;
+  /** Earlier call picks (U5); absent in a log from before the calling screen pass. */
+  earlierCalls?: number;
+  /** Dead balls the app continued itself (Q1); absent in an older log. */
+  autoAdvanced?: number;
   escBackOuts: number;
   /** Seconds from a request appearing to the answer, last 500. */
   deadBallSeconds: number[];
 }
 
-export function bumpLog(f: (l: PlayLog) => void): void {
+/** The stored log, its counters from later passes defaulted to 0 (an old log has none); null with no log or blocked storage. */
+export function readLog(): PlayLog | null {
   try {
     const raw = localStorage.getItem(LOG_KEY);
-    const l: PlayLog = raw === null ? { gamesStarted: 0, gamesFinished: 0, detailsOpens: 0, challenges: 0, sameCalls: 0, escBackOuts: 0, deadBallSeconds: [] } : (JSON.parse(raw) as PlayLog);
+    if (raw === null) return null;
+    const l = JSON.parse(raw) as PlayLog;
+    return { ...l, earlierCalls: l.earlierCalls ?? 0, autoAdvanced: l.autoAdvanced ?? 0 };
+  } catch {
+    return null;
+  }
+}
+
+export function bumpLog(f: (l: PlayLog) => void): void {
+  try {
+    const l: PlayLog = readLog() ?? { gamesStarted: 0, gamesFinished: 0, detailsOpens: 0, challenges: 0, sameCalls: 0, earlierCalls: 0, autoAdvanced: 0, escBackOuts: 0, deadBallSeconds: [] };
     f(l);
     if (l.deadBallSeconds.length > 500) l.deadBallSeconds = l.deadBallSeconds.slice(-500);
     if (l.games !== undefined && l.games.length > 200) l.games = l.games.slice(-200);

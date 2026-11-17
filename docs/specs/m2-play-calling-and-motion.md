@@ -663,7 +663,7 @@ Defense (`readStep`, axis `play` on runs and `strong` on play action; the pedal 
 | `accelMs` QB, K, P | 250 | 450 |
 | `accelMs` OL, DL | 150 | 300 |
 | `decelMs` | 250 | 350 |
-| `dropMs` short, intermediate, deep, screen, play action | 450, 700, 900, 800, 950 | 600, 950, 1250, 1100, 1400 |
+| `dropMs` short, intermediate, deep, screen, play action | 450, 700, 900, 800, 950 | 600, 1250, 1700, 1100, 1400 (intermediate and deep revised 2026-11-16, were 950 and 1250: see "Revision 2026-11-16: deeper drops, shorter holds") |
 | `handoffMs` | 380 | 550 |
 | `flight` baseMs, perYardMs, minMs, maxMs | 220, 14, 300, 1000 | 250, 22, 350, 1500 |
 | `live` minMs, maxMs | 1500, 4000 | 1800, 7000 |
@@ -673,7 +673,7 @@ New keys:
 - `routePace` 0.9, `continuePace` 0.75
 - `fillet.roundPace` 0.8, `fillet.sharpPace` 0.45, `fillet.plantYards` 1.2, `fillet.reaccelYards` 2.0
 - `sit` {pace 0.25, maxYards 1.0}
-- `throwHold.maxMs` 1200
+- `throwHold.maxMs` 1200, and per class `throwHold.leafMaxMs` {shortPass 600, screenPass 600, playAction 600, intermediatePass 900, deepPass 1250} (revised 2026-11-16, see "Revision 2026-11-16: deeper drops, shorter holds")
 - `man` {cushionYards 1.5, pressCushionYards 1.0, lagMs 150}
 - `zoneDrift` {maxYards 2.5, pace 0.5}
 - `stalk` {contactYards 1.4, lagMs 150}
@@ -688,7 +688,7 @@ Worked live times at 1x, for the engineer's sanity check:
 | Inside run +4 | 550 handoff + 850 carry + 300 converge = 1700, floored to 1800 |
 | Short pass, neutral depth 6 + 4 after the catch | catch at 1250 (slant arrival), + 400 + 300 = 1950 |
 | Deep pass, neutral depth 28 + 5 after the catch | throw about 2530 (hold capped), catch about 3400, + 500 + 300 = 4200 |
-| Sack, intermediate | 950 + 600 + 300 = 1850 |
+| Sack, intermediate | 950 + 600 + 300 = 1850 (1250 + 600 + 300 = 2150 after the 2026-11-16 revision) |
 | 60-yard touchdown run | about 7100, compressed 2% to 7000 |
 
 ### Schema change (ask first: Joseph to confirm)
@@ -760,7 +760,7 @@ Why this option: the misses come from how it was measured, not from bad behaviou
 | R-C10 (amended 2026-11-15) | Defense. "Deep" and "shallow" are yards past the line, and \|x\| is measured from the middle of the field.<br>(a) **Pedal.** Zone and man CBs move at most 0.65 × top over their pedal segment. When the pedal ends before the read, the next segment changes direction by at least 30 degrees. Exempt (lead, 2026-11-15): a man defender trailing a vertical route, meaning one that stays within 15 degrees of straight upfield after its break.<br>(b) **Rotation, pass plays in baseCover3, nickelCover3 and nickelCover1.**<br>- At the set, both safeties are 10 yd or deeper with \|x\| ≥ 7.<br>- At the read (the throw), each safety has moved at least 1 yd from his set spot. His displacement has a positive component toward his assignment point: his zone landmark, or for the man safety, his receiver's template trail point at that time.<br>- On plays whose throw is at least 2,000 ms after the snap, at snap + 2,000 ms the deep-middle safety is 14 yd or deeper with \|x\| ≤ 3. On play action, the check runs at snap + 2,300 ms (and only when the throw is at least that late) instead (lead, 2026-11-15), because his 1 yd bite toward the fake costs time. All other numbers stay the same.<br>- In the two zone presets only, the down safety is also 9 yd or shallower at that time. In nickelCover1 he trails his receiver, who may be deep.<br>Quick reads are covered by the direction check, not by position: on a short pass or a run there isn't time to rotate about 7 yd at 10 yd/s with a 650 ms ramp. Runs are exempt from (b), because the read step and pursuit take over at the handoff.<br>(c) **LB read step.** Each non-rushing LB moves at most 1.5 yd in the 300 ms after his start. On runs he never moves away from the line in that window.<br>(d) **Edge rush.** On pass plays, the outermost DL on each side moves at least 1 yd outward (away from the middle) before contact. | A straight drop, no rotation, or no arc. |
 | R-C11 | Cards and the set preview: `play`-axis templates draw with lateral 0. Coverage cards show no read step. P3 still passes. Every other card path equals the field path for that call. | A side on a run card, or card and field drifting apart. |
 | R-C12 (amends M9) | Live time is 1.8 to 7.0 s at 1x (from `motion.json`). Kneel and spike are fixed. 2x halves every phase. Skip and reduced motion show only the final post-settle frame. | Out of range. |
-| R-C13 | `motion.json` holds the values in the Pace table. `parseMotion` and `parseTemplates` reject a malformed route object, waypoint object, `readStep`, `mesh` or any new motion key (extends the layout.test "malformed file" case). | Missing validation. |
+| R-C13 (amended 2026-11-16) | `motion.json` holds the values in the Pace table, with the 2026-11-16 values: `dropMs` {shortPass 600, intermediatePass 1250, deepPass 1700, screenPass 1100, playAction 1400} and `throwHold.leafMaxMs` {shortPass 600, screenPass 600, playAction 600, intermediatePass 900, deepPass 1250}, `throwHold.maxMs` 1200. `parseMotion` and `parseTemplates` reject a malformed route object, waypoint object, `readStep`, `mesh` or any new motion key (extends the layout.test "malformed file" case). | Missing validation. |
 | R-C14 | No diff under `packages/sim` or `data/engine`. Engine and calibration tests pass unchanged. | Any engine change. |
 | R-C15 | M11 still holds: `timeline()` takes 20 ms or less per play (median and p95 over 1,000 plays in PERF.md). | Over budget. |
 | G3 | Joseph watches at least 20 plays at 1x (runs, each pass class, at least one Cover 3 and one man look) and says whether they read as real plays and whether the pace is right. Each named problem goes in the playtest log. | Not run. |
@@ -782,3 +782,369 @@ Art-director checks:
 5. **The legacy `templates.timing.live*` keys:** remove them if nothing reads them.
 6. **The 7.0 s cap.** Is a long touchdown at 1x too long? 2x is one key away. Ask after G3.
 7. **Closed 2026-11-15 (lead): `plan.read` stays as the catch on completions and interceptions.** The code is unchanged. The "Defenders reacting and pursuing" sentence in "Motion" now says pursuit starts at the handoff on runs, at the catch on completions and interceptions, at the throw on incompletions, and when the QB crosses the line on a scramble. The R-C criteria still measure to the throw or the handoff (see "Term: the read"), and that window ends before or at pursuit start, so no criterion changes.
+
+## Amended (Joseph, 2026-11-15): misses that read as misses, deep catches that read deep
+
+### Problem and user
+
+Joseph played the app: "the deep passes never connect, the plays are thin, it's just really not fun and doesn't seem to work." Same user as above. Two display bugs, both verified in timeline.ts, both approved for a fix:
+1. **Every incompletion is drawn as a catch.** The ball flies to a fixed point (`passDepth`, x from `passLocation`) and `plan.target` steers the target onto it. Over 1,542 deep incompletions the ball-to-target gap at arrival is 0.0 yd at p10, p50 and p90, and the nearest defender is 7.2 yd off (median). The player sees a wide-open catch, then "Incomplete". This holds for every pass class.
+2. **About 21% of deep completions are drawn short.** The neutral catch point follows the receiver's route. The RB on deepPass is in pass pro, and the empty s3 runs a hook outlet, so every RB deep catch lands about 5.7 yd behind the line and TEs land at about 8.3 yd.
+
+What the viewer reads first, in order: the ball's flight against the target, where it lands relative to him and to the nearest defender, then the "Incomplete" label. The label stays 300 ms after the landing so the motion is read before the text. Hard limits: no engine or record change (R-C14). The engine names no defender on an incompletion and sends no `airYards` or `passLocation`. The drawing may pick a cause, but it must never imply a catch or an interception.
+
+### Decisions (designed, display only)
+
+A1. **The target keeps his template on an incompletion.** `plan.target` is no longer set on incompletions. He runs his template and finish to the whistle. In the last `miss.reachMs` before arrival he may reach toward the ball, at most `miss.reachYards` off his track, and blend back over the same time. Why: steering him onto the ball is the bug. Final.
+
+A2. **The aim point is where a completion to him would be caught.** A = the neutral catch point (DECISIONS.md "Neutral catch depth" and "Neutral catch x", including the deep floor in B1), computed on his template with no gain cap (an incompletion has no dead spot). The top of the band is the class depth, clamped at the end line minus 1 yd. R8 times the throw for A, and catchT = throwT + flight(A). T = his template position at catchT. With no known offensive target, today's fixed point stays as the aim and nobody reaches. Why: the throw time and everything before it are the same for every kind of miss, so the miss kind can't leak before the throw (R9, decision 4, P3). Final.
+
+A3. **The kind of miss is chosen by geometry, never by chance.** In order:
+- **Break-up.** P = T + `miss.breakup.gapYards` toward the breaker's position at the throw. The breaker is the non-rushing CB, S or LB (not blitzing in his preset, and unnamed, since no defender is named on an incompletion) who needs the lowest pace to reach within `miss.breakup.handYards` of P by catchT from his drawn spot at the throw. He must need at most `miss.breakup.maxPace` × his top speed, with his `accelMs` ramp. If none qualifies, use the next rule.
+- **Overthrow.** He is moving at `miss.movingYps` or faster and within 45 degrees of upfield at catchT. P = T + `miss.overYards` along his travel.
+- **Behind.** He is moving at that speed but more across than up. P = T − `miss.behindYards` along his travel.
+- **Short.** He is slower than that, or coming back. P = T + `miss.shortYards` toward the passer's release point, into the ground at his feet.
+- **Clear check.** If any defender is within `miss.clearYards` of an overthrow, behind or short P at catchT, that defender becomes the breaker and the break-up rule is redrawn with him. An open defender near a loose ball would otherwise read as a dropped interception.
+- **Off the field.** P may lie up to `miss.outYards` past a sideline or end line. Past that, it is clamped there.
+
+Why geometry: covered receivers get broken up, open ones get a bad throw, and the cause can be read from the picture. Rejected: a seeded mix hashed from the play record. It is deterministic, but it would sometimes draw a break-up with nobody near or an overthrow on a sitting hitch. The UI has no randomness (contract 4), and R1 already rejected seed-picked variety. Rejected: a drop, because a ball in the target's hands is the bug itself. Final in structure. Values are open to playtest.
+
+A4. **Where the ball ends.** The ball's flight ends at P at catchT, with the flight time from A (the at most 4 yd of difference is under 90 ms and can't be seen). It ends on the ground: `endScale` at most 0.6. On a break-up it then deflects `miss.breakup.deflectYards` away from the midpoint of the target and the breaker in 300 ms, with apex 0.6. Otherwise it rolls `miss.rollYards` on along its flight in 300 ms. No mark holds the ball between the throw and the jump to the spot. The label "Incomplete" sits at the ball's final point at catchT + 300. No text, box score or card credits the breaker. Final.
+
+A5. **The breaker is drawn only after the throw.** He becomes a converge from throwT to his hand point at catchT, then idles. Before the throw he is exactly his unnamed self (R9). Final.
+
+B1. **Deep completions have a catch floor, with two routes made deep enough to meet it.** Rule: on a completion with no `airYards` whose leaf has `catchFloorYards[leaf]` in templates.json (deepPass 20, designed), the catch y is max(the neutral catch y, los + min(floor, gain)). So the catch is at least 20 yd past the line, or at the dead spot when the gain is shorter. The catch x is unchanged. R8 times the throw for the raised point, and R7 bends his path after the throw. Data change, so the bend stays short enough for R-C7:
+- deepPass `RB`, from pass pro to check-release seam: `{p:[1,0.5], pauseMs:400}, [-1,4], [-2,26]`, finish continue, axis strong.
+- deepPass `s3` (empty TE1), from hook outlet to bender: `[0,8] [5,20]`, finish continue.
+- deepPass `w2`, dig deepened: `[0,17] [7,17.5]`.
+
+Why both: the floor alone forces a pass-pro back to cover about 25 yd in one flight (about 27 yd/s, which breaks R-C7). New routes alone don't guarantee the floor on every play. Rejected: a floor for intermediatePass and playAction. Their RB check-release and leak are designed check-downs, and the complaint was about deep shots. Revisit if G4 names them. Rejected: picking a different receiver, because the receiver is the engine's fact. Final in rule. Route values are open.
+
+New data (designed starting values):
+- `motion.json` `miss`: `reachMs` 250, `reachYards` 0.5, `movingYps` 3, `overYards` 4, `behindYards` 3, `shortYards` 3, `clearYards` 2, `outYards` 2, `rollYards` 1.5, and `breakup` {`gapYards` 1.5, `handYards` 0.6, `maxPace` 1.0, `deflectYards` 3}.
+- `templates.json` `catchFloorYards` {deepPass 20}.
+- parseMotion and parseTemplates validate them.
+
+### States
+
+| State | Behaviour |
+|---|---|
+| Target unknown or not offense | Aim at today's fixed point. The ball lands and rolls. No reach, no breaker. |
+| Target is a blocker or stalker | Same rules. He is usually slow at catchT, so the miss is drawn short. |
+| No eligible breaker | Overthrow, behind or short (A3). |
+| Red zone, sideline | P up to `outYards` out of bounds (A3). The floor stays capped by the gain. |
+| Gain under the floor | Caught at the dead spot (B1). |
+| Live time clamped, 2x, skip, reduced motion | As today. The final frame shows the ball at the spot. The miss kind is not a fact, so losing it in reduced motion is accepted. |
+| Interception, sack, completion with `airYards` | Unchanged. |
+| Data invalid | The existing "Game data failed its check: [file]". |
+
+Accessibility: the result text stays "Pass incomplete." and no new information is carried by colour or by motion alone. Model output: the drawn cause is a display guess about a result the engine decided without one. It is never written as text, so it can't be quoted as a fact. A drawing that contradicts the record is a bug, and the record wins.
+
+### Acceptance criteria (add to R-C1 to R-C15)
+
+| # | Criterion | How it fails |
+|---|---|---|
+| R-C16 | Over 1,000 simulated games, on 100% of incompletions with a known target, the ball at arrival is at least `overYards`/`behindYards`/`shortYards` − `reachYards` (2.5 yd at current values) from the target on a miss, and at least `gapYards` − `reachYards` (1.0 yd) from him on a break-up. Report the p10, p50 and p90 gap in PERF.md. | A ball in his hands. |
+| R-C17 | On 100% of break-ups, the breaker is within `handYards` + 0.2 yd of the ball at arrival, nearer to it than the target, is a non-rushing CB, S or LB, and peaks at no more than 1.15 × top. On 100% of other misses, no defender is within `clearYards` of P at arrival. | An implied interception, or a sprinting breaker. |
+| R-C18 | From the throw to the whistle, no mark holds the ball. The ball's last flight segment ends at P with `endScale` ≤ 0.6, and the label "Incomplete" is at the final ball point. | An implied catch. |
+| R-C19 (amends R-C7 for incompletions) | On incompletions the target is within 0.1 yd of his template track at every t, except in [catchT − `reachMs`, catchT + `reachMs`], where he is within `reachYards` + 0.1. R-C7's catch-point clause applies to completions only. | Steering onto the ball. |
+| R-C20 (extends R-C9) | The same incompletion drawn with each miss kind forced (a test hook) gives identical frames, all 22 marks and the ball, at every t up to the throw. The R-C9 leak cases pass unchanged. The same event drawn twice gives an identical timeline. | The miss leaks before the throw, or nondeterminism. |
+| R-C21 | Every deepPass completion with no `airYards` has its catch at least min(`catchFloorYards.deepPass`, gain) past the line and no further than the dead spot (100%, over 1,000 games). Report the share by receiver position. | A short deep catch. |
+| R-C22 | R-C7's speed bound holds on all completions and separately on deepPass completions to RBs and TEs: at least 95% peak at no more than 1.15 × top. If either misses, that is a FLAG to tune the route data (or Open item 2), never the floor or the bound. | Sprinting deep backs. |
+| R-C23 | With the line at midfield, in every formation, every WR, TE and RB deepPass template track reaches 20 yd past the line at a point a throw can time (the R8 window). R-C1 to R-C4 and R-C11 still pass on the new routes. | A deep route that can't get deep. |
+| R-C24 | Report the shares of break-up, overthrow, behind and short by class over 1,000 games in PERF.md. There is no target share, because it is a result of the geometry. | Not reported. |
+| G4 | Joseph watches 20 or more passes at 1x, including at least 5 deep shots and 5 incompletions, and says whether misses read as misses and deep catches read deep. | Not run. |
+
+Existing tests that change (none weakened):
+- routes-pace "an incompletion uses the class's neutral depth" (line 1670). The flight now ends at P, not at `passDepth`. It is rewritten to check A against the neutral rule plus R-C16.
+- `expectedCatch` in routes-pace gains the B1 floor.
+- Any R-C7 sweep that sets an incompletion's target on the ball (the heavy file) narrows to completions.
+- Card art and preview expectations for deepPass RB, s3 and w2 change with the data. R-C11 still requires card = field.
+- timeline.test "an incompletion: ... labelled Incomplete" keeps its label and holder checks.
+
+### Open
+
+1. **Schema (ask first).** The new `miss` and `catchFloorYards` keys are additive and validated. Joseph confirms them, and decides whether they bump the version, before the build.
+2. If R-C22 or R-C23 misses after route tuning, the next lever is a deepPass-only `throwHold` (about 1700 ms, a new key). Joseph's call. **Settled 2026-11-15 (Joseph approved): built, see "Settled while building" below.**
+3. A completion overturned to incomplete on review: the engineer confirms the timeline draws the final ruling, so these rules apply.
+4. The real share of break-ups to overthrows is not looked up (no primary source checked). G4 judges it by eye.
+
+### Settled while building (2026-11-15)
+
+Both are designed and display only. Neither changes an engine outcome or the record.
+
+- **A deepPass-only throw hold (Open item 2, Joseph approved).** `motion.json` `throwHold.leafMaxMs` holds `{ "deepPass": 1700 }`. On a pass play with an entry, R8's wait after the drop end is capped at that value instead of `throwHold.maxMs` (1200 ms, unchanged for every other class). The R8 window everywhere (the throw, the neutral catch point and R-C23's timeable point) uses the same hold. Why: a back aligned 7 yd deep (underCenter, pistol, heavy) could not reach 20 yd past the line inside the 1200 ms window at his pace (R-C23 measured 16.5 to 19.4 yd at the deepest timeable point), so the B1 floor forced a sprint after the throw (R-C22). With 1700 ms every WR, TE and RB deepPass track reaches 20 yd in every formation. No route data changed for it. parseMotion validates it: each key must be a pass play in `dropMs` and each value a non-negative number of ms. (Revised 2026-11-16: the deepPass hold is now 1250 after a 1700 ms drop, the same 2950 ms window end. See "Revision 2026-11-16: deeper drops, shorter holds".)
+- **The whistle on a miss (A4 timing).** The roll or deflection takes `miss.rollMs` (300), then the ball rests where it stopped for `miss.restMs` (400) before the whistle and the respot. So the "Incomplete" label sits beside the resting ball before the ball jumps to the spot. Every incompletion is 0.4 s longer on screen than the landing plus the roll alone.
+- **The clear check reads the drawn marks.** The first drawing estimates where each defender will be at the arrival. When a drawn defender still ends up within `clearYards` of an overthrow, behind or short P, the play is drawn again with what was seen, and A3's rule is applied to him: he becomes the breaker if he is an eligible breaker within the pace limit, otherwise P moves to where the ball reads as a miss (at most 4 redraws, then a warning). Only frames after the throw change, so R-C20 holds. A miss point is also kept at least the smallest miss distance off the target, so a point clamped at an end line can't break R-C16.
+- **R-C20 and the first keys after the throw.** For its first two keys the ball flies toward the aim point A, whatever the kind of miss, then on to P. One key was not enough: natural motion reads the ball half a key past the first key after the throw for its line of flight, and frames just before the throw are drawn between keys.
+
+## Revision 2026-11-16: deeper drops, shorter holds
+
+Status: draft, revision dated 2026-11-16, Joseph approved the direction (a longer, deeper drop with a shorter hold after it, the same throw window end). Author: spec-writer. Amends the Pace table, R-C13 and the deepPass hold in "Settled while building" above. Every value here is **designed, not fitted**. None comes from tracking data. Display only: no engine outcome, record or why line changes.
+
+### Problem
+
+After the QB throw pace work (docs/DECISIONS.md, "QB throw pace"), the QB still stands with the ball after his drop: hold p90 about 1,200 ms on intermediatePass and about 1,700 ms on deepPass. The holds could not be cut alone, because R8's window end is the drop end plus the hold. The intermediate window (950 + 1200 = 2150 ms) is what lets an intermediate route reach its 14 yd class depth (routes-pace, "an incompletion is aimed at the class's neutral point"). The deep window (1250 + 1700 = 2950 ms) is what R-C23 needs, because backs aligned 7 yd deep must reach 20 yd. What the viewer reads: the QB drops in about 1 s, then stands still for a beat longer than his drop took. A real drop on a deep shot is longer and deeper, so the throw comes soon after the set.
+
+### Decisions (designed, display only)
+
+QD1. **Longer, deeper drops, the same window end.**
+
+| Class | `dropMs` | QB drop in templates.json | Drop length | `throwHold.leafMaxMs` | Window end (drop + hold) |
+|---|---|---|---|---|---|
+| intermediatePass | 1250 (was 950) | `[-1.5, -4.7]` (was `[0, -3.5]`) | 4.9 yd (was 3.5) | 900 (was `maxMs` 1200) | 2150 (unchanged) |
+| deepPass | 1700 (was 1250) | `[-2, -6.8]` (was `[-2, -4.2]`) | 7.1 yd (was 4.7) | 1250 (was 1700) | 2950 (unchanged) |
+
+The drop is a template displacement from the QB's alignment, so the set point in the drawing, in yards behind the line, is: intermediate 8.0 under center, 8.7 pistol, 9.7 shotgun and empty; deep 10.1 under center, 10.8 pistol, 11.8 shotgun and empty. Why these values:
+- **Speed floor.** A longer drop at the same depth would be a slow walk back. A rest-to-rest leg of length L over the drop plus the 80 ms hitch, with the QB's `accelMs` 450 and `decelMs` 350 ramps, cruises at about L / (drop + 80 − 444 ms). Holding 5 yd/s or more over 1,700 ms needs about 7 yd. Drop peak as measured (below): intermediate 5.6 to 5.9 yd/s, deep 5.5 to 6.3 yd/s, against his top of 8.5.
+- **Why not a 900 ms deep hold.** With a 2950 ms window end, a 900 ms hold needs a 2050 ms drop, and at 5 yd/s that is about 8.4 yd: a set point 13.4 yd deep in shotgun. A 1800 ms drop to 7.6 yd (hold 1150) was measured too (peak 5.4 yd/s, set 12.3 yd in shotgun). I chose 1700 and 7.1 yd as the deepest set that still reads as a pocket. Joseph can pick 1800 (Open 1).
+- **Leans weak, both classes.** Deep keeps its 2 yd weak lean (DECISIONS.md, "QB throw pace": the held ball stays out of the strong-side back's release). Intermediate gains a 1.5 yd weak lean. Straight back 4.9 yd, the QB passes through the 7 yd alignment of the pistol back, and the 1.5 yd ring pushes the back off his route: with the lean, intermediate completions to RBs within R-C7's bound go from 63.1% today (55.1% straight back) to 100% of 336.
+- **Unchanged:** shortPass, screenPass and playAction drops, templates and holds (600, 1100, 1400 ms; 600 ms holds), `throwHold.maxMs` 1200, `hitchMs`, `pocket`, `sit`, `flight`, every route.
+
+QD2. **The plant throw.** R8's earliest throw stays the drop end plus the hitch, E = `dropMs` + `hitchMs`, with one exception, on intermediatePass and deepPass only (amended 2026-11-16 after build: on short passes the plant throw came about 290 ms after the snap and broke A2 and R-C31, so shortPass, screenPass and playAction keep E). When the point the ball is thrown to (the catch point on a completion, the aim point A on an incompletion, the interception point) is nearer the line than the target's drawn track at E, the earliest throw is the start of the QB's plant, P = E − RAMP × `decelMs` (about 390 ms before E). The throw is then max(P, min(arrival − flight, `dropMs` + hold)). No new key: P comes from `hitchMs`, `decelMs` and RAMP. Before the throw the QB is on his own drop leg, from the calls only, so R9, R-C9 and R-C20 are untouched. The ball leaves from where he is on that leg, and the flight is measured from there. After a throw in [P, E) he finishes his stop on the same leg to his drop point, then follows through as today. Why: the longer drop delays E by 300 to 450 ms. On a deep completion with a short gain (2 to 5 yd, caught at the dead spot) the target is then several yards past the catch point at the throw and has to sprint back. Measured over 1,000 games: without this rule, deepPass TEs fall from 95.0% to 92.4% within R-C7's bound and WRs from 96.7% to 95.8%. At a 1600 ms drop, 14 of the 17 new misses were short gains thrown at E. With the rule, P at a 1700 ms drop is 1391 ms against today's E of 1330 ms. Three WR short-gain cases stay over the bound, and the WR share (96.4%) is still above the gate. Real QBs throw on the plant of a deep drop when the outlet is early.
+
+QD3. **The sack waits for the QB's own step up.** The sack spot is the engine's dead spot, so a deeper drop means a longer step up to it (from an 11.8 yd shotgun set to a 7 yd sack, about 4.8 yd). Sack time = max(drop end + `sack.minDelayMs`, the sacker's arrival, `dropMs` + `hitchMs` + the QB's walk from his drop point to the sack spot at his own top speed with his `accelMs` and `decelMs`). (Amended 2026-11-16 after build: the walk starts when his drop leg ends, at `dropMs` + `hitchMs`, not at `dropMs`.) This adds a third term to the rule in "Motion" (amended 2026-11-15) and replaces its "may step up 0.5 yd" wherever the dead spot is nearer the line than the drop point. Measured today on 12 games: one intermediate sack draws the QB at 1.26 × top, and 1.46 × top with the deeper drop. This term holds it at his top.
+
+QD4. **A sack releases the line as a throw does** (amended 2026-11-16 after build). With the longer drop, R-C9's "a sack against a completion" case showed DL1 0.0003 yd apart 20 ms before the read (1230 ms, intermediatePass, shotgun). The cause was not a drop-leg mismatch. A sack released the DLs at its read (`releaseAt` = the drop end), and the natural-motion governor's smoothing reached about 20 ms back from a release into frames before the read. The fix as built: a sack releases the line at the drop end + `release.afterThrowMs`, as a throw does, so unnamed DLs hold their blocks 400 ms longer after the read. The named sacker uses his own departure, unchanged. The sack and the pass still draw the QB's drop from the same legs (`dropLegs()`). R-C9 stays exact, with no tolerance.
+
+### What else changes, measured
+
+Measured on a scratch copy of the working tree (2026-11-16, nothing committed). Holds and drop peaks are from playGame seeds 1 to 12. Shares are from 1,000 games of cached engine events. These are a check on the values, not acceptance numbers.
+
+| Measure | Today | With QD1 | With QD1 and QD2 |
+|---|---|---|---|
+| intermediatePass hold p50 / p90 | 235 / 1197 ms | 97 / 897 ms | not built |
+| deepPass hold p50 / p90 | 1635 / 1700 ms | 954 / 1246 ms | not built |
+| deepPass snap to throw, median | 2.86 s | 2.65 s (the deeper release lengthens the flight) | |
+| Drop peak, intermediate / deep | 5.7 to 6.2 / 5.3 to 6.2 yd/s | 5.6 to 5.9 / 5.5 to 6.3 yd/s | |
+| R-C22 deepPass within 1.15 × top: TE / WR / RB | 95.0 / 96.7 / 94.3% | 92.4 / 95.8 / 94.3% | 94.8 / 96.4 / 94.3% (prototype) |
+| R-C7, intermediatePass completions: TE / WR / RB | 99.7 / 100.0 / 63.1% | 99.3 / 99.7 / 100.0% | |
+| routes-pace neutral point, R-C23, R-C19, timeline A2 to A4 | pass | pass | |
+
+Two gaps stay open (Open 2 and 3). With QD2 prototyped, deepPass TEs are at 94.8%, one play short of the 95% gate. The rest are three long catch-and-runs (gains 51 to 53) at 1.17 to 1.21 × top: the deeper release lengthens the flight by about 40 ms, so the throw comes earlier and the bend is longer. R-C22 already says what to do with such a miss: tune the route data, never the floor or the bound. deepPass RBs are at 94.3% both before and after this revision. That is a known miss today, not something this revision causes.
+
+Pass rush: unnamed rushers keep their tracks, and the QB is deeper, so at the throw they are farther from him. Sacks draw later (deep: 1700 + 600 + 300 = 2600 ms, up from 2150), which is still short of real time to sack. Play action is unchanged.
+
+### Acceptance criteria (add to R-C1 to R-C24)
+
+| # | Criterion | How it fails |
+|---|---|---|
+| R-C25 | Hold, intermediatePass and deepPass, measured as in qb-throw-pace.checks.ts (drop end = the first 25 ms sample under 1 yd/s after his peak; hold = throw − drop end; natural motion on, 1x). p90 ≤ 900 ms intermediate and ≤ 1250 ms deep, over playGame seeds 1 to 6 (the fast suite) and the heavy sweep. They replace the two `it.todo` A1 rows in qb-throw-pace.spec.test.ts and qb-throw-pace.heavy.test.ts. The short, screen and play action A1 rows (≤ 600 ms) still pass. | The QB still stands with the ball. |
+| R-C26 | Drop speed band. On every intermediatePass and deepPass pass and sack, the QB's peak drawn speed from the snap to the drop end is at least 5.0 yd/s and at most his own top (`mark.nat.top`) at 1x. A4 (at most 1.05 × top from the snap to the throw) still passes. | A walk back, or a sprint back. |
+| R-C27 | Window end preserved. In data, `dropMs` + `throwHold.leafMaxMs` is at least 2150 for intermediatePass and at least 2950 for deepPass. routes-pace "an incompletion is aimed at the class's neutral point" and R-C23 pass with no change to the tests. | A route that can no longer reach its depth. |
+| R-C28 (amended 2026-11-16 after build) | The plant throw (QD2), intermediatePass and deepPass only. (a) On those classes, a completion to a target whose catch point is nearer the line than his drawn track at E is thrown at max(P, min(arrival − flight, `dropMs` + hold)), never before P. (b) Every other pass is thrown no earlier than E, and every shortPass, screenPass and playAction pass is thrown no earlier than E whatever its catch point. (c) Each of these gives frames identical from the snap to the throw: the same play as a completion, an incompletion and a sack, and a plant throw against the same calls with the throw at E (R-C9 and R-C20, no tolerance). (d) From the throw to his follow-through, the QB never moves away from his drop point and back. | An early throw that leaks, or a jerk at the plant. |
+| R-C29 | R-C7 and R-C22 pass at their current bounds over 1,000 games. R-C22 is checked separately for deepPass TEs and RBs, and intermediatePass completions to RBs stay at 95% or more. A miss is a FLAG to tune route data, never the bound, the floor or this revision's holds. Report the shares by class and position in PERF.md. | Sprinting receivers come back. |
+| R-C30 | Sacks (QD3, QD4). From the snap to the sack time, the QB peaks at no more than his own top on 100% of intermediatePass and deepPass sacks over 1,000 games, fumble legs excluded. R-C9's "a sack against a completion" passes exactly. The sacker check ("at least 95% of sackers peak at no more than 1.15 × top") is no worse than it is today: the share within 1.15 × group top over every sack in 1,000 games is at least 84.4%, the pre-revision baseline (2,918 of 3,457, measured 2026-11-16; 86.3% after the build). The check's own 95% bound already failed before this revision and is a separate open item. (Amended 2026-11-16 after build.) | A QB sprinting into the sack, or a leak at the read. |
+| R-C31 | Play action, short and screen are unchanged: their `dropMs`, QB templates and `leafMaxMs` equal the values before this revision, and their qb-throw-pace A1 and A2 rows pass unchanged. | A side effect on other classes. |
+| R-C32 | No engine change: R-C14 holds (no diff under `packages/sim` or `data/engine`). The engine and calibration tests pass unchanged. | Any engine change. |
+| G7 | Joseph watches at least 10 deep and 10 intermediate passes at 1x, plus 2 sacks, and says whether the drop reads as a real drop and whether the QB still waits too long. | Not run. |
+
+Existing tests that change (none weakened): routes-pace R-C13 "the Pace table's new values" reads the new `dropMs`; any test that pins `throwHold.leafMaxMs`; card art and preview expectations for the intermediate and deep QB drop. The worked live-time table above is a sanity check, not a gate.
+
+### Open (QD-Open)
+
+1. **Deep depth (Joseph).** I recommend 1700 ms to 7.1 yd with a 1250 ms hold. The alternative is 1800 ms to 7.6 yd with a 1150 ms hold, which sets 12.3 yd deep in shotgun. A hold under 1 s on deep shots needs a drop of more than 8 yd, or a shorter window end, which R-C23 rules out until the deep back routes change.
+2. **R-C22 for deepPass TEs (engineer, then Joseph if route tuning can't close it).** With QD2 prototyped the share is 94.8% against a 95% gate. The fix R-C22 names is route data.
+3. **deepPass RBs at 94.3%** are a miss today, unchanged by this revision. It is listed so nobody charges it to the deeper drop.
+4. **Schema:** none. QD1 changes values in existing keys, and QD2 to QD4 add no key.
+
+## Revision 2026-11-15: natural motion
+
+Status: draft, for build after the lead confirms NM-Open 1 and 2. Amends "Motion" (contract 4, "Acceleration and deceleration", "Blocks engaging and holding", "The settle") and the 2026-11-14 revision where they conflict. Every value here is **designed, not fitted**, and none of it is derived from tracking data.
+
+### Problem
+
+Joseph, twice: "make the movement of the players more natural, it's still so stiff."
+
+The lead probed the COMPLETE, RUN and SACK fixtures (speed in yd/s every 50 ms, `packages/app/test/zz-motion-probe.test.ts`). I traced each finding to code:
+
+1. **Clones.** Players at the same position have identical speed curves (RUN: CB1, CB2 and CB3 sample for sample; SACK: LB1 = LB2, DL1 = DL4; OL1 to OL5 nearly identical). Cause: one `speed`, `accelMs` and `reactionMs` per group, and a start offset of `i % 3` × 15 ms that repeats every third slot.
+2. **Cruise control.** WR, CB and S hold exactly 10.5 or 10.0 for 2 s or more. Cause: `pursue()` and `follow()` clamp to top speed and hold it, and `cruise()` holds `continuePace` × top.
+3. **Pops of 15 to 38 yd/s** for one sample (COMPLETE: LB1 36.3, LB2 38.5, WR3 14.9; RUN: DL3 15.9). Sources I can see in the code, for the engineer or debugger to confirm with the probe before fixing:
+   - `drive()` with `restStart: false` starts at the leg's mean speed whatever the incoming speed was (converge run, timeline.ts 1175; `toCatch` bend, 1472; `tacklerRun`, 1629).
+   - `ringFix` radial push: a mark inside the ring jumps out to it, turning up to 45 degrees per key. The LB pops on a short pass fit a ball in flight passing over the linebackers.
+   - `settle()`: a defender who would end inside the ring is placed on it in one key (motion.ts 366 to 370).
+   - `follow()` lock (stalk): on contact he takes the defender's velocity in one key.
+4. **Abrupt drops (9 to 3.5, 10 to 1 in 100 ms).** `driftSamples()` is hyperbolic. From v0 = 9.45 yd/s with L = 1 yd its first deceleration is 2·v0²/L, about 180 yd/s². Every `sit` and `block` finish, the end of every pause and the lineman engagement start this way.
+5. **Statue line.** The same hyperbola makes engaged linemen creep at 0.1 to 0.3 yd/s, "still" on about 30 of 75 samples on a pass. DL hold a flat 5.0 in pursuit.
+
+### User and what the viewer reads first
+
+Same user: Joseph and players like him, watching the all-22 view at 1x. Assumption that carries this revision: **"stiff" means machine regularity (identical twins, perfect cruise, instant speed changes, frozen linemen), not missing body detail.** Test: G5 below. If Joseph still says "stiff", ask which player and which moment, and log it.
+
+Reading order stays: the ball, then the carrier and the man closing on him, then routes and coverage, then the line. So the new secondary motion (wobble, sway, hand fight) is kept small enough that it never outranks the ball. The sway and push amplitudes (0.2 to 0.3 yd, about 3 to 4 px at 13.3 px per yard) are under the carrier ring's 6 px offset.
+
+### Decisions
+
+NM1. **One motion governor shapes every mark's keys, after the existing builders.** A new pure function in motion.ts takes a mark's raw keys (what timeline builds today), his limits and his anchors. It returns keys on the same 25 ms grid that track the raw path under four limits:
+- speed-up at most top / `accelMs`;
+- slow-down at most top / `decelMs`;
+- lateral acceleration at most `natural.govern.lateralAccel`, raised to `breakLateralAccel` inside designed break and cut arcs (the fillet arcs, flagged by the builder), so plants and cuts keep their shape;
+- the change in acceleration spread over at least `jerkMs`, so there is no flip from full speed-up to full braking in one key.
+
+Why: the measured problems sit at about 15 seams across many builders. A single shaping pass fixes all of them and every seam a later builder adds, and its output is what is drawn and tested (decision 8). Rejected: fixing each builder only. Plateaus and clones would remain, and each new builder would bring new seams. Rejected: easing in the animator, because decision 8 forbids it. Rejected: two-sided smoothing (a centered filter over the keys). It moves anchors, and it pulls post-read motion into pre-read frames, which breaks R-C9 and P3. Final.
+
+NM2. **The governor is causal.** Its output at t depends on raw keys up to t + `lookaheadMs` (25 ms, one key) and on anchors, never beyond a mark's **departure**. A mark departs when he leaves his unnamed track: the read plus his reaction for a pursuer, the throw for the target, `conv.read` for a converging defender, the read for the tackler. Call-only anchors (the snap, the mesh, the drop end) may be looked ahead to at any time. Result anchors (catch, tackle, sack, end spot) may only be looked ahead to from keys at or after the departure. Why: a named player is then exactly his unnamed self until he departs, so R-C7, R-C9 and R-C20 hold by construction. Final.
+
+NM3. **Anchors are met by a blend, not a jump (decision 10 kept).** Over the last `anchorBlendMs` before each anchor, the governed offset from raw is blended to zero with smoothstep. The window starts no earlier than the mark's departure. At the anchor, time and place are exact. A leg whose anchors need a mean speed above 1.15 × top is **anchor-demanded**: the speed may rise as far as the anchor needs (the existing "speed rises with no cap" rule), with the limits in N1 and N2. The ball in a hold rides the holder's final keys, so "the engine's holder has the ball" holds on what is drawn. Build order (facts and holders, then the ball, then everyone else) is the engineer's call. Final.
+
+NM4. **Per-player variation, deterministic, from the hash of the player id (amends contract 4).** For each mark, u = FNV-1a 32-bit of `${playerId}|${salt}` divided by 2^32. With no player id, the slot is used. The variation is **stratified within a group**: same side, same position, ranked by u, then r of n maps to −1 + 2r/(n − 1) (2u − 1 when n = 1). So no two marks in a group ever get the same value. It applies to:
+- top speed × (1 + `spread.topShare` × s);
+- `accelMs` × (1 + `spread.accelShare` × s′);
+- `reactionMs` + `spread.reactionMs` × s″;
+- start + `spread.startMs` × s‴, clamped to 0 or later, with the QB and the snapper exempt because the snap is an anchor.
+
+Each uses its own salt. The variation comes only from the id and the on-field set, both known before the snap, never from calls, target or result. It never changes a route shape, a choice or a card (decision 3, R1). Everything that reads `speed`, `accelMs` or `reactionMs` (R8's throw timing, the pursuit start, the stalk bound) uses the mark's own value. Why stratified: a plain hash can give two corners nearly the same value by chance, which is a clone again. Rejected: seeded randomness, because contract 4 forbids it and it can't be reproduced in tests. Rejected: rating-scaled speed, because decision 12 stands. ±3% is about 0.3 yd/s, which I assume nobody can rank by eye (NM-Open 3). Final in structure, values open.
+
+NM5. **No cruise plateau.** On cruise stretches only, the governor plays the raw track through a time warp τ′(t) = 1 + `wobble.share` × sin(2πt / P + φ). P is between `periodMinMs` and `periodMaxMs`, and P and φ come from the mark's hash. The path is unchanged (a warp keeps its shape) and the position offset stays under about 0.06 yd. The warp fades to zero inside plants, arcs, re-accelerations and anchor blends, so R-C6's monotone plant still holds. Pursuit and follow run on top of it. Why: speed that breathes reads as a runner. A clamp at exactly top reads as a machine. Rejected: random noise per key, which flickers. Final in structure, values open.
+
+NM6. **Seams carry velocity at the source as well.** The governor must not hide a broken builder, which is why N6 caps its offset from raw. The engineer fixes these sources:
+- `drive()` with `restStart: false` starts at the incoming velocity and ramps within limits;
+- the `follow()` lock blends to the defender's velocity over `govern.jerkMs`;
+- the `ringFix` and `settle` ring pushes become a repulsion that starts at ring + 0.5 yd, applied inside the governor's step, so a mark slides along the ring instead of jumping onto it;
+- `driftSamples` is replaced by an eased stop: deceleration within `decelMs`, then the idle sway (NM7).
+
+The contract 3 ring itself stays a hard rule (see NM-Open 1 for the ball in flight). Final.
+
+NM7. **Nobody is a statue, and nobody is drawn winning.**
+- **Engaged linemen (amends "Blocks engaging and holding").** The pocket set or run drift is eased (smoothstep over the time it takes at `pocket.pace` or `sit.pace`), not hyperbolic. On top of it, the pair gets a hand fight: a push and give along the pair's axis of amplitude `line.pushYards`, and a lateral shuffle of `line.shuffleYards`. Each is a sum of two sines with periods between `periodMinMs` and `periodMaxMs`, from the OL's hash, ramped in over `rampMs` from contact. Both men in a pair (as M6 pairs them) get the same offset, so contact holds and the fight averages to zero: nobody wins. An unpaired lineman uses his own hash. At the DL release he leaves with his current velocity.
+- **Idle sway.** When a sit, block or zone finish, or a pursuer braking at the ring, falls below `idle.minYps`, he sways at `idle.swayYards` over a hash period between `idle.periodMinMs` and `idle.periodMaxMs`. Within ring + 1 yd of the ball he sways along the ring, never into it.
+
+Rejected: a relative push between the OL and the DL, which implies a winner. Rejected: rendering facing ticks, stride bob or limbs. DESIGN.md keeps marks as X's and O's with no bounce, and speed, arcs and timing carry "natural" on their own. Final.
+
+NM8. **The settle eases from the whistle speed.** Speed never rises in the settle and reaches 0.2 yd/s or less at its end. A defender comes to rest on the ring by decelerating into it, not by a placement. The sway amplitude fades to 0 over the settle, so the final frame (reduced motion, skip) is still. Final.
+
+### New `data/ui/motion.json` keys (designed starting values; schema change, NM-Open 2)
+
+```json
+"natural": {
+  "spread": { "topShare": 0.03, "accelShare": 0.12, "reactionMs": 50, "startMs": 20 },
+  "wobble": { "share": 0.04, "periodMinMs": 700, "periodMaxMs": 1100 },
+  "govern": { "lateralAccel": 14, "breakLateralAccel": 35, "jerkMs": 100, "lookaheadMs": 25, "maxOffYards": 0.5, "anchorBlendMs": 200 },
+  "line": { "pushYards": 0.2, "shuffleYards": 0.25, "periodMinMs": 450, "periodMaxMs": 900, "rampMs": 200 },
+  "idle": { "swayYards": 0.3, "minYps": 0.5, "periodMinMs": 900, "periodMaxMs": 1500, "rampMs": 250 },
+  "flightRingYards": 1.0
+}
+```
+
+Units: yd/s² for the accelerations, yards, and ms on the timeline clock. Under uniform live scaling (factor k), speeds and accelerations scale with top / k as today. Wobble and sway periods do not scale. The lateral acceleration values are designed, not looked up: [gap: primary source for NFL player lateral and braking acceleration]. `parseMotion` validates every key, rejects min > max, and rejects shares outside [0, 0.2].
+
+The acceptance multipliers below (1.15, 1.25, 1.5, 0.02, 0.3) are **test constants in this spec, not data**. Why: tuning data must never be able to loosen its own acceptance test.
+
+### States
+
+| State | Behaviour |
+|---|---|
+| Normal scrimmage play | NM1 to NM8. |
+| Kicks and returns | The same. Kick lanes stay straight (R-Open 4), but they breathe and vary. |
+| Anchor-demanded leg (a far tackler, a hurried target) | He speeds up as needed, within N1 and N2's exemption. The leg is listed in the test output. |
+| Governor can't meet a limit without breaking an anchor | The anchor wins. A warning naming the mark and time goes into `tl.warnings`. The tests fail on any such warning in ALL_FIXTURES. |
+| Sacked QB and his sacker after the sack, holder and tackler in the last `convergeMs` | At rest is correct. Exempt from N5. |
+| No play, kneel, spike | Nobody sways. Exempt from N4 and N5. |
+| 2x | The same keys at double rate (unchanged). |
+| Reduced motion, skip | The final post-settle frame, which is still (NM8). |
+| Live time clamped | NM rules apply on the scaled clock (see Units). |
+| Motion data invalid | The existing "Game data failed its check: data/ui/motion.json". |
+| Loading, permission denied | Not applicable: a pure function with no I/O. |
+| Test hook `ctx.natural = false` | The raw keys, used only by N6 and for A/B in playtest. |
+
+Model output: the motion between anchors is a display guess. The variation carries no information, since it is independent of calls, target and result (N7). If a drawing contradicts the record, that is a bug and the record wins. Accessibility: nothing new is carried by motion alone, there is no flashing, and reduced motion is unchanged.
+
+### Acceptance criteria (N1 to N7, over every event in ALL_FIXTURES at 1x)
+
+**Measurement, shared by all seven.**
+- Sample p_i = at(keys, snapAt + 25i) up to liveEnd + settleMs.
+- Speed: v_i = |p_{i+1} − p_{i−1}| / 0.05 s.
+- Tangential acceleration: a_i = (v_{i+1} − v_{i−1}) / 0.05 s.
+- Lateral acceleration: v_i × the heading change of (p_{i+1} − p_{i−1}) per 0.05 s, measured where v_i ≥ 1 yd/s.
+- `top`, `accelMs` and `reactionMs` are the mark's own values (NM4), with top divided by k.
+- The ball is not a mark. Pre-snap motion is out of scope.
+
+| # | Criterion | How it fails |
+|---|---|---|
+| N1 | **No teleports.** For every mark at every key, v_i ≤ 1.15 × top. On an anchor-demanded leg (NM3), v_i ≤ 1.25 × the leg's required mean speed. | A pop (today: LB2 38.5 on COMPLETE). |
+| N2 | **Continuous velocity.**<br>- Speed-up: a_i ≤ 1.25 × top / `accelMs`.<br>- Slow-down: −a_i ≤ 1.25 × top / `decelMs`.<br>- Lateral: ≤ 1.25 × `lateralAccel`, or × `breakLateralAccel` inside flagged break and cut arcs.<br>- Jerk: \|a_{i+1} − a_i\| ≤ 2 × (top / `accelMs`) × 25 / `jerkMs`.<br>On anchor-demanded legs every limit is × 1.5. | An abrupt drop (10 to 1 in 100 ms), or a snap turn. |
+| N3 | **No clones.** For every pair of marks on one side at one position, over the keys where both have v ≥ 1 yd/s (pairs with under 400 ms in common are skipped), the RMS of their speed difference is at least 0.2 yd/s. | CB1 = CB2 = CB3 on RUN. |
+| N4 | **No cruise plateau.** In every 500 ms window where a mark's v stays above 0.5 × top, max v − min v ≥ 0.02 × top. | A flat 10.5 for 2 s. |
+| N5 | **Never frozen.**<br>- Every mark not exempt under States has v ≥ 0.3 yd/s on at least 95% of keys from his start to the whistle.<br>- Engaged linemen, from engage end to the release or the whistle: v ≥ 0.4 yd/s on at least 90% of keys, with mean v between 0.8 and 3.0 yd/s.<br>- M6 contact holds.<br>- Each pair's mean offset along its axis is within 0.15 yd of the designed drift, so nobody wins. | Statue OL (30 of 75 still), or a lineman drawn winning. |
+| N6 | **Anchors exact, governor honest, settle eased.**<br>- Every fact anchor is at its time and place within 1e-6 yd (decision 10).<br>- At every key, \|governed − raw\| ≤ `maxOffYards`, where raw is from `ctx.natural = false`.<br>- In the settle, v_i ≤ v_{i−1} + 0.05 yd/s, and v ≤ 0.2 yd/s at its end.<br>- Contract 3's ring holds at every key (as amended by NM-Open 1).<br>- No `tl.warnings` entry from the governor. | A missed anchor, a governor masking a broken builder, or a settle jerk. |
+| N7 | **Deterministic, no leak, in budget.**<br>- Two runs of the same input give identical keys.<br>- For every mark, the NM4 values are unchanged when only target, result or end spot change.<br>- R-C7, R-C9, R-C19 and R-C20 pass with natural motion on.<br>- R-C15 holds: `timeline()` at 20 ms or less, median and p95 over 1,000 plays, reported in PERF.md. | Nondeterminism, a pre-read leak, or over budget. |
+
+Also run N1 to N5 over 1,000 simulated plays in the heavy suite, and report the worst value and the share of passing marks in PERF.md. No pass bar is set there until the fixtures pass.
+
+Existing tests that change, none weakened:
+- Every "top" in M2, R-C5, R-C6, R-C7, R-C8 and R-C10 becomes the mark's own top.
+- R-C5's "speed above 0" window is unaffected, because sway only raises speed.
+- R-C6 is unchanged, because the wobble fades out in plants (NM5).
+- R-C7's "template track" is the governed template track, built through the same pipeline.
+- The probe file `zz-motion-probe.test.ts` is replaced by these tests. It is not shipped.
+
+Playtest gate **G5**: Joseph watches 20 or more plays at 1x (runs, each pass class, a sack, a kick), first with `ctx.natural` off and then on, and says whether the stiffness is gone. Every named moment goes in the playtest log.
+
+For art-director: DESIGN.md "Motion" still says "straight segments with easing only at start and stop". It needs a line for breathing speed, the hand fight and the sway. This file doesn't change DESIGN.md.
+
+### Final and open
+
+Final: NM1 to NM3 and NM6 to NM8 in structure. Open for values: everything in `natural`.
+
+NM-Open:
+1. **The ring for a ball in flight (lead; this amends contract 3, which is Final).** Physically, a defender can't clear 2.5 yd of a short pass's flight line within his limits when the ball passes him about 150 ms after the throw. My recommendation: while the ball is in the air, the ring is `flightRingYards` (1.0 yd). A pass 1 yd from a linebacker is a tight-window throw, not an implied breakup. Held or loose balls keep 2.5 yd and the carrier's corridor. If rejected, N1 and N2 get an exemption for ring slides during flight, and the count is reported in PERF.md.
+2. **Schema change (Joseph, ask first):** `motion.json` gets the required `natural` block, version 2 to 3, and `parseMotion` changes.
+3. **The ±3% speed spread against decision 12.** Ask in G5 whether any mark looks faster than its rating would justify. If yes, the next step is `topShare` 0.015, not removing the spread.
+4. **Source of the pops.** NM6's list comes from reading the code. The debugger or engineer confirms each one with the probe before the fix, and adds any source I missed to that list.
+
+Settled (Joseph, 2026-11-15; docs/DECISIONS.md, "Natural motion: open items settled"):
+1. Approved: while the pass is in the air the ring is `flightRingYards`, 1.0 yd. This amends contract 3 for ball flight only. Held and loose balls keep 2.5 yd and the corridor.
+2. Approved: `motion.json` goes to version 3 with the required `natural` block, and `parseMotion` changes with it.
+3. The ±3% speed spread stays. Playtest G5 checks it.
+4. Each pop source is confirmed with the probe before it is fixed. Engineer's findings, 2026-11-15: confirmed `drive()` with `restStart: false` starting at the leg's mean speed (a receiver who caught the ball standing went from 0 to 9.8 yd/s in one key on COMPLETE), confirmed the ring push with a ball in flight (on COMPLETE the pass passes 0.75 yd from OL5 and 0.23 yd from WR3, and both pop to 20 to 30 yd/s; the linebacker pops on COMPLETE are the same cause), and confirmed the hyperbolic `driftSamples` (the statue line and the abrupt drops). The `settle()` placement and the `follow()` lock were not isolated with the probe. Sources added: the QB's short drop (1.5 yd from rest to rest in 600 ms) is beyond his own limits; a target who sits near the catch point and leaves late needs 0 to 19 yd/s in 300 ms; pursuit's 180 degrees per second turn is about 31 yd/s² of lateral acceleration at 10 yd/s; the tackler's run starts with an instant change of heading; a carry from rest leaves too little time for smooth ramps, so the carrier cruises at 1.14 to 1.22 times his top.
+
+## Amended (Joseph, 2026-11-15): kickoff return pass (KR1 to KR9)
+
+**Problem.** Joseph's playtest: "on the kickoff return the blockers wait and get BEHIND the returner. that's bad. also the returner always goes straight." Today the return unit runs its `drops.return` step, stands through the hang, then pursues the ball like defenders, so it trails the returner. The returner runs one straight line from the landing spot to the dead spot.
+
+**User.** Joseph, and any player watching a kickoff at 1x. What he should see: blockers who set up a wall during the hang and lead the return, and a returner who starts upfield and cuts.
+
+**Overrides, for kickoffs only.** This replaces R-Open 4, the R11 "Not done" line "No change to kick coverage or return lanes", and the natural-motion States row "Kick lanes stay straight". On a kickoff return the return unit are the carrier's teammates, not diagram defenders. Contract 3's corridor does not apply to them. The 2.5 yd ring (and A3's check on side X) still does. Punts, onside kicks, touchbacks, fair catches and kicks out of bounds are unchanged.
+
+**Frame and terms.** Kicking team's frame: the kick goes up the screen, and the return comes back down (decreasing y). *Catch* = `plan.read` (the ball lands with the returner). *Blockers* = unnamed return-unit marks: side X, not the returner, a fouler or a fumble recoverer. *Coverage* = unnamed kicking-team marks, not the kicker or the engine's tackler. *Behind by b* = blocker.y − carrier.y. *Return length* = landing y − dead spot y.
+
+**Decisions (designed, display only).** The engine still decides the dead spot yard line, the returner, the tackler and the outcome. The animation decides only the lateral path, the wall and the blocks. The returner cuts toward the side where more of his blockers are engaged (settled, KR-Open 3). He counts them on the marks' own drawn positions at the moment of the cut. A tie is broken by a hash of ids the timeline already has (as in the NM4 spread). The cut never comes from randomness or from the tackler. On kickoff returns, the kicking team's unnamed coverage also keeps out of the carrier's corridor (settled, KR-Open 2; KR9). New tuning values go in a new `motion.json` block `kickReturn`, not inside `kickoff`, so `routes-pace.spec.test.ts` line 1519 (the `motion.kickoff` deep-equal) stays as it is. Per-slot lane order, if it lives in data, goes in `templates.json`. Both are validated by `parseMotion` and `parseTemplates`. Starting values for the engineer to tune: wall depth, lane spread, engage distance, behind tolerance, whistle window, upfield yards, cut size, cut minimum return.
+
+### Acceptance criteria (KR1 to KR9)
+
+These run headless on the Timeline from `timeline()` at 1x. Fixtures: KICKOFF_RETURN plus new fixtures for a return of 40 yd or more, a return shorter than `kickReturn.cutMinReturnYards`, and a return fumble. The heavy suite also runs 1,000 simulated kickoff returns: each KR criterion must pass on 100% of fixtures and on at least 95% of simulated returns, with the share reported in PERF.md. The test floors named below are test constants, so the data can't loosen its own test (as in NM).
+
+| # | Criterion | How it fails |
+|---|---|---|
+| KR1 | **Facts unchanged.** A2, A3 (the ring), the anchors (N6: ball at the dead spot y at the whistle, tackler at the ball, returner holding it), `kickoffFrame` = timeline at t = 0 (usability-pass AC 11), A1 determinism, and N1 to N7 all pass on every kickoff fixture. | A moved anchor, a mark at t = 0 off the frame, a pop. |
+| KR2 | **Setup during the hang.** From the kick to the catch, every blocker whose set spot is more than `kickReturn.wallDepthYards` short of the landing spot gains at least `kickReturn.setupYards` toward it in y (test floor: 3 yd). No blocker is still (v under 0.3 yd/s) for more than 300 ms of the hang. | Blockers standing through the hang (today). |
+| KR3 | **Wall at the catch.** At the catch, no blocker is behind the returner by more than `kickReturn.behindToleranceYards` (test floor: at most 1.0 yd). The blockers' x positions span at least `kickReturn.laneSpreadYards` (test floor: at least 20 yd). | A bunch in the middle, or a blocker behind the returner. |
+| KR4 | **Lead the return.** At every 25 ms key from the catch to the whistle minus `kickReturn.whistleWindowMs` (test floor: at most 500 ms), every blocker is either behind the carrier by at most `behindToleranceYards`, or engaged. *Engaged* means within `kickReturn.engageYards` of a coverage mark (test floor: at most 2.0 yd) in a contact that began at a key where he wasn't behind. A block the returner has run past counts; a blocker who chases him from behind doesn't. | A blocker who trails the returner (Joseph's note). |
+| KR5 | **Blocks happen.** On returns of at least `cutMinReturnYards`, at least half of the blockers are engaged for 300 ms or more before the whistle, each with a different coverage mark. The engine's tackler is never engaged. While engaged, the pair holds contact and neither is drawn winning (the N5 rule for linemen). | Blockers drifting past coverage, or a block on the tackler that implies a shed. |
+| KR6 | **The returner cuts.** On returns of at least `cutMinReturnYards`, the returner runs within 20 degrees of straight upfield for the first `kickReturn.upfieldYards` after the catch, then makes at least one heading change of 25 degrees or more (each heading measured over 300 ms, before and after). His x at some point differs from his catch x by at least `kickReturn.cutYards` (test floor: at least 4 yd). Cut arcs are flagged and meet N2's `breakLateralAccel`. He stays at least `sidelineMarginYards` inside both sidelines unless the engine ends the play out of bounds. | A straight vertical return (today). |
+| KR7 | **He cuts toward the blocks, deterministically, with no leak.** Two builds of the same event give identical keys. Two events that differ only in the dead spot, the tackler or the result give identical returner and blocker positions from the kick to the catch. At his first KR6 heading change, the sign of his new heading's x points to the side (left or right of his own x) with more blockers engaged (as KR4 defines it) at that key. On a tie, it points to the id hash's side. Over the simulated returns, each cut direction (left, right) is at least 30% of returns. | A cut away from the blocks, the same side every time, or a pre-catch wall that knows the result. |
+| KR8 | **Unchanged where there is no return.** For touchbacks, fair catches, kicks out of bounds, onside kicks and every punt, keys are identical to the build before this pass. A return shorter than `cutMinReturnYards` doesn't need to cut (KR6 is exempt) but keeps KR2 to KR4. A return fumble: KR4 and KR6 run up to the fumble. After it, the existing R9 recovery rules apply. | A changed punt or touchback, or a fumble path broken. |
+| KR9 | **Coverage keeps out of the carrier's corridor.** From the catch to the whistle (to the fumble on a return fumble), at every 25 ms key, every coverage mark keeps at least `pursuit.corridorHalfYards` from the carrier's drawn path over [t, t + `pursuit.corridorMs`], cut off at the whistle. Engaged coverage counts too. This is the same corridor side X keeps on scrimmage plays (test floor: at least 2.0 yd and 1,000 ms, the contract 3 values). Only the engine's tackler comes to the ball. | Coverage swarming the returner before the tackler gets there. |
+
+**States that are reachable.**
+- A long return or a return touchdown: live time may exceed the 7.0 s cap. Uniform scaling applies as it does today, and KR runs on the scaled clock.
+- A foul on the return: the fouler is named and exempt from KR2 to KR5.
+- The returner set deep (RB1, WR1 at los + 60) against one set short (S1, as in the fixture): KR2's depth exemption covers the deep men.
+- Invalid `kickReturn` data: the existing "Game data failed its check: data/ui/motion.json". R-C13's malformed-file case gains the new keys.
+
+**Existing tests.** No test pins straight kick lanes. I checked `timeline.test.ts`, `routes-pace.spec.test.ts`, `natural-motion.spec.test.ts`, `usability-pass*.spec.test.ts` and `art.test.ts`. Tests that constrain this pass, and that stay unweakened:
+- `routes-pace.spec.test.ts` 1519, the `motion.kickoff` deep-equal. It is the reason the new keys get their own block.
+- `timeline.test.ts` A3, the ring on side X. It still applies to blockers.
+- `usability-pass.spec.test.ts` AC 11, the frame at t = 0.
+- N3, no clones. Convoy blockers at one position must still differ.
+`zz-nm-dbg7.test.ts` is a probe with no assertions.
+
+**Locked:** the engine facts, KR1, and punts out of scope. **Likely to change:** every `kickReturn` value, and the 25-degree and 300 ms constants in KR6, after playtest.
+
+**Playtest gate G6.** Joseph watches 10 or more kickoff returns at 1x, including one long return, and says whether the blockers lead and the returner cuts.
+
+### KR-Open: resolved (Joseph, 2026-11-15; docs/DECISIONS.md, "Kickoff return pass: open items settled")
+1. Schema change approved: `motion.json` goes to version 4 with a required `kickReturn` block, and `parseMotion` validates it. Per-slot lanes in `templates.json`, if used, need the same approval.
+2. Yes: on kickoff returns, the kicking team's unnamed coverage keeps out of the same 2 yd carrier corridor that side X keeps on scrimmage plays (KR9).
+3. Toward the blocks: the returner cuts to the side with more of his blockers engaged, and the id hash breaks a tie (KR7). Each direction stays at least 30% of returns, because both units line up close to mirrored (the return unit exactly, the kick unit within a slot), so a bias to one side is still a bug.

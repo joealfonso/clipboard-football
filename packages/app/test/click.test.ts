@@ -148,7 +148,7 @@ describe("a click picks on the overlay screens (title, settings)", () => {
     return picked === null ? { t: "none" } : pickRow(model, picked);
   };
 
-  it("New game and Settings act on one click", () => {
+  it("Quick play and Settings act on one click", () => {
     const t = titleScreen({ hasSave: true, storage: true });
     expect(clickScreen(t, "1")).toMatchObject({ t: "act", row: { action: "newGame" } });
     expect(clickScreen(t, "3")).toMatchObject({ t: "act", row: { action: "settings" } });

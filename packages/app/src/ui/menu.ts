@@ -7,6 +7,7 @@
 
 import type { Catalog } from "@clipboard-football/shared";
 import type { DecisionAnswer, DecisionRequest, OffenseCallChoice, ReasonCode, RequestOption, RequestScreen } from "../engine/types";
+import { NO_EARLIER, type EarlierCall } from "./recent";
 
 export const MAX_ROWS = 7;
 
@@ -17,6 +18,8 @@ export interface Row {
   readonly label: string;
   readonly on: boolean;
   readonly reason?: ReasonCode;
+  /** An off row's reason in UI words, for a row the UI adds (Earlier call): not an engine reason code. */
+  readonly reasonText?: string;
   readonly note?: string;
   /** The option id, absent for Esc. */
   readonly option?: string;
@@ -33,6 +36,8 @@ export interface MenuState {
 export type Effect =
   | { readonly t: "submit"; readonly answer: DecisionAnswer }
   | { readonly t: "reason"; readonly reason: ReasonCode }
+  /** An off UI row's reason in words (Earlier call). */
+  | { readonly t: "note"; readonly text: string }
   | { readonly t: "pause" }
   | { readonly t: "none" };
 
@@ -47,7 +52,12 @@ export interface MenuExtra {
   readonly timeoutsLeft?: number;
   /** Penalty option text by option id ("Accept holding: 1st & 10 at OPP 33"). */
   readonly penaltyLabels?: Readonly<Record<string, string>>;
+  /** The offense's Earlier call row (U5), from your own play events; absent: off, "no earlier call". */
+  readonly earlierCall?: EarlierCall;
 }
+
+/** The UI's own option id for the Earlier call row (U5); never sent to the engine, which gets the call's path. */
+export const EARLIER_CALL = "earlierCall";
 
 export function openMenu(request: DecisionRequest): MenuState {
   return { request, screens: [request.screens[0]?.id ?? ""], picks: [] };
@@ -86,15 +96,20 @@ const FIXED: Readonly<Record<string, string>> = {
   letStand: "Let it stand",
 };
 
-function callText(c: OffenseCallChoice, labels: Readonly<Record<string, string>>): string {
+function callTextOf(c: OffenseCallChoice, labels: Readonly<Record<string, string>>): string {
   const leaf = c.call === "goForTwo" ? (c.twoPointPlay ?? "") : c.call;
   const play = labels[leaf] ?? leaf;
   return c.formation === undefined ? play : `${labels[c.formation] ?? c.formation}, ${play}`;
 }
 
+/** "Under center, Inside run": a call as Same call and Earlier call name it. */
+export function callText(c: OffenseCallChoice, labels: Readonly<Record<string, string>>): string {
+  return callTextOf(c, labels);
+}
+
 function sameCallLabel(req: DecisionRequest, data: MenuData): string {
   if (req.kind === "defenseCall") return req.sameCall === null ? "Same call" : `Same call: ${data.labels[req.sameCall] ?? req.sameCall}`;
-  if ((req.kind === "offenseCall" || req.kind === "try") && req.sameCall !== null) return `Same call: ${callText(req.sameCall, data.labels)}`;
+  if ((req.kind === "offenseCall" || req.kind === "try") && req.sameCall !== null) return `Same call: ${callTextOf(req.sameCall, data.labels)}`;
   return "Same call";
 }
 
@@ -127,17 +142,25 @@ export function rows(m: MenuState, data: MenuData, extra: MenuExtra = {}): Row[]
     if (o.id === "timeout" && o.legal && extra.timeoutsLeft !== undefined) note = `${extra.timeoutsLeft} left`;
     if (req.kind === "offenseCall" && o.id === req.tempo) note = "now";
     out.push({ ...base, ...(o.reason === undefined ? {} : { reason: o.reason }), ...(note === undefined ? {} : { note }) });
+    // U5: 5 Earlier call, right after Same call on the offense's first screen (never on the try or the defense).
+    if (o.id === "sameCall" && req.kind === "offenseCall" && current(m) === "offense.playType") {
+      const e = extra.earlierCall ?? { on: false, reason: NO_EARLIER };
+      const key = String(++n) as MenuKey;
+      out.push(e.on ? { key, label: `Earlier call: ${callTextOf(e.call, data.labels)}`, on: true, option: EARLIER_CALL } : { key, label: "Earlier call", on: false, reasonText: e.reason, option: EARLIER_CALL });
+    }
   }
   out.push({ key: "Esc", label: isFirstScreen(m) ? "Menu" : "Back", on: true });
   return out;
 }
 
 /** One key press. Unknown keys and keys with no row do nothing. */
-export function press(m: MenuState, key: MenuKey, data: MenuData): { menu: MenuState; effect: Effect } {
-  const row = rows(m, data).find((r) => r.key === key);
+export function press(m: MenuState, key: MenuKey, data: MenuData, extra: MenuExtra = {}): { menu: MenuState; effect: Effect } {
+  const row = rows(m, data, extra).find((r) => r.key === key);
   const stay = (effect: Effect = { t: "none" }): { menu: MenuState; effect: Effect } => ({ menu: m, effect });
   if (row === undefined) return stay();
-  if (!row.on) return stay(row.reason === undefined ? { t: "none" } : { t: "reason", reason: row.reason });
+  if (!row.on) return stay(row.reason !== undefined ? { t: "reason", reason: row.reason } : row.reasonText !== undefined ? { t: "note", text: row.reasonText } : { t: "none" });
+  // U5: Earlier call submits the path the menus would build for that call.
+  if (row.option === EARLIER_CALL) return extra.earlierCall?.on === true ? stay({ t: "submit", answer: { seq: m.request.seq, path: [...extra.earlierCall.path] } }) : stay();
   if (row.key === "Esc") {
     if (isFirstScreen(m)) return stay({ t: "pause" });
     return { menu: { request: m.request, screens: m.screens.slice(0, -1), picks: m.picks.slice(0, -1) }, effect: { t: "none" } };

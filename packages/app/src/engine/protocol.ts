@@ -39,6 +39,19 @@ export interface Matchup {
   readonly away: TeamSummary;
 }
 
+/** A drive in progress: its first snap's spot (yards from the team's own goal line) and its plays so far. */
+/** Which game, and how many of its events the UI had, when it asked for a box score. */
+export interface BoxTag {
+  readonly seed: number;
+  readonly events: number;
+}
+
+export interface OpenDrive {
+  readonly team: Team;
+  readonly start: number;
+  readonly plays: number;
+}
+
 export type ToWorker =
   | { readonly t: "init" }
   | { readonly t: "matchup"; readonly leagueSeed: number; readonly seed: number }
@@ -47,7 +60,8 @@ export type ToWorker =
   | { readonly t: "newGame"; readonly leagueSeed: number; readonly seed: number; readonly human: Team }
   | { readonly t: "resume"; readonly save: unknown }
   | { readonly t: "answer"; readonly answer: DecisionAnswer }
-  | { readonly t: "box" }
+  /** `tag`: the game and event count the UI asks at; the reply echoes it (code review R1), so a request the worker can't answer yet strands nothing. */
+  | { readonly t: "box"; readonly tag?: BoxTag }
   | { readonly t: "ranks"; readonly playerId: string; readonly leagueSeed: number };
 
 export type SimErrorInfo = { readonly message: string; readonly seed: number | null; readonly playCount: number | null; readonly name: string };
@@ -68,9 +82,15 @@ export type FromWorker =
       readonly save: SaveData;
       /** True for a resumed game: `events` is the whole log so far. */
       readonly resumed: boolean;
+      /**
+       * The drive in progress, from the box score's own drive count over the event log (DESIGN.md
+       * hud.driveTracker): where it started, in the frame of the team with the ball, and its plays.
+       * null when no drive is open (before a drive's first snap, kicks, tries, the end of a half).
+       */
+      readonly drive?: OpenDrive | null;
     }
   | { readonly t: "answerError"; readonly code: string; readonly message: string }
   | { readonly t: "saveError"; readonly reason: "older" | "damaged" }
-  | { readonly t: "box"; readonly box: BoxScore; readonly players: PlayerBoxScore }
+  | { readonly t: "box"; readonly box: BoxScore; readonly players: PlayerBoxScore; readonly tag?: BoxTag }
   | { readonly t: "ranks"; readonly playerId: string; readonly ranks: Readonly<Record<string, RatingRank>> }
   | { readonly t: "simError"; readonly error: SimErrorInfo };

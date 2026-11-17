@@ -109,6 +109,7 @@ interface Op {
   readonly strokeStyle: string;
   readonly fillStyle: string;
   readonly dash: readonly number[];
+  readonly lineWidth: number;
   readonly text?: string;
 }
 function recorder(): { g: CanvasRenderingContext2D; ops: Op[] } {
@@ -116,7 +117,7 @@ function recorder(): { g: CanvasRenderingContext2D; ops: Op[] } {
   let dash: number[] = [];
   const state: Record<string, unknown> = { fillStyle: "#000000", strokeStyle: "#000000", font: "10px sans-serif", globalAlpha: 1, lineWidth: 1, textAlign: "start", textBaseline: "alphabetic" };
   const log = (op: string, text?: string): void => {
-    ops.push({ op, strokeStyle: String(state["strokeStyle"]).toUpperCase(), fillStyle: String(state["fillStyle"]).toUpperCase(), dash: [...dash], ...(text === undefined ? {} : { text }) });
+    ops.push({ op, strokeStyle: String(state["strokeStyle"]).toUpperCase(), fillStyle: String(state["fillStyle"]).toUpperCase(), dash: [...dash], lineWidth: Number(state["lineWidth"]), ...(text === undefined ? {} : { text }) });
   };
   const g = new Proxy(state, {
     get(target, prop: string) {
@@ -249,34 +250,40 @@ describe("styles.css: the main menu frame, wordmark, rule and titles (spec Splas
     expect(norm(resolve(d["padding"] ?? ""))).toBe("32px");
   });
 
-  it("menu.wordmark: font.display 700, 56 px times the text scale, block caps by CSS, color.chalk, wraps", () => {
+  // Amended by DESIGN.md Prime Time (menu.hero): type.hero 88 px / 0.92, 0.005em, on two lines; type.wordmark 56 px when small.
+  it("menu.wordmark: font.display 700, 88 px times the text scale (56 px when small), block caps by CSS, color.chalk, wraps", () => {
     const d = declsFor(".wordmark");
     expect(norm(d["font-family"])).toBe("var(--font-display)");
     expect(d["font-weight"]).toBe("700");
-    expect(norm(resolve(d["font-size"] ?? ""))).toBe(norm("calc(56px * var(--text-scale))"));
+    expect(norm(resolve(d["font-size"] ?? ""))).toBe(norm("calc(88px * var(--text-scale))"));
+    expect(d["line-height"]).toBe("0.92");
+    expect(d["letter-spacing"]).toBe("0.005em");
+    expect(norm(resolve(declsFor(".wordmark.small")["font-size"] ?? ""))).toBe(norm("calc(56px * var(--text-scale))"));
     expect(d["text-transform"]).toBe("uppercase");
     expect(norm(resolve(d["color"] ?? ""))).toBe(norm(rootVars["--chalk"]));
     expect(d["white-space"]).not.toBe("nowrap");
     expect(d["overflow"] ?? "").not.toBe("hidden");
   });
 
-  // DESIGN.md Broadcast: menu.rule is now an accent bar, 48 px wide, 3 px tall, radius 2 px, 14 px under the wordmark.
-  it("menu.rule: a 48 by 3 px color.gold accent bar, radius 2 px, 14 px under the wordmark", () => {
+  // Amended by DESIGN.md Prime Time: menu.rule is 64 px wide, 4 px tall, radius 2 px, 16 px under the wordmark.
+  it("menu.rule: a 64 by 4 px color.gold accent bar, radius 2 px, 16 px under the wordmark", () => {
     const d = declsFor(".menu-rule");
     const thick = d["height"] ?? d["border-top-width"] ?? "";
-    expect(thick).toBe("3px");
-    expect(d["width"]).toBe("48px");
+    expect(thick).toBe("4px");
+    expect(d["width"]).toBe("64px");
     expect(d["border-radius"]).toBe("2px");
-    expect(d["margin-top"]).toBe("14px");
+    expect(d["margin-top"]).toBe("16px");
     expect(norm(resolve(d["background"] ?? d["background-color"] ?? d["border-top-color"] ?? ""))).toBe(COLOR.gold.toLowerCase());
   });
 
-  it("other menu screens' titles: font.ui 700, 28 px times the text scale, sentence case, color.chalk, no gold rule", () => {
+  // Amended by DESIGN.md Prime Time (type.screenTitle): display 700 40 px caps, letter-spacing 0.01em.
+  it("other menu screens' titles: font.display 700, 40 px times the text scale, block caps, color.chalk, no gold rule", () => {
     const d = declsFor(".menu-title");
-    expect(norm(d["font-family"])).toBe("var(--font-ui)");
+    expect(norm(d["font-family"])).toBe("var(--font-display)");
     expect(d["font-weight"]).toBe("700");
-    expect(norm(resolve(d["font-size"] ?? ""))).toBe(norm("calc(28px * var(--text-scale))"));
-    expect(d["text-transform"] ?? "none").toBe("none");
+    expect(norm(resolve(d["font-size"] ?? ""))).toBe(norm("calc(40px * var(--text-scale))"));
+    expect(d["text-transform"]).toBe("uppercase");
+    expect(d["letter-spacing"]).toBe("0.01em");
     expect(norm(resolve(d["color"] ?? ""))).toBe(norm(rootVars["--chalk"]));
     for (const k of ["border", "border-bottom", "border-top", "box-shadow", "text-decoration"]) expect(norm(resolve(d[k] ?? "")), k).not.toContain(COLOR.gold.toLowerCase());
   });
@@ -340,11 +347,11 @@ describe("MM5: the main menu's four rows", () => {
     { hasSave: false, storage: false, checking: false },
   ];
 
-  it("exactly 1 New game, 2 Continue, 3 Settings, 4 Controls in every save state", () => {
+  it("exactly 1 Quick play, 2 Continue, 3 Settings, 4 Controls in every save state", () => {
     for (const s of states) {
       const m = titleScreen(s);
       expect(m.rows.map((r) => [r.key, r.label])).toEqual([
-        ["1", "New game"],
+        ["1", "Quick play"],
         ["2", "Continue"],
         ["3", "Settings"],
         ["4", "Controls"],
@@ -360,10 +367,10 @@ describe("MM5: the main menu's four rows", () => {
     }
   });
 
-  it("New game, Settings and Controls are always on", () => {
+  it("Quick play, Settings and Controls are always on", () => {
     for (const s of states) {
       const m = titleScreen(s);
-      for (const label of ["New game", "Settings", "Controls"]) expect(m.rows.find((r) => r.label === label)?.on, label).toBe(true);
+      for (const label of ["Quick play", "Settings", "Controls"]) expect(m.rows.find((r) => r.label === label)?.on, label).toBe(true);
     }
   });
 
@@ -408,11 +415,11 @@ describe("MM6: Continue's reasons", () => {
   });
 });
 
-describe("MM7: New game's note iff a save exists and storage works", () => {
+describe("MM7: Quick play's note iff a save exists and storage works", () => {
   for (const hasSave of [false, true]) {
     for (const storage of [false, true]) {
       it(`hasSave ${String(hasSave)}, storage ${String(storage)}`, () => {
-        const note = titleScreen({ hasSave, storage, checking: false }).rows.find((r) => r.label === "New game")?.note ?? "";
+        const note = titleScreen({ hasSave, storage, checking: false }).rows.find((r) => r.label === "Quick play")?.note ?? "";
         if (hasSave && storage) expect(note).toContain("replaces your saved game");
         else expect(note).not.toContain("replaces your saved game");
       });
@@ -430,10 +437,10 @@ describe("MM8, decision 4: the opening highlight", () => {
     expect(labelAt({ hasSave: true, storage: true, checking: false })).toBe("Continue");
   });
 
-  it("on New game while checking, with no save, and with storage blocked", () => {
-    expect(labelAt({ hasSave: false, storage: true, checking: true })).toBe("New game");
-    expect(labelAt({ hasSave: false, storage: true, checking: false })).toBe("New game");
-    expect(labelAt({ hasSave: false, storage: false, checking: false })).toBe("New game");
+  it("on Quick play while checking, with no save, and with storage blocked", () => {
+    expect(labelAt({ hasSave: false, storage: true, checking: true })).toBe("Quick play");
+    expect(labelAt({ hasSave: false, storage: true, checking: false })).toBe("Quick play");
+    expect(labelAt({ hasSave: false, storage: false, checking: false })).toBe("Quick play");
   });
 
   it("the opening highlight is never on an off row", () => {
@@ -469,16 +476,18 @@ describe("MM18 (pure part): Esc on the main menu does nothing; Esc on Pregame is
 // ================================================================= screens.ts, Settings
 
 const settingsOf = (s: Partial<Settings> & { systemReduced?: boolean } = {}): ScreenModel =>
-  settingsScreen({ textSize: s.textSize ?? 100, reducedMotion: s.reducedMotion ?? "system", markLabels: s.markLabels ?? "involved", labelContent: s.labelContent ?? "rating", speed: s.speed ?? "1x", ...(s.systemReduced === undefined ? {} : { systemReduced: s.systemReduced }) });
+  settingsScreen({ textSize: s.textSize ?? 100, reducedMotion: s.reducedMotion ?? "system", markLabels: s.markLabels ?? "involved", labelContent: s.labelContent ?? "rating", speed: s.speed ?? "1x", autoAdvance: s.autoAdvance ?? "off", ...(s.systemReduced === undefined ? {} : { systemReduced: s.systemReduced }) });
 
 describe("MM9, decision 6: Settings reaches every setting", () => {
-  it("rows are 1 Text size, 2 Reduced motion, 3 Mark labels, 4 Mark label shows, 5 Animation speed, Esc Back", () => {
+  // Calling screen pass Q1 adds row 6, Auto-advance (the rule is unchanged: every setting has a row).
+  it("rows are 1 Text size, 2 Reduced motion, 3 Mark labels, 4 Mark label shows, 5 Animation speed, 6 Auto-advance, Esc Back", () => {
     expect(settingsOf().rows.map((r) => [r.key, r.label])).toEqual([
       ["1", "Text size"],
       ["2", "Reduced motion"],
       ["3", "Mark labels"],
       ["4", "Mark label shows"],
       ["5", "Animation speed"],
+      ["6", "Auto-advance"],
       ["Esc", "Back"],
     ]);
   });
@@ -514,6 +523,8 @@ describe("MM10: every DEFAULT_SETTINGS key has a Settings row that shows it", ()
     markLabels: ["involved", "all", "none"],
     labelContent: ["rating", "number"],
     speed: ["1x", "2x", "skip"],
+    // Calling screen pass Q1.
+    autoAdvance: ["off", "noDecision", "all"],
   };
 
   for (const key of Object.keys(DEFAULT_SETTINGS)) {
@@ -540,6 +551,8 @@ describe("decision 7: Settings preview in words", () => {
     "Mark labels": "Which marks keep their label while a play runs. Every mark gets its label back at the whistle.",
     "Mark label shows": "What the number beside each mark is: the player's overall rating or his jersey number.",
     "Animation speed": "How fast plays run: 1x, 2x, or skip to the result. S changes it during a play.",
+    // docs/specs/m2-calling-screen-pass.md, Q1 Copy.
+    "Auto-advance": "Plays with nothing for you to choose (their kickoffs, punts, field goals, extra points, kneels and spikes) run without waiting for Space. Off by default. The middle setting still stops when you could call a timeout.",
   };
 
   it("each row's description line is the spec's", () => {
@@ -589,10 +602,11 @@ describe("MM19, decision 9: the way back says Main menu, never title", () => {
   });
 });
 
-describe("MM23: the screen cap includes the main menu (4) and Settings (6)", () => {
-  it("main menu 4, Settings 6, Controls 1, all at most 7", () => {
+// Calling screen pass Q1: Settings gains row 6, Auto-advance, so 7 with Back (still at the cap).
+describe("MM23: the screen cap includes the main menu (4) and Settings (7)", () => {
+  it("main menu 4, Settings 7, Controls 1, all at most 7", () => {
     expect(titleScreen({ hasSave: true, storage: true, checking: false }).rows).toHaveLength(4);
-    expect(settingsOf().rows).toHaveLength(6);
+    expect(settingsOf().rows).toHaveLength(7);
     expect(controlsScreen().rows.map((r) => [r.key, r.label])).toEqual([["Esc", "Back"]]);
     for (const m of [titleScreen({ hasSave: false, storage: false, checking: true }), settingsOf(), controlsScreen()]) expect(m.rows.length).toBeLessThanOrEqual(7);
   });
@@ -791,12 +805,16 @@ describe("MM16, DESIGN.md Main menu: what the splash actually paints", () => {
     expect([...colors].sort()).toEqual([COLOR.line.toUpperCase(), COLOR.outlineDark.toUpperCase()].sort());
   });
 
-  it("defense paths are dashed, offense routes solid", () => {
+  // Amended (DESIGN.md Prime Time, Paths): no dashed paths; side is told by weight and end cap.
+  it("every path is solid; defense paths are thinner than offense routes", () => {
     const { g, ops } = recorder();
     drawFrame(g, v, splashFrame(templates, splashPersonnel, v.s), 0, splashOpts(1));
     const lineStrokes = ops.filter((o) => o.op === "stroke" && o.strokeStyle === COLOR.line.toUpperCase());
-    expect(lineStrokes.some((o) => o.dash.length > 0)).toBe(true);
-    expect(lineStrokes.some((o) => o.dash.length === 0)).toBe(true);
+    expect(lineStrokes.length).toBeGreaterThan(0);
+    expect(lineStrokes.every((o) => o.dash.length === 0)).toBe(true);
+    const widths = new Set(lineStrokes.map((o) => o.lineWidth));
+    expect(widths.has(3)).toBe(true);
+    expect(widths.has(2)).toBe(true);
   });
 });
 

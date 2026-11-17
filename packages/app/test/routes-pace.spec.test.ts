@@ -20,7 +20,7 @@ import { Animator } from "../src/ui/animator";
 import { defenseArt, offenseArt, receiverRoles, slotsFromCounts, type Art } from "../src/ui/art";
 import type { FieldScene, FrameOpts } from "../src/ui/field";
 import { layoutFor } from "../src/ui/layout";
-import { fillet, runRoute, type Pt } from "../src/ui/motion";
+import { fillet, RAMP, runRoute, type Pt } from "../src/ui/motion";
 import { MotionError, parseMotion, parseTemplates, TemplateError, type Templates } from "../src/ui/templates";
 import { at, FIELD_WIDTH, MID_X, timeline, type Key, type Timeline, type TimelineCtx } from "../src/ui/timeline";
 import { snap } from "./fixtures";
@@ -177,22 +177,36 @@ const keyTol = (pos: string): number => ((motion.speed[pos] ?? 10) * KEY) / 1000
 /**
  * The catch point by docs/DECISIONS.md, "Neutral catch depth" (with its 2026-11-15 amendment) and
  * "Neutral catch x on the target's route", for a completion with no passLocation. In field yards.
+ * Amended 2026-11-15 (Joseph, "Deep completions are caught deep", B1): with no air yards, a leaf
+ * with catchFloorYards is caught at least min(floor, gain) past the line; the x is unchanged.
  */
 function expectedCatch(e: EvSpec, target: string): Pt {
+  const c = neutralCatch(e, target);
+  const floor = (templatesRaw["catchFloorYards"] as Record<string, number>)[e.call];
+  if (e.airYards !== undefined || floor === undefined) return c;
+  const los = e.spot ?? 35;
+  return { x: c.x, y: Math.max(c.y, los + Math.min(floor, e.gain ?? 0)) };
+}
+
+/** The neutral catch point before the B1 floor. */
+function neutralCatch(e: EvSpec, target: string): Pt {
   const leaf = e.call;
   const los = e.spot ?? 35;
   const gain = e.gain ?? 0;
   const tpl = templateTl(e);
   const track = markOf(tpl, target).keys;
   const drop = tpl.snapAt + (motion.dropMs[leaf] as number);
+  // The hold is the class's own when it has one (throwHold.leafMaxMs, deepPass: spec amendment
+  // "Amended (Joseph, 2026-11-15)", Open item 2, approved by Joseph 2026-11-15), else maxMs.
+  const holdMs = motion.throwHold.leafMaxMs[leaf] ?? motion.throwHold.maxMs;
   const w0 = drop + motion.hitchMs + motion.flight.minMs;
-  const w1 = drop + motion.throwHold.maxMs + motion.flight.maxMs;
+  const w1 = drop + holdMs + motion.flight.maxMs;
   // A point counts only if a throw can time it: his arrival there (his track time) minus that
-  // throw's flight from the QB's drop point is within throwHold.maxMs of the drop end.
+  // throw's flight from the QB's drop point is within the hold of the drop end.
   const qb = chain(rawGroup("routes", leaf), undefined, "QB") as RawRoute;
   const dropPt = placeMine(setOf(tpl, "O-QB1"), qb, rolesOf(offAlign(e.formation)).strong, 0).at(-1) as Pt;
   const flight = (q: Pt): number => Math.max(motion.flight.minMs, Math.min(motion.flight.maxMs, motion.flight.baseMs + motion.flight.perYardMs * dist(dropPt, q)));
-  const timeable = (q: Pt, t: number): boolean => t - flight(q) <= drop + motion.throwHold.maxMs;
+  const timeable = (q: Pt, t: number): boolean => t - flight(q) <= drop + holdMs;
   const dead = los + gain;
   const depth = templates.passDepth[leaf] as number;
   // The band between the line and the dead spot; a screen's depth behind the line stands.
@@ -380,6 +394,9 @@ describe("R-C2: roles and the mirror", () => {
       const t1 = Math.min(A.read, B.read);
       for (const m of A.marks.filter((x) => x.side === "O")) {
         if (isRun && m.position === "WR") continue;
+        // Amended (natural motion, NM7, 2026-11-15): an engaged OL's hand fight is shared with the DL
+        // he is paired with, and the defense is not mirrored, so he is left out like a stalker.
+        if (m.position === "OL") continue;
         // A mark set on the axis (the center, a back or QB at x = 0) is his own mirror image; which
         // side he gives way to is a tie-break, not a template, so he is left out.
         if (Math.abs(at(m.keys, A.snapAt).x - MID_X) < 1e-9) continue;
@@ -839,7 +856,9 @@ describe("R-C7 (amended 2026-11-15) and R8: the target's path, the catch point a
       const want = expectedCatch(spec, c.target);
       expect(dist(cPt, want), `catch at (${(cPt.x - MID_X).toFixed(2)}, ${(cPt.y - 35).toFixed(2)}), DECISIONS say (${(want.x - MID_X).toFixed(2)}, ${(want.y - 35).toFixed(2)})`).toBeLessThan(keyTol(me.position));
       expect(dist(at(me.keys, catchT), cPt), "at the catch point at catch time").toBeLessThan(0.1);
-      // R8: max(drop end + hitch, arrival at natural pace - flight), the wait capped at throwHold.maxMs after the drop.
+      // R8: max(drop end + hitch, arrival at natural pace - flight), the wait capped at the hold after
+      // the drop (throwHold.leafMaxMs for the class when it has one, deepPass: spec amendment
+      // "Amended (Joseph, 2026-11-15)", Open item 2, approved by Joseph 2026-11-15; else maxMs).
       const qbRoute = chain(rawGroup("routes", c.leaf), undefined, "QB") as RawRoute;
       const dropPt = placeMine(setOf(tl, "O-QB1"), qbRoute, rolesOf(offAlign(c.f)).strong, 0).at(-1) as Pt;
       const drop = tl.snapAt + (motion.dropMs[c.leaf] as number);
@@ -856,7 +875,7 @@ describe("R-C7 (amended 2026-11-15) and R8: the target's path, the catch point a
         }
       }
       const arrival = tNear + (dNear / top) * 1000;
-      const r8 = Math.max(drop + motion.hitchMs, Math.min(arrival - fl, drop + motion.throwHold.maxMs));
+      const r8 = Math.max(drop + motion.hitchMs, Math.min(arrival - fl, drop + (motion.throwHold.leafMaxMs[c.leaf] ?? motion.throwHold.maxMs)));
       expect(Math.abs(throwT - r8), `throw at ${(throwT - tl.snapAt).toFixed(0)} ms, R8 says ${(r8 - tl.snapAt).toFixed(0)} ms`).toBeLessThanOrEqual(2 * KEY);
     });
 });
@@ -1084,6 +1103,250 @@ describe("R-C9: no pre-read leak", () => {
   });
 });
 
+// ================================================================ R-C28 (spec revision 2026-11-16, "deeper drops, shorter holds", QD2)
+//
+// Written by test-writer from R-C28 and QD2. Readings:
+// - E = the snap + dropMs + hitchMs; P = E - RAMP x decelMs (RAMP from motion.ts, as QD2 names it);
+//   the hold end = the snap + dropMs + the class's hold (throwHold.leafMaxMs, else maxMs).
+// - "His drawn track at E": where the target is at E when nobody is targeted (the same event with
+//   the passer alone named, thrown behind the QB, no live cap), so every receiver is his unnamed self.
+// - "Nearer the line": the smaller distance from the line of scrimmage.
+// - Arrival: as in R8 above, when his track comes nearest the catch point plus the rest at his top.
+// - flight: the drawn flight (catch - throw), which QD2 measures from where the ball leaves.
+// - Times on unclamped plays only (a clamped play is scaled in time, as R-C9 says).
+// - R-C28 amended 2026-11-16 after build: the plant throw is intermediatePass and deepPass only, and
+//   every shortPass, screenPass and playAction pass (completion, incompletion or interception) is
+//   thrown no earlier than E whatever its catch point.
+
+describe("R-C28: the plant throw (QD2)", () => {
+  const dropOf = (e: PlayEvent): number => motion.dropMs[e.offense.call] as number;
+  const E_ = (tl: Timeline, e: PlayEvent): number => tl.snapAt + dropOf(e) + motion.hitchMs;
+  const P_ = (tl: Timeline, e: PlayEvent): number => E_(tl, e) - RAMP * motion.decelMs;
+  const holdEnd = (tl: Timeline, e: PlayEvent): number => tl.snapAt + dropOf(e) + (motion.throwHold.leafMaxMs[e.offense.call] ?? motion.throwHold.maxMs);
+  /** The same calls with nobody targeted: only the passer named, the ball thrown 30 yd behind, no live cap. */
+  const untargeted = (e: PlayEvent): PlayEvent => {
+    const d = (e.play as unknown as { detail: Record<string, unknown> }).detail;
+    const passer = readDetail(e.play).participants?.passer;
+    const play = { kind: "pass", seconds: 6, end: { spot: e.before.spot + 5, possession: "offense" }, detail: { ...d, participants: passer === undefined ? {} : { passer }, airYards: -30 } } as unknown as PlayResult;
+    return { ...e, play };
+  };
+  const unclampedTl = (tl: Timeline): boolean => tl.liveEnd - tl.snapAt > motion.live.minMs + 1e-6 && tl.liveEnd - tl.snapAt < motion.live.maxMs - 1e-6;
+
+  interface Plant {
+    readonly where: string;
+    readonly tl: Timeline;
+    readonly throwT: number;
+    readonly E: number;
+    readonly P: number;
+    readonly want: number;
+    readonly eligible: boolean;
+    readonly trackE: number;
+    readonly catchY: number;
+    /** How near his track comes to the catch point: R8's arrival is only well defined when it reaches it. */
+    readonly dNear: number;
+    readonly holdEnd: number;
+  }
+  /** R-C28 (a)'s quantities for a completion (or an interception, the point it is thrown to) to `target`. */
+  function plantOf(e: PlayEvent, target: string, where: string): Plant | null {
+    const tl = tlOf(e);
+    const fl = flightOf(tl);
+    if (fl === undefined || !unclampedTl(tl)) return null;
+    const tv = tlOf(untargeted(e), longCtx);
+    expect(tv.snapAt, "both clocks start at the same snap").toBe(tl.snapAt);
+    const me = markOf(tl, target);
+    const tr = markOf(tv, target).keys;
+    const E = E_(tl, e);
+    const P = P_(tl, e);
+    const c = fl.points.at(-1) as Pt;
+    const trackE = at(tr, E).y - tl.los;
+    const catchY = c.y - tl.los;
+    let tNear = tl.snapAt;
+    let dNear = Infinity;
+    for (let t = tl.snapAt; t <= tl.snapAt + 6000; t += KEY) {
+      const d = dist(at(tr, t), c);
+      if (d < dNear - 1e-9) {
+        dNear = d;
+        tNear = t;
+      }
+    }
+    const top = me.nat?.top ?? (motion.speed[me.position] as number);
+    const arrival = tNear + (dNear / top) * 1000;
+    const want = Math.max(P, Math.min(arrival - (fl.end - fl.start), holdEnd(tl, e)));
+    return { where, tl, throwT: fl.start, E, P, want, eligible: Math.abs(catchY) < Math.abs(trackE) - 1e-9, trackE, catchY, dNear, holdEnd: holdEnd(tl, e) };
+  }
+  const say = (p: Plant): string =>
+    `${p.where}: thrown ${(p.throwT - p.tl.snapAt).toFixed(0)} ms after the snap (E ${(p.E - p.tl.snapAt).toFixed(0)}, P ${(p.P - p.tl.snapAt).toFixed(0)}, QD2 says ${(p.want - p.tl.snapAt).toFixed(0)}); catch ${p.catchY.toFixed(2)} yd, his track at E ${p.trackE.toFixed(2)} yd past the line, nearest ${p.dNear.toFixed(2)} yd`;
+  /**
+   * (a) on an eligible pass, (b) on any other: the failures, empty when the row holds. The arrival
+   * (and so QD2's time) is checked only when his track reaches the catch point (within ON_TRACK yd,
+   * the neutral catch's 0.5 yd depth band); otherwise the nearest point of a track that never gets
+   * there is ill defined, and only "never before P, never after the hold" is checked.
+   */
+  const ON_TRACK = 0.5;
+  function checkAB(p: Plant): string[] {
+    if (p.eligible) {
+      const bad: string[] = [];
+      if (p.throwT < p.P - 1e-6) bad.push(`(a) before P: ${say(p)}`);
+      if (p.dNear <= ON_TRACK && Math.abs(p.throwT - p.want) > 2 * KEY) bad.push(`(a) not at max(P, min(arrival - flight, drop + hold)): ${say(p)}`);
+      if (p.throwT > p.holdEnd + 2 * KEY) bad.push(`(a) after the hold: ${say(p)}`);
+      return bad;
+    }
+    return p.throwT >= p.E - 1e-6 ? [] : [`(b) before E: ${say(p)}`];
+  }
+
+  /**
+   * (d): from the throw to the end of his follow-through, the QB's distance to his drop point only
+   * falls, then only grows (never away and back). The follow-through is 1 yd on a completion or an
+   * incompletion (DECISIONS.md "QB throw pace"), so it ends where his distance stops growing once he
+   * is 0.9 yd or more from the drop point (or at E + 1,000 ms). Steps within 0.001 yd count as level.
+   */
+  function awayAndBack(tl: Timeline, e: PlayEvent, qbId: string, throwT: number): string | null {
+    const f = e.offense.formation as string;
+    const qbRoute = chain(rawGroup("routes", e.offense.call), undefined, "QB") as RawRoute;
+    const dropPt = placeMine(setOf(tl, qbId), qbRoute, rolesOf(offAlign(f)).strong, 0).at(-1) as Pt;
+    const keys = markOf(tl, qbId).keys;
+    const t1 = Math.min(tl.liveEnd, E_(tl, e) + 1000);
+    const d: number[] = [];
+    for (let t = throwT; t <= t1 + 1e-9; t += KEY) d.push(dist(at(keys, t), dropPt));
+    let i = 0;
+    while (i + 1 < d.length && (d[i + 1] as number) <= (d[i] as number) + 1e-3) i++;
+    const lo = i;
+    while (i + 1 < d.length && (d[i + 1] as number) >= (d[i] as number) - 1e-3) i++;
+    if (i + 1 >= d.length || (d[i] as number) >= 0.9) return null;
+    return `distance to his drop point ${d.map((x) => x.toFixed(2)).join(" ")} (every ${KEY} ms from the throw): nearest ${(d[lo] as number).toFixed(2)} yd at +${lo * KEY} ms, then back toward it at +${(i + 1) * KEY} ms`;
+  }
+
+  const comp = (f: string, call: string, target: string, gain: number, preset = "nickelCover3"): PlayEvent =>
+    mk({ formation: f, call, preset, result: "complete", gain, parts: { passer: "O-QB1", target, receiver: target, tackler: "X-CB1" } });
+
+  // Short gains caught behind the target's route at E: the case QD2 is for.
+  const plantCases: [string, string, string, number][] = [
+    ["shotgun", "deepPass", "O-TE1", 4],
+    ["pistol", "deepPass", "O-WR2", 2],
+    ["underCenter", "deepPass", "O-WR2", 8],
+    ["shotgun", "intermediatePass", "O-WR1", 4],
+    ["pistol", "intermediatePass", "O-WR2", 8],
+  ];
+  for (const [f, call, target, gain] of plantCases)
+    it(`(a) ${f} ${call} to ${target}, ${gain} yd: thrown at max(P, min(arrival - flight, drop + hold)), never before P`, () => {
+      const p = plantOf(comp(f, call, target, gain), target, `${f} ${call} ${target} +${gain}`);
+      expect(p, "an unclamped completion").not.toBeNull();
+      const q = p as Plant;
+      expect(q.eligible && q.dNear <= ON_TRACK, `the case: ${say(q)}`).toBe(true);
+      expect(checkAB(q)).toEqual([]);
+    });
+
+  /** Completions and interceptions of eight simulated games, unclamped, with a known target. */
+  const GAMES28 = [1, 2, 3, 4, 5, 6, 7, 8];
+  const evs28 = GAMES28.flatMap((seed) => playGame(seed, seed % 2 === 0 ? "home" : "away", seed).events.filter((e): e is PlayEvent => e.t === "play"));
+  const swept = (): { call: string; p: Plant; e: PlayEvent }[] => {
+    const out: { call: string; p: Plant; e: PlayEvent }[] = [];
+    for (const e of evs28) {
+      if (e.offense.call !== "intermediatePass" && e.offense.call !== "deepPass") continue;
+      if (e.play.kind !== "pass" || e.play.incomplete === true) continue;
+      const parts = readDetail(e.play).participants ?? {};
+      const target = e.play.turnover === "interception" ? parts.target : (parts.receiver ?? parts.target);
+      if (target === undefined || e.offense.formation === undefined) continue;
+      const p = plantOf(e, target, `${e.offense.formation} ${e.offense.call} vs ${e.defense ?? ""} to ${target} spot ${e.before.spot}${e.play.turnover === "interception" ? " (interception)" : ""}`);
+      if (p !== null) out.push({ call: e.offense.call, p, e });
+    }
+    return out;
+  };
+  const all = swept();
+
+  it("(a) and (b) over eight games, intermediatePass and deepPass: a plant throw only where QD2 allows it, and at its time", () => {
+    const R = all.filter((r) => r.call === "intermediatePass" || r.call === "deepPass");
+    const plants = R.filter((r) => r.p.eligible).length;
+    console.log(`[routes-pace] R-C28 intermediatePass and deepPass: ${R.length} unclamped completions and interceptions, ${plants} with the catch nearer the line than the track at E, ${R.filter((r) => r.p.throwT < r.p.E - 1e-6).length} thrown before E`);
+    expect(R.length).toBeGreaterThan(10);
+    expect(plants).toBeGreaterThan(0);
+    expect(R.flatMap((r) => checkAB(r.p))).toEqual([]);
+  });
+
+  it("(b) over eight games, every shortPass, screenPass and playAction pass is thrown no earlier than E, whatever its catch point", () => {
+    const bad: string[] = [];
+    let n = 0;
+    for (const e of evs28) {
+      if (e.play.kind !== "pass" || !["shortPass", "screenPass", "playAction"].includes(e.offense.call)) continue;
+      const tl = tlOf(e);
+      const fl = flightOf(tl);
+      if (fl === undefined || !unclampedTl(tl)) continue;
+      n++;
+      const E = E_(tl, e);
+      if (fl.start < E - 1e-6) bad.push(`${e.offense.formation ?? ""} ${e.offense.call} vs ${e.defense ?? ""} spot ${e.before.spot}: thrown ${(fl.start - tl.snapAt).toFixed(0)} ms after the snap, E ${(E - tl.snapAt).toFixed(0)}`);
+    }
+    console.log(`[routes-pace] R-C28 (b) short, screen, play action: ${n} unclamped passes, ${bad.length} thrown before E`);
+    expect(n).toBeGreaterThan(100);
+    expect(bad).toEqual([]);
+  });
+
+  /** Every mark and the ball from the snap to the earlier read (the throw; a sack's own read), no tolerance. */
+  function framesDiffer(a: Timeline, b: Timeline): string | null {
+    const readOf = (tl: Timeline): number => flightOf(tl)?.start ?? tl.read;
+    expect(a.snapAt).toBe(b.snapAt);
+    expect(a.marks.length).toBe(22);
+    const t1 = Math.min(readOf(a), readOf(b));
+    for (let t = a.snapAt; t <= t1; t += 5) {
+      for (const m of a.marks) {
+        const d = dist(at(m.keys, t), at(markOf(b, m.playerId).keys, t));
+        if (d > 1e-9) return `${m.slot} differs by ${d.toFixed(4)} yd at ${(t - a.snapAt).toFixed(0)} ms (read at ${(t1 - a.snapAt).toFixed(0)})`;
+      }
+      const db = dist(at(a.ball, t), at(b.ball, t));
+      if (db > 1e-9) return `the ball differs by ${db.toFixed(4)} yd at ${(t - a.snapAt).toFixed(0)} ms (read at ${(t1 - a.snapAt).toFixed(0)})`;
+    }
+    return null;
+  }
+  const frameCases: { f: string; call: string; target: string; gain: number; atE: { target: string; gain: number } }[] = [
+    { f: "shotgun", call: "deepPass", target: "O-TE1", gain: 4, atE: { target: "O-RB1", gain: 8 } },
+    { f: "pistol", call: "intermediatePass", target: "O-WR2", gain: 8, atE: { target: "O-TE1", gain: 8 } },
+  ];
+  for (const c of frameCases)
+    it(`(c) ${c.f} ${c.call}: a plant throw to ${c.target} draws the same frames to the throw as the play as an incompletion, a sack, and a throw at E`, () => {
+      const base = tlOf(comp(c.f, c.call, c.target, c.gain));
+      const bt = (flightOf(base) as { start: number }).start;
+      expect(bt, "the base play is a plant throw (before E)").toBeLessThan(E_(base, comp(c.f, c.call, c.target, c.gain)) - 1e-6);
+      const atE = tlOf(comp(c.f, c.call, c.atE.target, c.atE.gain));
+      expect((flightOf(atE) as { start: number }).start, "the other completion is thrown at E or later").toBeGreaterThanOrEqual(E_(atE, comp(c.f, c.call, c.atE.target, c.atE.gain)) - 1e-6);
+      const others: [string, Timeline][] = [
+        ["incompletion", tlOf(mk({ formation: c.f, call: c.call, preset: "nickelCover3", result: "incomplete", parts: { passer: "O-QB1", target: c.target } }))],
+        ["sack", tlOf(mk({ formation: c.f, call: c.call, preset: "nickelCover3", result: "sack", gain: -7, parts: { passer: "O-QB1", sacker: "X-DL2", tackler: "X-DL2" } }))],
+        ["throw at E", atE],
+      ];
+      expect(unclampedTl(base), "the plant throw is unclamped").toBe(true);
+      const diffs: string[] = [];
+      for (const [name, tl] of others) {
+        expect(unclampedTl(tl), `${name} unclamped`).toBe(true);
+        const d = framesDiffer(base, tl);
+        if (d !== null) diffs.push(`${name}: ${d}`);
+      }
+      expect(diffs).toEqual([]);
+    });
+
+  it("(d) from the throw to his follow-through the QB never moves away from his drop point and back: the plant cases and every plant throw of eight games", () => {
+    const bad: string[] = [];
+    let n = 0;
+    for (const [f, call, target, gain] of plantCases) {
+      const e = comp(f, call, target, gain);
+      const tl = tlOf(e);
+      const throwT = (flightOf(tl) as { start: number }).start;
+      n++;
+      const r = awayAndBack(tl, e, "O-QB1", throwT);
+      if (r !== null) bad.push(`${f} ${call} ${target} +${gain}: ${r}`);
+    }
+    for (const { p, e } of all) {
+      if (p.throwT >= p.E - 1e-6) continue;
+      const qb = readDetail(e.play).participants?.passer;
+      if (qb === undefined) continue;
+      n++;
+      const r = awayAndBack(p.tl, e, qb, p.throwT);
+      if (r !== null) bad.push(`${p.where}: ${r}`);
+    }
+    console.log(`[routes-pace] R-C28 (d): ${n} plant throws checked`);
+    expect(n).toBeGreaterThan(plantCases.length);
+    expect(bad).toEqual([]);
+  });
+});
+
 // ================================================================ R-C10
 
 describe("R-C10 (amended 2026-11-15): the defense", () => {
@@ -1133,8 +1396,13 @@ describe("R-C10 (amended 2026-11-15): the defense", () => {
           checked++;
           const set = at(m.keys, tl.snapAt);
           const pedalEnd = placeMine(set, step, 1, 1).at(-1) as Pt;
+          // The pedal is his first segment from the set, so its end is his nearest approach to the
+          // pedal point from the snap to the read. Amended 2026-11-15 (test-writer): the search used
+          // to run to the whistle, so a post-throw chase back through the pedal point moved the
+          // "pedal end" past the read and charged his post-pedal break (full speed, as the spec
+          // allows) to the pedal. The 0.65 x top bound is unchanged.
           let tEnd = tl.snapAt;
-          for (let t = tl.snapAt; t <= tl.liveEnd; t += KEY) if (dist(at(m.keys, t), pedalEnd) < dist(at(m.keys, tEnd), pedalEnd)) tEnd = t;
+          for (let t = tl.snapAt; t <= read; t += KEY) if (dist(at(m.keys, t), pedalEnd) < dist(at(m.keys, tEnd), pedalEnd)) tEnd = t;
           const top = motion.speed["CB"] as number;
           let vmax = 0;
           for (let t = tl.snapAt; t + KEY <= Math.min(tEnd, read); t += KEY) vmax = Math.max(vmax, speedYdS(m.keys, t, t + KEY));
@@ -1466,7 +1734,8 @@ describe("R-C13: motion.json holds the Pace table; the parsers refuse malformed 
     expect(motion.speed).toEqual({ WR: 10.5, CB: 10.5, RB: 10, S: 10, TE: 9.5, LB: 9.5, QB: 8.5, OL: 5, DL: 5, K: 8, P: 8 });
     expect(motion.accelMs).toEqual({ WR: 650, RB: 650, CB: 650, S: 650, TE: 600, LB: 600, QB: 450, K: 450, P: 450, OL: 300, DL: 300 });
     expect(motion.decelMs).toBe(350);
-    expect(motion.dropMs).toEqual({ shortPass: 600, intermediatePass: 950, deepPass: 1250, screenPass: 1100, playAction: 1400 });
+    // R-C13 amended 2026-11-16 ("deeper drops, shorter holds"): intermediatePass and deepPass drops.
+    expect(motion.dropMs).toEqual({ shortPass: 600, intermediatePass: 1250, deepPass: 1700, screenPass: 1100, playAction: 1400 });
     expect(motion.handoffMs).toBe(550);
     expect(motion.flight).toMatchObject({ baseMs: 250, perYardMs: 22, minMs: 350, maxMs: 1500 });
     expect(motion.live).toMatchObject({ minMs: 1800, maxMs: 7000 });
@@ -1478,6 +1747,7 @@ describe("R-C13: motion.json holds the Pace table; the parsers refuse malformed 
     expect(motion.fillet).toMatchObject({ roundPace: 0.8, sharpPace: 0.45, plantYards: 1.2, reaccelYards: 2.0 });
     expect(motion.sit).toMatchObject({ pace: 0.25, maxYards: 1.0 });
     expect(motion.throwHold.maxMs).toBe(1200);
+    expect(motion.throwHold.leafMaxMs).toEqual({ shortPass: 600, screenPass: 600, playAction: 600, intermediatePass: 900, deepPass: 1250 });
     expect(motion.man).toEqual({ cushionYards: 1.5, pressCushionYards: 1.0, lagMs: 150 });
     expect(motion.zoneDrift).toEqual({ maxYards: 2.5, pace: 0.5 });
     expect(motion.stalk).toEqual({ contactYards: 1.4, lagMs: 150 });
@@ -1648,8 +1918,10 @@ describe("Neutral catch depth (amended) and neutral catch x on the target's rout
     }
   });
 
-  it("amended (backfield routes): a back in pass pro, whose route never reaches 28 yd, is caught behind the line on his route, no deeper than screenFloorYards", () => {
-    const e = spec("deepPass", 12, "O-RB1");
+  // Amended 2026-11-15 (Joseph, B1): the deepPass back now runs a seam to the catch floor, so the
+  // backfield case is the intermediate check-release, whose route stays behind the line.
+  it("amended (backfield routes): a back on a check-release, whose route never reaches 14 yd, is caught behind the line on his route, no deeper than screenFloorYards", () => {
+    const e = spec("intermediatePass", 12, "O-RB1");
     const c = catchOf(tlOf(mk(e))).at;
     const want = expectedCatch(e, "O-RB1");
     expect(dist(c, want), `catch ${say(c)}, want ${say(want)}`).toBeLessThan(keyTol("RB"));
@@ -1667,9 +1939,27 @@ describe("Neutral catch depth (amended) and neutral catch x on the target's rout
     }
   });
 
-  it("an incompletion uses the class's neutral depth", () => {
-    const tl = tlOf(mk({ formation: "shotgun", call: "intermediatePass", preset: "nickelCover3", result: "incomplete", spot: LOS, parts: { passer: "O-QB1", target: "O-WR1" } }));
-    expect(catchOf(tl).at.y - LOS).toBeCloseTo(templates.passDepth["intermediatePass"] as number, 6);
+  // Amended 2026-11-15 (Joseph, "Incompletions drawn as misses", A2 and R-C16): the throw is aimed
+  // at the neutral point (no dead spot, so the band's top is the class depth) and timed for it; the
+  // ball lands at the miss point P, away from the target.
+  it("an incompletion is aimed at the class's neutral point and lands away from the target", () => {
+    const e: EvSpec = { formation: "shotgun", call: "intermediatePass", preset: "nickelCover3", result: "incomplete", spot: LOS, parts: { passer: "O-QB1", target: "O-WR1" } };
+    const tl = tlOf(mk(e));
+    const fl = flightOf(tl);
+    if (fl === undefined) throw new Error("no throw");
+    // A: where a completion to him would be caught, with no gain cap (a gain far past the depth).
+    const aim = expectedCatch({ ...e, result: "complete", gain: 60 }, "O-WR1");
+    expect(aim.y - LOS).toBeCloseTo(templates.passDepth["intermediatePass"] as number, 6);
+    const qb = chain(rawGroup("routes", e.call), undefined, "QB") as RawRoute;
+    const dropPt = placeMine(setOf(tl, "O-QB1"), qb, rolesOf(offAlign(e.formation)).strong, 0).at(-1) as Pt;
+    const flight = Math.max(motion.flight.minMs, Math.min(motion.flight.maxMs, motion.flight.baseMs + motion.flight.perYardMs * dist(dropPt, aim)));
+    // The flight time is the flight to A from the QB's drop point (to within a yard of flight).
+    expect(Math.abs(fl.end - fl.start - flight)).toBeLessThan(motion.flight.perYardMs * motion.sit.maxYards + 1e-6);
+    // R-C16: at the arrival the ball is off the target by the miss distance less his reach.
+    const kind = tl.miss?.kind;
+    expect(kind).toBeDefined();
+    const need = kind === "breakup" ? motion.miss.breakup.gapYards - motion.miss.reachYards : Math.min(motion.miss.overYards, motion.miss.behindYards, motion.miss.shortYards) - motion.miss.reachYards;
+    expect(dist(at(markOf(tl, "O-WR1").keys, fl.end), at(tl.ball, fl.end))).toBeGreaterThanOrEqual(need - 1e-6);
   });
 });
 

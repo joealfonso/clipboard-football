@@ -21,7 +21,7 @@ const motionRaw = read("data/ui/motion.json");
 
 describe("layout (L1, the full-screen field)", () => {
   it.each([
-    [800, 528],
+    [800, 536],
     [1024, 600],
     [1280, 720],
     [1440, 900],
@@ -51,11 +51,11 @@ describe("layout (L1, the full-screen field)", () => {
   });
 
   // DESIGN.md Broadcast (2026-11-15): the top bar grows 48 to 56 px, so the floor moves 520 to 528
-  // to keep the floor scale at 9.44 px per yard.
-  it("the make-the-window-larger floor is 800x528, where the field still fits at 9.44 px per yard", () => {
-    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 528]);
-    expect(TOP_BAR).toBe(56);
-    expect(layoutFor(800, 528).s).toBeCloseTo(9.44, 9);
+  // to keep the floor scale at 9.44 px per yard. Prime Time (2026-11-15): 64 px and 536, same scale.
+  it("the make-the-window-larger floor is 800x536, where the field still fits at 9.44 px per yard", () => {
+    expect([MIN_WIDTH, MIN_HEIGHT]).toEqual([800, 536]);
+    expect(TOP_BAR).toBe(64);
+    expect(layoutFor(800, 536).s).toBeCloseTo(9.44, 9);
     expect(layoutFor(1023, 599).tooSmall).toBe(false);
     expect(layoutFor(799, 700).tooSmall).toBe(true);
     expect(layoutFor(1200, 527).tooSmall).toBe(true);
@@ -80,7 +80,7 @@ describe("overlays over the field (Joseph, 2026-11-14)", () => {
   );
   // Margins under SIDE_MARGIN_MIN, so the overlay goes over the field: the floor and two tall windows.
   const overField = [
-    [800, 528],
+    [800, 536],
     [1024, 900],
     [1280, 1024],
   ] as const;
@@ -246,9 +246,9 @@ describe("every non-menu screen has at most seven choices (F3)", () => {
     expect(S.pregameScreen().rows).toHaveLength(6);
     expect(S.pauseScreen({ hasPlay: true, speed: "1x" }).rows).toHaveLength(7);
     // Text size, motion, mark labels, what the mark label shows (usability pass U7), animation speed
-    // (main menu spec decision 6, MM9), Back.
-    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", labelContent: "rating" }).rows).toHaveLength(6);
-    // The main menu: New game, Continue, Settings, Controls (main menu spec MM5, MM23).
+    // (main menu spec decision 6, MM9), auto-advance (calling screen pass Q1), Back.
+    expect(S.settingsScreen({ textSize: 100, reducedMotion: "on", markLabels: "all", labelContent: "rating" }).rows).toHaveLength(7);
+    // The main menu: Quick play, Continue, Settings, Controls (main menu spec MM5, MM23).
     expect(S.titleScreen({ hasSave: true, storage: true }).rows).toHaveLength(4);
     expect(S.boxScreen("Team").rows).toHaveLength(6);
     expect(S.endScreen().rows).toHaveLength(4);

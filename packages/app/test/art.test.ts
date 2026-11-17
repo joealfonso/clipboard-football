@@ -17,6 +17,7 @@ import { layoutFor, MIN_HEIGHT, MIN_WIDTH } from "../src/ui/layout";
 import { numberShown, pathPrimitives, placeNumbers, RING_GAP, trimEnd, type MarkPx } from "../src/ui/marks";
 import { parseMotion, parseTemplates } from "../src/ui/templates";
 import { at, timeline, type Timeline } from "../src/ui/timeline";
+import { callingFrame, kickoffFrame } from "../src/ui/presnap";
 import { COMPLETE, RUN, snap } from "./fixtures";
 import { playGame } from "./support";
 
@@ -159,7 +160,10 @@ describe("blocks: linemen stop at contact", () => {
           const a = at(m.keys, t);
           const b = at(tl.ball, Math.min(t, tl.liveEnd - 1));
           const r = Math.hypot(a.x - b.x, a.y - b.y);
-          if (r < ring - 1e-6) {
+          // Amended (natural motion, NM-Open 1, approved by Joseph 2026-11-15): while the pass is in
+          // the air the ring is natural.flightRingYards.
+          const inAir = tl.paths.some((f) => f.kind === "ball" && t >= f.start && t <= f.end);
+          if (r < (inAir ? Math.min(ring, motion.natural.flightRingYards) : ring) - 1e-6) {
             bad.push(`${ev.play.kind} ${ev.offense.call}: ${m.slot} ${r.toFixed(2)} yd at ${(t - tl.snapAt).toFixed(0)} ms`);
             break;
           }
@@ -170,14 +174,15 @@ describe("blocks: linemen stop at contact", () => {
     expect(bad).toEqual([]);
   });
 
-  it("offensive linemen end in the block tick, other offensive players in an arrowhead, defenders in neither", () => {
+  // Amended (DESIGN.md Prime Time, Paths): a defense path ends on a filled dot.
+  it("offensive linemen end in the block tick, other offensive players in an arrowhead, defenders in a dot", () => {
     const edge = (small.markPx / 2 + 1) / small.s;
     for (const ev of [COMPLETE, RUN]) {
       const tl = timeline({ event: ev, runoffSeconds: 0 }, templates, ctx);
       const prims = pathPrimitives(tl, tl.total, edge);
       expect(prims.some((p) => p.slot.startsWith("OL"))).toBe(true);
       for (const p of prims) {
-        if (p.side === "X") expect(p.end, p.slot).toBe("none");
+        if (p.side === "X") expect(p.end, p.slot).toBe("dot");
         else expect(p.end, p.slot).toBe(p.slot.startsWith("OL") ? "block" : "arrow");
       }
     }
@@ -295,5 +300,56 @@ describe("panel text the engine supplies", () => {
 
   it("no why line carries a multiplier; those stay in the details view", () => {
     for (const p of plays) expect(whyHeadline(p.play) ?? "").not.toMatch(/\(?x\d+(\.\d+)?\)?/);
+  });
+});
+
+// Calling screen pass U1, CB4 (docs/specs/m2-calling-screen-pass.md): the board draws the calling
+// frames at its own scale, 9.44 px per yard at its 529 px floor. The same spacing rules hold there:
+// the line, no overlapping marks (their huddle included), labels that never collide.
+describe("CB4: the calling board's frames at 9.44 px per yard", () => {
+  const sB = 9.44;
+  const markPx = Math.max(templates.field.markMinPx, templates.field.markYards * sB);
+  const frames: [string, Timeline][] = [
+    ...Object.entries(personnel.offense).flatMap(([f, counts]) =>
+      [null, "shortPass", "insideRun", "deepPass"].map((call): [string, Timeline] => [`${f} ${call ?? "formation"}`, callingFrame({ side: "offense", los: 40, firstDown: 50, unit: f, call, lineups: undefined, counts, opponentCount: 11, templates, motion, pxPerYard: sB, markPx, endZoneYards: 10 })]),
+    ),
+    ...Object.entries(personnel.packages).map(([p, counts]): [string, Timeline] => [`${p} ${presetOf(p)}`, callingFrame({ side: "defense", los: 40, firstDown: 50, unit: p, call: presetOf(p) ?? null, lineups: undefined, counts, opponentCount: 11, templates, motion, pxPerYard: sB, markPx, endZoneYards: 10 })]),
+    ["kickoff, kicking", kickoffFrame({ los: 35, humanKicks: true, templates, pxPerYard: sB })],
+    ["kickoff, receiving", kickoffFrame({ los: 35, humanKicks: false, templates, pxPerYard: sB })],
+  ];
+
+  it.each(frames)("%s: no two marks overlap (their huddle included)", (_n, tl) => {
+    const pos = tl.marks.map((m) => ({ id: m.playerId, ...at(m.keys, 0) }));
+    const clashes: string[] = [];
+    for (let i = 0; i < pos.length; i++)
+      for (let j = i + 1; j < pos.length; j++) {
+        const a = pos[i] as (typeof pos)[number];
+        const b = pos[j] as (typeof pos)[number];
+        if (Math.hypot(a.x - b.x, a.y - b.y) * sB < markPx - 1e-6) clashes.push(`${a.id}/${b.id}`);
+      }
+    expect(clashes).toEqual([]);
+  });
+
+  it.each(frames.filter(([n]) => !n.startsWith("kickoff")))("%s: your line is at least 19 px center to center", (_n, tl) => {
+    const own = tl.marks.filter((m) => !m.huddle);
+    const xs = own
+      .filter((m) => Math.abs(at(m.keys, 0).y - tl.los) <= templates.lineSpacing.maxDepth + 1e-9 && Math.abs(at(m.keys, 0).x - 26.65) <= 10)
+      .map((m) => at(m.keys, 0).x)
+      .sort((a, b) => a - b);
+    for (let i = 1; i < xs.length; i++) expect(((xs[i] as number) - (xs[i - 1] as number)) * sB).toBeGreaterThanOrEqual(templates.lineSpacing.minPx - 1e-6);
+  });
+
+  it.each(frames)("%s: labels never collide", (_n, tl) => {
+    const marks = tl.marks.filter((m) => !m.huddle).map((m, i) => {
+      const p = at(m.keys, 0);
+      return { id: m.playerId, side: m.side, x: p.x * sB, y: -p.y * sB, ringed: false, named: false, number: 10 + (i % 89), show: true } as MarkPx;
+    });
+    const boxes = placeNumbers(marks, markPx, 12);
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++) {
+        const p = boxes[i] as (typeof boxes)[number];
+        const q = boxes[j] as (typeof boxes)[number];
+        expect(Math.abs(p.x - q.x) * 2 < p.w + q.w && Math.abs(p.y - q.y) * 2 < p.h + q.h, `${p.id}/${q.id}`).toBe(false);
+      }
   });
 });

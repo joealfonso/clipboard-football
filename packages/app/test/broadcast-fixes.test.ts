@@ -31,7 +31,7 @@ describe("the player card on the play screen (code review flag 1)", () => {
     [1280, 720],
     [1200, 800],
     [1024, 600],
-    [800, 528],
+    [800, 536],
     [1920, 1080],
     [1440, 900],
   ] as const;
@@ -58,11 +58,11 @@ describe("the player card on the play screen (code review flag 1)", () => {
     }
   }
 
-  it("the drawn stage has a rail at 1280x720 and 1024x600, and none at 1200x800 or 800x528", () => {
+  it("the drawn stage has a rail at 1280x720 and 1024x600, and none at 1200x800 or 800x536", () => {
     expect(playStage(layoutFor(1280, 720, templates.field), 1).rail).not.toBeNull();
     expect(playStage(layoutFor(1024, 600, templates.field), 1).rail).not.toBeNull();
     expect(playStage(layoutFor(1200, 800, templates.field), 1).rail).toBeNull();
-    expect(playStage(layoutFor(800, 528, templates.field), 1).rail).toBeNull();
+    expect(playStage(layoutFor(800, 536, templates.field), 1).rail).toBeNull();
   });
 
   // Why the card floats without a rail: no margin beside the centered column holds even the 280 px card.
@@ -78,8 +78,8 @@ describe("the player card on the play screen (code review flag 1)", () => {
     }
   });
 
-  it("floating (1200x800, 800x528): the card never covers the player whose card it is, anywhere across the column", () => {
-    for (const [w, hgt] of [[1200, 800], [800, 528]] as const) {
+  it("floating (1200x800, 800x536): the card never covers the player whose card it is, anywhere across the column", () => {
+    for (const [w, hgt] of [[1200, 800], [800, 536]] as const) {
       const l = layoutFor(w, hgt, templates.field);
       const stage = playStage(l, 1);
       const r = l.markPx / 2;
@@ -140,7 +140,7 @@ describe("the score bug's fit steps (code review flag 2, U5)", () => {
     expect(fitBar(() => true, () => undefined)).toEqual([...TOP_BAR_FIT_STEPS]);
   });
 
-  it("the bar's type follows the text size only up to 125%, so the 56 px bar holds it at 200%", () => {
+  it("the bar's type follows the text size only up to 125%, so the 64 px bar holds it at 200%", () => {
     expect(css).toMatch(/--bar-scale:\s*min\(var\(--text-scale\),\s*1\.25\)/);
     const topBarSection = css.slice(css.indexOf(".top-bar {"), css.indexOf(".chip {"));
     expect(topBarSection).not.toContain("var(--text-scale))");
