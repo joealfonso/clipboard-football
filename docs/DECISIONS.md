@@ -1139,6 +1139,10 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 17 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 16: standouts and close calls (off in the calibrated baseline), the G1 rule set, the merged UI | Every metric, diagnostic and invariant count identical to run 16; 0 gated failures; 7.60 ms per game on a quiet machine |
 | Engine | 13 | 2026-11-14, M2 G review fixes | M2 G review fixes, pins only, metrics must match run 12: the reversal labels and challenge costs changed engine code the summary's hash covers (close calls off in this validation) | Every metric identical to run 12; the generated tables byte-identical |
 | Step 5 game | 18 | 2026-11-14, M2 G review fixes | M2 G review fixes, pins only, metrics must match run 17: the reversal labels, the failed-challenge timeout across quarters, the no-timeout cost (close calls off in the calibrated baseline) | Every metric, diagnostic and invariant count identical to run 17; 0 gated failures; 7.47 ms per game on a quiet machine (in-sample just before: identical, 7.57 ms) |
+| Engine | 14 | 2026-11-20, M2 strip-sack yards | Pins only, metrics must match run 13: the lost-fumble spot (`detail.fumbleSpot`, no new draw) changed resolve.ts, which the summary's code hash covers | Every metric identical to run 13; the summary changed only its code hash. Superseded by run 15 |
+| Step 5 game | 19 | 2026-11-20, M2 strip-sack yards | Pins only, metrics must match run 18: resolve.ts and box.ts (the lost-fumble spot and the box score's lost-fumble yards), and the coin toss event of 04874a6 (play.ts, record schema 2), which no pin run had followed | Every metric and diagnostic identical to run 18; 0 gated failures; all 1,000 slice digests changed (the opening toss is in every record); 7.41 ms per game with the 15-minute load under 3 (in-sample just before: identical, 7.36 ms). Superseded by run 20 |
+| Engine | 15 | 2026-11-21, M2 strip-sack yards | Pins only, metrics must match run 14: the report's run history (run 13's sentence put into pipeline/engine/report.py, runs 14 and 15 added), which the summary's code hash covers | Every metric identical to run 14 and to the last commit (118 holdout, 114 in-sample); the generated tables byte-identical |
+| Step 5 game | 20 | 2026-11-21, M2 strip-sack yards | Pins only, metrics must match run 19: the report's run list (runs 19 and 20 added to scripts/game/report.ts), which the summaries' code hash covers | Every metric, diagnostic, invariant count and slice digest identical to run 19; 0 gated failures; 7.37 ms per game on a quiet machine (in-sample just before: identical, 7.44 ms) |
 
 
 ## M1 step 5c: playtest fixes
@@ -1886,6 +1890,52 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - Decision, timeline: the named tackler departs at the R-C9 read (the throw or the handoff), and the whistle is extended so his run fits within his own top speed. The dead spot, the holder and "tackler at the ball" never move (decision 10). Tests gain N1-T, N1-cap (1.5 × top on anchor-demanded legs) and a 1,000-game heavy gate (tackler ≤ 1.15 × top on at least 95% of plays, by kind).
 - Amends docs/specs/m2-play-calling-and-motion.md R-C14 ("no engine diff") for this change only, and NM2's tackler departure.
 - Open for Joseph (spec, Open questions): the whistle-extension bounds; whether interceptions get drawn on the target's route so the interceptor can be weighted the same way; whether the interception return tackler departs at the throw or at the pick; and a single alignment file (a schema change to templates.json).
+- Built 2026-11-25, engine half (Milestone 1). Values, designed: weight = class share × position weight × exp(-lateral yards / scale). Scales: runs and completions 3 yd, scrambles 4, returns after a turnover 6 (fumbled catches included), kick coverage 8. Position weights by kind and class hold the earlier designed shares: at most 2.8 points by category, 3.9 by class with 300 or more plays; fumbled-catch returns (188 plays) move WR +8.0 and RB -5.9, fumbled runs (104) move S -8.7. Far-side completion tacklers fell from 33.1% to 0.94% over 1,000 games. Outcomes are identical over 10,000 games, and all 49 in-sample calibration metrics are unchanged.
+- Lead ruling, 2026-11-25: the receiver who lost the ball on a fumbled catch is left out of the draw for the tackler of its return (same draw count). The timeline never brought him to the ball, so naming him broke "tackler at the ball".
+- Joseph, 2026-11-24 (relayed by the player-reactions session): the timeline half follows docs/specs/m2-tackler-merged.md, which merges this decision with PR6. Kicks are a separate step that is not settled.
+
+### Live cap raised to 14 s (Joseph, 2026-11-16; designed)
+
+- Date: 2026-11-16. Designed. Joseph's call: "14 s, fix sacks". Spec: docs/specs/m2-play-calling-and-motion.md, "Revision 2026-11-16: live cap raised to 14 s".
+- Why: plays whose raw whistle ran over the 7.0 s `live.maxMs` were compressed uniformly (k < 1), so every mark, the QB included, was drawn faster than his top speed. Measured over seeds 1 to 300: 240 of 53,498 plays (0.45%) ran over 7 s raw; longest pass 14.0 s, run 12.1 s, kickoff 12.0 s, punt 9.7 s, sack 20.8 s.
+- Decision: `live.maxMs` 7000 -> 14000 in data/ui/motion.json. A value change, no schema change. R-C12 now reads 1.8 to 14.0 s.
+- Corrected 2026-11-20: this entry said "no code change". The revision does change code, in packages/app/src/ui/timeline.ts: LC3 (a strip-sack's loose ball stays near the sack spot and the recoverer returns it at his own speed) and LC5 (a fumbled carry is timed to the fumble spot, and its return is timed as LC3's; criterion LC-C5).
+- The long sacks. This entry said the long sacks (sack spots 40 to 90 yd back, raw whistle up to 20.8 s) are an engine bug that a separate session fixes in the sim, and that until then R-C30 (QB on sacks) may fail on those few sacks, reported with raw whistle and k. Corrected 2026-11-20: that was half right. The engine fix ("Strip-sack yards stop at the fumble spot" below) corrected the sack yards and where the QB goes down. It did not remove the long plays. Measured 2026-11-20: 6 of 3,457 sacks in 1,000 app games still have a raw whistle of 17.8 to 22.1 s (seed/play 40/6, 747/129, 18/63, 248/118, 269/133, 502/34). All six are strip-sacks returned 58 to 89 yd for a touchdown by a defensive lineman at his 5 yd/s top. R-C30 still fails on seed 747 play 129 (QB 1.39 x top at k 0.638).
+- Open for Joseph: what to do about those six plays. No decision is recorded here. Update 2026-11-21: Joseph asked for a spec ("Yes, spec it"), and a rule is specced in docs/specs/m2-play-calling-and-motion.md, "Revision 2026-11-21: long fumble returns fit the cap": the recoverer's return is drawn fast enough to put the whistle on the cap, never faster than a designed bound (a new key, `fumble.returnMaxSpeed`, proposed 10.5 yd/s). It is not decided and not built. It waits on his confirmation of the rule, the key and the scope. Measured that day over app games seeds 1 to 400 with the app's ratings: 8 plays pass the cap, 5 strip-sacks and 3 completed passes fumbled and returned.
+- Rejected: a cap of about 21 s sized for those sacks; not compressing the snap-to-throw phase only (fixes passes, not sacks, and rewrites a clock every track in timeline.ts assumes is uniform); capping each mark's drawn speed (moves fact anchors, breaks decision 10). Added 2026-11-20: the cap of about 21 s was rejected on the premise that the engine fix would remove those plays, and it did not.
+- Cost: about 0.45% of plays now run 7 to 14 s at 1x. 2x and skip are one key away.
+
+### Strip-sack yards stop at the fumble spot (lead, on Joseph's instruction to fix sacks, 2026-11-16; clamp: lead, 2026-11-20; designed)
+
+- Date: built 2026-11-16, checked 2026-11-20 (playtest). Designed counting rule, not fitted. Spec: docs/specs/m2-strip-sack-yards.md.
+- Who decided what (corrected 2026-11-21: the header credited Joseph with the rule). Joseph's words, quoted in "Live cap raised to 14 s" above, are "14 s, fix sacks". They cover sacks. The counting rule below is the lead's design on that instruction, and it reaches further than sacks: it also moves rushing and passing yards on fumbled runs and completions (+0.509 rushing and +0.639 passing yd per team-game, measured before the 99 clamp; see Results). That rushing and passing effect is for Joseph to confirm. Not confirmed yet.
+- Why: the long "sacks" were strip-sacks the defense recovered and returned for a touchdown. The engine's outcome was right, but the box score booked the defense's return as the sack loss. A run or a caught pass that was fumbled and returned had its return booked as rushing or passing yards the same way.
+- Decision: a lost fumble's yards stop at the fumble spot. The engine sets `detail.fumbleSpot = clamp(los + ty, 0, 99)` on every lost fumble that stands as drawn, and `physicalYards` in the box score counts `fumbleSpot - los`. Interceptions are unchanged.
+- The clamp is 0 to 99, the lead's decision on 2026-11-20 from the playtest (it was 0 to 100 as built). A lost fumble that stands was not a touchdown, so the ball came loose short of the goal line, and 99 is the bound the engine already puts on the defense's dead spot. The playtest found 197 of 8,666 standing lost fumbles in 10,000 games with a fumble spot of 100 on a play that was not a touchdown. 0 stays, because a ball lost in the offense's own end zone is real.
+- The record: `detail.fumbleSpot` is added to the game record with no RNG draw, so no outcome changes for any seed. `M2_DETAIL_KEYS` in scripts/game/outcome-digests.ts gains `fumbleSpot`, so the outcome digests strip it like the other M2 detail keys.
+- Results (playtest, 2026-11-20; 10,000 headless games, league seed 2026, seeds 1 to 10,000; measured before the clamp's upper bound moved from 100 to 99, which moves at most 1 yd on 2.3% of lost fumbles and no sack number): 52,301 sacks in both builds. Mean yards per sack -7.128 before and -6.754 after, against nflverse 2016-2023 regular season -6.667 over 9,957 sacks. Worst sack -99 before, -25 after (nflverse -30). Sacks booked over 30 lost: 289 before, 0 after. Sacks booked as a gain: 16 before, 0 after. The four reported plays now book 6, 6, 9 and 0 sack yards (were 44, 39, 74 and 89). Records are identical to commit 59e1f6f once `fumbleSpot` is stripped: 10,000 of 10,000 headless (standouts and close calls off), 1,000 of 1,000 (both on) and 400 of 400 app Session games. All 83 calibration metric ids are identical before and after, on the 1,000-game slice and the full 10,000. The full list is in the spec, "Results (2026-11-20)".
+- Amends docs/specs/m2-play-calling-and-motion.md R-C14 ("no engine diff") for this change only, following the precedent of "Plausible tackler: engine and timeline" above.
+- Pins re-run 2026-11-20 (lead's call; engineer), pins only, after the clamp change: engine run 14 and step 5 game run 19. Corrected 2026-11-21: this line gave only part of why the pins were stale.
+  - The engine validation's pin was stale only because of resolve.ts, which is in its code hash. It was current at the last commit, 59e1f6f.
+  - The two game calibration pins were already stale at 59e1f6f. Commit 04874a6 changed packages/sim/src/loop/play.ts (record schema 2: the opening coin toss is the first event of every record). play.ts is in the game summaries' code hash, and no pin run followed that commit. The last pin run was at 4c6acda (engine run 13, game run 18). Checked 2026-11-21 with `git log` and `git show --stat`, and by recomputing the code hashes on the committed trees: at 4c6acda the game hash equals the pinned one, at 59e1f6f it does not, and play.ts is the only file in that hash's import graph that changed between the two. So the game rerun re-pins 04874a6 as well as this fix (resolve.ts, box.ts, and `fumbleSpot` in the records the slice digests hash). That is why all 1,000 slice digests changed, and not only the roughly half of games with a `fumbleSpot`.
+  - Results of runs 14 and 19. The engine validation changed only its `codeHash`. The in-sample and holdout game summaries changed only `codeHash`, the 1,000 slice digests and the speed reading (7.36 and 7.41 ms per game, 15-minute load under 3): all 49 metrics and 34 diagnostics are identical in value and status to the committed summaries, 0 gated failures. These recompute 2024-2025, so they are post hoc.
+- Counted 2026-11-21 (engineer). Runs 14 and 19 are now rows in the run table under "Holdout runs for step 5b" and lines in the two reports' run histories. Run 13's sentence had been added to docs/ENGINE_REPORT.md by hand at 4c6acda and was missing from pipeline/engine/report.py, so regenerating the report dropped it; it is in the generator now. Those edits changed pipeline/engine/report.py and scripts/game/report.ts, which the code hashes cover, so one more pins-only run of each was needed: engine run 15 and step 5 game run 20, which supersede 14 and 19. `EXPECTED` in test/game/step5b.spec-check.test.ts follows the table (Engine 15, Step 5 game 20).
+  - How they were run: alone, in pin-safe order (engine, in-sample, holdout), each once, on a quiet machine (load averages 1.56 / 2.50 / 2.59 at the start of the engine run, 1.28 / 1.91 / 2.30 at the in-sample run, 1.42 / 1.81 / 2.22 at the holdout run). The engine read a writable copy of the nflverse cache made on 2026-11-20 (every file under a day old, so nothing was refetched).
+  - Engine run 15 rewrote data/engine/validation.json and docs/ENGINE_REPORT.md. Against the last commit the summary differs only in `codeHash` (118 holdout and 114 in-sample metrics identical in every field), and the report only in its code hash and its run history. The five generated tables and data/players/distributions.json are byte-identical.
+  - The in-sample run and game run 20 rewrote data/game/calibration.insample.json, data/game/calibration.json and docs/GAME_REPORT.md. Against the last commit each summary differs only in `codeHash`, the 1,000 slice digests and the speed reading; against runs 14 and 19 only in `codeHash` and the speed reading, so the slice digests are the ones run 19 pinned. All 49 metrics and 34 diagnostics are identical in predicted value, actual, tolerance and status. 0 gated failures, 0 invariant violations. Speed: in-sample 7.44 ms per game (76.9 s), holdout 7.37 ms (76.3 s), under the 25 ms gate (docs/PERF.md).
+
+## Request of 2026-11-23: franchise, playbook, drawn routes, visuals
+
+### Defaults approved for decisions 1 to 11 (Joseph, 2026-11-24)
+
+- Asked: "Approve the recommended defaults for decisions 1 to 11 in the reconciliation list?" Joseph's answer: "Approve defaults". The list, with what each costs and blocks, is "Decisions for Joseph" in docs/specs/m3-m4-reconciliation.md.
+- Settled by it: 1 schema changes as written there. 2 rosters of 53 in a franchise. 3 the four DESIGN.md "Needs Joseph" items, yes. 4 stop at the line on every call, behind one flag (reverses M2 design decision 7). 5 play type first in the playbook (reverses formation first, 2026-11-14). 6 AI coach styles in, off in the calibrated baseline, and injuries stay in M5. 7 matchups stay group against group. 8 names as proposed. 9 sound, eight recorded one-shots. 10 whistle hold of 400 to 600 ms, kept only after the playtester measures a full game before and after. 11 play designs in the baseline at playbook G, with one counted holdout run.
+- Not settled: 12, the drawing exploit threshold. Joseph sets it after the first soak report (playbook E9).
+
+### Standout kickers can go earlier in the franchise draft (Joseph, 2026-11-25)
+
+- Joseph's words, after the lead reported that no kicker or punter now goes before round 12: "special kickers can go earlier".
+- Decision: a kicker or punter's draft value rises steeply with overall. Defaults (designed, the lead's, not Joseph's numbers): none in rounds 1 and 2; under 90 overall, not before round 12 in 99% of leagues; the pool's best kicker at 90 or more is taken by round 8 in at least half of leagues. Spec: docs/specs/m4-franchise-core.md, B17.
 
 ## Publishing
 
@@ -1897,3 +1947,48 @@ Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes 
 - data/players/distributions.json (combine drill percentile cut points) is published. This resolves "Pro Football Reference terms (open, for Joseph before any public build)" in M1 step 4: Joseph read sports-reference.com terms 5.10 (no competing database) and 5.11 (no use to train, prompt or instruct AI) and judged publishing fine for now, since this is a hobby project. What would change it: the project going beyond a hobby. Revisit 5.10 and 5.11 before that happens.
 - Never public: real nflverse rosters and pipeline/game/real_names.py. Rosters stay in the download cache outside the repo; real_names.py is gitignored.
 - Lead call, 2026-11-12: three real team names ("Packers", "Green Bay", "Steeler") remain in old versions of pipeline/tests/test_game.py in history (78a9f72, 5f2f4c2, 24bfb10); 0462bfa removed them from the tree. They are public team names in a test, not rosters or player data, so history was not rewritten a second time, which would have broken the SHAs cited in these docs again.
+
+## Player reactions (2026-11-23 to 2026-11-24)
+
+Joseph's approvals, as relayed by the lead from question dialogs, or from chat where said. All of it is designed, display only, and nothing is fitted. Specs: docs/specs/m2-player-reactions.md (MPR), docs/specs/m2-tackler-merged.md, docs/specs/m2-sideline-run.md. Measurements: docs/PERF.md.
+
+### Reactions follow ratings: schema, get-off, break on the ball, line, kicks (Joseph, 2026-11-23; designed)
+
+- Schema: "Approve". `data/ui/motion.json` version 5 with the `ratings.scrimmage` block.
+- Get-off: yes, "Slow first step at the snap" (slice 4). First movement stays inside 150 ms.
+- Break on the ball: yes, "Break on the ball in the air", on completions too (slice 3). It replaces the 2026-11-15 ruling that pursuit waits for the catch on a completion.
+- The line: "Follow-up spec". Nobody is drawn winning a block in this pass. A small strength effect is a later spec.
+- Kicks: "Include kicks", against the recommendation. Kickoffs and punts are slice 5, built last.
+- Not settled: the slower average (the median rated defender starts about 135 ms later). It is the lead's default, for Joseph to confirm at G-PR.
+
+### Reactions, slices 1 and 2: approvals (Joseph, 2026-11-24; designed)
+
+- N4 allowance: yes, in chat. N4's bar is 88 plays of the 571 in the sample (77 before the build). Every other bar is its pre-build count.
+- Reversal test: yes, in chat. The count of tacklers who reverse is replaced by a check for the defect, a tackler drawn off the ball faster than his own top.
+- Kicks keys: yes, in chat. `ratings.kick.by.cut` { "default": "agility", "RB": "elusiveness" } and `ratings.kick.wallReadShare` 0.6, built at slice 5. They were approved as version 6 and are now version 7, because `clearYards` took 6.
+- Tackler: "No visible shove". A rated tackler may differ from his unnamed self in the last 50 ms before he departs, and is exact before that.
+- Coverage and route running: "Stronger". `man.lagMs` [300, -110] (was [150, -90]) and `man.receiverLagMs` [-80, 180] (was [-40, 100]), under `ratings.scrimmage`.
+- Coverage test: "Measure corners". Corners in coverage presets, distance behind the receiver along his own path. The floors stay 0.6 and 0.3 yd.
+- Stalk: "Change to -40". `stalk.lagMs` [150, -40] (was [150, -80]).
+- Lane push: approved. A rated defender caught in the carrier's lane on a scrimmage play leaves it at no more than his own top. This is an exception to the lane rule in contract 3 of docs/specs/m2-play-calling-and-motion.md. Cost: 223 defenders briefly in the lane against 55, longest 225 ms. Gain: unnamed defense over 3 x top 630 to 455. Nobody is nearer the ball than 2.5 yd.
+- Version 6: approved. `ratings.scrimmage.stalk.clearYards` 1.2.
+- Slice 2 accepted with 7 known red tests listed in MPR, "Slice 2 accepted". None is loosened.
+
+### Merged tackler rule: answers and K1 (Joseph, 2026-11-24; designed)
+
+- Departure: "Theirs, plus awareness". The named tackler leaves at the throw or the handoff plus his awareness delay, bounded by his own top speed, and the play is lengthened to fit.
+- Seven answers, yes as recommended (Opens 1 to 5, 7 and 8):
+  - 1: the timeline half may ship before slice 3, with the interim tell.
+  - 2: from slice 3, a rated, non-rushing LB, CB or S who makes the tackle on a pass leaves at the throw plus his `airMs`.
+  - 3: the ring rule stays.
+  - 4: on an interception the offensive return tackler leaves at the throw plus his delay, looked at again at G6.
+  - 5: a fumble return keeps the play's own moment plus the delay.
+  - 7: the limits on how much longer plays get are set after the engine half is measured.
+  - 8: the tackler keeps 2.5 yd from the catch point until the ball arrives.
+- Open 6: "Cover in the air", against the recommendation. Coverage men run toward the landing while the kick is in the air.
+- K1: "Yes, lengthen a little", in chat. A return that ends in a tackle is lengthened by only the time the tackler is still short. The size caveat: punts about 2 s longer at the median, by estimate, not measured on a build. Considered, not chosen: a longer hang.
+- Not decided here: K2 to K4 are open in the merged spec.
+
+### Order of builds (Joseph, 2026-11-24)
+
+- MPR slice 2, then the tackler build and the sideline build, then MPR slices 3 to 5, with one recapture.

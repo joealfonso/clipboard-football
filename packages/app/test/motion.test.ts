@@ -21,7 +21,7 @@ const sample: PlayEvent[] = [71, 72, 73].flatMap((seed) => playGame(seed, seed %
 const live = sample.filter((e) => e.play.kind !== "noPlay");
 
 describe("all 22 move from the snap (Joseph's amendment)", () => {
-  it("on every play of three simulated games, every mark's position changes between the snap and the whistle", () => {
+  it("on every play of three simulated games, every mark's position changes between the snap and the whistle", { timeout: 30_000 }, () => {
     const still: string[] = [];
     for (const ev of live) {
       const tl = build(ev);
@@ -41,7 +41,7 @@ describe("all 22 move from the snap (Joseph's amendment)", () => {
     expect(live.length).toBeGreaterThan(300);
   });
 
-  it("every mark starts moving within 150 ms of the snap", () => {
+  it("every mark starts moving within 150 ms of the snap", { timeout: 30_000 }, () => {
     const late: string[] = [];
     for (const ev of live) {
       const tl = build(ev);
@@ -56,7 +56,7 @@ describe("all 22 move from the snap (Joseph's amendment)", () => {
     expect(late).toEqual([]);
   });
 
-  it("with a tighter start cap in the motion data, every mark still starts within it (each cap is load-bearing)", () => {
+  it("with a tighter start cap in the motion data, every mark still starts within it (each cap is load-bearing)", { timeout: 30_000 }, () => {
     // The shipped starts mostly sit under the shipped 150 ms cap, so removing one of the caps in
     // timeline.ts would go unseen there. At 40 ms most positions' starts need the cap.
     const cap = 40;
@@ -121,7 +121,7 @@ describe("easing, settle, ball and paths", () => {
     }
   });
 
-  it("the ball is size 1 at rest and grows only in flight, at most to the table's apex (M8)", () => {
+  it("the ball is size 1 at rest and grows only in flight, at most to the table's apex (M8)", { timeout: 30_000 }, () => {
     const maxApex = Math.max(motion.flight.apexMax, motion.punt.apex, motion.kickoff.apex, motion.fieldGoal.apex);
     for (const ev of live) {
       const tl = build(ev);

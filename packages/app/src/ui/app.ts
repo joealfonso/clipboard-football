@@ -76,7 +76,7 @@ import {
   type PlayerText,
   type TextCtx,
 } from "./text";
-import { timeline, type Timeline } from "./timeline";
+import { timeline, type Timeline, type TimelineCtx } from "./timeline";
 import { callingFrame, glide, publicLineupFrame, type PublicCall } from "./presnap";
 
 /** Line-ups shown before the snap with no input (calling screen pass U1). */
@@ -500,11 +500,11 @@ export class App {
     return Object.fromEntries([...m.home.pool.players, ...m.away.pool.players].map((p) => [p.id, p.number]));
   }
 
-  /** Each player's base ratings, for the field motion (decision 12 reversed: ratings drive how he moves). */
-  private motionRatings(): Record<string, { speed: number; agility: number; awareness: number }> {
+  /** Each player's card ratings (base ratings and his position's skills), for the field motion (decision 12 reversed: ratings drive how he moves). */
+  private motionRatings(): NonNullable<TimelineCtx["ratings"]> {
     const m = this.game?.matchup ?? this.matchup;
     if (m === null || m === undefined) return {};
-    return Object.fromEntries([...m.home.pool.players, ...m.away.pool.players].map((p) => [p.id, { speed: p.ratings.speed, agility: p.ratings.agility, awareness: p.ratings.awareness }]));
+    return Object.fromEntries([...m.home.pool.players, ...m.away.pool.players].map((p) => [p.id, { ...p.ratings, ...p.skills }]));
   }
 
   private reducedMotion(): boolean {

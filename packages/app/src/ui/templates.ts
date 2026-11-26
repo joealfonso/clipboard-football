@@ -316,6 +316,8 @@ export interface Motion {
     readonly hi: number;
     readonly default: RatingBand;
     readonly byPosition: Readonly<Record<string, RatingBand>>;
+    /** Player reactions on scrimmage plays (version 6, docs/specs/m2-player-reactions.md), designed. */
+    readonly scrimmage: ScrimmageRatings;
   };
   /** Moments (DESIGN.md Prime Time, Motion, Moments), designed: each moment's minimum whistle hold at 1x, the big-play yards, the bug's first-down flash. */
   readonly moments: Moments;
@@ -393,6 +395,100 @@ export interface RatingBand {
   readonly startMs: readonly [number, number];
 }
 
+/** Which rating drives an effect: `default`, or the entry for the player's position. */
+export type RatingBy = Readonly<Record<string, string>> & { readonly default: string };
+
+/**
+ * motion.json `ratings.scrimmage` (version 6, docs/specs/m2-player-reactions.md), designed, display
+ * only: how a player's own ratings set his reaction to the read and its play-to-play variation
+ * (PR3, PR4), his pursuit (PR5), his coverage, blocks and bite (PR7), his break pace (PR8), his
+ * break on a ball in the air (PR9) and his get-off (PR10), on scrimmage plays. Each pair is
+ * [value at ratings.lo, value at ratings.hi], linear between, and adds nothing for a player without
+ * the rating `by` names. Times are screen ms and do not scale with the live time (PR13).
+ */
+export interface ScrimmageRatings {
+  readonly by: Readonly<Record<(typeof SCRIMMAGE_BY)[number], RatingBy>>;
+  /** The floor before variation, and the bands added to reactionMs[position], to the offense's 0 and to the DL release; varyMs x v on top. */
+  readonly read: { readonly minMs: number; readonly defenseMs: Pair; readonly offenseMs: Pair; readonly releaseMs: Pair; readonly varyMs: Pair };
+  /** Added to pursuit.leadMs (with leadVaryMs x v, kept in leadMinMs to leadMaxMs); turnShare scales the lateral limit and turnDegPerS. */
+  readonly pursuit: { readonly leadMs: Pair; readonly leadVaryMs: Pair; readonly leadMinMs: number; readonly leadMaxMs: number; readonly turnShare: Pair };
+  readonly man: { readonly lagMs: Pair; readonly receiverLagMs: Pair; readonly minLagMs: number; readonly cushionYards: Pair };
+  /** A rated stalk block: the lag band, and how near a man running at him is let come before he is backed off (yd, at most stalk.contactYards). */
+  readonly stalk: { readonly lagMs: Pair; readonly clearYards: number };
+  readonly biteShare: Pair;
+  readonly breakPaceShare: Pair;
+  readonly air: { readonly baseMs: number; readonly minMs: number; readonly manExtraMs: number; readonly ms: Pair; readonly varyMs: Pair };
+  readonly getOff: { readonly stepPace: number; readonly offenseMs: Pair; readonly defenseMs: Pair; readonly varyMs: Pair };
+}
+
+const SCRIMMAGE_BY = ["read", "lead", "bite", "getOff", "turn", "manLag", "receiverLag", "cushion", "stalkLag", "breakPace", "air"] as const;
+
+/**
+ * `ratings.scrimmage`: every key present and of its kind, and the limits that protect acceptance
+ * tests (not balance): a `by` rating is a base rating or a skill of that position; a varyMs pair
+ * spans less than each band it varies, so a higher rating is never later (PR-C3); turnShare and
+ * breakPaceShare within 0.3, biteShare within 0.8, stepPace in (0, 1], no getOff value above 400,
+ * leadMinMs not above leadMaxMs, read.minMs not negative, stalk.clearYards above 0 and not above
+ * stalk.contactYards (passed in).
+ */
+function parseScrimmage(v: unknown, contactYards: number, bad: (m: string) => never): void {
+  const at = "ratings.scrimmage";
+  if (!isObj(v)) bad(`${at} must be an object`);
+  const o = v as Record<string, unknown>;
+  const obj = (k: string): Record<string, unknown> => {
+    if (!isObj(o[k])) bad(`${at}.${k} must be an object`);
+    return o[k] as Record<string, unknown>;
+  };
+  const num = (path: string, x: unknown): number => {
+    if (!isNum(x)) bad(`${at}.${path} must be a number`);
+    return x as number;
+  };
+  const pair = (path: string, x: unknown): Pair => {
+    if (!isPair(x)) bad(`${at}.${path} must be a pair of numbers`);
+    return x as Pair;
+  };
+  const span = (p: Pair): number => Math.abs(p[1] - p[0]);
+  const within = (path: string, p: Pair, lim: number): void => {
+    if (p.some((n) => Math.abs(n) > lim)) bad(`${at}.${path} must stay within ${lim}`);
+  };
+  const by = obj("by");
+  const anySkill: readonly string[] = Object.values(SKILLS).flat();
+  for (const k of SCRIMMAGE_BY) {
+    const b = by[k];
+    if (!isObj(b) || typeof b["default"] !== "string") bad(`${at}.by.${k} must name a default rating`);
+    for (const [pos, r] of Object.entries(b as Record<string, unknown>)) {
+      if (pos !== "default" && !GROUPS.includes(pos)) bad(`${at}.by.${k}.${pos} is not a position`);
+      const known: readonly string[] = pos === "default" ? [...BASE, ...anySkill] : [...BASE, ...SKILLS[pos as keyof typeof SKILLS]];
+      if (typeof r !== "string" || !known.includes(r)) bad(`${at}.by.${k}.${pos}: ${String(r)} is neither a base rating nor a ${pos === "default" ? "position" : pos} skill`);
+    }
+  }
+  const rd = obj("read");
+  if (num("read.minMs", rd["minMs"]) < 0) bad(`${at}.read.minMs must not be negative`);
+  const readVary = pair("read.varyMs", rd["varyMs"]);
+  for (const k of ["defenseMs", "offenseMs", "releaseMs"]) if (span(readVary) >= span(pair(`read.${k}`, rd[k]))) bad(`${at}.read.varyMs must span less than read.${k}, so a higher rating is never later`);
+  const pu = obj("pursuit");
+  if (num("pursuit.leadMinMs", pu["leadMinMs"]) > num("pursuit.leadMaxMs", pu["leadMaxMs"])) bad(`${at}.pursuit.leadMinMs is above pursuit.leadMaxMs`);
+  if (span(pair("pursuit.leadVaryMs", pu["leadVaryMs"])) >= span(pair("pursuit.leadMs", pu["leadMs"]))) bad(`${at}.pursuit.leadVaryMs must span less than pursuit.leadMs`);
+  within("pursuit.turnShare", pair("pursuit.turnShare", pu["turnShare"]), 0.3);
+  const man = obj("man");
+  for (const k of ["lagMs", "receiverLagMs", "cushionYards"]) pair(`man.${k}`, man[k]);
+  num("man.minLagMs", man["minLagMs"]);
+  pair("stalk.lagMs", obj("stalk")["lagMs"]);
+  const clear = num("stalk.clearYards", obj("stalk")["clearYards"]);
+  if (clear <= 0 || clear > contactYards) bad(`${at}.stalk.clearYards must be above 0 and not above stalk.contactYards`);
+  within("biteShare", pair("biteShare", o["biteShare"]), 0.8);
+  within("breakPaceShare", pair("breakPaceShare", o["breakPaceShare"]), 0.3);
+  const air = obj("air");
+  for (const k of ["baseMs", "minMs", "manExtraMs"]) num(`air.${k}`, air[k]);
+  if (span(pair("air.varyMs", air["varyMs"])) >= span(pair("air.ms", air["ms"]))) bad(`${at}.air.varyMs must span less than air.ms, so a higher rating is never later`);
+  const go = obj("getOff");
+  const stepPace = num("getOff.stepPace", go["stepPace"]);
+  if (stepPace <= 0 || stepPace > 1) bad(`${at}.getOff.stepPace must be a pace in (0, 1]`);
+  const goVary = pair("getOff.varyMs", go["varyMs"]);
+  for (const k of ["offenseMs", "defenseMs"]) if (span(goVary) >= span(pair(`getOff.${k}`, go[k]))) bad(`${at}.getOff.varyMs must span less than getOff.${k}, so a higher rating is never later`);
+  for (const k of ["offenseMs", "defenseMs", "varyMs"]) if ((go[k] as Pair).some((n) => n > 400)) bad(`${at}.getOff.${k} must not be above 400`);
+}
+
 /** motion.json `moments` (DESIGN.md Prime Time, Moments): each moment's minimum whistle hold at 1x (ms), the big-play yards, the bug's first-down flash (ms, mirrored in styles.css --first-down-flash). */
 export interface Moments {
   readonly touchdown: { readonly minHoldMs: number };
@@ -431,7 +527,7 @@ export function parseMotion(v: unknown): Motion {
   const bad = (m: string): never => {
     throw new MotionError(m);
   };
-  if (!isObj(v) || v["designed"] !== true || v["version"] !== 4) bad("needs version 4 and designed: true");
+  if (!isObj(v) || v["designed"] !== true || v["version"] !== 6) bad("needs version 6 and designed: true");
   const o = v as Record<string, unknown>;
   for (const k of ["keyMs", "decelMs", "slotOffsetMs", "maxStartMs", "hitchMs", "handoffMs", "convergeMs", "settleMs", "settleMaxYards", "fakeMs", "sidelineMarginYards"]) if (!isNum(o[k])) bad(`${k} must be a number`);
   for (const k of ["routePace", "continuePace"]) if (!isNum(o[k]) || (o[k] as number) <= 0 || (o[k] as number) > 1) bad(`${k} must be a pace in (0, 1]`);
@@ -538,6 +634,7 @@ export function parseMotion(v: unknown): Motion {
   band("default", RT["default"]);
   if (!isObj(RT["byPosition"])) bad("ratings.byPosition must be an object");
   for (const [pos, b] of Object.entries(RT["byPosition"] as Record<string, unknown>)) band(`byPosition.${pos}`, b);
+  parseScrimmage(RT["scrimmage"], (o["stalk"] as Record<string, number>)["contactYards"] as number, bad);
   parseMoments(o["moments"], bad);
   const kt = o["kickTrail"];
   if (!isObj(kt) || !isNum((kt as Record<string, unknown>)["fadeMs"]) || ((kt as Record<string, number>)["fadeMs"] as number) <= 0) bad("kickTrail.fadeMs must be a number of ms above 0");

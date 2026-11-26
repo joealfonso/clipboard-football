@@ -64,10 +64,12 @@ export interface FilletOpts {
  * Joins waypoints with circular fillets: a round break (at most `sharpDeg`) gets the round radius
  * and the round pace, a sharp break the sharp radius and the sharp pace. Returns a dense polyline
  * with a speed factor for each segment and, for each segment, the index of the waypoint whose break
- * it belongs to (-1 on a straight).
+ * it belongs to (-1 on a straight). `kinds` says which breaks are sharp (by waypoint) where that is not
+ * read from the turn itself.
  */
-export function fillet(points: readonly Pt[], o: FilletOpts): { pts: Pt[]; speed: number[]; arc: number[] } {
-  const p = points.filter((q, i) => i === 0 || dist(q, points[i - 1] as Pt) > 1e-6);
+export function fillet(points: readonly Pt[], o: FilletOpts, kinds?: readonly (boolean | undefined)[]): { pts: Pt[]; speed: number[]; arc: number[] } {
+  const kept = points.map((_, i) => i).filter((i) => i === 0 || dist(points[i] as Pt, points[i - 1] as Pt) > 1e-6);
+  const p = kept.map((i) => points[i] as Pt);
   if (p.length < 3) return { pts: [...p], speed: p.length > 1 ? [1] : [], arc: p.length > 1 ? [-1] : [] };
   const pts: Pt[] = [p[0] as Pt];
   const speed: number[] = [];
@@ -80,7 +82,7 @@ export function fillet(points: readonly Pt[], o: FilletOpts): { pts: Pt[]; speed
     const v = { x: (c.x - b.x) / dist(b, c), y: (c.y - b.y) / dist(b, c) };
     const inner = Math.acos(Math.max(-1, Math.min(1, u.x * v.x + u.y * v.y)));
     const turnDeg = 180 - (inner * 180) / Math.PI;
-    const sharp = turnDeg > o.sharpDeg;
+    const sharp = kinds?.[kept[i] as number] ?? turnDeg > o.sharpDeg;
     const want = sharp ? o.sharpRadius : o.roundRadius;
     const tanLen = Math.min(want / Math.tan(inner / 2), dist(a, b) / 2, dist(b, c) / 2);
     if (!Number.isFinite(tanLen) || tanLen < 1e-3 || turnDeg < 1) {
@@ -254,10 +256,15 @@ export interface PursueOpts {
   readonly turnDegPerS: number;
   readonly ring: number;
   readonly brakeYards: number;
-  /** The carrier's lane: stay out of a half-width band along his next `corridorMs` of path. */
-  readonly corridor?: { readonly half: number; readonly ms: number };
+  /**
+   * The carrier's lane: stay out of a half-width band along his next `corridorMs` of path. With `ease`
+   * a man in it is moved toward its edge at no more than his top speed; else he is placed there at once.
+   */
+  readonly corridor?: { readonly half: number; readonly ms: number; readonly ease?: boolean };
   /** Yards added to the corridor's half-width at a point of the lane (a kick return's cut-invariant band); none when absent. */
   readonly corridorExtra?: (p: Pt) => number;
+  /** The ring moves him at most his top speed a key (an offensive mark, whose ring ringFix keeps at 1.5 yd anyway); else it places him outside it at once. */
+  readonly ringCap?: boolean;
   /** Never go below this y (a DL past the OL he faced) or above it (an OL). */
   readonly minY?: number;
   readonly maxY?: number;
@@ -314,6 +321,12 @@ export function pursue(o: PursueOpts): Key[] {
         x = p.x;
         y = p.y;
       }
+      const from = out[out.length - 1] as Key;
+      const far = Math.hypot(x - from.x, y - from.y);
+      if (o.corridor.ease === true && far > o.topSpeed * step) {
+        x = from.x + ((x - from.x) / far) * o.topSpeed * step;
+        y = from.y + ((y - from.y) / far) * o.topSpeed * step;
+      }
     }
     const r = Math.hypot(x - b.x, y - b.y);
     if (r < ringNow && o.hardRing !== false) {
@@ -321,6 +334,12 @@ export function pursue(o: PursueOpts): Key[] {
       const uy = r < 1e-9 ? 0 : (y - b.y) / r;
       x = b.x + ux * ringNow;
       y = b.y + uy * ringNow;
+      const last = out[out.length - 1] as Key;
+      const far = Math.hypot(x - last.x, y - last.y);
+      if (o.ringCap === true && far > o.topSpeed * step) {
+        x = last.x + ((x - last.x) / far) * o.topSpeed * step;
+        y = last.y + ((y - last.y) / far) * o.topSpeed * step;
+      }
     }
     if (o.minY !== undefined) y = Math.max(o.minY, y);
     if (o.maxY !== undefined) y = Math.min(o.maxY, y);
@@ -482,6 +501,8 @@ export interface RouteWp {
   readonly pauseMs: number;
   /** Speed share for the leg into this waypoint (a read step, a pedal). */
   readonly pace: number;
+  /** Whether the break here is a sharp one, when that is not read from its turn (a scaled bite's step, whose plant also never starts before halfway along the stem: no jump in it as the bite grows). */
+  readonly sharp?: boolean | undefined;
 }
 
 export interface RunOpts {
@@ -533,16 +554,18 @@ const unit = (a: Pt, b: Pt): Pt => {
  * arc, back up over reaccelYards), acceleration from `v0` and deceleration to `vEnd`. Speeds in
  * yards per ms. Returns samples about every 0.1 yd.
  */
-function section(raw: readonly Pt[], rawPaces: readonly number[], t0: number, v0: number, vEnd: number, o: RunOpts): { samples: Sample[]; speed: number; dir: Pt } {
+function section(raw: readonly Pt[], rawPaces: readonly number[], rawKinds: readonly (boolean | undefined)[], t0: number, v0: number, vEnd: number, o: RunOpts): { samples: Sample[]; speed: number; dir: Pt } {
   // Drop repeated points with the leg into them, so paces stay indexed with the points fillet uses.
   const pts: Pt[] = [];
   const paces: number[] = [];
+  const kinds: (boolean | undefined)[] = [];
   raw.forEach((q, i) => {
     if (i > 0 && dist(q, pts[pts.length - 1] as Pt) <= 1e-6) return;
     if (i > 0) paces.push(rawPaces[i - 1] ?? 1);
     pts.push(q);
+    kinds.push(rawKinds[i]);
   });
-  const f = fillet(pts, o.fillet);
+  const f = fillet(pts, o.fillet, kinds);
   const cruise = (o.top / 1000) * o.pace;
   const a = o.top / 1000 / Math.max(1, o.accelMs);
   const dcl = o.top / 1000 / Math.max(1, o.decelMs);
@@ -574,7 +597,7 @@ function section(raw: readonly Pt[], rawPaces: readonly number[], t0: number, v0
   const cap: number[] = [];
   // Each break: where its arc runs, its pace share, the cruise into and out of it, and (set below)
   // the speed he holds through it.
-  const arcs: { sa: number; sb: number; pace: number; v: number; vin: number; vout: number }[] = [];
+  const arcs: { sa: number; sb: number; pace: number; v: number; vin: number; vout: number; fixed: boolean }[] = [];
   for (let j = 1; j < f.pts.length; j++) {
     const A = f.pts[j - 1] as Pt;
     const B = f.pts[j] as Pt;
@@ -589,7 +612,7 @@ function section(raw: readonly Pt[], rawPaces: readonly number[], t0: number, v0
       const last = arcs[arcs.length - 1];
       const here = s[s.length - 1] as number;
       if (last !== undefined && Math.abs(last.sb - here) < 1e-9 && (f.arc[j - 2] ?? -1) === ai) last.sb = here + L;
-      else arcs.push({ sa: here, sb: here + L, pace: f.speed[j - 1] ?? 1, v: c, vin: cruise * pin, vout: cruise * pout });
+      else arcs.push({ sa: here, sb: here + L, pace: f.speed[j - 1] ?? 1, v: c, vin: cruise * pin, vout: cruise * pout, fixed: kinds[ai] !== undefined });
     }
     const n = Math.max(1, Math.ceil(L / 0.1));
     for (let k = 1; k <= n; k++) {
@@ -605,10 +628,13 @@ function section(raw: readonly Pt[], rawPaces: readonly number[], t0: number, v0
   // stem (still accelerating) gets its plant too, and the arc speed is the pace of what he reached.
   const reach: number[] = [v0];
   for (let k = 1; k < N; k++) reach.push(Math.min(cap[k - 1] as number, Math.sqrt((reach[k - 1] as number) ** 2 + 2 * a * ((s[k] as number) - (s[k - 1] as number)))));
-  const reachAt = (x: number): number => {
+  const reachAt = (x: number, between = false): number => {
     let k = 0;
     while (k < N - 1 && (s[k + 1] as number) <= x) k++;
-    return reach[k] as number;
+    if (!between || k >= N - 1) return reach[k] as number;
+    // Between two samples the square of the speed is linear in the distance (a steady acceleration).
+    const f = (x - (s[k] as number)) / Math.max(1e-9, (s[k + 1] as number) - (s[k] as number));
+    return Math.sqrt((reach[k] as number) ** 2 + f * ((reach[k + 1] as number) ** 2 - (reach[k] as number) ** 2));
   };
   const plants = arcs.map((r) => {
     // The plant runs over plantYards before the arc, from the speed reached there. When the stem is so
@@ -616,8 +642,8 @@ function section(raw: readonly Pt[], rawPaces: readonly number[], t0: number, v0
     const from = arcs[arcs.indexOf(r) - 1]?.sb ?? 0;
     const full = Math.max(from, r.sa - o.fillet.plantYards);
     const half = from + (r.sa - from) / 2;
-    const sw = reachAt(full) >= reachAt(r.sa) / 2 ? full : Math.max(full, half);
-    const vp = Math.min(r.vin, reachAt(sw));
+    const sw = !r.fixed && reachAt(full) >= reachAt(r.sa) / 2 ? full : Math.max(full, half);
+    const vp = Math.min(r.vin, reachAt(sw, r.fixed));
     r.v = r.pace * vp;
     return { sw, vp };
   });
@@ -727,9 +753,11 @@ export function settleClock(S0: number, end: number): (t: number) => number {
 
 /**
  * The settle (NM8) on raw keys: from S0 on, the mark runs his own track on settleClock, to rest at
- * `end`. Past his last key he carries on at his last velocity. Keys on the grid.
+ * `end`. Past his last key he carries on at his last velocity. Keys on the grid. With `liveKey`, a
+ * capped settle also gets a key at `live` itself, where the cap is measured from, so that place is
+ * not read off a line between the keys either side of it (M7).
  */
-export function settleWarp(keys: readonly Key[], S0: number, end: number, keyMs: number, live = Infinity, maxYards = Infinity): Key[] {
+export function settleWarp(keys: readonly Key[], S0: number, end: number, keyMs: number, live = Infinity, maxYards = Infinity, liveKey = false): Key[] {
   const before = keys.filter((k) => k.t < S0 - 1e-9);
   if (end <= S0 + 1e-6) return [...before, { t: S0, ...at(keys, S0) }];
   const clock = settleClock(S0, end);
@@ -743,7 +771,7 @@ export function settleWarp(keys: readonly Key[], S0: number, end: number, keyMs:
     const pe = pos(clock(end));
     const L = Math.hypot(pe.x - pw.x, pe.y - pw.y);
     const f = L > maxYards ? maxYards / L : 1;
-    if (f < 1) return [...before, ...out.map((q) => (q.t <= live ? q : { t: q.t, x: pw.x + (q.x - pw.x) * f, y: pw.y + (q.y - pw.y) * f })), ...(out.some((q) => Math.abs(q.t - live) < 1e-9) ? [] : [])].sort((a, b) => a.t - b.t);
+    if (f < 1) return [...before, ...out.map((q) => (q.t <= live ? q : { t: q.t, x: pw.x + (q.x - pw.x) * f, y: pw.y + (q.y - pw.y) * f })), ...(!liveKey || out.some((q) => Math.abs(q.t - live) < 1e-9) ? [] : [{ t: live, ...pw }])].sort((a, b) => a.t - b.t);
   }
   return [...before, ...out];
 }
@@ -838,16 +866,19 @@ export function runRoute(start: Pt, wps: readonly RouteWp[], t0: number, o: RunO
   let v0 = (o.startSpeed ?? 0) / 1000;
   let pts: Pt[] = [start];
   let paces: number[] = [];
+  // The kind of each point's break, by the points (the first is where he starts).
+  let kinds: (boolean | undefined)[] = [undefined];
   let speed = v0;
   let dir: Pt = { x: 0, y: 1 };
   let t = t0;
   wps.forEach((w, i) => {
     pts.push(w.p);
     paces.push(w.pace);
+    kinds.push(w.sharp);
     const last = i === wps.length - 1;
     if (!last && w.pauseMs <= 0) return;
     const vEnd = last ? top * o.endPace : top * o.pause.pace;
-    const r = section(pts, paces, t, v0, vEnd, o);
+    const r = section(pts, paces, kinds, t, v0, vEnd, o);
     samples.push(...r.samples.slice(1));
     t = (samples[samples.length - 1] as Sample).t;
     speed = r.speed;
@@ -866,6 +897,7 @@ export function runRoute(start: Pt, wps: readonly RouteWp[], t0: number, o: RunO
     cur = endD.p;
     pts = [cur];
     paces = [];
+    kinds = [undefined];
   });
   return { keys: resample(samples, o.keyMs), end: t, at: cur, dir, speed };
 }
@@ -930,9 +962,12 @@ export interface FollowOpts {
   readonly keyMs: number;
   /**
    * A stalk block: once within `within` of `to` (his man) he is engaged, and from then on keeps that
-   * offset from him, moving exactly with him.
+   * offset from him, moving exactly with him. `own` is a rated blocker: he engages at time `at`
+   * instead of by distance, what is left of his offset past `within` closes, and he moves at no more
+   * than his own top speed, so a man faster than that leaves him behind, and a man running at him
+   * (`man`, where he really is) backs him off at `clear` yards. `met` is told when he engages.
    */
-  readonly lock?: { readonly to: (t: number) => Pt; readonly within: number };
+  readonly lock?: { readonly to: (t: number) => Pt; readonly within: number; readonly own?: { readonly at: number; readonly man: (t: number) => Pt; readonly clear: number }; readonly met?: (t: number) => void };
   /** Natural motion (NM6): on contact he takes his man's velocity over this long, not in one key. */
   readonly lockBlendMs?: number;
 }
@@ -950,6 +985,26 @@ export function follow(o: FollowOpts): Key[] {
   let locked: Pt | null = null;
   let lockedAt = 0;
   let lockVel: Pt = { x: 0, y: 0 };
+  // A rated blocker's next spot, moved straight out from his man when it is inside `clear` of him
+  // (a little inside contact, so an offset a hair short is left alone), so he keeps his man's motion across him,
+  // never through him, and as far as his own top speed from (x, y) lets him. Null when it stands.
+  const backOff = (nx: number, ny: number, t: number, dt: number): Pt | null => {
+    const own = o.lock?.own;
+    if (own === undefined) return null;
+    const m = own.man(t);
+    const min = own.clear;
+    const d = Math.hypot(nx - m.x, ny - m.y);
+    if (d >= min) return null;
+    const m0 = own.man(t - dt);
+    const L = Math.hypot(x - m0.x, y - m0.y);
+    const side = L < 1e-6 ? { x: 0, y: -1 } : { x: (x - m0.x) / L, y: (y - m0.y) / L };
+    const u = d < 1e-6 || (nx - m.x) * side.x + (ny - m.y) * side.y <= 0 ? side : { x: (nx - m.x) / d, y: (ny - m.y) / d };
+    const px = clampX(m.x + u.x * min);
+    const py = m.y + u.y * min;
+    const far = Math.hypot(px - x, py - y);
+    const f = far > top * dt ? (top * dt) / far : 1;
+    return { x: x + (px - x) * f, y: y + (py - y) * f };
+  };
   for (let i = 1; i < ts.length; i++) {
     const t = ts[i] as number;
     const dt = t - (ts[i - 1] as number);
@@ -964,8 +1019,23 @@ export function follow(o: FollowOpts): Key[] {
         const w = 1 - smoothstep((t - lockedAt) / B);
         locked = { x: locked.x + (lockVel.x - (m.x - m0.x) / dt) * w * dt, y: locked.y + (lockVel.y - (m.y - m0.y) / dt) * w * dt };
       }
-      x = clampX(m.x + locked.x);
-      y = m.y + locked.y;
+      const gap: number = Math.hypot(locked.x, locked.y);
+      if (o.lock.own !== undefined && gap > o.lock.within) {
+        const keep: number = Math.max(o.lock.within, gap - top * dt * Math.min(1, (gap - o.lock.within) / Math.max(1e-6, o.brakeYards)));
+        locked = { x: (locked.x * keep) / gap, y: (locked.y * keep) / gap };
+      }
+      let nx: number = clampX(m.x + locked.x);
+      let ny: number = m.y + locked.y;
+      const far: number = Math.hypot(nx - x, ny - y);
+      if (o.lock.own !== undefined && far > top * dt) {
+        nx = x + ((nx - x) / far) * top * dt;
+        ny = y + ((ny - y) / far) * top * dt;
+        locked = { x: nx - m.x, y: ny - m.y };
+      }
+      const held = backOff(nx, ny, t, dt);
+      if (held !== null) locked = { x: held.x - m.x, y: held.y - m.y };
+      x = held?.x ?? nx;
+      y = held?.y ?? ny;
       out.push({ t, x, y });
       continue;
     }
@@ -994,13 +1064,21 @@ export function follow(o: FollowOpts): Key[] {
     }
     vx += dx;
     vy += dy;
-    x = clampX(x + vx * dt);
-    y += vy * dt;
+    const nx = clampX(x + vx * dt);
+    const ny = y + vy * dt;
+    const held = backOff(nx, ny, t, dt);
+    if (held !== null) {
+      vx = (held.x - x) / dt;
+      vy = (held.y - y) / dt;
+    }
+    x = held?.x ?? nx;
+    y = held?.y ?? ny;
     out.push({ t, x, y });
     if (o.lock !== undefined) {
       const m = o.lock.to(t);
-      if (Math.hypot(m.x - x, m.y - y) <= o.lock.within) {
+      if (o.lock.own !== undefined ? t >= o.lock.own.at - 1e-9 : Math.hypot(m.x - x, m.y - y) <= o.lock.within) {
         locked = { x: x - m.x, y: y - m.y };
+        o.lock.met?.(t);
         lockedAt = t;
         lockVel = { x: vx, y: vy };
       }

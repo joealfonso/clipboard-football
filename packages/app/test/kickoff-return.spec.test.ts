@@ -32,11 +32,12 @@ const CUTTING = R.filter((x) => x.r.returnYards >= T.cutMinReturnYards);
 
 // ---------------------------------------------------------------- data
 
-describe("kickReturn data (KR-Open 1: motion.json version 4, a required kickReturn block)", () => {
+describe("kickReturn data (KR-Open 1: a required kickReturn block; motion.json is version 6 since the player-reactions schema changes)", () => {
   const NAMED = ["wallDepthYards", "setupYards", "laneSpreadYards", "engageYards", "behindToleranceYards", "whistleWindowMs", "upfieldYards", "cutYards", "cutMinReturnYards"];
 
-  it("motion.json is version 4 with a kickReturn block holding every value the spec names, and kickoff unchanged", () => {
-    expect(motionRaw["version"]).toBe(4);
+  // Version 4 became 5 with the approved ratings.scrimmage block (docs/specs/m2-player-reactions.md, "Existing tests"), and 6 with ratings.scrimmage.stalk.clearYards.
+  it("motion.json is version 6 with a kickReturn block holding every value the spec names, and kickoff unchanged", () => {
+    expect(motionRaw["version"]).toBe(6);
     expect(typeof motionRaw["kickReturn"]).toBe("object");
     for (const k of NAMED) expect(typeof KRD[k], `kickReturn.${k}`).toBe("number");
     // The new keys live in their own block, not inside kickoff (routes-pace 1519 deep-equals kickoff).
@@ -59,11 +60,11 @@ describe("kickReturn data (KR-Open 1: motion.json version 4, a required kickRetu
     else kr[k] = v;
     return o;
   };
-  it("States: parseMotion refuses a file with no kickReturn block, or at version 3", () => {
+  it("States: parseMotion refuses a file with no kickReturn block, or at version 5", () => {
     const o = structuredClone(motionRaw);
     delete o["kickReturn"];
     expect(() => parseMotion(o)).toThrow(MotionError);
-    expect(() => parseMotion({ ...structuredClone(motionRaw), version: 3 })).toThrow(MotionError);
+    expect(() => parseMotion({ ...structuredClone(motionRaw), version: 5 })).toThrow(MotionError);
   });
   it.each(NAMED)("States (R-C13 gains the new keys): parseMotion refuses kickReturn.%s missing or not a number", (k) => {
     expect(() => parseMotion(without(k, undefined))).toThrow(MotionError);

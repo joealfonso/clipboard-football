@@ -15,23 +15,30 @@
 //   once the ball is caught or handed off everyone pursues. Unnamed defenders keep 2.5 yards from
 //   the ball and out of the carrier's lane (contract 3), so nothing implies a different result.
 // - Screen time comes from geometry (distances and speeds), clamped to motion.json's live range
-//   (1.8 to 7.0 s since revision 2026-11-14, decision 11).
+//   (1.8 to 14.0 s since revision 2026-11-16, was 7.0 s; decision 11).
 // - Revision 2026-11-14 (real routes and slower pace): receivers run their role's route at their
 //   own pace with a plant at each break, then their finish (sit, continue, block, stalk) until the
 //   read; the target leaves his route where it comes nearest the catch; the throw waits for him up
 //   to throwHold; defenders read-step, pedal, sink in zones, trail in man and rotate, all from the
 //   calls (and on runs the play side, from runLocation) only, never the target or the result.
 // - The set preview is drawn from the calls (playArt), never from the result (P3).
+// - Player reactions (docs/specs/m2-player-reactions.md, slices 1 and 2, PR1 to PR8): on scrimmage
+//   plays a player's own ratings set his reaction to the read (and a DL's release), how it varies from
+//   play to play (a hash of his id and the state before the snap, no Rng) and how he pursues (lead,
+//   turn). The engine's tackler leaves as late as his anchor allows, never later than his own read.
+//   Before the read they set his man trail and cushion, his stalk lag, his bite on play action and
+//   his pace through a break, from ids, ratings and calls only. With no ratings, and on every kick,
+//   kneel and spike, nothing changes.
 //
 // Frame: the play's frame. y is yards from the offense's goal line (0) to the other goal line
 // (100), the end lines at -10 and 110 (from the rule set); x is 0 to 53.3 from the offense's left.
 
-import type { PlayResult } from "@clipboard-football/shared";
+import type { BaseRating, PlayResult, POSITION_SKILLS } from "@clipboard-football/shared";
 import { PARTICIPANT_ROLES, readDetail, type OnFieldSlot, type ParticipantRole, type PlayEvent } from "../engine/types";
 import { defenseArt, ELIGIBLE, huddleSpots, landmark, lineContactFor, lineKeys, lineUp, lookup, offenseArt, PASS_LEAVES, placeRoute, readFamily, receiverRoles, routeChain, routeKey, RUN_LEAVES, type Art, type Bounds, type FieldWp, type Sides } from "./art";
-import { at, clampX, creep, creepAlong, cruise, drive, FIELD_WIDTH, follow, grid, join, MID_X, pursue, RAMP, ringFix, runRoute, settleWarp, sitDrift, velocity, type Key, type Pt } from "./motion";
-import { decorate, hashUnit, periodOf, stratify } from "./natural";
-import type { Motion, Pair, Route, Templates } from "./templates";
+import { at, clampX, creep, creepAlong, cruise, drive, FIELD_WIDTH, follow, grid, join, MID_X, pursue, RAMP, ringFix, runRoute, settleWarp, sitDrift, velocity, type FollowOpts, type Key, type Pt, type RouteWp } from "./motion";
+import { decorate, hashUnit, periodOf, stratify, type DecorateOpts } from "./natural";
+import type { Motion, Pair, RatingBy, Route, Templates } from "./templates";
 
 export { at, FIELD_WIDTH, MID_X, type Key, type Pt };
 
@@ -77,7 +84,36 @@ export interface MarkNat {
   /** The settle's slow-down starts here (Infinity for the holder, tackler and sacker). */
   readonly settleFrom: number;
   readonly engaged?: { readonly from: number; readonly to: number; readonly axis: Pt; readonly partner: string | null };
+  /**
+   * Player reactions (docs/specs/m2-player-reactions.md, PR15), on scrimmage plays only: his
+   * scheduled reaction to the read with every term (readMs), the delay applied (equal to readMs for
+   * an unnamed mark, at most that for a named one, PR6), the screen time he leaves his track for the
+   * ball as scheduled (it may be past liveEnd; null for a mark that never pursues), his play
+   * variation v for the read in [-1, 1] (PR4), and his pursuit values (PR5): the lead, his share on
+   * the turn rate and the lateral limit, and that limit in yd/s^2 on the raw clock. Slice 2, from his
+   * id, the calls and ratings only: the defender he shadows when he stalks (stalkOf, else null), and,
+   * present when they apply to him, the lag and cushion of his man trail, his stalk lag (ms and yards
+   * as drawn, all terms in), and his shares on a play-action bite and on the pace of a break (PR7, PR8).
+   */
+  readonly react?: {
+    readonly readMs: number;
+    readonly delayMs: number;
+    readonly pursueAt: number | null;
+    readonly vary: number;
+    readonly leadMs: number;
+    readonly turnShare: number;
+    readonly lateralAccel: number;
+    readonly stalkOf: string | null;
+    readonly manLagMs?: number;
+    readonly cushionYards?: number;
+    readonly stalkLagMs?: number;
+    readonly biteShare?: number;
+    readonly breakPaceShare?: number;
+  };
 }
+
+/** A rating motion can read by name: a base rating or a position skill. */
+type RatingName = BaseRating | (typeof POSITION_SKILLS)[keyof typeof POSITION_SKILLS][number];
 
 export interface TLPath {
   readonly kind: "offense" | "defense" | "ball";
@@ -238,11 +274,12 @@ export interface TimelineCtx {
   /** Test hook (natural motion, States): false draws the raw keys, with no governor (N6 and playtest A/B only). */
   readonly natural?: boolean;
   /**
-   * Base ratings by player id (speed, agility, awareness, 0 to 99), passed like `numbers`: they set
-   * how fast each player runs, accelerates and reacts (Joseph, 2026-11-15, decision 12 reversed;
-   * motion.json ratings). A player with none moves at his position's values.
+   * Card ratings by player id (base ratings and his position's skills, 0 to 99), passed like
+   * `numbers`: they set how fast each player runs, accelerates and reacts (Joseph, 2026-11-15,
+   * decision 12 reversed; motion.json ratings), and how he covers, blocks and breaks
+   * (docs/specs/m2-player-reactions.md). A player with none moves at his position's values.
    */
-  readonly ratings?: Readonly<Record<string, Readonly<Partial<Record<"speed" | "agility" | "awareness", number>>>>>;
+  readonly ratings?: Readonly<Record<string, Readonly<Partial<Record<RatingName, number>>>>>;
 }
 
 // ---------------------------------------------------------------- units
@@ -268,6 +305,8 @@ const MISS_GROUND = 0.6;
  * 150 ms, with a margin: these are checks, not tuning).
  */
 const HOLD_YARDS = 0.7;
+/** PR6 (Joseph, 2026-11-24): a rated tackler may leave his unnamed self's path at most this long before he departs. */
+const OWN_PATH_MS = 50;
 const HOLD_MS = 100;
 
 type Family = "run" | "pass" | "kick" | "kickoff" | "clock" | "none";
@@ -366,6 +405,9 @@ interface Plan {
    */
   miss: { readonly id: string | null; readonly throwT: number; readonly catchT: number; readonly from: Pt; readonly aim: Pt; readonly apex: number } | null;
 }
+
+/** N1 and NM3: a mark runs at most this share of his own top speed; a leg whose mean is above it is anchor-demanded. */
+const TOP_SHARE = 1.15;
 
 const dist = (a: Pt, b: Pt): number => Math.hypot(a.x - b.x, a.y - b.y);
 const smoothstepT = (x: number): number => {
@@ -596,9 +638,10 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     const pos = slotOf.get(id ?? "")?.position ?? "WR";
     return (M.accelMs[pos] ?? 300) * (1 + rated(id, "agility", (b) => b.accelShare) + NAT.spread.accelShare * (sAcc.get(id ?? "") ?? 0));
   };
+  const reactTable = (pos: string): number => M.reactionMs[pos] ?? M.reactionMs["other"] ?? 150;
   const reactOf = (id: string | undefined): number => {
     const pos = slotOf.get(id ?? "")?.position ?? "WR";
-    return Math.max(0, (M.reactionMs[pos] ?? M.reactionMs["other"] ?? 150) + rated(id, "awareness", (b) => b.reactionMs) + NAT.spread.reactionMs * (sReact.get(id ?? "") ?? 0));
+    return Math.max(0, reactTable(pos) + rated(id, "awareness", (b) => b.reactionMs) + NAT.spread.reactionMs * (sReact.get(id ?? "") ?? 0));
   };
   const startSpread = (id: string): number => (slotOf.get(id)?.position === "QB" || id === snapper ? 0 : rated(id, "awareness", (b) => b.startMs) + NAT.spread.startMs * (sStart.get(id) ?? 0));
   /** His start after the snap (ms): the table, the slot offset and his spread, at least 0, at most maxStartMs. */
@@ -607,6 +650,71 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     const pos = sl?.position ?? "WR";
     return Math.min(M.maxStartMs, Math.max(0, (M.startMs[pos] ?? 0) + ((sl?.index ?? 0) % 3) * M.slotOffsetMs + startSpread(id)));
   };
+
+  // ------------------------------------------------------------ player reactions: own read and pursuit
+  // docs/specs/m2-player-reactions.md, slice 1 (PR1 to PR6), designed, display only. On scrimmage
+  // plays a player's ratings set his reaction to the read, how it varies from play to play and how
+  // he pursues. Every effect is an added term that is nothing without the rating it reads (PR1), and
+  // every kick, kneel and spike is drawn as before with or without ratings (PR2: ownRating gives
+  // nothing there). Times are screen ms and never scale with k (PR13).
+  const SC = RT.scrimmage;
+  const scrimmage = unit.family === "run" || unit.family === "pass";
+  /** The rating `by` names for his position, on a scrimmage play; undefined when he has none (then he moves as before). */
+  const ownRating = (id: string | undefined, by: RatingBy): number | undefined => {
+    if (!scrimmage || id === undefined) return undefined;
+    const name = by[slotOf.get(id)?.position ?? ""] ?? by.default;
+    const v = (ctx.ratings?.[id] as Readonly<Record<string, number | undefined>> | undefined)?.[name];
+    return typeof v === "number" && Number.isFinite(v) ? v : undefined;
+  };
+  const bandAt = (v: number, band: Pair): number => band[0] + (band[1] - band[0]) * Math.max(0, Math.min(1, (v - RT.lo) / (RT.hi - RT.lo)));
+  // PR4: v in [-1, 1] from the hash of his id and the game state before the snap: no Rng, and
+  // nothing from the play, the calls, the participants or the state after it.
+  const varySalt = `${before.period}|${before.clock}|${before.spot}|${before.down}|${before.distance}|${before.score.home}|${before.score.away}`;
+  const varyOf = (id: string, kind: "vary:read" | "vary:lead"): number => 2 * hashUnit(id, `${kind}|${varySalt}`) - 1;
+  /**
+   * PR3: his scheduled reaction to the read. With the rating: a defender's is max(read.minMs, his
+   * table value + his band + his NM4 spread + his variation), the floor last so a higher rating is
+   * never later; an offensive mark's the same, added to the 0 he reacts in without it; a defensive
+   * lineman's is max(0, his band + his variation), after the line's release. Without the rating it
+   * is what it was: reactOf for a defender off the line, 0 for everyone else.
+   */
+  const readOf = (id: string): number => {
+    const sl = slotOf.get(id);
+    const lineDL = scrimmage && sl?.side === "X" && sl.position === "DL";
+    const a = ownRating(id, SC.by.read);
+    if (a === undefined || sl === undefined) return sl?.side === "X" && !lineDL ? reactOf(id) : 0;
+    const vary = bandAt(a, SC.read.varyMs) * varyOf(id, "vary:read");
+    if (lineDL) return Math.max(0, bandAt(a, SC.read.releaseMs) + vary);
+    const base = sl.side === "X" ? reactTable(sl.position) + bandAt(a, SC.read.defenseMs) : bandAt(a, SC.read.offenseMs);
+    return Math.max(SC.read.minMs, base + NAT.spread.reactionMs * (sReact.get(id) ?? 0) + vary);
+  };
+  /** PR5: his pursuit lead (ms): pursuit.leadMs + his band + his variation, kept in leadMinMs to leadMaxMs; pursuit.leadMs without the rating. */
+  const pursuitLead = (id: string): number => {
+    const a = ownRating(id, SC.by.lead);
+    return a === undefined ? M.pursuit.leadMs : Math.max(SC.pursuit.leadMinMs, Math.min(SC.pursuit.leadMaxMs, M.pursuit.leadMs + bandAt(a, SC.pursuit.leadMs) + bandAt(a, SC.pursuit.leadVaryMs) * varyOf(id, "vary:lead")));
+  };
+  /** PR5: his share on the lateral limit and the turn rate in pursuit (0 without the rating). */
+  const turnShareOf = (id: string | undefined): number => {
+    const a = ownRating(id, SC.by.turn);
+    return a === undefined ? 0 : bandAt(a, SC.pursuit.turnShare);
+  };
+  const pursuitTurn = (id: string): number => M.pursuit.turnDegPerS * (1 + turnShareOf(id));
+  /** A band's value for his rating, added to an effect (0 without the rating it reads, PR1). */
+  const ownBand = (id: string, by: RatingBy, band: Pair): number => {
+    const v = ownRating(id, by);
+    return v === undefined ? 0 : bandAt(v, band);
+  };
+  /** PR7: how far behind his receiver's template a man defender trails (ms): his coverage and the receiver's route running, at least minLagMs. */
+  const manLagOf = (id: string, rcv: string): number => Math.max(Math.min(SC.man.minLagMs, M.man.lagMs), M.man.lagMs + ownBand(id, SC.by.manLag, SC.man.lagMs) + ownBand(rcv, SC.by.receiverLag, SC.man.receiverLagMs));
+  /** PR7: a man defender's cushion (yd): the one his drop set uses, and his own term. */
+  const manCushionOf = (id: string, dropsName: string): number => (dropsName === "blitz" ? M.man.pressCushionYards : M.man.cushionYards) + ownBand(id, SC.by.cushion, SC.man.cushionYards);
+  /** PR7: how far behind his defender a stalking receiver moves (ms). */
+  const stalkLagOf = (id: string): number => M.stalk.lagMs + ownBand(id, SC.by.stalkLag, SC.stalk.lagMs);
+  /** PR7: his share on the waypoints of a play-action read step (the bite). */
+  const biteShareOf = (id: string): number => ownBand(id, SC.by.bite, SC.biteShare);
+  /** PR8: the break rounding at his own pace (the pace only: his route's shape is the same). */
+  const breakShareOf = (id: string): number => ownBand(id, SC.by.breakPace, SC.breakPaceShare);
+  const ownFillet = (id: string): Motion["fillet"] => ({ ...M.fillet, sharpPace: M.fillet.sharpPace * (1 + breakShareOf(id)), roundPace: M.fillet.roundPace * (1 + breakShareOf(id)) });
 
   // ------------------------------------------------------------ pre-snap phases
   const publicLineup = unit.family === "kick" || unit.family === "kickoff" || unit.family === "clock";
@@ -707,6 +815,30 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     for (let i = 1; i < r.length; i++) len += dist(r[i - 1] as Pt, r[i] as Pt);
     return len;
   };
+  /**
+   * A ball that came loose at `from` at `tl`, with a known recoverer: one rule for a fumbled carry
+   * (LC5) and a strip-sack (LC3). It pops 1.5 yd and rolls `fumble.rollYards` until he gets there;
+   * the roll lasts at least as long as the pop (200 ms), so the ball never jumps onto a recoverer who
+   * is already there. He returns it to the dead spot `e` at his own top speed, with his speed-up
+   * and his stop (as recover() gives his run in), and the whistle is when he gets there.
+   * In bounds (LC5): the pop and roll go toward +x unless that would end past the far sideline
+   * (FIELD_WIDTH, where clampX stops the recoverer's mark); then they go toward -x.
+   */
+  const looseBall = (rec: string, from: Pt, tl: number, read: number, e: Pt, labelAt: Pt): void => {
+    const dir = from.x + 1.5 + M.fumble.rollYards > FIELD_WIDTH ? -1 : 1;
+    const pop = { x: from.x + dir * 1.5, y: from.y };
+    plan.ball.push({ kind: "move", pts: [from, pop], t0: tl, t1: tl + 200, apex: 0.8, endScale: 0.8 });
+    const roll = { x: pop.x + dir * M.fumble.rollYards, y: pop.y };
+    const tRec = recover(rec, read, tl + 400, roll);
+    plan.ball.push({ kind: "move", pts: [pop, roll], t0: tl + 200, t1: tRec, apex: 1, endScale: 1 });
+    const back = [roll, ...obPath(roll, e)];
+    const t2 = tRec + (pathLen(back) / speedOf(rec)) * 1000 + accOf(rec) / 2 + M.decelMs / 2;
+    leg(rec, { pts: back, t0: tRec, t1: t2, restStart: false, restEnd: true });
+    plan.ball.push({ kind: "hold", id: rec, t0: tRec, t1: t2 });
+    plan.holder = rec;
+    plan.labels.push({ text: recoveredText(rec), at: labelAt, t: t2, source: "participants.fumbleRecoverer" });
+    plan.whistle = t2;
+  };
   /** The carrier from `from` (holding the ball from t0) to the dead spot, with a fumble when the engine says so. */
   /** `read` is the play's R-C9 read (a fumble recoverer follows his unnamed track until it); t0 by default. */
   const carry = (carrier: string | undefined, pts: Pt[], t0: number, ballT0: number = t0, read: number = t0, fil?: Motion["fillet"]): void => {
@@ -717,17 +849,45 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     // Natural motion (NM6): room for his smooth speed-up and stop, so the carry is run at about his
     // top speed (a carry from rest needs his whole ramp; one already moving about half of it).
     const slack = Math.max(M.convergeMs, (RAMP / 2) * M.decelMs + (RAMP / 2) * accOf(carrier ?? qb) * (t0 === 0 ? 1 : 0.5));
-    const t1 = t0 + (pathLen(route) / speedOf(carrier ?? qb)) * 1000 + slack;
+    /** When a carry over `path` ends: its length at his top speed, plus the slack. */
+    const endOf = (path: readonly Pt[]): number => t0 + (pathLen(path) / speedOf(carrier ?? qb)) * 1000 + slack;
+    const t1 = endOf(route);
     if (fumbled) {
-      const loose = d.fumbleSpot === undefined ? e : { x: e.x, y: d.fumbleSpot };
-      const toLoose = [...pts, ...obPath(last, loose)];
-      const tl = t1 - 350;
       const rec = parts.fumbleRecoverer;
-      leg(carrier, { pts: toLoose, t0, t1: tl, restStart: t0 === 0, restEnd: true, ...withFil });
+      if (d.fumbleSpot !== undefined) {
+        // LC5 (spec revision 2026-11-16, live cap): with the engine's fumble spot the carrier runs
+        // there on the clock of the same carry with no fumble (his own path at his own top speed, plus
+        // the slack: nothing taken off, so he is never drawn over his top speed to get there), and
+        // the ball comes loose when he arrives. Never sized from the path to the dead spot, where the
+        // defense's return ended.
+        const loose = { x: e.x, y: d.fumbleSpot };
+        const toLoose = [...pts, ...obPath(last, loose)];
+        const tl = endOf(toLoose);
+        leg(carrier, { pts: toLoose, t0, t1: tl, restStart: t0 === 0, restEnd: true, ...withFil });
+        if (known(carrier)) plan.ball.push({ kind: "hold", id: carrier, t0: ballT0, t1: tl });
+        else plan.ball.push({ kind: "move", pts: toLoose, t0, t1: tl, apex: 1, endScale: 1 });
+        if (known(rec)) {
+          looseBall(rec, loose, tl, read, e, loose);
+          return;
+        }
+        // Nobody known to return it (LC3's fallback): the ball pops, then goes to the dead spot at once; no return drawn.
+        const pop = { x: loose.x + 1.5, y: loose.y };
+        plan.ball.push({ kind: "move", pts: [loose, pop], t0: tl, t1: tl + 200, apex: 0.8, endScale: 0.8 });
+        plan.ball.push({ kind: "move", pts: [pop, e], t0: tl + 200, t1: tl + 350, apex: 1, endScale: 1 });
+        plan.labels.push({ text: "Fumble", at: loose, t: tl + 350, source: "participants.fumbleRecoverer" });
+        plan.whistle = tl + 350;
+        return;
+      }
+      // No fumble spot (a fumble the offense keeps, an old record): the ball comes loose at the dead
+      // spot, 350 ms before the carry's end, with the timing these plays have always had. Kept key for
+      // key. The engine sets no fumble on a kickoff or punt today, so a kick return gets here only
+      // from a built fixture or an old record.
+      const tl = t1 - 350;
+      leg(carrier, { pts: route, t0, t1: tl, restStart: t0 === 0, restEnd: true, ...withFil });
       if (known(carrier)) plan.ball.push({ kind: "hold", id: carrier, t0: ballT0, t1: tl });
-      else plan.ball.push({ kind: "move", pts: toLoose, t0, t1: tl, apex: 1, endScale: 1 });
-      const pop = { x: loose.x + 1.5, y: loose.y };
-      plan.ball.push({ kind: "move", pts: [loose, pop], t0: tl, t1: tl + 200, apex: 0.8, endScale: 0.8 });
+      else plan.ball.push({ kind: "move", pts: route, t0, t1: tl, apex: 1, endScale: 1 });
+      const pop = { x: e.x + 1.5, y: e.y };
+      plan.ball.push({ kind: "move", pts: [e, pop], t0: tl, t1: tl + 200, apex: 0.8, endScale: 0.8 });
       if (known(rec)) {
         // R9: his unnamed track until the read, then to the ball; it rolls a little until he gets there.
         const roll = { x: pop.x + M.fumble.rollYards, y: pop.y };
@@ -739,12 +899,12 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         leg(rec, { pts: back, t0: tRec, t1: t2, restStart: false, restEnd: true });
         plan.ball.push({ kind: "hold", id: rec, t0: tRec, t1: t2 });
         plan.holder = rec;
-        plan.labels.push({ text: recoveredText(rec), at: loose, t: t2, source: "participants.fumbleRecoverer" });
+        plan.labels.push({ text: recoveredText(rec), at: e, t: t2, source: "participants.fumbleRecoverer" });
         plan.whistle = t2;
         return;
       }
       plan.ball.push({ kind: "move", pts: [pop, e], t0: tl + 200, t1, apex: 1, endScale: 1 });
-      plan.labels.push({ text: "Fumble", at: loose, t: t1, source: "participants.fumbleRecoverer" });
+      plan.labels.push({ text: "Fumble", at: e, t: t1, source: "participants.fumbleRecoverer" });
       plan.whistle = t1;
       return;
     }
@@ -782,7 +942,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     }
     const wps = place(set, route);
     const endPace = route.finish === "continue" ? M.continuePace : M.sit.pace;
-    const r = runRoute(set, wps, t0, { top, pace: M.routePace, endPace, accelMs: accOf(id), decelMs: M.decelMs, keyMs: M.keyMs, fillet: M.fillet, pause: M.sit, smoothMs: NAT.smoothMs });
+    const r = runRoute(set, wps, t0, { top, pace: M.routePace, endPace, accelMs: accOf(id), decelMs: M.decelMs, keyMs: M.keyMs, fillet: ownFillet(id), pause: M.sit, smoothMs: NAT.smoothMs });
     const head: Key[] = join([{ t: origin, ...set }, { t: t0, ...set }], r.keys);
     if (horizon <= r.end) return { keys: underBackLine(head, set), finish: route.finish, releaseEnd: r.end };
     let tail: Key[];
@@ -793,8 +953,22 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
       // Shadow the defender at contact distance, on the side he released to, a reaction lag behind.
       const D0 = at(stalkKeys, r.end);
       const off = Math.hypot(r.at.x - D0.x, r.at.y - D0.y) < 1e-6 ? { x: 0, y: -1 } : { x: (r.at.x - D0.x) / Math.hypot(r.at.x - D0.x, r.at.y - D0.y), y: (r.at.y - D0.y) / Math.hypot(r.at.x - D0.x, r.at.y - D0.y) };
-      const lag = M.stalk.lagMs;
-      tail = follow({ start: r.at, vel: { x: r.dir.x * r.speed, y: r.dir.y * r.speed }, t0: r.end, t1: horizon, target: (t) => { const q = at(stalkKeys, t - lag); return { x: q.x + off.x * M.stalk.contactYards, y: q.y + off.y * M.stalk.contactYards }; }, top, accelMs: accOf(id), brakeYards: M.pursuit.brakeYards, keyMs: M.keyMs, lock: { to: (t) => at(stalkKeys, t), within: M.stalk.contactYards + (topOf(stalkTarget(id)?.id) * M.stalk.lagMs) / 1000 }, lockBlendMs: NAT.smoothMs });
+      const reach = (ms: number): number => M.stalk.contactYards + (topOf(stalkTarget(id)?.id) * ms) / 1000;
+      const within = reach(M.stalk.lagMs);
+      const shadow = (lag: number, lock: FollowOpts["lock"]): Key[] => follow({ start: r.at, vel: { x: r.dir.x * r.speed, y: r.dir.y * r.speed }, t0: r.end, t1: horizon, target: (t) => { const q = at(stalkKeys, t - lag); return { x: q.x + off.x * M.stalk.contactYards, y: q.y + off.y * M.stalk.contactYards }; }, top, accelMs: accOf(id), brakeYards: M.pursuit.brakeYards, keyMs: M.keyMs, ...(lock === undefined ? {} : { lock }), lockBlendMs: NAT.smoothMs });
+      if (ownRating(id, SC.by.stalkLag) === undefined) tail = shadow(M.stalk.lagMs, { to: (t) => at(stalkKeys, t), within });
+      else {
+        // PR7: a slower blocker engages later, never sooner, by the part of his lag past the best one's:
+        // when the best at his speed would engage, at the distance the slowest could keep up from, is
+        // read first, the same whatever his own rating. From then on he closes to contact and
+        // sees his man, and so mirrors him, the part of his lag past the plain one late.
+        const lag = stalkLagOf(id);
+        const best = M.stalk.lagMs + Math.min(...SC.stalk.lagMs);
+        let met = Infinity;
+        shadow(best, { to: (t) => at(stalkKeys, t), within: reach(M.stalk.lagMs + Math.max(...SC.stalk.lagMs)), met: (t) => (met = t) });
+        const late = Math.max(0, lag - M.stalk.lagMs);
+        tail = shadow(lag, { to: (t) => at(stalkKeys, t - late), within: M.stalk.contactYards, own: { at: met + lag - best, man: (t) => at(stalkKeys, t), clear: SC.stalk.clearYards } });
+      }
     } else {
       const sd = settleDir(r.at, r.dir, r.speed, set, top);
       tail = sitDrift(r.at, sd.dir, sd.v0, sitYards(route.finish === "block" ? M.sit.blockMaxYards : M.sit.maxYards), r.end, horizon, M.keyMs);
@@ -1318,9 +1492,9 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
           const estLen = KR.cutMinReturnYards + (land.y - stopY);
           const estWhistle = landT + (estLen / speedOf(ret)) * 1000;
           const kEst = estWhistle > M.live.maxMs ? M.live.maxMs / estWhistle : 1;
-          // A fumble's carry is run 350 ms short of its length's time (carry()), so that much faster.
+          // A fumble's carry with no fumble spot is run 350 ms short of its length's time (carry()), so that much faster.
           const estMs = (estLen / speedOf(ret)) * 1000;
-          const vS = ((KR.cutPace * speedOf(ret)) / kEst) * (fumbled ? estMs / Math.max(1, estMs - 350) : 1);
+          const vS = ((KR.cutPace * speedOf(ret)) / kEst) * (fumbled && d.fumbleSpot === undefined ? estMs / Math.max(1, estMs - 350) : 1);
           const rCut = Math.max(M.fillet.roundRadius, Math.min(KR.cutRadiusYards, (vS * vS) / KR.cutLateralAccel));
           const fil = { ...M.fillet, roundRadius: rCut, roundPace: KR.cutPace, sharpDeg: Math.max(M.fillet.sharpDeg, 89) };
           const tan = rCut * Math.tan(Math.atan2(KR.cutYards, KR.cutDepthYards) / 2);
@@ -1393,12 +1567,17 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     plan.read = drop;
     plan.releaseAt = drop + M.release.afterThrowMs;
     if (fumbled) {
-      plan.ball.push({ kind: "move", pts: [sp, e], t0: sackT, t1: sackT + 300, apex: 0.8, endScale: 0.8 });
+      // LC3 (spec revision 2026-11-16, live cap): a strip-sack's ball pops and rolls near the sack spot,
+      // as on a carry's fumble; the recoverer picks it up there and returns it to the dead spot at his
+      // own speed (it used to fly from the sack spot to the dead spot, up to 90 yd, in 300 ms).
       const rec = parts.fumbleRecoverer;
-      const tRec = known(rec) ? recover(rec, drop, sackT + 300, e) : sackT + 300;
-      plan.holder = known(rec) ? rec : null;
-      plan.labels.push({ text: known(rec) ? recoveredText(rec) : "Fumble", at: e, t: tRec, source: "participants.fumbleRecoverer" });
-      plan.whistle = tRec;
+      if (known(rec)) looseBall(rec, sp, sackT, drop, e, e);
+      else {
+        plan.ball.push({ kind: "move", pts: [sp, e], t0: sackT, t1: sackT + 300, apex: 0.8, endScale: 0.8 });
+        plan.holder = null;
+        plan.labels.push({ text: "Fumble", at: e, t: sackT + 300, source: "participants.fumbleRecoverer" });
+        plan.whistle = sackT + 300;
+      }
     } else {
       plan.holder = known(parts.passer) ? (parts.passer as string) : null;
       plan.whistle = sackT + 300;
@@ -1469,8 +1648,41 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
   const runDrift = unit.family === "run" ? playSign * (M.runDrift[unit.leaf] ?? 0) : 0;
   const contactFamily = unit.family === "run" ? "run" : unit.family === "pass" ? "pass" : unit.family === "kick" || unit.family === "clock" ? "kick" : null;
   const releaseT = T(plan.releaseAt > 0 ? plan.releaseAt : plan.read);
+  /**
+   * PR3: a defensive lineman's own release, with the rating: the line's plus his reaction, and no
+   * later than the ball's ring reaches him: the key before the first one, from the line's release
+   * to one key past his own, at which the ring would push him where he stands engaged (never
+   * before the line's release). So
+   * his own delay never holds him where the ball is about to shove him sideways. Drawn from the
+   * ball's place, as the ring is, a key ahead (pursuit looks further), and it decides nothing. His
+   * engaged keys don't depend on when he releases (they only end there), so they are read to the
+   * latest he could. `ballFn` and `radius` are the ball and its ring as the caller draws them.
+   * Without the rating: the line's release, with nothing read.
+   */
+  const releaseWith = (id: string, ballFn: (t: number) => Pt, radius: (t: number) => number): number => {
+    if (ownRating(id, SC.by.read) === undefined) return releaseT;
+    const late = releaseT + readOf(id);
+    const sl = slotOf.get(id) as OnFieldSlot & { side: "O" | "X"; index: number };
+    // The line's release, then the key grid, to one key past his own release: the same keys are
+    // tested whatever his rating, so a sharper DL (an earlier `late`) never releases later than a slower
+    // one. His hold is built that far too, so the last key tested is where he is and not where he stopped.
+    const held = linemanSteps(sl, sl.side, defStart, startOf.get(id) as Pt, snapAt + startAfter(id), topOf(id) / k, accOf(id), contactFamily as string, late + step).engaged;
+    const last = Math.min(late + step, liveEnd);
+    for (let t = releaseT; t <= last + 1e-9; t = t === releaseT ? Math.floor(releaseT / step + 1e-9) * step + step : t + step)
+      if (dist(at(held, t), ballFn(t)) < radius(t)) return Math.min(late, Math.max(releaseT, t - step));
+    return late;
+  };
+  /** A defensive lineman's release as build() draws it, the same for everyone who reads it. */
+  const relCache = new Map<string, number>();
+  const relOf = (id: string): number => {
+    let rel = relCache.get(id);
+    if (rel === undefined) {
+      rel = releaseWith(id, ballAt, (t) => (inFlight(t) ? Math.min(ring, NAT.flightRingYards) : ring));
+      relCache.set(id, rel);
+    }
+    return rel;
+  };
   const snapWindowEnd = Math.min(liveEnd, snapAt + Math.max(120, snapMs * k));
-  const scrimmage = unit.family === "run" || unit.family === "pass";
   const family = readFamily(unit.leaf);
   const defRefs = defSlots.map((s) => ({ slot: s.slot, position: s.position }));
 
@@ -1521,6 +1733,12 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
   // Natural motion records, filled while building: each named mark's departure (NM2), the ring the
   // governor keeps him off (contract 3, NM6), each lineman's contact, and when the settle starts.
   const depOf = new Map<string, number>();
+  // PR15: when each mark leaves his track for the ball as scheduled (null: he never pursues), the
+  // delay applied where it is not his read, and PR6's tacklers, drawn as their unnamed selves until they
+  // leave, each with that unnamed self's keys and ring and the time it would start to slow for the whistle (NM8).
+  const pursueAtOf = new Map<string, number | null>();
+  const delayOf = new Map<string, number>();
+  const selfUntil = new Map<string, { readonly settleAt: number; readonly keys: Key[]; readonly ring: { readonly R: number; readonly to: number; readonly sideways: boolean } }>();
   const ringOf = new Map<string, { readonly R: number; readonly to: number; readonly sideways: boolean }>();
   const lineInfo = new Map<string, { readonly contact: Pt; readonly engageEnd: number }>();
   const settleFromOf = new Map<string, number>();
@@ -1712,7 +1930,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
    * kicking team's unnamed coverage (KR9), keep out of the carrier's corridor (contract 3).
    */
   function unnamedTrack(s: OnFieldSlot, side: "O" | "X", set: Pt, at0: readonly Key[], start: number, top: number, accel: number): { ks: Key[]; readFor: number } {
-    let readFor = Math.max(start + 4 * step, read + (side === "X" ? reactOf(s.id) : 0));
+    let readFor = Math.max(start + 4 * step, read + readOf(s.id));
     let dk: Key[];
     let pursueFrom = true;
     if (side === "O") {
@@ -1723,9 +1941,18 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         // A named defender: he shadows him until the read like any stalker (never released
         // earlier: that would show who makes the tackle), then releases and pursues.
         if (st !== undefined && !st.named && stalkOf(s.id) !== undefined) pursueFrom = false;
-        else readFor = Math.max(readFor, read);
+        else {
+          readFor = Math.max(readFor, read);
+          // A rated blocker's own read never holds him on a man who has left for his fact: he lets go when that man does.
+          const dep = st === undefined || ownRating(s.id, SC.by.read) === undefined ? undefined : depOf.get(st.id);
+          if (dep !== undefined && Math.max(start + 4 * step, dep) < readFor) {
+            readFor = Math.max(start + 4 * step, dep);
+            delayOf.set(s.id, Math.max(0, readFor - read));
+          }
+        }
       }
     } else dk = defenseTrack(s, set, start, liveEnd);
+    pursueAtOf.set(s.id, pursueFrom ? readFor : null);
     if (!pursueFrom || readFor >= liveEnd - 3 * step) return { ks: join(at0, dk.filter((q) => q.t <= liveEnd), [{ t: liveEnd, ...at(dk, liveEnd) }]), readFor };
     const cut = join(at0, dk.filter((q) => q.t < readFor), [{ t: readFor, ...at(dk, readFor) }]);
     const p = at(cut, readFor);
@@ -1742,15 +1969,17 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         ball: cover ? krEnv.at : ballAt,
         topSpeed: top,
         accelMs: accel,
-        leadMs: M.pursuit.leadMs,
-        turnDegPerS: M.pursuit.turnDegPerS,
+        leadMs: pursuitLead(s.id),
+        turnDegPerS: pursuitTurn(s.id),
         ring: side === "X" ? ring : 2,
         ringAt: flightR(side === "X" ? ring : 2),
         brakeYards: M.pursuit.brakeYards,
-        ...(lane !== null ? { corridor: { half: lane, ms: M.pursuit.corridorMs } } : {}),
+        ...(side === "O" && ownRating(s.id, SC.by.read) !== undefined ? { ringCap: true } : {}),
+        // A rated defender caught in the carrier's lane gets out of it at his own top speed (Joseph, 2026-11-24).
+        ...(lane !== null ? { corridor: { half: lane, ms: M.pursuit.corridorMs, ease: side === "X" && ownRating(s.id, SC.by.read) !== undefined } } : {}),
         ...(cover ? { aim: containAim(s.id, p, krEnv.at(readFor), lane), corridorExtra: krEnv.extra } : {}),
         keyMs: step,
-        lateral: latOf(),
+        lateral: latOf(s.id),
       }),
     );
     return { ks, readFor };
@@ -2242,6 +2471,101 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         push({ ...base, keys: huddle && lineUpMs > 0 ? at0 : [{ t: 0, ...set }], fact: false, pathEnd: snapAt, pathStyle: "none" });
         return;
       }
+      /**
+       * The mark as he is drawn unnamed, kept off the ball: a lineman's step to contact, his hold and
+       * (a DL) his release at his own time, or anyone else's route or drop and his pursuit.
+       */
+      const unnamedSelf = (): { keys: Key[]; free: Key[]; ring: { R: number; to: number; sideways: boolean }; pathEnd: number; lineman: boolean } => {
+        const lineman = (pos === "OL" || pos === "DL") && contactFamily !== null;
+        if (lineman) {
+          const { engaged, engageEnd } = linemanSteps(s, side, setPts, set, start, top, accel, contactFamily);
+          let ks = join(at0, engaged);
+          const rel = pos === "DL" ? relOf(s.id) : releaseT;
+          if (pos === "DL" && rel < liveEnd - 3 * step) {
+            const p = at(ks, rel);
+            ks = join(
+              ks.filter((q) => q.t <= rel),
+              pursue({ start: p, vel: velocity(ks, rel, step), t0: rel, t1: liveEnd, ball: ballAt, topSpeed: top, accelMs: accel, leadMs: pursuitLead(s.id), turnDegPerS: pursuitTurn(s.id), ring, brakeYards: M.pursuit.brakeYards, keyMs: step, lateral: latOf(s.id), ringAt: flightR(ring) }),
+            );
+          }
+          pursueAtOf.set(s.id, pos === "DL" ? rel : null);
+          // The ring may have released him before his own read: the delay applied is what he waited.
+          if (pos === "DL") delayOf.set(s.id, rel - releaseT);
+          const R1 = side === "X" ? ring : 1.5;
+          const free = atThrow(ks);
+          return { keys: ringFix(free, ringBallRaw, R1, snapWindowEnd, liveEnd, "sideways", side === "O" ? -1 : 1, flightR(R1)), free, ring: { R: R1, to: side === "X" ? liveEnd + M.settleMs : liveEnd, sideways: true }, pathEnd: Math.min(rel, engageEnd), lineman };
+        }
+        const { ks, readFor } = krPlan?.keys.get(s.id) ?? unnamedTrack(s, side, set, at0, start, top, accel);
+        const R0 = side === "X" ? ring : krCoverR(s.id);
+        const free = atThrow(ks);
+        return { keys: ringFix(free, ringBallRaw, R0, snapWindowEnd, liveEnd, "radial", side === "O" ? -1 : 1, flightR(R0)), free, ring: { R: R0, to: side === "X" ? liveEnd + M.settleMs : liveEnd, sideways: false }, pathEnd: Math.min(readFor, liveEnd), lineman };
+      };
+      /**
+       * PR6: the engine's tackler, with the rating his reaction reads, is his unnamed self (kept off
+       * the ball as that self is, a DL released when that self releases) until he departs, at the
+       * read + his delay. The candidates for the delay are his readMs, then the key grid below it;
+       * the largest that qualifies is used. One qualifies when his leg from there to the tackle has a
+       * mean and a peak speed at or under TOP_SHARE x his own top (N1, and not anchor-demanded, NM3),
+       * on the built keys and as natural motion draws them, with convergeMs left, and when that
+       * unnamed self has not begun to slow for the whistle (NM8), so the two are one drawing until he
+       * leaves (NM2). When none qualifies he leaves at the read, as before. He is bounded by his
+       * anchor, never the reverse, and by the ball's ring: no candidate is later than the key before
+       * it would first push that unnamed self after the read. Null without the rating: he is drawn
+       * exactly as before.
+       */
+      const selfTackle = (): { keys: Key[]; self: Key[]; selfRing: { R: number; to: number; sideways: boolean }; cut: number; delay: number; ring: { R: number; to: number; sideways: boolean }; settleAt: number } | null => {
+        if (ownRating(s.id, SC.by.read) === undefined) return null;
+        const self = unnamedSelf();
+        // He departs no later than the key before the ball's ring would first push his unnamed self
+        // after the read (never before the read), so he goes to the ball without being thrown away
+        // from it first. `shove` is that pushed key: the first at or after the read where the ring
+        // has that self off his own track (ringFix keeps the keys one for one). A self the ring is
+        // already holding off at the read leaves at the read, from where it holds him.
+        const pushed = (i: number): boolean => i >= 0 && dist(self.keys[i] as Key, self.free[i] as Key) > 1e-9;
+        const i0 = self.keys.findIndex((q, i) => q.t >= read - 1e-9 && pushed(i));
+        const shove = i0 < 0 ? undefined : (self.keys[i0] as Key).t;
+        const held = i0 > 0 && pushed(i0 - 1);
+        const want = shove === undefined ? readOf(s.id) : held ? 0 : Math.min(readOf(s.id), Math.max(0, shove - step - read));
+        const from = (cut: number): Key[] => {
+          // Where he leaves from: his unnamed self there, and when the next key is the shove, that self's own track (not a point part-way into the push).
+          const src = shove !== undefined && !held && cut < shove - 1e-9 ? self.free : self.keys;
+          const head = join(self.keys.filter((q) => q.t < cut), [{ t: cut, ...at(src, cut) }]);
+          // He carries on at no more than his top: a ring push on his unnamed self just before is not his run's speed.
+          return join(head, tacklerRun(head[head.length - 1] as Key, liveEnd, Math.min(speedAt(src, cut), top / 1000)));
+        };
+        const live0 = join(self.keys.filter((q) => q.t < liveEnd - 1e-9), [{ t: liveEnd, ...at(self.keys, liveEnd) }]);
+        const settleAt = Math.min(liveEnd, Math.max(liveEnd + M.settleMs - settleWindow(live0, s.id), playDep, snapAt));
+        for (let d = want; d > 1e-9; d = d === want ? (Math.ceil(want / step - 1e-9) - 1) * step : d - step) {
+          const cut = read + d;
+          if (cut < start + step || cut > liveEnd - M.convergeMs + 1e-9 || cut > settleAt + 1e-9) continue;
+          const run = from(cut);
+          if (legMean(run, cut, liveEnd) > TOP_SHARE * top) continue;
+          const ringTo = { ...self.ring, to: cut };
+          // N1 as he is drawn: the governor's wobble rides on the run, so the built keys alone don't say.
+          if (peakFrom(run, cut) > TOP_SHARE * top || (natural && peakFrom(drawnTackle(run, cut, ringTo), cut) > TOP_SHARE * top)) continue;
+          return { keys: run, self: live0, selfRing: self.ring, cut, delay: d, ring: ringTo, settleAt };
+        }
+        const cut = Math.min(Math.max(read, start + step), liveEnd - step);
+        return { keys: from(cut), self: live0, selfRing: self.ring, cut, delay: 0, ring: { ...self.ring, to: cut }, settleAt };
+      };
+      /** A late tackler's keys as natural motion draws them (naturalPass, without a lineman's hand fight), to check his run against N1. */
+      const drawnTackle = (run: readonly Key[], cut: number, rg: { R: number; to: number; sideways: boolean }): Key[] =>
+        decorate(run.filter((q) => q.t <= liveEnd + 1e-9), {
+          keyMs: step,
+          from: snapAt,
+          live: liveEnd,
+          dep: cut,
+          top: top / 1000,
+          anchors: [...(anchorsOf.get(s.id) ?? [])].sort((a, b) => a - b),
+          blendMs: NAT.anchorBlendMs,
+          arcs: arcsOf(run),
+          wobble: { share: NAT.wobble.share, ...periodOf(s.id, "wobble", NAT.wobble.periodMinMs, NAT.wobble.periodMaxMs) },
+          offset: null,
+          idle: plan.fixed !== null ? null : { yards: NAT.idle.swayYards, ...periodOf(s.id, "idle", NAT.idle.periodMinMs, NAT.idle.periodMaxMs), minYps: NAT.idle.minYps, rampMs: NAT.idle.rampMs, from: snapAt + startAfter(s.id) + accel / 2, holds: [[cut, liveEnd + M.settleMs]] },
+          ring: { ball: (t) => (t < liveEnd ? ballAt(t) : finalBall), radius: Math.min(rg.R, NAT.flightRingYards), heldRadius: rg.R, from: snapWindowEnd, to: rg.to, sideways: rg.sideways, flights },
+          settleFrom: Infinity,
+          demanded: [],
+        });
       const fact = factKeys.get(s.id);
       const target = plan.target !== null && plan.target.id === s.id ? plan.target : null;
       const missTarget = missOut?.target ?? null;
@@ -2257,12 +2581,16 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         const krSet = side === "X" ? krPlan?.setup.get(s.id) : undefined;
         let raw = krSet !== undefined ? [...krSet] : lineman ? join(at0, linemanSteps(s, side, setPts, set, start, top, accel, contactFamily as string).engaged) : join(at0, side === "O" ? trackOf(s.id, snapAt, k, liveEnd, stalkOf).keys : defenseTrack(s, set, start, liveEnd));
         // His read may come after an unnamed man's pursuit has begun (a recoverer): pursue the same way until it.
-        const pFrom = lineman ? (pos === "DL" ? releaseT : Infinity) : side === "X" ? Math.max(start + 4 * step, read + reactOf(s.id)) : Infinity;
-        if (pFrom < Math.min(T(conv.read), liveEnd - 3 * step)) {
+        const pFrom = lineman ? (pos === "DL" ? relOf(s.id) : Infinity) : side === "X" ? Math.max(start + 4 * step, read + readOf(s.id)) : Infinity;
+        // PR15: his read's delay applies only when his unnamed pursuit starts before his own departure.
+        const pursues = pFrom < Math.min(T(conv.read), liveEnd - 3 * step);
+        pursueAtOf.set(s.id, pursues ? pFrom : null);
+        delayOf.set(s.id, pursues ? (lineman ? pFrom - releaseT : readOf(s.id)) : 0);
+        if (pursues) {
           const p0 = at(raw, pFrom);
           raw = join(
             raw.filter((q) => q.t <= pFrom),
-            pursue({ start: p0, vel: velocity(raw, pFrom, step), t0: pFrom, t1: liveEnd, ball: ballAt, topSpeed: top, accelMs: accel, leadMs: M.pursuit.leadMs, turnDegPerS: M.pursuit.turnDegPerS, ring, brakeYards: M.pursuit.brakeYards, ...(lineman ? {} : { corridor: { half: M.pursuit.corridorHalfYards, ms: M.pursuit.corridorMs } }), keyMs: step, lateral: latOf(), ringAt: flightR(ring) }),
+            pursue({ start: p0, vel: velocity(raw, pFrom, step), t0: pFrom, t1: liveEnd, ball: ballAt, topSpeed: top, accelMs: accel, leadMs: pursuitLead(s.id), turnDegPerS: pursuitTurn(s.id), ring, brakeYards: M.pursuit.brakeYards, ...(lineman ? {} : { corridor: { half: M.pursuit.corridorHalfYards, ms: M.pursuit.corridorMs, ease: side === "X" && ownRating(s.id, SC.by.read) !== undefined } }), keyMs: step, lateral: latOf(s.id), ringAt: flightR(ring) }),
           );
         }
         // Natural motion: the raw keys keep the ring push; the governor smooths it and slides along the ring (NM6).
@@ -2324,6 +2652,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
           last = keys[keys.length - 1] as Key;
           keys = join(keys, tacklerRun(last, liveEnd, speedAt(keys, cut)));
           legStops.set(s.id, [cut]);
+          pursueAtOf.set(s.id, cut);
         } else if (s.id === sacker || (sacker !== null && s.id === parts.passer)) {
           // The sacker stays on the QB he brought down (Joseph's playtest: he used to bounce off to the
           // ring), and the sacked QB stays down where he was hit, even when someone else recovers his fumble.
@@ -2332,41 +2661,43 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         else if (last.t > liveEnd) keys = join(keys.filter((q) => q.t < liveEnd), [{ t: liveEnd, ...at(keys, liveEnd) }]);
       } else if (s.id === tackler) {
         isFact = true;
-        // Until the read he does what he would unnamed: a lineman his line steps, others their template.
-        const lineman = (pos === "OL" || pos === "DL") && contactFamily !== null;
-        const dk = lineman ? linemanSteps(s, side, setPts, set, start, top, accel, contactFamily as string).engaged : side === "O" ? trackOf(s.id, snapAt, k, liveEnd).keys : defenseTrack(s, set, start, liveEnd);
-        const cut = Math.min(Math.max(read, start + step), liveEnd - step);
-        const drop = join(dk.filter((q) => q.t < cut), [{ t: cut, ...at(dk, cut) }]);
-        keys = join(at0, drop, tacklerRun(drop[drop.length - 1] as Key, liveEnd, speedAt(dk, cut)));
-        depOf.set(s.id, cut);
-        legStops.set(s.id, [cut]);
+        const own = selfTackle();
+        if (own !== null) {
+          // PR6: his unnamed self, kept off the ball as that self is, until his own departure.
+          keys = own.keys;
+          depOf.set(s.id, own.cut);
+          legStops.set(s.id, [own.cut]);
+          ringOf.set(s.id, own.ring);
+          selfUntil.set(s.id, { settleAt: own.settleAt, keys: own.self, ring: own.selfRing });
+          pursueAtOf.set(s.id, own.cut);
+          delayOf.set(s.id, own.delay);
+        } else {
+          // Until the read he does what he would unnamed: a lineman his line steps, others their template.
+          const lineman = (pos === "OL" || pos === "DL") && contactFamily !== null;
+          const dk = lineman ? linemanSteps(s, side, setPts, set, start, top, accel, contactFamily as string).engaged : side === "O" ? trackOf(s.id, snapAt, k, liveEnd).keys : defenseTrack(s, set, start, liveEnd);
+          const cut = Math.min(Math.max(read, start + step), liveEnd - step);
+          const drop = join(dk.filter((q) => q.t < cut), [{ t: cut, ...at(dk, cut) }]);
+          keys = join(at0, drop, tacklerRun(drop[drop.length - 1] as Key, liveEnd, speedAt(dk, cut)));
+          depOf.set(s.id, cut);
+          legStops.set(s.id, [cut]);
+          pursueAtOf.set(s.id, cut);
+          delayOf.set(s.id, 0);
+        }
       } else {
-        const lineman = (pos === "OL" || pos === "DL") && contactFamily !== null;
-        if (lineman) {
-          const { engaged, engageEnd } = linemanSteps(s, side, setPts, set, start, top, accel, contactFamily);
-          let ks = join(at0, engaged);
-          if (pos === "DL" && releaseT < liveEnd - 3 * step) {
-            const p = at(ks, releaseT);
-            ks = join(
-              ks.filter((q) => q.t <= releaseT),
-              pursue({ start: p, vel: velocity(ks, releaseT, step), t0: releaseT, t1: liveEnd, ball: ballAt, topSpeed: top, accelMs: accel, leadMs: M.pursuit.leadMs, turnDegPerS: M.pursuit.turnDegPerS, ring, brakeYards: M.pursuit.brakeYards, keyMs: step, lateral: latOf(), ringAt: flightR(ring) }),
-            );
-          }
-          keys = ringFix(atThrow(ks), ringBallRaw, side === "X" ? ring : 1.5, snapWindowEnd, liveEnd, "sideways", side === "O" ? -1 : 1, flightR(side === "X" ? ring : 1.5));
-          ringOf.set(s.id, { R: side === "X" ? ring : 1.5, to: side === "X" ? liveEnd + M.settleMs : liveEnd, sideways: true });
+        // An unnamed mark. A lineman steps to contact, holds and (a DL) releases. Everyone else runs
+        // his route or drop to the read, then flows to the ball; a stalk block holds to the whistle.
+        // On a kickoff return the return unit sets its wall and blocks, and blocked coverage holds
+        // its block (krPlan).
+        const self = unnamedSelf();
+        keys = self.keys;
+        ringOf.set(s.id, self.ring);
+        if (self.lineman) {
           const namedLineman = named.has(s.id) || (parts.foulers ?? []).includes(s.id);
-          pathEnd = namedLineman ? liveEnd : Math.min(releaseT, engageEnd);
+          pathEnd = namedLineman ? liveEnd : self.pathEnd;
           push({ ...base, keys: settleOf(keys, side, s.id), fact: false, pathEnd, pathStyle: side === "O" ? "block" : "none" });
           return;
         }
-        // Routes and drops to the read, then everyone flows to the ball; a stalk block holds to the
-        // whistle. On a kickoff return the return unit sets its wall and blocks, and blocked coverage
-        // holds its block (krPlan).
-        const { ks, readFor } = krPlan?.keys.get(s.id) ?? unnamedTrack(s, side, set, at0, start, top, accel);
-        const R0 = side === "X" ? ring : krCoverR(s.id);
-        keys = ringFix(atThrow(ks), ringBallRaw, R0, snapWindowEnd, liveEnd, "radial", side === "O" ? -1 : 1, flightR(R0));
-        ringOf.set(s.id, { R: R0, to: side === "X" ? liveEnd + M.settleMs : liveEnd, sideways: false });
-        pathEnd = Math.min(readFor, liveEnd);
+        pathEnd = self.pathEnd;
       }
       // Named players keep their whole path: the roles the engine credited and the fouling players.
       const named0 = named.has(s.id) || s.id === tackler || (parts.foulers ?? []).includes(s.id);
@@ -2401,7 +2732,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     return r;
   }
 
-  function linemanSteps(s: OnFieldSlot, side: "O" | "X", setPts: readonly Pt[], set: Pt, start: number, top: number, accel: number, family: string): { engaged: Key[]; contact: Pt; engageEnd: number } {
+  function linemanSteps(s: OnFieldSlot, side: "O" | "X", setPts: readonly Pt[], set: Pt, start: number, top: number, accel: number, family: string, until?: number): { engaged: Key[]; contact: Pt; engageEnd: number } {
     const pos = s.position;
     void setPts;
     void accel;
@@ -2421,7 +2752,8 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     const L0 = dist(contact, hold);
     const L = L0 < 1e-9 ? M.sit.blockMaxYards : L0;
     const dir = L0 < 1e-9 ? { x: 0, y: 1 } : { x: (hold.x - contact.x) / L0, y: (hold.y - contact.y) / L0 };
-    const holdEnd = Math.max(engageEnd + 2 * step, pos === "DL" ? Math.min(releaseT, liveEnd) : liveEnd);
+    // A DL's hold ends at his release (`until` when the caller is still working that out).
+    const holdEnd = Math.max(engageEnd + 2 * step, pos === "DL" ? Math.min(until ?? relOf(s.id), liveEnd) : liveEnd);
     const v0 = ((family === "pass" ? M.pocket.pace : M.sit.pace) * topPair) / 1000;
     // NM7: the set or drift is eased (smoothstep over the time it takes at that pace, its peak speed
     // the pace), not hyperbolic; the hand fight goes on top of it in the governor.
@@ -2461,18 +2793,76 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     return { lm, manSpot, dropsName, steps, rusher };
   }
 
+  /** His read step from the calls; on play action (the bite) its offsets are scaled by his own share (PR7), or by `share` when given. */
+  function readStepOf(s: OnFieldSlot, share?: number): Route | undefined {
+    const route = lookup(templates.readStep[family], [s.position]);
+    if (route === undefined || family !== "playAction") return route;
+    const f = 1 + (share ?? biteShareOf(s.id));
+    return { ...route, pts: route.pts.map((w) => ({ ...w, p: [w.p[0] * f, w.p[1] * f] as const })) };
+  }
+
+  /**
+   * PR7's recovery is his drop from where the bite left him. When his own larger bite already took him
+   * as far as that drop (a run front's drop is downhill too), there is none left to run: he goes
+   * straight on to his assignment rather than back to the drop's spot first.
+   */
+  function biteTookDrop(s: OnFieldSlot, set: Pt, bite: readonly FieldWp[], drop: readonly FieldWp[]): boolean {
+    const b = bite[bite.length - 1]?.p;
+    const d = drop[drop.length - 1]?.p;
+    if (family !== "playAction" || b === undefined || d === undefined || biteShareOf(s.id) <= 0) return false;
+    const L = dist(set, d);
+    return L > 1e-9 && ((b.x - set.x) * (d.x - set.x) + (b.y - set.y) * (d.y - set.y)) / L >= L;
+  }
+
+  /** The turn at b on the way from a to c, in degrees. */
+  function turnDeg(a: Pt, b: Pt, c: Pt): number {
+    const n = dist(a, b) * dist(b, c);
+    return n < 1e-9 ? 0 : (Math.acos(Math.max(-1, Math.min(1, ((b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y)) / n))) * 180) / Math.PI;
+  }
+
+  /** The receiver a man defender trails, from his man spot. */
+  function manReceiver(manSpot: Pair): string | undefined {
+    return nearestReceiver({ x: MID_X + manSpot[0], y: los - manSpot[1] });
+  }
+
+  /** The slice 2 fields of his test record (PR15), from his id, the calls and ratings: never from what the play made of him. */
+  function reactBeforeRead(id: string): Pick<NonNullable<MarkNat["react"]>, "stalkOf" | "manLagMs" | "cushionYards" | "stalkLagMs" | "biteShare" | "breakPaceShare"> {
+    const sl = slotOf.get(id) as OnFieldSlot & { side: "O" | "X"; index: number };
+    // The QB runs fact legs and a lineman his step to contact: neither breaks on a route.
+    if (sl.position === "QB" || sl.position === "OL" || sl.position === "DL") return { stalkOf: null };
+    const breakPaceShare = breakShareOf(id);
+    if (sl.side === "O") {
+      const man = routeFor(sl)?.finish === "stalk" ? stalkTarget(id)?.id : undefined;
+      return { stalkOf: man ?? null, ...(man === undefined ? {} : { stalkLagMs: stalkLagOf(id) }), breakPaceShare };
+    }
+    const { manSpot, dropsName, rusher } = coverPlan(sl, startOf.get(id) as Pt);
+    const rcv = manSpot === undefined ? undefined : manReceiver(manSpot);
+    return {
+      stalkOf: null,
+      ...(rcv === undefined ? {} : { manLagMs: manLagOf(id, rcv), cushionYards: manCushionOf(id, dropsName) }),
+      ...(family === "playAction" && !rusher && readStepOf(sl) !== undefined ? { biteShare: biteShareOf(id) } : {}),
+      breakPaceShare,
+    };
+  }
+
   function defenseTrack(s: OnFieldSlot, set: Pt, t0: number, horizon: number): Key[] {
     const pos = s.position;
     const top = topOf(s.id) / k;
     const accel = accOf(s.id);
     const { lm, manSpot, dropsName, steps, rusher } = coverPlan(s, set);
-    const readStep = scrimmage && !rusher && pos !== "DL" ? place(set, lookup(templates.readStep[family], [pos])) : [];
-    const wps: FieldWp[] = [...readStep, ...steps];
+    const readStep = scrimmage && !rusher && pos !== "DL" ? place(set, readStepOf(s)) : [];
+    const wps: RouteWp[] = [...readStep, ...(biteTookDrop(s, set, readStep, steps) ? [] : steps)];
     if (lm !== undefined) wps.push({ p: lm.at, pauseMs: 0, pace: 1 });
+    // A bite scaled by his rating keeps the kind of every break it turns into (round or sharp) as the
+    // step's own, so a deeper bite is not cut off by a break that flips kind with his rating.
+    if (readStep.length > 0 && family === "playAction" && ownRating(s.id, SC.by.bite) !== undefined) {
+      const plain = [set, ...place(set, readStepOf(s, 0)).map((w) => w.p), ...wps.slice(readStep.length).map((w) => w.p)];
+      for (let i = 0; i + 2 < plain.length; i++) wps[i] = { ...(wps[i] as RouteWp), sharp: turnDeg(plain[i] as Pt, plain[i + 1] as Pt, plain[i + 2] as Pt) > M.fillet.sharpDeg };
+    }
     // Defensive backs always backpedal at least a little; nobody stands still.
     if (wps.length === 0) wps.push({ p: { x: set.x, y: Math.min(bounds.maxY, set.y + 2) }, pauseMs: 0, pace: 1 });
     const endPace = lm !== undefined ? M.zoneDrift.pace : M.sit.pace;
-    const r = runRoute(set, wps, t0, { top, pace: 1, endPace, accelMs: accel, decelMs: M.decelMs, keyMs: step, fillet: M.fillet, pause: M.sit, smoothMs: NAT.smoothMs });
+    const r = runRoute(set, wps, t0, { top, pace: 1, endPace, accelMs: accel, decelMs: M.decelMs, keyMs: step, fillet: ownFillet(s.id), pause: M.sit, smoothMs: NAT.smoothMs });
     const head = join([{ t: snapAt, ...set }, { t: t0, ...set }], r.keys);
     if (horizon <= r.end) return underBackLine(head, set);
     const vel = { x: r.dir.x * r.speed, y: r.dir.y * r.speed };
@@ -2500,12 +2890,13 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     }
     if (manSpot !== undefined) {
       // Man trail: his receiver's template, a reaction lag behind, with cushion over the top, holding his depth until the receiver gets to it.
-      const rcv = nearestReceiver({ x: MID_X + manSpot[0], y: los - manSpot[1] });
+      const rcv = manReceiver(manSpot);
       if (rcv !== undefined) {
-        const cushion = dropsName === "blitz" ? M.man.pressCushionYards : M.man.cushionYards;
+        const cushion = manCushionOf(s.id, dropsName);
+        const lag = manLagOf(s.id, rcv);
         const holdY = r.at.y;
         const trail = (t: number): Pt => {
-          const q = at(tpl(rcv), t - M.man.lagMs);
+          const q = at(tpl(rcv), t - lag);
           return { x: Math.max(bounds.margin, Math.min(FIELD_WIDTH - bounds.margin, q.x)), y: Math.min(bounds.maxY, Math.max(q.y + cushion, holdY)) };
         };
         return underBackLine(join(head, follow({ start: r.at, vel, t0: r.end, t1: horizon, target: trail, top, accelMs: accel, brakeYards: M.pursuit.brakeYards, keyMs: step })), set);
@@ -2925,15 +3316,16 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     const top = topOf(x.id) / k;
     const accel = accOf(x.id);
     const lineman = x.position === "DL" && contactFamily !== null;
-    const keys = lineman ? linemanSteps(x, "X", defStart, set, start, top, accel, contactFamily as string).engaged : cover(x);
-    const t0 = lineman ? releaseT : Math.max(start + 4 * step, read + reactOf(x.id));
-    if (t0 >= tCatch - 1e-9) return at(keys, tCatch);
     // The ball as it will be drawn: the flight to P, then its roll on along the flight.
     const L = dist(from, P);
     const F = L < 1e-9 ? P : { x: P.x + ((P.x - from.x) / L) * M.miss.rollYards, y: P.y + ((P.y - from.y) / L) * M.miss.rollYards };
     const tRoll = tCatch + M.miss.rollMs * k;
     const fly = (t: number): Pt => (t <= tThrow ? ballPre(t) : t <= tCatch ? { x: from.x + ((P.x - from.x) * (t - tThrow)) / (tCatch - tThrow), y: from.y + ((P.y - from.y) * (t - tThrow)) / (tCatch - tThrow) } : t <= tRoll ? { x: P.x + ((F.x - P.x) * (t - tCatch)) / (tRoll - tCatch), y: P.y + ((F.y - P.y) * (t - tCatch)) / (tRoll - tCatch) } : F);
-    const chase = pursue({ start: at(keys, t0), vel: velocity(keys, t0, step), t0, t1: tCatch, ball: fly, topSpeed: top, accelMs: accel, leadMs: M.pursuit.leadMs, turnDegPerS: M.pursuit.turnDegPerS, ring, brakeYards: M.pursuit.brakeYards, ...(lineman ? {} : { corridor: { half: M.pursuit.corridorHalfYards, ms: M.pursuit.corridorMs } }), keyMs: step, lateral: latOf() });
+    // A lineman's release is read against this ball (the drawn one doesn't exist yet), its ring smaller in the air.
+    const t0 = lineman ? releaseWith(x.id, fly, (t) => (t > tThrow && t < tCatch ? Math.min(ring, NAT.flightRingYards) : ring)) : Math.max(start + 4 * step, read + readOf(x.id));
+    const keys = lineman ? linemanSteps(x, "X", defStart, set, start, top, accel, contactFamily as string, t0).engaged : cover(x);
+    if (t0 >= tCatch - 1e-9) return at(keys, tCatch);
+    const chase = pursue({ start: at(keys, t0), vel: velocity(keys, t0, step), t0, t1: tCatch, ball: fly, topSpeed: top, accelMs: accel, leadMs: pursuitLead(x.id), turnDegPerS: pursuitTurn(x.id), ring, brakeYards: M.pursuit.brakeYards, ...(lineman ? {} : { corridor: { half: M.pursuit.corridorHalfYards, ms: M.pursuit.corridorMs, ease: ownRating(x.id, SC.by.read) !== undefined } }), keyMs: step, lateral: latOf(x.id) });
     // Nearer of the two: chasing as drawn, or still in his coverage or block (the drawn chase eases
     // in, and the ring in flight is smaller than the one pursuit keeps).
     const c = at(chase, tCatch);
@@ -3047,15 +3439,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     void side;
     const end = liveEnd + M.settleMs;
     const live0 = join(keys.filter((q) => q.t < liveEnd - 1e-9), [{ t: liveEnd, ...at(keys, liveEnd) }]);
-    const topS = topOf(id) / k / 1000;
-    const r = Math.min(1.5, speedAt(live0, liveEnd) / Math.max(1e-9, topS));
-    // At least twice the settle, so the slow-down is under way at the whistle and a lineman's hand
-    // fight can't speed him up after it; longer for a fast mark, so he stops within his limits.
-    // A lineman still fighting at the whistle starts easing before it, so the fight can't speed him up
-    // in the settle; anyone fast too, so he stops within a decelMs-like slow-down.
-    // A kickoff return's block pair fights to the whistle too (KR5).
-    const fighting = (contactFamily !== null && (slotOf.get(id)?.position === "OL" || slotOf.get(id)?.position === "DL")) || (krPlan?.pairs.some((p) => p.blocker === id || p.coverage === id) ?? false);
-    const W = Math.max(fighting ? 2 * M.settleMs : M.settleMs, 1.1 * Math.max(1.5 * r * M.decelMs, Math.sqrt(6 * r * accOf(id) * NAT.smoothMs)));
+    const W = settleWindow(live0, id);
     let S0 = Math.min(liveEnd, Math.max(end - W, depOf.get(id) ?? playDep, ...(anchorsOf.get(id) ?? []), snapAt));
     // A1: the miss target runs his template to the whistle; A5: the breaker gets his hand to the ball first.
     if (missOut?.target !== null && missOut?.target?.id === id) S0 = liveEnd;
@@ -3065,9 +3449,56 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     return live0;
   }
 
-  /** Turns limited to the lateral acceleration (NM6), on the screen clock. */
-  function latOf(): number {
-    return NAT.lateralAccel / 1e6 / k;
+  /** How long before the settle's end a mark starts to slow (NM8), from the speed his keys have at the whistle. */
+  function settleWindow(live0: readonly Key[], id: string): number {
+    const topS = topOf(id) / k / 1000;
+    const r = Math.min(1.5, speedAt(live0, liveEnd) / Math.max(1e-9, topS));
+    // At least twice the settle, so the slow-down is under way at the whistle and a lineman's hand
+    // fight can't speed him up after it; longer for a fast mark, so he stops within his limits.
+    // A lineman still fighting at the whistle starts easing before it, so the fight can't speed him up
+    // in the settle; anyone fast too, so he stops within a decelMs-like slow-down.
+    // A kickoff return's block pair fights to the whistle too (KR5).
+    const fighting = (contactFamily !== null && (slotOf.get(id)?.position === "OL" || slotOf.get(id)?.position === "DL")) || (krPlan?.pairs.some((p) => p.blocker === id || p.coverage === id) ?? false);
+    return Math.max(fighting ? 2 * M.settleMs : M.settleMs, 1.1 * Math.max(1.5 * r * M.decelMs, Math.sqrt(6 * r * accOf(id) * NAT.smoothMs)));
+  }
+
+  /** A leg's mean speed (yd/s) from a to b along the keys, key by key (NM3). */
+  function legMean(keys: readonly Key[], a: number, b: number): number {
+    let L = 0;
+    let prev = at(keys, a);
+    for (let t = a + step; t < b + step - 1e-9; t += step) {
+      const q = at(keys, Math.min(t, b));
+      L += dist(prev, q);
+      prev = q;
+    }
+    return (L / (b - a)) * 1000;
+  }
+
+  /**
+   * The fastest he moves from `from` to the whistle (yd/s), as N1 measures it: over two keys, on the
+   * key grid, both keys at or after `from` (what he did before it is not this leg's).
+   */
+  function peakFrom(keys: readonly Key[], from: number): number {
+    let peak = 0;
+    for (let t = Math.ceil(from / step - 1e-9) * step + step; t + step <= liveEnd + 1e-9; t += step) peak = Math.max(peak, (dist(at(keys, t - step), at(keys, t + step)) / (2 * step)) * 1000);
+    return peak;
+  }
+
+  /** The designed arcs in a mark's keys, from their flags, a measuring window wide either side. */
+  function arcsOf(keys: readonly Key[]): [number, number][] {
+    const arcs: [number, number][] = [];
+    for (const q of keys)
+      if (q.arc === true) {
+        const last = arcs[arcs.length - 1];
+        if (last !== undefined && q.t - 2 * step <= last[1]) last[1] = q.t + 2 * step;
+        else arcs.push([q.t - 2 * step, q.t + 2 * step]);
+      }
+    return arcs;
+  }
+
+  /** Turns limited to the lateral acceleration (NM6), on the screen clock; with `id`, his own limit in pursuit (PR5). */
+  function latOf(id?: string): number {
+    return (NAT.lateralAccel * (1 + turnShareOf(id))) / 1e6 / k;
   }
 
   /**
@@ -3085,11 +3516,15 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
     const dls = defSlots.filter((x) => x.position === "DL" && lineInfo.has(x.id)).map((x) => x.id);
     const ols = offSlots.filter((x) => x.position === "OL" && lineInfo.has(x.id)).map((x) => x.id);
     const pairOf = new Map([...pairPre].filter(([a, b]) => lineInfo.has(a) && lineInfo.has(b)));
+    // The pair's fight ends when the line releases, or when a named DL departs (a rated tackler
+    // fought as his unnamed self until he left, PR6). PR3: a rated DL's own reaction comes after it
+    // (he holds his spot, then goes), so his blocker's motion never depends on that DL's rating.
+    const lineRel = releaseT < liveEnd - 3 * step ? releaseT : Infinity;
     const releaseOf = (id: string): number => {
       if (slotOf.get(id)?.position !== "DL") return Infinity;
       const dep = depOf.get(id);
-      if (dep !== undefined) return dep;
-      return releaseT < liveEnd - 3 * step ? releaseT : Infinity;
+      if (dep !== undefined) return selfUntil.has(id) ? Math.min(dep, lineRel) : dep;
+      return lineRel;
     };
     const fight = (hashId: string, from: number, axis: Pt, pushYards: number = L.pushYards): ((t: number) => Pt) => {
       const w = [1, 2, 3, 4].map((n) => periodOf(hashId, `line${n}`, L.periodMinMs, L.periodMaxMs));
@@ -3177,13 +3612,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
       const dep = depOf.get(id) ?? (qbHold !== undefined ? qbHold : factMark ? snapAt : playDep);
       const anchorTs = [...(anchorsOf.get(id) ?? [])].sort((a, b) => a - b);
       // Designed arcs, from the raw keys' flags, a measuring window wide either side.
-      const arcs: [number, number][] = [];
-      for (const q of m.keys)
-        if (q.arc === true) {
-          const last = arcs[arcs.length - 1];
-          if (last !== undefined && q.t - 2 * step <= last[1]) last[1] = q.t + 2 * step;
-          else arcs.push([q.t - 2 * step, q.t + 2 * step]);
-        }
+      const arcs = arcsOf(m.keys);
       // Anchor-demanded legs (NM3): from one anchor (or the departure) to the next, a mean speed over 1.15 x top.
       const demanded: { t0: number; t1: number; mean: number }[] = [];
       const stops = [...new Set([...(dep > snapAt && dep < liveEnd ? [dep] : []), ...anchorTs, ...(legStops.get(id) ?? [])])].sort((a, b) => a - b);
@@ -3191,18 +3620,14 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         const a = stops[j - 1] as number;
         const b = stops[j] as number;
         if (b - a < step) continue;
-        let L = 0;
-        let prev = at(m.keys, a);
-        for (let t = a + step; t < b + step - 1e-9; t += step) {
-          const q = at(m.keys, Math.min(t, b));
-          L += dist(prev, q);
-          prev = q;
-        }
-        const mean = (L / (b - a)) * 1000;
-        if (mean > 1.15 * topS) demanded.push({ t0: a, t1: b, mean });
+        const mean = legMean(m.keys, a, b);
+        if (mean > TOP_SHARE * topS) demanded.push({ t0: a, t1: b, mean });
       }
       const hm = holdMark(id);
       const S0 = hm ? Infinity : (settleFromOf.get(id) ?? Infinity);
+      // PR6: when a rated tackler's unnamed self would start to slow before he leaves, else null.
+      const self = selfUntil.get(id);
+      const selfSlow = self !== undefined && self.settleAt < dep - 1e-9 ? self.settleAt : null;
       // No sway on a kneel or spike; the tackler, the sacker and the sacked QB stop swaying from their
       // departure (before it each is his unnamed self, sway included: R-C9).
       const exemptIdle = plan.fixed !== null;
@@ -3210,6 +3635,7 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
       const noSway: [number, number][] = [...(holdsOf.get(id) ?? [])];
       // Engaged, the hand fight moves him; once the fight has faded out the idle sway may.
       if (eng !== undefined) noSway.push([eng.from - 4 * step, eng.to + NAT.line.rampMs]);
+      const selfSway = [...noSway];
       if (id === tackler || id === sacker || (sacker !== null && id === parts.passer)) noSway.push([dep, end]);
       // QD2 and R-C28 (code review 2026-11-16): after a plant throw he finishes his stop at his drop
       // point with no sway through his follow-through, and on a pass or a sack the QB never wobbles while
@@ -3225,7 +3651,8 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
       const nat: MarkNat = {
         top: topOf(id),
         accelMs: accMs,
-        reactionMs: reactOf(id),
+        // PR3: on a scrimmage play, with the rating, his scheduled reaction is his own read.
+        reactionMs: ownRating(id, SC.by.read) === undefined ? reactOf(id) : readOf(id),
         startSpreadMs: startSpread(id),
         k,
         dep,
@@ -3234,16 +3661,16 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         demanded,
         settleFrom: S0,
         ...(eng === undefined ? {} : { engaged: eng }),
+        // PR15: an unnamed mark's delay is his read; a named one's is what was applied to him.
+        ...(scrimmage ? { react: { readMs: readOf(id), delayMs: delayOf.get(id) ?? (m.fact ? 0 : readOf(id)), pursueAt: pursueAtOf.get(id) ?? null, vary: varyOf(id, "vary:read"), leadMs: pursuitLead(id), turnShare: turnShareOf(id), lateralAccel: NAT.lateralAccel * (1 + turnShareOf(id)), ...reactBeforeRead(id) } } : {}),
       };
       // NM8: the settle on the drawn keys: the holder, tackler and sacker stand still; everyone else
       // runs on settleClock from S0, so he eases to rest and never speeds up.
-      const settled = (ks: readonly Key[]): Key[] => {
-        if (hm || !Number.isFinite(S0)) return hold([...ks]);
-        const w = settleWarp(ks.filter((q) => q.t <= liveEnd + 1e-9), S0, end, step, liveEnd, M.settleMaxYards);
+      // Contract 3 holds while he slows before the whistle, the ball still moving: off the ring if need be.
+      const offRing = (w: Key[], from: number, to: number): Key[] => {
         if (rg === undefined) return w;
-        // Contract 3 holds while he slows before the whistle, the ball still moving: off the ring if need be.
         return w.map((q) => {
-          if (q.t < S0 || q.t >= liveEnd) return q;
+          if (q.t < from || q.t >= to) return q;
           const b = ringBall(q.t);
           const R = inFlight(q.t) ? Math.min(rg.R, NAT.flightRingYards) : rg.R;
           const d = dist(q, b);
@@ -3257,6 +3684,26 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
           const u = d < 1e-9 ? { x: q.x <= b.x ? -1 : 1, y: 0 } : { x: (q.x - b.x) / d, y: (q.y - b.y) / d };
           return { ...q, x: clampX(b.x + u.x * R), y: b.y + u.y * R };
         });
+      };
+      // PR6: a rated tackler who leaves at the read after his unnamed self had begun to slow for the
+      // whistle (a tackle right at the catch) slowed with it until then, on the same settle clock and
+      // off the same ring, so the two are one drawing until he leaves. The small lag that leaves him
+      // with is eased out over his run and is gone before the tackle.
+      const asSelf = (ks: Key[]): Key[] => {
+        if (selfSlow === null) return ks;
+        const w = settleWarp(ks.filter((q) => q.t <= dep + 1e-9), selfSlow, end, step);
+        const here = at(ks, dep);
+        const there = at(w, dep);
+        const B = Math.max(step, Math.min(NAT.anchorBlendMs, liveEnd - dep));
+        const run = ks.filter((q) => q.t >= dep - 1e-9).map((q) => {
+          const f = 1 - smoothstepT((q.t - dep) / B);
+          return { ...q, x: q.x + (there.x - here.x) * f, y: q.y + (there.y - here.y) * f };
+        });
+        return join(offRing(w.filter((q) => q.t < dep - 1e-9), selfSlow, dep), run);
+      };
+      const settled = (ks: readonly Key[]): Key[] => {
+        if (hm || !Number.isFinite(S0)) return hold(asSelf([...ks]));
+        return offRing(settleWarp(ks.filter((q) => q.t <= liveEnd + 1e-9), S0, end, step, liveEnd, M.settleMaxYards, ownRating(id, SC.by.read) !== undefined), S0, liveEnd);
       };
       // An incompletion (A1, A5): the target is drawn from his decorated template track (resolveMiss
       // placed the ball off it) with his reach added on top; the breaker is his decorated unnamed self
@@ -3273,7 +3720,8 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         out[i] = breakerHere ? asBreaker(m.keys) : { ...m, keys: settled(m.keys), nat };
         continue;
       }
-      const g = decorate(m.keys.filter((q) => q.t <= liveEnd + 1e-9), {
+      const ringWith = (r: { readonly R: number; readonly to: number; readonly sideways: boolean }): DecorateOpts["ring"] => ({ ball: ringBall, radius: Math.min(r.R, NAT.flightRingYards), heldRadius: r.R, from: snapWindowEnd, to: r.to, sideways: r.sideways, flights });
+      const opts: DecorateOpts = {
         keyMs: step,
         from: snapAt,
         live: liveEnd,
@@ -3285,10 +3733,21 @@ function drawCore(input: TimelineInput, templates: Templates, ctx: TimelineCtx, 
         wobble: { share: NAT.wobble.share, ...periodOf(id, "wobble", NAT.wobble.periodMinMs, NAT.wobble.periodMaxMs) },
         offset: offset.get(id) ?? null,
         idle: exemptIdle ? null : { yards: NAT.idle.swayYards, ...periodOf(id, "idle", NAT.idle.periodMinMs, NAT.idle.periodMaxMs), minYps: NAT.idle.minYps, rampMs: NAT.idle.rampMs, from: snapAt + startAfter(id) + accMs / 2, holds: noSway },
-        ring: rg === undefined ? null : { ball: ringBall, radius: Math.min(rg.R, NAT.flightRingYards), heldRadius: rg.R, from: snapWindowEnd, to: rg.to, sideways: rg.sideways, flights },
-        settleFrom: S0,
+        ring: rg === undefined ? null : ringWith(rg),
+        settleFrom: selfSlow ?? S0,
         demanded: demanded.map((d) => [d.t0, d.t1] as const),
-      });
+      };
+      let g = decorate(m.keys.filter((q) => q.t <= liveEnd + 1e-9), opts);
+      if (self !== undefined) {
+        // PR6: until OWN_PATH_MS before his departure a rated tackler is drawn from his unnamed self's own
+        // keys, so nothing of his run (a wobble that reads a few ms ahead, a ring that ends at his
+        // departure) is drawn before that. Inside it he is drawn from his own, so he is not shoved with
+        // that self by a ring he is about to run through (Joseph, 2026-11-24).
+        const from = dep - OWN_PATH_MS;
+        const idle = opts.idle === null ? null : { ...opts.idle, holds: selfSway };
+        const gs = decorate(self.keys, { ...opts, dep: playDep, anchors: [], arcs: arcsOf(self.keys), idle, ring: ringWith(self.ring), settleFrom: self.settleAt, demanded: [] });
+        g = join(gs.filter((q) => q.t < from - 1e-9), [{ t: from, ...at(gs, from) }], g.filter((q) => q.t > from + 1e-9));
+      }
       // KR6: the kick returner's drawn keys keep his cut arcs' flags (only his: every other mark is drawn as before).
       const arcT = id === krReturner ? new Set(m.keys.filter((q) => q.arc === true).map((q) => Math.round(q.t * 1000))) : null;
       const gk = arcT === null || arcT.size === 0 ? g : g.map((q) => (arcT.has(Math.round(q.t * 1000)) ? { ...q, arc: true as const } : q));
