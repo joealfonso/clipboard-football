@@ -122,6 +122,30 @@ Source: 2026 Official Playing Rules of the National Football League, Rule 5, Sec
 
 Eligibility: eligible pass receivers and a T-formation quarterback must wear 0-49 or 80-89. Every other number is worn by an ineligible player unless he reports a change of position (Rule 5, Section 3, Article 1). A player who moves between an eligible and an ineligible position during his career must get a new number; a move within the eligible group or within the ineligible group needs no change if he has played at least one season at his position. Duplicates and other deviations are allowed only in the preseason; the scheme applies to every player in the regular season and postseason, and clubs must put a retired number back in circulation if needed to comply. Requests for a position not listed go to the Commissioner. The rule cross-references Rule 5, Section 4, Article 3, Item 3 for how numerals are worn.
 
+## Field dimensions
+
+Source: 2026 Official Playing Rules of the National Football League, Rule 1, Sections 1 and 2, https://operations.nfl.com/rules-officiating/2026-nfl-rulebook (PDF at https://static.www.nfl.com/image/upload/fl_attachment/league/tqivdkzt9mu6wdgsh1ku.pdf, PDF page 8), season 2026, checked 2026-11-24 (M3 playbook spec, B0). Status: confirmed.
+
+- Length and width: the field is a rectangle 360 feet long, end line to end line, and 160 feet wide, sideline to sideline (Rule 1, Section 1, Article 1). 160 feet is 53 1/3 yards.
+- End zones: the goal lines are 10 yards inside the end lines (Rule 1, Section 1, Article 1), so the field of play between them is 100 yards long. The depth is `field.endZoneYards` in the rule set file.
+- Where it is measured: from the inside edges of the boundary lines. The inside edge of the end line is 30 feet from the goal line (Rule 1, Section 2, Article 3).
+- Hash marks: the inbounds lines are 70 feet 9 inches in from each sideline (Rule 1, Section 2, Article 2, Item 1), which leaves 18 feet 6 inches between them.
+
+The width has no leaf in the rule set file. `data/plays/config.json` stores it as `field.widthFeet`, 160, the rule's value, and `field.widthYards` is derived as 160 / 3 when the file is parsed, so its status is confirmed.
+
+## Eligible pass receivers
+
+Source: 2026 Official Playing Rules of the National Football League, Rules 3, 5, 7 and 8 as cited on each line, https://operations.nfl.com/rules-officiating/2026-nfl-rulebook (PDF at https://static.www.nfl.com/image/upload/fl_attachment/league/tqivdkzt9mu6wdgsh1ku.pdf, PDF pages 17, 23, 24, 35, 38 and 39), season 2026, checked 2026-11-24 (M3 playbook spec, B0). Status: confirmed. The rule goes by where a player lines up and his number, not by the position he plays.
+
+- Who may catch a forward pass thrown from behind the line, on offense: a player on either end of the line, or a player "legally at least one yard behind the line at the snap", if he has an eligible number (0-49 or 80-89) or has reported for that position (Rule 8, Section 1, Article 5 (b) and (c)). Every defender is eligible, and every offensive player becomes eligible once a defender or an eligible receiver touches the ball (Rule 8, Section 1, Article 5 (a) and (d)).
+- Who may not: anyone else on offense, including a player neither on an end of the line nor a yard behind it, one who should have reported and did not, and an eligible receiver who went out of bounds on his own or was legally forced out (Rule 8, Section 1, Article 6 (a) to (c)). A receiver forced out by a foul stays eligible if he tries to return at once and gets back in bounds (Rule 8, Section 1, Article 5 (e)).
+- Formation: at least seven on the line, eligible receivers on both ends of it, and only ineligible receivers between them (Rule 7, Section 5, Article 1 (a) and (b)).
+- Reporting: a player with an ineligible number (50-79 or 90-99) may line up at an eligible position if he reports to the Referee, again before every play while he stays in (Rule 5, Section 3, Article 1).
+- Quarterback: a T-formation quarterback, one aligned a yard or less behind the snapper (Rule 3, Section 42), is ineligible unless before the snap he legally moves to the end of the line or at least a yard behind it and is still there for a full second (Rule 8, Section 1, Article 6 (d)). The articles name no other quarterback, so one lined up deeper falls under Article 5 (c) and is eligible: quarterbacks wear 0-19 (Rule 5, Section 1, Article 2).
+- Downfield: an ineligible player, a T-formation quarterback included, may not be wholly more than one yard past the line before the pass is thrown, except as blocking allows (Rule 8, Section 3, Article 1).
+
+For the game's positions on a normal scrimmage play: RB, WR and TE may run a route when on an end of the line or at least a yard behind it. OL (50-79) may not unless he reports. QB may not under center, and may from a yard or more back. `data/plays/config.json` `eligibility` agrees on RB, WR, TE and OL (the game has no reporting). Barring every QB through `neverDrawn` is a designed restriction, stricter than the rule for a quarterback a yard or more back, and is labeled so there, so its status is confirmed.
+
 ## Penalties
 
 The table holds enough real penalties to exercise every enforcement mechanic, plus the fouls the play engine emits most often (M1 step 4 added offensive pass interference, illegal contact and live-ball unnecessary roughness, cited below from the 2026 rulebook text on operations.nfl.com). Real fouls outside the table are not emitted; docs/ENGINE_REPORT.md reports their rate and yards. Fouls whose yardage would carry to the next try or kickoff (Rule 14-2-3, 11-3-3, 14-4-9 Exc.) are not supported: the offended team chooses between the play's result and customary enforcement.

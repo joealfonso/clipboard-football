@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "Designed (M4 milestone A). The fictional league's shape and names: two conferences, each with the same four divisions of four teams, and the title game. All names are designed and fictional, and Joseph can change them here. Teams are 32 of the names in data/teams/names.json, picked and placed into divisions by a seeded shuffle, with ids T00 to T31 in conference, division, place order. The shape follows the NFL's (32 teams in two conferences of four divisions of four; NFL Football Operations, Creating the NFL Schedule, https://operations.nfl.com/gameday/nfl-schedule/creating-the-nfl-schedule/, read 2026-11-23).",
+  "conferences": [
+    { "id": "founders", "name": "Founders Conference" },
+    { "id": "frontier", "name": "Frontier Conference" }
+  ],
+  "divisions": ["North", "South", "East", "West"],
+  "teamsPerDivision": 4,
+  "titleGame": "Clipboard Cup",
+  "placement": "seededShuffle"
+}

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "Designed (M4 milestone A, revised 2026-11-24), tuned on simulated leagues only. The draft pool. Size per position is ceil(teams x target x (1 + surplus)), so the last rounds still have choices. One distribution per position: with x a draw from the curve in data/players/ratings.json and m the engine league mean of the position and rating, a rating is round(m + scale x (x - m) + offset), clamped to floor and 99. adjust lists only ratings the position overall weighs (data/ui/templates.json overallWeights); any other rating is the plain draw. The same adjust applies to every player at the position, and the board shows the ratings the engine uses. standoutCentering replaces the centering in data/engine/standouts.json in a franchise only (franchiseKit). names: full names are unique within a pool; a repeat is redrawn up to maxRedraws times, then the next unused pair is taken. tuning: how adjust and standoutCentering were set (scripts/franchise/tune-pool.ts); a change to draft-ai.json or roster.json needs a re-tune.",
+  "surplus": 0.1,
+  "adjust": {
+    "QB": {
+      "accuracy": { "scale": 1.1875, "offset": -11.623 },
+      "throwPower": { "scale": 1.0748, "offset": -6.143 },
+      "awareness": { "scale": 1.0742, "offset": -6.38 },
+      "agility": { "scale": 1.0268, "offset": -3.11 }
+    },
+    "RB": {
+      "elusiveness": { "scale": 1.3078, "offset": -17.141 },
+      "speed": { "scale": 1.079, "offset": -7.977 },
+      "agility": { "scale": 1.0825, "offset": -8.124 },
+      "ballSecurity": { "scale": 1.0287, "offset": -3.625 },
+      "strength": { "scale": 1.0107, "offset": -3.494 }
+    },
+    "WR": {
+      "hands": { "scale": 1.1554, "offset": -8.856 },
+      "routeRunning": { "scale": 1.1512, "offset": -8.883 },
+      "speed": { "scale": 1.0579, "offset": -4.938 },
+      "agility": { "scale": 1.0173, "offset": -2.339 }
+    },
+    "TE": {
+      "hands": { "scale": 1.1105, "offset": -8.884 },
+      "routeRunning": { "scale": 1.1014, "offset": -8.772 },
+      "runBlock": { "scale": 1.1066, "offset": -8.761 },
+      "strength": { "scale": 1.0144, "offset": -3.64 },
+      "speed": { "scale": 1.0165, "offset": -3.77 }
+    },
+    "OL": {
+      "passBlock": { "scale": 1.1512, "offset": -7.854 },
+      "runBlock": { "scale": 1.1397, "offset": -7.697 },
+      "strength": { "scale": 1.058, "offset": -4.288 },
+      "awareness": { "scale": 1.0201, "offset": -2.053 }
+    },
+    "DL": {
+      "passRush": { "scale": 1.1615, "offset": -8.878 },
+      "runStop": { "scale": 1.1604, "offset": -8.897 },
+      "strength": { "scale": 1.0494, "offset": -4.859 },
+      "speed": { "scale": 1.0179, "offset": -2.474 }
+    },
+    "LB": {
+      "tackling": { "scale": 1.2856, "offset": -15.569 },
+      "coverage": { "scale": 1.0766, "offset": -7.317 },
+      "awareness": { "scale": 1.0836, "offset": -7.456 },
+      "speed": { "scale": 1.0151, "offset": -3.491 },
+      "strength": { "scale": 1.0067, "offset": -3.479 }
+    },
+    "CB": {
+      "coverage": { "scale": 1.2343, "offset": -11.517 },
+      "ballSkills": { "scale": 1.0683, "offset": -5.708 },
+      "speed": { "scale": 1.0641, "offset": -5.737 },
+      "agility": { "scale": 1.0148, "offset": -2.589 }
+    },
+    "S": {
+      "coverage": { "scale": 1.198, "offset": -9.744 },
+      "ballSkills": { "scale": 1.0651, "offset": -5.27 },
+      "awareness": { "scale": 1.0648, "offset": -5.209 },
+      "speed": { "scale": 1.0169, "offset": -2.472 }
+    },
+    "K": {
+      "kickPower": { "scale": 1.0692, "offset": -1.997 },
+      "kickAccuracy": { "scale": 1.0702, "offset": -2.14 }
+    },
+    "P": {
+      "kickPower": { "scale": 1.0627, "offset": -2.065 },
+      "kickAccuracy": { "scale": 1.0808, "offset": -2.259 }
+    }
+  },
+  "floor": 20,
+  "standoutCentering": {
+    "breakawayRun": 0.967541,
+    "bigCatch": 0.936678,
+    "sack": 0.963911,
+    "pick": 0.95343,
+    "longKick": 0.965077
+  },
+  "names": { "unique": true, "maxRedraws": 50 },
+  "tuning": {
+    "date": "2026-11-26",
+    "command": "node --import ./scripts/engine/register.mjs scripts/franchise/tune-pool.ts --write",
+    "firstSeed": 100001,
+    "leagues": 800,
+    "passes": 5,
+    "worstMean": 0.205,
+    "worstSd": 0.013,
+    "draftAiSha256": "ca61ed72012e916b89ebac6f02af3fe1b86667a2c4d00223cfc3685fb0820566",
+    "rosterSha256": "6b334703e5a1d8ddeca1ea15653a53fa68dd5b0ce27ebfbb22e93b2429533a9b",
+    "note": "Over the ratings the overall weights name. Standout centering over the first 100 tuning leagues, 272 games each."
+  }
+}

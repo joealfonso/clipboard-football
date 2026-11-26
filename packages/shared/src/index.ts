@@ -45,3 +45,7 @@ export {
   playParticipantsSchema,
   ratingRanksSchema,
 } from "./m2-schema";
+// M4 Franchise mode: its own type file (not re-exported through ./types, which the calibration pins) and its zod schemas.
+export * from "./franchise";
+export { draftAiSchema, FranchiseDataError, franchiseLeagueSchema, overallWeightsSchema, parseFranchiseData, poolSchema, positionMinimums, rosterSchema } from "./franchise-schema";
+export type { FranchiseFiles } from "./franchise-schema";

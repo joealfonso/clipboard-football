@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Where each slot lines up, per offense formation, defense package and defense preset (designed, not fitted; docs/specs/m3-playbook-and-custom-routes.md, milestone A). A pair is [x, depth] in yards: x from the middle of the field, positive to the offense's right; depth off the ball, the offense behind the line and the defense past it. presetAlignment overrides the package alignment for a preset. Until milestone F these three blocks must deep-equal the same blocks in data/ui/templates.json (a test checks it).",
+  "offense": {
+    "shotgun": { "QB1": [0, 5], "RB1": [-2, 5], "WR1": [-21, 1], "WR2": [21, 1], "WR3": [14, 1.5], "TE1": [-6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "underCenter": { "QB1": [0, 3.25], "RB1": [0, 7], "WR1": [-21, 1], "WR2": [21, 1], "TE1": [-6, 1], "TE2": [6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "pistol": { "QB1": [0, 4], "RB1": [0, 7], "WR1": [-21, 1], "WR2": [21, 1], "WR3": [-14, 1.5], "TE1": [6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "empty": { "QB1": [0, 5], "WR1": [-21, 1], "WR2": [21, 1], "WR3": [-14, 1.5], "WR4": [14, 1.5], "TE1": [-6, 1], "OL1": [-4, 1], "OL2": [-2, 1], "OL3": [0, 1], "OL4": [2, 1], "OL5": [4, 1] },
+    "heavy": { "QB1": [0, 3.25], "RB1": [0, 7], "TE1": [-7, 1], "TE2": [7, 1], "TE3": [9, 2.5], "OL1": [-5, 1], "OL2": [-3, 1], "OL3": [-1, 1], "OL4": [1, 1], "OL5": [3, 1], "OL6": [5, 1] }
+  },
+  "defense": {
+    "base": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [-4, 5], "LB2": [0, 5], "LB3": [4, 5], "CB1": [-21, 6], "CB2": [21, 6], "S1": [-9, 12], "S2": [9, 12] },
+    "nickel": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [-2.5, 5], "LB2": [2.5, 5], "CB1": [-21, 6], "CB2": [21, 6], "CB3": [14, 5], "S1": [-9, 12], "S2": [9, 12] },
+    "dime": { "DL1": [-5, 1], "DL2": [-1.8, 1], "DL3": [1.8, 1], "DL4": [5, 1], "LB1": [0, 5], "CB1": [-21, 6], "CB2": [21, 6], "CB3": [14, 5], "CB4": [-14, 5], "S1": [-9, 12], "S2": [9, 12] },
+    "goalLine": { "DL1": [-6, 1], "DL2": [-3, 1], "DL3": [0, 1], "DL4": [3, 1], "DL5": [6, 1], "LB1": [-4.5, 4.5], "LB2": [0, 4.5], "LB3": [4.5, 4.5], "CB1": [-18, 3], "CB2": [18, 3], "S1": [0, 8] },
+    "prevent": { "DL1": [-3, 1], "DL2": [0, 1], "DL3": [3, 1], "LB1": [0, 8], "CB1": [-21, 10], "CB2": [21, 10], "CB3": [-10, 14], "CB4": [10, 14], "S1": [-12, 20], "S2": [0, 23], "S3": [12, 20] }
+  },
+  "presetAlignment": {
+    "baseCover2": { "S1": [-11, 12], "S2": [11, 12] },
+    "nickelCover2": { "S1": [-11, 12], "S2": [11, 12] },
+    "nickel2Man": { "S1": [-11, 12], "S2": [11, 12] },
+    "nickelCover4": { "S1": [-9, 14], "S2": [9, 14], "CB1": [-21, 8], "CB2": [21, 8] },
+    "dimeCover4": { "S1": [-9, 14], "S2": [9, 14], "CB1": [-21, 8], "CB2": [21, 8] },
+    "nickelCover1Blitz": { "S1": [0, 14], "S2": [5, 5] },
+    "runStuff": { "S1": [0, 12], "S2": [6, 5] },
+    "dimeCover0Blitz": { "S1": [-6, 6], "S2": [6, 6] },
+    "baseCover3": { "S1": [-7, 12], "S2": [7, 12] },
+    "nickelCover3": { "S1": [-7, 12], "S2": [7, 12] },
+    "nickelCover1": { "S1": [-7, 12], "S2": [7, 12] }
+  }
+}
