@@ -2,6 +2,7 @@
 // already-validated RuleSet and never imports this file.
 
 import { z } from "zod";
+import { POSITIONS } from "./engine";
 import type { RuleSet } from "./rules";
 
 const count = z.number().int().nonnegative();
@@ -24,6 +25,12 @@ const penaltySchema = z.strictObject({
   committedBy: z.enum(["offense", "defense", "either"]),
   endZoneSpot: fieldSpot.nullable(),
 });
+
+const jersey = z.number().int().min(0).max(99);
+/** Inclusive [from, to] number ranges (M2 milestone A). */
+const numberRanges = z
+  .array(z.tuple([jersey, jersey]).refine(([a, b]) => a <= b, { message: "a number range starts after it ends" }))
+  .min(1);
 
 const overtimeSchema = z.strictObject({
     periodSeconds: positive,
@@ -101,6 +108,40 @@ export const ruleSetSchema = z
     }),
     timeouts: z.strictObject({ perHalf: count, perTeamPerDeadBall: positive }),
     overtime: z.strictObject({ regularSeason: overtimeSchema, postseason: overtimeSchema }),
+    challenges: z.strictObject({
+      perGame: count,
+      extraIfOneSucceeds: count,
+      max: count,
+      needsTimeout: z.boolean(),
+      failedCostsTimeout: z.boolean(),
+      timeoutThenFailedCostsSecond: z.boolean(),
+      lineToGainNeedsFirstDownChange: z.boolean(),
+      foulPreventingSnapForfeits: z.boolean(),
+      notPermittedChargesTimeout: z.boolean(),
+      withoutTimeoutsPenaltyYards: count,
+      inOvertime: z.boolean(),
+    }),
+    replay: z.strictObject({
+      officialOnlyAfterTwoMinuteWarning: z.boolean(),
+      officialOnlyInOvertime: z.boolean(),
+      officialReviewsScoringPlays: z.boolean(),
+      officialReviewsTries: z.boolean(),
+      officialReviewsTurnovers: z.boolean(),
+      officialReviewsFourthDownLineToGain: z.boolean(),
+      officialReviewsKickingTeamPossession: z.boolean(),
+      reviewEvenIfFoulWipes: z.boolean(),
+      reversalStandard: z.literal("clearAndObvious"),
+      reversedRulingResetsClock: z.boolean(),
+      reversalRunoffAfterTwoMinuteWarning: z.boolean(),
+      reversalRunoffSeconds: count,
+      reversalRunoffPlayClock: positive,
+      timeoutReturnedIfReversedAfterWarning: z.boolean(),
+      preSnapFoulsIgnoredIfReversed: z.boolean(),
+      penaltyChoiceAfterReview: z.boolean(),
+      reviewable: z.array(z.string().min(1)).min(1),
+      clockReviewRestoresOnly: z.boolean(),
+    }),
+    jerseyNumbers: z.strictObject(Object.fromEntries(POSITIONS.map((p) => [p, numberRanges])) as Record<(typeof POSITIONS)[number], typeof numberRanges>),
     penalties: z.record(z.string().regex(/^[a-z][A-Za-z0-9]*$/), penaltySchema),
   })
   .superRefine((r, ctx) => {

@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import type { EngineData } from "./engine";
-import type { CoachTables, ExpectedPointsTable, GameConfig, GameData, LeagueSettings, OnsideTable, TeamNames, TempoTable, TimeoutTable } from "./game";
+import type { ChallengePolicy, CoachTables, ExpectedPointsTable, GameConfig, GameData, LeagueSettings, OnsideTable, TeamNames, TempoModes, TempoTable, TimeoutTable } from "./game";
 
 const condition = z.strictObject({ field: z.string().min(1), min: z.number().optional(), max: z.number().optional() });
 const dim = z.union([
@@ -155,6 +155,29 @@ export const teamNamesSchema = z
     if (nick.size !== t.teams.length) ctx.addIssue({ code: "custom", message: "nicknames must be unique" });
   });
 
+const tempoModeCell = z.strictObject({ quarter: z.number().int().positive(), secondsLeftInGame: z.number().int().nonnegative(), secondsLeftInHalf: z.number().int().nonnegative(), scoreDiff: z.number().int() });
+export const tempoModesSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  designed: z.literal(true),
+  note: z.string().optional(),
+  modes: z.strictObject({ hurryUp: tempoModeCell, runClock: tempoModeCell }),
+});
+
+export const challengePolicySchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  designed: z.literal(true),
+  note: z.string().optional(),
+  enabled: z.boolean(),
+  questions: z.strictObject({
+    completionToIncomplete: z.string().min(1),
+    fumbleToDown: z.string().min(1),
+    interceptionToIncomplete: z.string().min(1),
+    touchdownToShort: z.string().min(1),
+    spotLineToGain: z.string().min(1),
+  }),
+  ai: z.strictObject({ timeoutCost: z.number().nonnegative(), threshold: z.number() }),
+});
+
 export interface GameFiles {
   readonly config: unknown;
   readonly tempo: unknown;
@@ -163,6 +186,8 @@ export interface GameFiles {
   readonly ep: unknown;
   readonly league: unknown;
   readonly teamNames: unknown;
+  readonly tempoModes: unknown;
+  readonly challengePolicy: unknown;
 }
 
 export function parseGameData(files: GameFiles, engine: EngineData, rulesHash: string, dataHashes: Readonly<Record<string, string>>): GameData {
@@ -178,7 +203,56 @@ export function parseGameData(files: GameFiles, engine: EngineData, rulesHash: s
     tables,
     league: leagueSettingsSchema.parse(files.league) as unknown as LeagueSettings,
     teamNames: teamNamesSchema.parse(files.teamNames) as unknown as TeamNames,
+    tempoModes: tempoModesSchema.parse(files.tempoModes) as unknown as TempoModes,
+    challengePolicy: challengePolicySchema.parse(files.challengePolicy) as unknown as ChallengePolicy,
     rulesHash,
     dataHashes,
   };
 }
+
+// ---------------------------------------------------------------- M2 F: pre-registered standout tolerances
+
+const standoutKindId = z.enum(["breakawayRun", "bigCatch", "sack", "pick", "longKick"]);
+const pp = z.number().positive();
+
+/** data/game/m2-standout-tolerances.json (designed, pre-registered; its sha256 is in DECISIONS.md, M2). */
+export const standoutTolerancesSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    designed: z.literal(true),
+    preRegistered: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    spec: z.string().min(1),
+    note: z.string().optional(),
+    threshold: z.strictObject({ cardRating: z.number().int().min(0).max(99), note: z.string().optional() }),
+    kinds: z
+      .array(
+        z.strictObject({
+          id: standoutKindId,
+          role: z.enum(["ballCarrier", "target", "sacker", "interceptor", "kicker"]),
+          positions: z.array(z.enum(["QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K", "P"])).min(1),
+          ratings: z.array(z.string().min(1)).min(1),
+          boosts: z.strictObject({ family: z.string().min(1), class: z.string().min(1), minDistance: z.number().int().positive().optional() }),
+        }),
+      )
+      .length(5),
+    f1: z.strictObject({
+      comparison: z.string().min(1),
+      scrimmageClassSharePp: pp,
+      pointsPerTeamGameMean: pp,
+      pointsPerTeamGameSd: pp,
+      turnoversPerTeamGame: pp,
+      fieldGoalMakeRate50PlusPp: pp,
+      noGatedStatusFlipToFail: z.literal(true),
+      note: z.string().optional(),
+    }),
+    f2: z.strictObject({
+      method: z.string().min(1),
+      minRelativeEffect: z.strictObject({ breakawayRun: pp, bigCatch: pp, sack: pp, pick: pp, longKick: pp }),
+      note: z.string().optional(),
+    }),
+    known_deviations: z.array(z.strictObject({ metric: z.string().min(1), approved_by: z.string().min(1), note: z.string().optional() })),
+  })
+  .superRefine((t, ctx) => {
+    const ids = t.kinds.map((k) => k.id);
+    if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "a standout kind is listed twice" });
+  });

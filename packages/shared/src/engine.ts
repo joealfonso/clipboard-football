@@ -28,17 +28,25 @@ export const POSITION_SKILLS = {
   P: ["kickPower", "kickAccuracy"],
 } as const satisfies Readonly<Record<Position, readonly string[]>>;
 
-export const PLAYER_SCHEMA_VERSION = 1;
+/** Version 2 (M2 milestone A) adds `number`. Version 1 pools migrate by seed (sim: migrateTeamPool). */
+export const PLAYER_SCHEMA_VERSION = 2;
 
 export interface Player {
   readonly schemaVersion: number;
   readonly id: string;
   readonly name: string;
   readonly position: Position;
+  /** Jersey number: unique within the team, allowed for the position by the rule set (jerseyNumbers). */
+  readonly number: number;
   /** Integers 0 to 99. */
   readonly ratings: Readonly<Record<BaseRating, number>>;
   /** The position's skills (POSITION_SKILLS), integers 0 to 99. */
   readonly skills: Readonly<Record<string, number>>;
+}
+
+/** Whether the rule set lets a player at `position` wear `n` (Rule 5-1-2, rules.jerseyNumbers). */
+export function jerseyNumberAllowed(rules: Pick<RuleSet, "jerseyNumbers">, position: string, n: number): boolean {
+  return Number.isInteger(n) && (rules.jerseyNumbers[position] ?? []).some(([a, b]) => n >= a && n <= b);
 }
 
 /** One team's players. Order within a position is the order slots are filled (M1 has no depth chart). */
@@ -63,6 +71,93 @@ export interface Personnel {
   /** Defense on the field by package. */
   readonly packages: Readonly<Record<string, Slots>>;
   readonly presetPackage: Readonly<Record<string, string>>;
+}
+
+// ---------------------------------------------------------------- designed: who made the play (M2 B)
+
+/** A role's share by position, before the split across that position's on-field slots. */
+export type PositionShares = Readonly<Partial<Record<Position, number>>>;
+
+export interface ParticipantRole {
+  /** The side whose on-field players are the candidates: the snapping (kicking) team or the other one. */
+  readonly side: "offense" | "defense";
+  /** Shares by the play's leaf (a run or pass call). */
+  readonly byLeaf?: Readonly<Record<string, PositionShares>>;
+  /** Shares by the drawn class. */
+  readonly byClass?: Readonly<Record<string, PositionShares>>;
+  /** Shares by the receiving unit (returners). */
+  readonly byUnit?: Readonly<Record<string, PositionShares>>;
+  /** Shares when no other table has an entry. */
+  readonly flat?: PositionShares;
+  /** Positions used, equally, when no position with a share is on the field. */
+  readonly fallback?: readonly Position[];
+}
+
+export interface ParticipantTilt {
+  readonly role: string;
+  /** Drawn classes the tilt applies to; "*" for every class. */
+  readonly classes: readonly string[];
+  readonly rating: string;
+  /** Weight x exp(coef x (rating - center)). */
+  readonly coef: number;
+}
+
+/** data/engine/participants.json (designed). docs/MODEL.md, "Who made the play". */
+export interface ParticipantsConfig {
+  readonly schemaVersion: number;
+  readonly designed: true;
+  readonly center: number;
+  /** The receiving team's units on kicks: kickoff return and punt return. */
+  readonly returnUnits: Readonly<Record<string, Slots>>;
+  /** Play kind -> the receiving unit on the field (other kicks keep the defense package). */
+  readonly receivingUnit: Readonly<Record<string, string>>;
+  /** Position -> relative weight of its first, second, ... on-field slot (default all 1). */
+  readonly slotWeights: Readonly<Partial<Record<Position, readonly number[]>>>;
+  readonly roles: Readonly<Record<string, ParticipantRole>>;
+  readonly tilts: readonly ParticipantTilt[];
+  /** Fouls on a pass that leave the pass with no target (intentional grounding). */
+  readonly noTarget: readonly string[];
+  /** Penalty id -> the positions that may commit it, by the side that fouled. */
+  readonly foulers: Readonly<Record<string, Readonly<Partial<Record<"offense" | "defense", readonly Position[]>>>>>;
+}
+
+// ---------------------------------------------------------------- designed: standout plays (M2 F)
+
+export type StandoutKindId = "breakawayRun" | "bigCatch" | "sack" | "pick" | "longKick";
+
+export interface StandoutKind {
+  readonly id: StandoutKindId;
+  /** The participants role the elite player must be credited with. */
+  readonly role: "ballCarrier" | "target" | "sacker" | "interceptor" | "kicker";
+  readonly positions: readonly Position[];
+  /** Elite on any of these (card rating at or above the threshold); the highest is the one shown. */
+  readonly ratings: readonly string[];
+  /** The class family the kind's class is in: run, pass, or fieldGoal. */
+  readonly family: string;
+  readonly class: string;
+  /** Field goals only: the kind applies from this distance on. */
+  readonly minDistance?: number;
+  /** An elite player's multiplier on the class, before his share and the centering. */
+  readonly multiplier: number;
+}
+
+/** data/engine/standouts.json (designed, centered). docs/MODEL.md, "Standout plays". */
+export interface StandoutsConfig {
+  readonly schemaVersion: number;
+  readonly designed: true;
+  /** Whether the game (prepareGame) plays with standouts. createEngine alone does not. */
+  readonly enabled: boolean;
+  readonly threshold: number;
+  readonly kinds: readonly StandoutKind[];
+  /** Per kind: the factor every applicable play's raw factor is multiplied by, so its mean is 1. */
+  readonly centering: Readonly<Record<StandoutKindId, number>>;
+}
+
+// ---------------------------------------------------------------- fitted: close calls (M2 G)
+
+/** data/game/challenges.json, the parts the engine reads: per kind, how often a ruled play is a close call and how often a review reverses it. */
+export interface CloseCallRates {
+  readonly kinds: Readonly<Record<string, { readonly reviewPer1000000: number; readonly reversalPer10000: number }>>;
 }
 
 // ---------------------------------------------------------------- designed: ratings
@@ -292,6 +387,30 @@ export interface MatchupCentered {
 
 /** Every trace factor the engine records and the fields a why template slot may bind to (E3). */
 export const TRACE_FIELDS = {
+  // M2 milestone B: the players a play names, one entry per role present (detail.participants).
+  passer: ["id", "number", "name"],
+  target: ["id", "number", "name"],
+  receiver: ["id", "number", "name"],
+  ballCarrier: ["id", "number", "name"],
+  tackler: ["id", "number", "name"],
+  sacker: ["id", "number", "name"],
+  interceptor: ["id", "number", "name"],
+  fumbleForcer: ["id", "number", "name"],
+  fumbleRecoverer: ["id", "number", "name"],
+  kicker: ["id", "number", "name"],
+  punter: ["id", "number", "name"],
+  returner: ["id", "number", "name"],
+  /** One per foul, in the order of the play's fouls. */
+  fouler: ["id", "number", "name", "penalty"],
+  /**
+   * M2 milestone F: the elite player credited on a class his standout factor raised (applied
+   * factor above 1). A candidate: the loop makes it a standout only if the play stands.
+   */
+  standoutCandidate: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "applied"],
+  /** M2 G: the close call a reversal undid, for the reversed line. */
+  review: ["kind", "question"],
+  /** The loop's final standout (GameEvent `standout`), the slots of the standout why line. */
+  standout: ["player", "number", "name", "rating", "ratingLabel", "value", "kind", "applied"],
   call: ["label", "leaf", "kind"],
   cell: ["family", "level", "key"],
   class: ["name", "label", "basePct", "pct"],
@@ -310,8 +429,13 @@ export interface WhyTemplate {
   readonly when: string;
   /** Optional: only for these play kinds. */
   readonly kinds?: readonly string[];
-  /** Text with {factor.field} slots. */
+  /** Text with {factor.field} slots: the detail line (detail.why), with the numbers. */
   readonly text: string;
+  /**
+   * M2 milestone D: the plain-words headline (detail.headline) the game shows, with the same slot
+   * rules: no multipliers, percentages or raw ids; it may name players from the role entries.
+   */
+  readonly headline: string;
   /** Fixed factor phrases in the text, by the factor they name (E2). */
   readonly factors: readonly string[];
   /** Step 5c G1: only for this case of `when` (matchup: up or down; fluke: its reason; baseline: common or plain). */
@@ -343,6 +467,12 @@ export interface EngineData {
   readonly kickoff: KickoffTable;
   readonly matchup: MatchupCentered;
   readonly personnel: Personnel;
+  /** M2 milestone B: who made the play (designed). */
+  readonly participants: ParticipantsConfig;
+  /** M2 milestone F: standout plays (designed, centered). */
+  readonly standouts: StandoutsConfig;
+  /** M2 milestone G: close-call and reversal rates (fitted, data/game/challenges.json). */
+  readonly closeCalls: CloseCallRates;
   readonly ratings: RatingsConfig;
   readonly distributions: Distributions;
   readonly names: Names;

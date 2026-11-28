@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "M2 milestone F (designed, centered): standout plays. A player is elite for a kind when his card rating (the league pool after the team-strength shift, before home field) for any of the kind's ratings is at least `threshold` and he plays one of its positions. On a play the kind applies to, each elite on-field player's multiplier enters the boosted class's weight, weighted by his base share of the role (participants.json, before class tilts): factor = centering x (1 + sum of share x (multiplier - 1)). Below the threshold a player adds nothing (the factor before centering is exactly 1). `centering` is set so the factor averages 1 over the in-sample leagues' plays the kind applies to (scripts/game/standouts.ts --center), so league class rates stay where they are. A play is a standout only when the factor was applied, the boosted class was drawn and the elite player is the one credited with the role; crediting then weights an elite candidate by his multiplier. Kinds, threshold and the F2 minimum are pre-registered in data/game/m2-standout-tolerances.json. `enabled` is what the game uses (prepareGame; off until the lead turns it on, docs/DECISIONS.md M2 F); createEngine alone runs with standouts off.",
+  "enabled": false,
+  "threshold": 90,
+  "kinds": [
+    {
+      "id": "breakawayRun",
+      "role": "ballCarrier",
+      "positions": [
+        "RB",
+        "QB"
+      ],
+      "ratings": [
+        "speed",
+        "elusiveness"
+      ],
+      "family": "run",
+      "class": "r20",
+      "multiplier": 1.35
+    },
+    {
+      "id": "bigCatch",
+      "role": "target",
+      "positions": [
+        "WR",
+        "TE",
+        "RB"
+      ],
+      "ratings": [
+        "speed",
+        "hands"
+      ],
+      "family": "pass",
+      "class": "c20",
+      "multiplier": 1.6
+    },
+    {
+      "id": "sack",
+      "role": "sacker",
+      "positions": [
+        "DL",
+        "LB"
+      ],
+      "ratings": [
+        "passRush"
+      ],
+      "family": "pass",
+      "class": "sack",
+      "multiplier": 1.7
+    },
+    {
+      "id": "pick",
+      "role": "interceptor",
+      "positions": [
+        "CB",
+        "S"
+      ],
+      "ratings": [
+        "ballSkills"
+      ],
+      "family": "pass",
+      "class": "int",
+      "multiplier": 1.9
+    },
+    {
+      "id": "longKick",
+      "role": "kicker",
+      "positions": [
+        "K"
+      ],
+      "ratings": [
+        "kickPower"
+      ],
+      "family": "fieldGoal",
+      "class": "good",
+      "minDistance": 50,
+      "multiplier": 1.6
+    }
+  ],
+  "centering": {
+    "breakawayRun": 0.969341,
+    "bigCatch": 0.943501,
+    "sack": 0.969134,
+    "pick": 0.952089,
+    "longKick": 0.980497
+  }
+}

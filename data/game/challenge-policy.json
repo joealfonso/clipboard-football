@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "M2 milestone G (designed). `enabled`: the calibrated baseline plays without close calls (false); the app turns them on (prepareGame closeCalls). questions: the prompt per close-call kind. The average coach challenges a close call that went against it when reversalRate x valueSwing - (1 - reversalRate) x timeoutCost > threshold, where reversalRate is the fitted rate for the kind (data/game/challenges.json), valueSwing is the gain in its lead plus expected points of the next snap if the ruling is reversed (the step 5 penalty-choice value), and timeoutCost is what a lost timeout is worth to it, in points. It never sees the verdict.",
+  "enabled": false,
+  "questions": {
+    "completionToIncomplete": "Was it a catch?",
+    "fumbleToDown": "Was he down before the ball came out?",
+    "interceptionToIncomplete": "Did the defender catch it?",
+    "touchdownToShort": "Did he break the plane?",
+    "spotLineToGain": "Did he reach the line to gain?"
+  },
+  "ai": { "timeoutCost": 0.35, "threshold": 0.0 }
+}

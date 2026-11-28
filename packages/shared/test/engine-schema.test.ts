@@ -5,16 +5,26 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { personnelSchema, playerSchema, ratingsSchema, whySchema } from "../src/engine-schema";
+import { personnelSchema, playerSchema, playerV1Schema, ratingsSchema, whySchema } from "../src/engine-schema";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const json = (p: string): unknown => JSON.parse(readFileSync(join(root, p), "utf8"));
 
-const good = {
+// Player schema version 2 (M2 milestone A) adds the jersey number; version 1 is still read for migration.
+const goodV1 = {
   schemaVersion: 1,
   id: "p1",
   name: "Test Player",
   position: "QB",
+  ratings: { speed: 60, strength: 50, agility: 70, awareness: 80 },
+  skills: { throwPower: 75, accuracy: 70 },
+};
+const good = {
+  schemaVersion: 2,
+  id: "p1",
+  name: "Test Player",
+  position: "QB",
+  number: 12,
   ratings: { speed: 60, strength: 50, agility: 70, awareness: 80 },
   skills: { throwPower: 75, accuracy: 70 },
 };
@@ -24,6 +34,11 @@ describe("player schema (A2)", () => {
     expect(playerSchema.safeParse(good).success).toBe(true);
   });
 
+  it("reads a version 1 player (no number) only through the version 1 schema", () => {
+    expect(playerV1Schema.safeParse(goodV1).success).toBe(true);
+    expect(playerSchema.safeParse(goodV1).success).toBe(false);
+  });
+
   it.each([
     ["a rating of 100", { ...good, ratings: { ...good.ratings, speed: 100 } }],
     ["a rating of -1", { ...good, ratings: { ...good.ratings, speed: -1 } }],
@@ -31,7 +46,7 @@ describe("player schema (A2)", () => {
     ["a missing base rating", { ...good, ratings: { speed: 60, strength: 50, agility: 70 } }],
     ["a skill not listed for the position", { ...good, skills: { ...good.skills, hands: 60 } }],
     ["a missing skill", { ...good, skills: { throwPower: 75 } }],
-    ["an unknown schemaVersion", { ...good, schemaVersion: 2 }],
+    ["an unknown schemaVersion", { ...good, schemaVersion: 3 }],
     ["an unknown position", { ...good, position: "XX" }],
   ])("rejects %s", (_label, bad) => {
     expect(playerSchema.safeParse(bad).success).toBe(false);

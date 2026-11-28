@@ -3,11 +3,11 @@
 // toss, drawn from the Rng passed to newGame and startOvertime.
 
 import type { PlayResult, RuleSet } from "../../../shared/src/types";
-import type { Rng } from "../rng";
+import { Rng } from "../rng";
 import { draftOf, type Draft, type Events } from "./draft";
 import { declineIsBetter, enforce, penaltyOptions, validateFouls, type Enforced, type PenaltyOption } from "./enforce";
 import { reject, GameRuleError } from "./errors";
-import { other } from "./frame";
+import { flip, halfDistance, other } from "./frame";
 import { transitionViolations } from "./invariants";
 import { endsHalf, hasTwoMinuteWarning, inSnapStartWindow, overtimeFormat, timingPeriod } from "./periods";
 import { periodEndCheck, settle } from "./progress";
@@ -38,6 +38,14 @@ export interface PlayChoices {
 /** One draw: the low bit of the next uint32 names the winner. */
 function drawToss(rng: Rng): Team {
   return (rng.nextUint32() & 1) === 1 ? "home" : "away";
+}
+
+/**
+ * M2 E: who wins the next coin toss drawn from `rng`, read from a copy of its state, so the human
+ * winner can choose before newGame or startOvertime makes the same draw. Never advances `rng`.
+ */
+export function peekToss(rng: Rng): Team {
+  return drawToss(Rng.fromState(rng.getState()));
 }
 
 /** Rule 4-2-2: who receives now, and who receives the kickoff that opens the next half. */
@@ -144,6 +152,64 @@ export function runPreSnap(s: GameState, rules: RuleSet, seconds: number): GameS
         periodEndCheck(d, rules);
       }
     }
+  }
+  return checked(s, d, rules);
+}
+
+/**
+ * M2 G: a failed challenge charges the challenger a timeout (Rule 15-1-1 (e), rule set
+ * challenges.failedCostsTimeout). The review already stopped play, so nothing else changes.
+ */
+export function chargeTimeout(s: GameState, rules: RuleSet, team: Team): GameState {
+  live(s);
+  if (s.timeouts[team] <= 0) reject("noTimeouts", `${team} has no timeout to charge for a failed challenge`);
+  const d = draftOf(s);
+  d.timeouts = { ...s.timeouts, [team]: s.timeouts[team] - 1 };
+  return checked(s, d, rules);
+}
+
+/**
+ * M2 G: what a failed challenge costs (Rule 15-1-1 (d), (e)): a timeout when the team has one; a
+ * team with none (a rule set without challenges.needsTimeout) loses withoutTimeoutsPenaltyYards
+ * instead, enforced between downs (designed: from the next snap's spot, half the distance to the
+ * goal at most, no change of down; a defense penalized past the line to gain gives a first down).
+ * Only a next snap from scrimmage takes the yards; before a kickoff or a try the cost is waived.
+ */
+export function challengeCost(s: GameState, rules: RuleSet, team: Team): GameState {
+  if (s.timeouts[team] > 0) return chargeTimeout(s, rules, team);
+  const yards = rules.challenges.withoutTimeoutsPenaltyYards;
+  if (yards <= 0 || s.phase !== "scrimmage") return s;
+  live(s);
+  const d = draftOf(s);
+  const offense = team === s.possession;
+  const toGoal = offense ? s.spot : flip(s.spot);
+  const y = Math.min(yards, halfDistance(toGoal));
+  if (y <= 0) return s;
+  d.spot = offense ? s.spot - y : s.spot + y;
+  if (offense) d.distance = s.distance + y;
+  else if (s.distance - y > 0) d.distance = s.distance - y;
+  else {
+    d.down = 1;
+    d.goalToGo = flip(d.spot) <= rules.downs.yardsForFirstDown;
+    d.distance = d.goalToGo ? flip(d.spot) : rules.downs.yardsForFirstDown;
+  }
+  if (s.goalToGo && !offense) d.distance = Math.min(d.distance, flip(d.spot));
+  return checked(s, d, rules);
+}
+
+/**
+ * M2 G: after the two-minute warning, a changed ruling that leaves the clock running brings a
+ * run-off neither team may decline (Rule 15-5-2; rule set replay.reversalRunoff*).
+ */
+export function reviewRunoff(s: GameState, rules: RuleSet): GameState {
+  // Only a scrimmage down with the clock running has one (a reversal that ended the game or the half has none).
+  if (s.phase !== "scrimmage" || !s.clockRunning) return s;
+  const d = draftOf(s);
+  d.clock = Math.max(0, s.clock - rules.replay.reversalRunoffSeconds);
+  d.playClock = rules.replay.reversalRunoffPlayClock;
+  if (d.clock === 0) {
+    d.clockRunning = false;
+    periodEndCheck(d, rules);
   }
   return checked(s, d, rules);
 }

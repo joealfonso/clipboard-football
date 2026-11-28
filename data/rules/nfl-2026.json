@@ -99,6 +99,52 @@
       "canEndTied": false
     }
   },
+  "challenges": {
+    "perGame": 2,
+    "extraIfOneSucceeds": 1,
+    "max": 3,
+    "needsTimeout": true,
+    "failedCostsTimeout": true,
+    "timeoutThenFailedCostsSecond": true,
+    "lineToGainNeedsFirstDownChange": true,
+    "foulPreventingSnapForfeits": true,
+    "notPermittedChargesTimeout": true,
+    "withoutTimeoutsPenaltyYards": 15,
+    "inOvertime": false
+  },
+  "replay": {
+    "officialOnlyAfterTwoMinuteWarning": true,
+    "officialOnlyInOvertime": true,
+    "officialReviewsScoringPlays": true,
+    "officialReviewsTries": true,
+    "officialReviewsTurnovers": true,
+    "officialReviewsFourthDownLineToGain": true,
+    "officialReviewsKickingTeamPossession": true,
+    "reviewEvenIfFoulWipes": true,
+    "reversalStandard": "clearAndObvious",
+    "reversedRulingResetsClock": true,
+    "reversalRunoffAfterTwoMinuteWarning": true,
+    "reversalRunoffSeconds": 10,
+    "reversalRunoffPlayClock": 30,
+    "timeoutReturnedIfReversedAfterWarning": true,
+    "preSnapFoulsIgnoredIfReversed": true,
+    "penaltyChoiceAfterReview": true,
+    "reviewable": ["possession","touching","goalLine","boundaryLine","lineOfScrimmage","lineToGain","playersOnField","gameAdministration","disqualification","other"],
+    "clockReviewRestoresOnly": true
+  },
+  "jerseyNumbers": {
+    "QB": [[0,19]],
+    "RB": [[0,49],[80,89]],
+    "WR": [[0,49],[80,89]],
+    "TE": [[0,49],[80,89]],
+    "OL": [[50,79]],
+    "DL": [[50,79],[90,99]],
+    "LB": [[0,59],[90,99]],
+    "CB": [[0,49]],
+    "S": [[0,49]],
+    "K": [[0,49],[90,99]],
+    "P": [[0,49],[90,99]]
+  },
   "penalties": {
     "falseStart": { "yards": 5, "timing": "preSnap", "enforcement": "succeedingSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": true, "committedBy": "offense", "endZoneSpot": null },
     "delayOfGame": { "yards": 5, "timing": "preSnap", "enforcement": "succeedingSpot", "alternate": null, "automaticFirstDown": false, "lossOfDown": false, "declinable": true, "halfDistance": true, "tenSecondRunoff": true, "committedBy": "offense", "endZoneSpot": null },

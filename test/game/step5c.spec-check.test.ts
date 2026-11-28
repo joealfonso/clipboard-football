@@ -549,9 +549,10 @@ describe("A3: a postseason game forced past the fourth overtime period", () => {
     expect(r.final.period).toBeGreaterThan(forcedThrough);
   }, 60_000);
 
-  it("a coin toss before OT1 and again after the 4th overtime period, and no other", () => {
+  it("the opening toss, a coin toss before OT1 and again after the 4th overtime period, and no other", () => {
     const tosses = game().events.flatMap((e) => (e.t === "toss" ? [e.before.period] : []));
-    const expected = [reg, reg + fmt.periodsPerCoinToss].concat(game().final.period > reg + 2 * fmt.periodsPerCoinToss ? [reg + 2 * fmt.periodsPerCoinToss] : []);
+    // Record schema 2: the opening toss (before: the new game, period 1) comes first.
+    const expected = [1, reg, reg + fmt.periodsPerCoinToss].concat(game().final.period > reg + 2 * fmt.periodsPerCoinToss ? [reg + 2 * fmt.periodsPerCoinToss] : []);
     expect(tosses).toEqual(expected);
   }, 60_000);
 

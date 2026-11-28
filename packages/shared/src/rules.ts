@@ -157,5 +157,46 @@ export interface RuleSet {
     readonly regularSeason: OvertimeFormat;
     readonly postseason: OvertimeFormat;
   };
+  /** M2 milestone G: coach's challenges (Rule 15-1-1, 16-1-5). docs/RULES.md cites each leaf. */
+  readonly challenges: {
+    readonly perGame: number;
+    /** Granted only if at least one of the team's challenges succeeded. */
+    readonly extraIfOneSucceeds: number;
+    readonly max: number;
+    readonly needsTimeout: boolean;
+    readonly failedCostsTimeout: boolean;
+    readonly timeoutThenFailedCostsSecond: boolean;
+    readonly lineToGainNeedsFirstDownChange: boolean;
+    readonly foulPreventingSnapForfeits: boolean;
+    readonly notPermittedChargesTimeout: boolean;
+    readonly withoutTimeoutsPenaltyYards: number;
+    readonly inOvertime: boolean;
+  };
+  /** M2 milestone G: replay review (Rule 15). */
+  readonly replay: {
+    readonly officialOnlyAfterTwoMinuteWarning: boolean;
+    readonly officialOnlyInOvertime: boolean;
+    readonly officialReviewsScoringPlays: boolean;
+    readonly officialReviewsTries: boolean;
+    readonly officialReviewsTurnovers: boolean;
+    readonly officialReviewsFourthDownLineToGain: boolean;
+    readonly officialReviewsKickingTeamPossession: boolean;
+    readonly reviewEvenIfFoulWipes: boolean;
+    readonly reversalStandard: "clearAndObvious";
+    readonly reversedRulingResetsClock: boolean;
+    readonly reversalRunoffAfterTwoMinuteWarning: boolean;
+    readonly reversalRunoffSeconds: number;
+    readonly reversalRunoffPlayClock: number;
+    readonly timeoutReturnedIfReversedAfterWarning: boolean;
+    readonly preSnapFoulsIgnoredIfReversed: boolean;
+    readonly penaltyChoiceAfterReview: boolean;
+    readonly reviewable: readonly string[];
+    readonly clockReviewRestoresOnly: boolean;
+  };
+  /**
+   * M2 milestone A: the numbers each position may wear (Rule 5-1-2), as inclusive [from, to]
+   * ranges, keyed by the game's positions (engine.ts POSITIONS).
+   */
+  readonly jerseyNumbers: Readonly<Record<string, readonly (readonly [number, number])[]>>;
   readonly penalties: Readonly<Record<string, PenaltyRule>>;
 }

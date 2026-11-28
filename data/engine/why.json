@@ -1,7 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "designed": true,
-  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used. Step 5c (G1, designed): a template with a `variant` serves only that case: the matchup lines by the dominant multiplier's direction (up: above 1, down: below 1); the fluke line only for a class under the engine's rare-class threshold (config.fluke.classProbabilityBelow), a long gain past the yards percentile gets its own line; the baseline says \"common\" only at commonAtLeastPct or more.",
+  "note": "Templates for the one-line why after each play. A slot {factor.field} binds only to a field of a trace entry with that factor; rendering fails with a typed error if it has no value. `factors` lists the trace factors a template's fixed words name. The dominant factor is the trace entry with the largest absolute log multiplier on the class that happened; ties go by `order`. Below minLogEffect no factor is dominant and the baseline template is used. Step 5c (G1, designed): a template with a `variant` serves only that case: the matchup lines by the dominant multiplier's direction (up: above 1, down: below 1); the fluke line only for a class under the engine's rare-class threshold (config.fluke.classProbabilityBelow), a long gain past the yards percentile gets its own line; the baseline says \"common\" only at commonAtLeastPct or more. M2 milestone D (designed): every template also has a `headline`, the plain-words line the game shows (no multipliers, percentages or raw ids); it may name players from the trace's role entries (#number name). The `text` line stays as the detail line, unchanged. Rendering either fails with a typed error when a slot has no value. M2 milestone F (designed): the standout lines (when standout, one variant per kind) are rendered by the loop, not the engine, for a play whose standout candidate stands after penalty enforcement (GameEvent `standout`); the text cites the applied factor, the headline no number but the card rating. M2 milestone G (designed): the reversed lines (when reversed, one variant per close-call kind) are the alternative play's why line and headline, used when a review reverses the ruling.",
   "minLogEffect": 0.05,
   "commonAtLeastPct": 20,
   "order": [
@@ -92,7 +92,13 @@
     "fieldGoal": "A field goal try",
     "extraPoint": "An extra point",
     "kickoff": "A kickoff",
-    "onsideKick": "An onside kick"
+    "onsideKick": "An onside kick",
+    "speed": "speed",
+    "elusiveness": "elusiveness",
+    "hands": "hands",
+    "passRush": "pass rush",
+    "ballSkills": "ball skills",
+    "kickPower": "leg"
   },
   "templates": [
     {
@@ -102,6 +108,7 @@
         "noPlay"
       ],
       "text": "Flag before the snap: {penalty.label} on the {penalty.side}.",
+      "headline": "Flag before the snap: {penalty.label} on #{fouler.number} {fouler.name}.",
       "factors": [
         "penalty"
       ]
@@ -110,6 +117,7 @@
       "id": "fluke",
       "when": "fluke",
       "text": "{call.label} for {class.label}: a fluke, only {class.basePct}% of plays like this end in {fluke.what}.",
+      "headline": "{call.label} for {class.label}: a fluke.",
       "factors": [
         "fluke",
         "call",
@@ -122,6 +130,7 @@
       "when": "fluke",
       "variant": "yardsLong",
       "text": "{call.label} for {class.label}: {fluke.what} beats {fluke.pctile}% of plays like this.",
+      "headline": "{call.label} for {class.label}: a rare long gain for a play like this.",
       "factors": [
         "fluke",
         "call",
@@ -132,6 +141,7 @@
       "id": "penalty",
       "when": "penalty",
       "text": "{call.label} for {class.label}, with a flag: {penalty.label} on the {penalty.side}.",
+      "headline": "{call.label} for {class.label}, with a flag: {penalty.label} on #{fouler.number} {fouler.name}.",
       "factors": [
         "penalty",
         "call",
@@ -143,6 +153,7 @@
       "when": "matchup",
       "variant": "up",
       "text": "{call.label} against {matchup.presetLabel}: the matchup made {class.label} more likely (x{matchup.multiplier}).",
+      "headline": "{call.label} against {matchup.presetLabel}: that defense made {class.label} more likely.",
       "factors": [
         "matchup",
         "call",
@@ -154,6 +165,7 @@
       "when": "matchup",
       "variant": "down",
       "text": "{call.label} against {matchup.presetLabel}: {class.label} happened despite the matchup (x{matchup.multiplier}).",
+      "headline": "{call.label} against {matchup.presetLabel}: {class.label}, though that defense works against it.",
       "factors": [
         "matchup",
         "call",
@@ -164,6 +176,7 @@
       "id": "rating",
       "when": "rating",
       "text": "{call.label} for {class.label}: {rating.label} decided it (x{rating.multiplier}).",
+      "headline": "{call.label} for {class.label}: {rating.label} decided it.",
       "factors": [
         "rating",
         "call",
@@ -174,6 +187,7 @@
       "id": "formation",
       "when": "formation",
       "text": "{call.label} from {formation.formationLabel} against {formation.packageLabel}: {class.label} (x{formation.multiplier}).",
+      "headline": "{call.label} from {formation.formationLabel} against {formation.packageLabel}: {class.label}.",
       "factors": [
         "formation",
         "call",
@@ -184,6 +198,7 @@
       "id": "baseline",
       "when": "baseline",
       "text": "{call.label} for {class.label}, a common result in this situation ({class.pct}%).",
+      "headline": "{call.label} for {class.label}, a common result here.",
       "factors": [
         "call",
         "class"
@@ -195,6 +210,7 @@
       "when": "baseline",
       "variant": "plain",
       "text": "{call.label} for {class.label} ({class.pct}% of plays in this situation).",
+      "headline": "{call.label} for {class.label}.",
       "factors": [
         "call",
         "class"
@@ -204,6 +220,7 @@
       "id": "punt",
       "when": "punt",
       "text": "Punt: {class.label}, {special.gross} yards gross.",
+      "headline": "Punt by #{punter.number} {punter.name}: {class.label}, {special.gross} yards gross.",
       "factors": [
         "class",
         "special"
@@ -213,6 +230,7 @@
       "id": "fieldGoal",
       "when": "fieldGoal",
       "text": "{fieldGoal.distance}-yard field goal: {class.label} ({fieldGoal.pct}% chance).",
+      "headline": "{fieldGoal.distance}-yard field goal by #{kicker.number} {kicker.name}: {class.label}.",
       "factors": [
         "fieldGoal",
         "class"
@@ -222,6 +240,7 @@
       "id": "extraPoint",
       "when": "extraPoint",
       "text": "Extra point: {class.label} ({class.pct}% chance).",
+      "headline": "Extra point by #{kicker.number} {kicker.name}: {class.label}.",
       "factors": [
         "class"
       ]
@@ -230,6 +249,7 @@
       "id": "kickoff",
       "when": "kickoff",
       "text": "Kickoff: {class.label}.",
+      "headline": "Kickoff by #{kicker.number} {kicker.name}: {class.label}.",
       "factors": [
         "class"
       ]
@@ -238,6 +258,7 @@
       "id": "onside",
       "when": "onsideKick",
       "text": "Onside kick: {class.label} ({class.pct}% chance).",
+      "headline": "Onside kick by #{kicker.number} {kicker.name}: {class.label}.",
       "factors": [
         "class"
       ]
@@ -246,13 +267,130 @@
       "id": "kneel",
       "when": "kneel",
       "text": "The quarterback takes a knee.",
+      "headline": "#{ballCarrier.number} {ballCarrier.name} takes a knee.",
       "factors": []
     },
     {
       "id": "spike",
       "when": "spike",
       "text": "The quarterback spikes the ball to stop the clock.",
+      "headline": "#{passer.number} {passer.name} spikes the ball to stop the clock.",
       "factors": []
+    },
+    {
+      "id": "standoutBreakawayRun",
+      "when": "standout",
+      "variant": "breakawayRun",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.applied}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) broke it for {class.label}.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutBigCatch",
+      "when": "standout",
+      "variant": "bigCatch",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.applied}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) made {class.label}.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutSack",
+      "when": "standout",
+      "variant": "sack",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.applied}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) got the sack.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutPick",
+      "when": "standout",
+      "variant": "pick",
+      "text": "{call.label} for {class.label}: {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.applied}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) made the interception.",
+      "factors": [
+        "standout",
+        "class",
+        "call"
+      ]
+    },
+    {
+      "id": "standoutLongKick",
+      "when": "standout",
+      "variant": "longKick",
+      "text": "{fieldGoal.distance}-yard field goal: {class.label}, {standout.name}'s {standout.ratingLabel} ({standout.value}) made it a standout (x{standout.applied}).",
+      "headline": "Standout: #{standout.number} {standout.name}'s {standout.ratingLabel} ({standout.value}) hit the {fieldGoal.distance}-yard field goal.",
+      "factors": [
+        "standout",
+        "class",
+        "fieldGoal"
+      ]
+    },
+    {
+      "id": "reversedCompletionToIncomplete",
+      "when": "reversed",
+      "variant": "completionToIncomplete",
+      "text": "{call.label}: the catch was reversed on review. Incomplete.",
+      "headline": "{call.label}: the catch was reversed on review. Incomplete.",
+      "factors": [
+        "call",
+        "review"
+      ]
+    },
+    {
+      "id": "reversedFumbleToDown",
+      "when": "reversed",
+      "variant": "fumbleToDown",
+      "text": "{call.label}: the fumble was reversed on review. He was down first.",
+      "headline": "{call.label}: the fumble was reversed on review. He was down first.",
+      "factors": [
+        "call",
+        "review"
+      ]
+    },
+    {
+      "id": "reversedInterceptionToIncomplete",
+      "when": "reversed",
+      "variant": "interceptionToIncomplete",
+      "text": "{call.label}: the interception was reversed on review. Incomplete.",
+      "headline": "{call.label}: the interception was reversed on review. Incomplete.",
+      "factors": [
+        "call",
+        "review"
+      ]
+    },
+    {
+      "id": "reversedTouchdownToShort",
+      "when": "reversed",
+      "variant": "touchdownToShort",
+      "text": "{call.label}: the touchdown was reversed on review. Down short of the goal line.",
+      "headline": "{call.label}: the touchdown was reversed on review. Down short of the goal line.",
+      "factors": [
+        "call",
+        "review"
+      ]
+    },
+    {
+      "id": "reversedSpotLineToGain",
+      "when": "reversed",
+      "variant": "spotLineToGain",
+      "text": "{call.label}: the spot was changed on review.",
+      "headline": "{call.label}: the spot was changed on review.",
+      "factors": [
+        "call",
+        "review"
+      ]
     }
   ]
 }

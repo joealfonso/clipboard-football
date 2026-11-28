@@ -39,7 +39,15 @@ export type {
   KickoffOutcome,
   KickoffPlay,
   NoPlay,
+  OnField,
+  OnFieldSide,
   OnsideKickPlay,
+  ParticipantRole,
+  Participants,
+  CloseCall,
+  CloseCallKind,
+  PlayDetailM2,
+  Standout,
   PlayResult,
   PlaySide,
   PuntPlay,
@@ -47,6 +55,7 @@ export type {
   ScrimmagePlay,
   TwoPointPlay,
 } from "./play";
+export { CLOSE_CALL_KINDS, PARTICIPANT_ROLES } from "./play";
 export type {
   BaseRating,
   BaselinePenalties,
@@ -64,8 +73,16 @@ export type {
   MatchupCentered,
   Names,
   PairingRule,
+  ParticipantRole as ParticipantRoleConfig,
+  ParticipantTilt,
+  ParticipantsConfig,
   Personnel,
   Player,
+  CloseCallRates,
+  PositionShares,
+  StandoutKind,
+  StandoutKindId,
+  StandoutsConfig,
   Position,
   RatingDistribution,
   RatingEffect,
@@ -77,7 +94,7 @@ export type {
   WhyTemplate,
   WhyTemplates,
 } from "./engine";
-export { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
+export { BASE_RATINGS, jerseyNumberAllowed, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
 export type {
   CoachTables,
   CoachView,
@@ -95,7 +112,39 @@ export type {
   TeamName,
   TeamNames,
   TempoTable,
+  ChallengePolicy,
+  TempoModeCell,
+  TempoModes,
   SpecialTimeoutRole,
   ExpectedPointsTable,
   TimeoutTable,
 } from "./game";
+export type {
+  DefenseLine,
+  KickingLine,
+  PassingLine,
+  PlayerBoxScore,
+  PlayerLine,
+  PuntingLine,
+  RatingRank,
+  RatingRanks,
+  ReceivingLine,
+  RushingLine,
+} from "./game";
+export type {
+  ContinueAbout,
+  DecisionAnswer,
+  DecisionRequest,
+  Lineups,
+  OffenseCallChoice,
+  PenaltyPreview,
+  ReasonCode,
+  RequestKind,
+  RequestOption,
+  RequestEvent,
+  RequestScreen,
+  RequestState,
+  SessionErrorCode,
+  Tempo,
+} from "./game";
+export { REASON_CODES, TEMPOS } from "./game";

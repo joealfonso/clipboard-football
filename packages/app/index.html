@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clipboard Football</title>
+  </head>
+  <body>
+    <section id="main-menu" class="main-menu" aria-label="Main menu">
+      <div class="menu-frame splash">
+        <h1 class="wordmark"><span class="wm-line">Clipboard</span> <span class="wm-line">Football</span></h1>
+        <div class="menu-rule" aria-hidden="true"></div>
+        <div class="menu-cols">
+          <div class="menu-left">
+            <p class="tagline">Call the plays. The X's and O's run them.</p>
+            <p class="menu-lead">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <header id="top-bar" class="top-bar" aria-label="Scoreboard" hidden></header>
+    <main id="layout" class="layout" tabindex="-1" aria-label="Field" hidden>
+      <canvas id="field" class="field" aria-hidden="true"></canvas>
+      <section id="panel" class="panel overlay" aria-label="Game panel"></section>
+      <section id="mark-card" class="overlay mark-card-overlay" hidden></section>
+      <aside id="play-rail" class="play-rail" aria-label="Play rail" hidden></aside>
+    </main>
+    <div id="live" class="visually-hidden" aria-live="polite"></div>
+    <div id="too-small" class="too-small" hidden><p>Make the window larger to play.</p></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

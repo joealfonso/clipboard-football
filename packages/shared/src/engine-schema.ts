@@ -3,19 +3,22 @@
 
 import { z } from "zod";
 import type { CallerData } from "./caller";
-import { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
+import { BASE_RATINGS, jerseyNumberAllowed, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS, TRACE_FIELDS } from "./engine";
 import type {
   BaselinePenalties,
   BaselineScrimmage,
   BaselineSpecial,
+  CloseCallRates,
   Distributions,
   EngineConfig,
   EngineData,
   KickoffTable,
   MatchupCentered,
   Names,
+  ParticipantsConfig,
   Personnel,
   Player,
+  StandoutsConfig,
   RatingsConfig,
   TeamPool,
   WhyTemplates,
@@ -30,37 +33,79 @@ const nonNeg = z.number().int().nonnegative();
 
 // ---------------------------------------------------------------- players (A2)
 
+const playerFields = {
+  id: z.string().min(1),
+  name: z.string().min(1),
+  position,
+  ratings: z.strictObject(Object.fromEntries(BASE_RATINGS.map((r) => [r, rating])) as Record<(typeof BASE_RATINGS)[number], typeof rating>),
+  skills: z.record(z.string(), rating),
+};
+
+function skillsMatch(p: { position: (typeof POSITIONS)[number]; skills: Record<string, number> }, ctx: z.RefinementCtx): void {
+  const want = POSITION_SKILLS[p.position] as readonly string[];
+  for (const s of Object.keys(p.skills)) {
+    if (!want.includes(s)) ctx.addIssue({ code: "custom", message: `${s} is not a ${p.position} skill` });
+  }
+  for (const s of want) {
+    if (!(s in p.skills)) ctx.addIssue({ code: "custom", message: `${p.position} is missing skill ${s}` });
+  }
+}
+
+/** Player schema version 2 (M2 milestone A): adds the jersey number, an integer 0-99. */
 export const playerSchema = z
+  .strictObject({ schemaVersion: z.literal(PLAYER_SCHEMA_VERSION), ...playerFields, number: z.number().int().min(0).max(99) })
+  .superRefine(skillsMatch);
+
+/** Player schema version 1 (M1), kept so old pools can be read and migrated. */
+export const playerV1Schema = z.strictObject({ schemaVersion: z.literal(1), ...playerFields }).superRefine(skillsMatch);
+
+function uniqueNumbers(pool: { players: readonly { id: string; number: number }[] }, ctx: z.RefinementCtx): void {
+  const seen = new Map<number, string>();
+  for (const p of pool.players) {
+    const had = seen.get(p.number);
+    if (had !== undefined) ctx.addIssue({ code: "custom", message: `${p.id} and ${had} both wear ${p.number}` });
+    seen.set(p.number, p.id);
+  }
+}
+
+/** A team pool, schema version 2: numbers unique within the team (A2). */
+export const teamPoolSchema = z
   .strictObject({
     schemaVersion: z.literal(PLAYER_SCHEMA_VERSION),
-    id: z.string().min(1),
     name: z.string().min(1),
-    position,
-    ratings: z.strictObject(Object.fromEntries(BASE_RATINGS.map((r) => [r, rating])) as Record<(typeof BASE_RATINGS)[number], typeof rating>),
-    skills: z.record(z.string(), rating),
+    players: z.array(playerSchema).min(1),
   })
-  .superRefine((p, ctx) => {
-    const want = POSITION_SKILLS[p.position] as readonly string[];
-    for (const s of Object.keys(p.skills)) {
-      if (!want.includes(s)) ctx.addIssue({ code: "custom", message: `${s} is not a ${p.position} skill` });
-    }
-    for (const s of want) {
-      if (!(s in p.skills)) ctx.addIssue({ code: "custom", message: `${p.position} is missing skill ${s}` });
-    }
-  });
+  .superRefine(uniqueNumbers);
 
-export const teamPoolSchema = z.strictObject({
-  schemaVersion: z.literal(PLAYER_SCHEMA_VERSION),
+/** A version 1 pool (no numbers), read only to migrate it (sim: migrateTeamPool). */
+export const teamPoolV1Schema = z.strictObject({
+  schemaVersion: z.literal(1),
   name: z.string().min(1),
-  players: z.array(playerSchema).min(1),
+  players: z.array(playerV1Schema).min(1),
 });
 
 export function parsePlayer(json: unknown): Player {
   return playerSchema.parse(json) as Player;
 }
 
-export function parseTeamPool(json: unknown): TeamPool {
-  return teamPoolSchema.parse(json) as TeamPool;
+/**
+ * A version 2 team pool. With a rule set, every number must also be one the rule set allows for
+ * the player's position (Rule 5-1-2, rules.jerseyNumbers).
+ */
+export function parseTeamPool(json: unknown, rules?: Pick<RuleSet, "jerseyNumbers">): TeamPool {
+  const pool = teamPoolSchema.parse(json) as TeamPool;
+  if (rules !== undefined) {
+    const bad = pool.players.filter((p) => !jerseyNumberAllowed(rules, p.position, p.number));
+    if (bad.length > 0) {
+      throw new z.ZodError(bad.map((p) => ({ code: "custom" as const, path: ["players", pool.players.indexOf(p), "number"], message: `${p.id} (${p.position}) may not wear ${p.number}`, input: p.number })));
+    }
+  }
+  return pool;
+}
+
+/** A version 1 team pool (M1, no numbers). Migrate it with the sim's migrateTeamPool. */
+export function parseTeamPoolV1(json: unknown): Omit<TeamPool, "players"> & { readonly players: readonly Omit<Player, "number">[] } {
+  return teamPoolV1Schema.parse(json) as Omit<TeamPool, "players"> & { readonly players: readonly Omit<Player, "number">[] };
 }
 
 // ---------------------------------------------------------------- designed files
@@ -197,6 +242,7 @@ export const whySchema = z
         when: z.string().min(1),
         kinds: z.array(z.string()).optional(),
         text: z.string().min(1),
+        headline: z.string().min(1),
         factors: z.array(z.string()),
         variant: z.string().min(1).optional(),
       }),
@@ -204,7 +250,7 @@ export const whySchema = z
   })
   .superRefine((w, ctx) => {
     for (const t of w.templates) {
-      for (const m of t.text.matchAll(SLOT)) {
+      for (const m of [...t.text.matchAll(SLOT), ...t.headline.matchAll(SLOT)]) {
         if (!knownSlots.has(`${m[1]}.${m[2]}`)) ctx.addIssue({ code: "custom", message: `template ${t.id}: unknown trace field {${m[1]}.${m[2]}}` });
       }
       for (const f of t.factors) {
@@ -315,6 +361,104 @@ export const distributionsSchema = z.looseObject({
   drills: z.record(z.string(), z.record(z.string(), z.strictObject({ cuts: z.array(z.number()).min(2), n: posInt }))),
 });
 
+// ---------------------------------------------------------------- M2 B: who made the play
+
+const shares = z.partialRecord(position, z.number().nonnegative());
+const participantRole = z.strictObject({
+  side: z.enum(["offense", "defense"]),
+  byLeaf: z.record(z.string(), shares).optional(),
+  byClass: z.record(z.string(), shares).optional(),
+  byUnit: z.record(z.string(), shares).optional(),
+  flat: shares.optional(),
+  fallback: z.array(position).optional(),
+});
+
+/** Roles the engine reads from participants.json (packages/sim/src/engine/participants.ts). */
+export const PARTICIPANT_CONFIG_ROLES = [
+  "ballCarrier", "target", "tackler", "returnTackler", "coverageTackler", "sacker", "interceptor", "fumbleForcer", "defenseRecoverer", "offenseRecoverer", "returner",
+] as const;
+
+export const participantsSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    designed: z.literal(true),
+    note: z.string().optional(),
+    center: z.number(),
+    returnUnits: z.record(z.string(), slots),
+    receivingUnit: z.record(z.string(), z.string()),
+    slotWeights: z.partialRecord(position, z.array(z.number().positive()).min(1)),
+    roles: z.record(z.string(), participantRole),
+    tilts: z.array(z.strictObject({ role: z.string(), classes: z.array(z.string()).min(1), rating: z.string(), coef: z.number() })),
+    noTarget: z.array(z.string()),
+    foulers: z.record(z.string(), z.strictObject({ offense: z.array(position).min(1).optional(), defense: z.array(position).min(1).optional() })),
+  })
+  .superRefine((p, ctx) => {
+    for (const r of PARTICIPANT_CONFIG_ROLES) if (!(r in p.roles)) ctx.addIssue({ code: "custom", message: `participants.json has no role ${r}` });
+    for (const [k, s] of Object.entries(p.returnUnits)) {
+      const n = Object.values(s).reduce((a, b) => a + (b ?? 0), 0);
+      if (n !== 11) ctx.addIssue({ code: "custom", message: `return unit ${k} puts ${n} on the field` });
+    }
+    for (const [kind, unit] of Object.entries(p.receivingUnit)) if (!(unit in p.returnUnits)) ctx.addIssue({ code: "custom", message: `${kind} uses unknown return unit ${unit}` });
+    for (const t of p.tilts) if (!(t.role in p.roles)) ctx.addIssue({ code: "custom", message: `tilt on unknown role ${t.role}` });
+  });
+
+// ---------------------------------------------------------------- M2 F: standout plays
+
+const standoutKindIds = ["breakawayRun", "bigCatch", "sack", "pick", "longKick"] as const;
+export const standoutsSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    designed: z.literal(true),
+    note: z.string().optional(),
+    enabled: z.boolean(),
+    threshold: z.number().int().min(0).max(99),
+    kinds: z.array(
+      z.strictObject({
+        id: z.enum(standoutKindIds),
+        role: z.enum(["ballCarrier", "target", "sacker", "interceptor", "kicker"]),
+        positions: z.array(position).min(1),
+        ratings: z.array(z.string().min(1)).min(1),
+        family: z.enum(["run", "pass", "fieldGoal"]),
+        class: z.string().min(1),
+        minDistance: z.number().int().positive().optional(),
+        multiplier: z.number().min(1),
+      }),
+    ),
+    centering: z.strictObject(Object.fromEntries(standoutKindIds.map((k) => [k, z.number().positive()])) as Record<(typeof standoutKindIds)[number], z.ZodNumber>),
+  })
+  .superRefine((s, ctx) => {
+    const ids = s.kinds.map((k) => k.id);
+    if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "a standout kind is listed twice" });
+    const known = new Set<string>([...BASE_RATINGS, ...Object.values(POSITION_SKILLS).flat()]);
+    for (const k of s.kinds) {
+      for (const r of k.ratings) if (!known.has(r)) ctx.addIssue({ code: "custom", message: `standout kind ${k.id}: ${r} is not a rating (BASE_RATINGS or a position skill)` });
+    }
+    // At least one of a kind's positions must have one of its ratings. A position without any can
+    // never be elite for the kind (the sack kind's LB: linebackers have no Pass Rush; DECISIONS, M2 F).
+    for (const k of s.kinds) {
+      const has = k.positions.some((pos) => k.ratings.some((r) => [...BASE_RATINGS, ...(POSITION_SKILLS[pos] as readonly string[])].includes(r)));
+      if (!has) ctx.addIssue({ code: "custom", message: `${k.id}: none of ${k.positions.join(", ")} has any of ${k.ratings.join(", ")}` });
+    }
+  });
+
+/** M2 F (code review): every standout kind's class is one of its family's classes (run, pass from the baseline; fieldGoal's good, miss, blocked). */
+export function checkStandoutClasses(s: StandoutsConfig, scrimmage: Pick<BaselineScrimmage, "families">): StandoutsConfig {
+  const classes: Record<string, readonly string[]> = { fieldGoal: ["good", "miss", "blocked"], ...Object.fromEntries(Object.entries(scrimmage.families).map(([f, d]) => [f, d.classes])) };
+  const bad = s.kinds.filter((k) => !(classes[k.family] ?? []).includes(k.class));
+  if (bad.length > 0) {
+    throw new z.ZodError(bad.map((k) => ({ code: "custom" as const, path: ["kinds", s.kinds.indexOf(k), "class"], message: `standout kind ${k.id}: ${k.class} is not a ${k.family} class (${(classes[k.family] ?? []).join(", ") || "no such family"})`, input: k.class })));
+  }
+  return s;
+}
+
+// ---------------------------------------------------------------- M2 G: close calls
+
+const closeCallKinds = ["completionToIncomplete", "fumbleToDown", "interceptionToIncomplete", "touchdownToShort", "spotLineToGain"] as const;
+export const closeCallRatesSchema = z.looseObject({
+  generated: z.literal(true),
+  kinds: z.record(z.enum(closeCallKinds), z.looseObject({ reviewPer1000000: nonNeg.max(1_000_000), reversalPer10000: nonNeg.max(10_000) })),
+});
+
 export interface EngineFiles {
   readonly config: unknown;
   readonly scrimmage: unknown;
@@ -323,6 +467,9 @@ export interface EngineFiles {
   readonly kickoff: unknown;
   readonly matchup: unknown;
   readonly personnel: unknown;
+  readonly participants: unknown;
+  readonly standouts: unknown;
+  readonly closeCalls: unknown;
   readonly ratings: unknown;
   readonly distributions: unknown;
   readonly names: unknown;
@@ -341,6 +488,9 @@ export function parseEngineData(files: EngineFiles, rules: RuleSet, caller: Call
     kickoff: kickoffSchema.parse(files.kickoff) as unknown as KickoffTable,
     matchup: matchupCenteredSchema.parse(files.matchup) as unknown as MatchupCentered,
     personnel: personnelSchema.parse(files.personnel) as unknown as Personnel,
+    participants: participantsSchema.parse(files.participants) as unknown as ParticipantsConfig,
+    closeCalls: closeCallRatesSchema.parse(files.closeCalls) as unknown as CloseCallRates,
+    standouts: checkStandoutClasses(standoutsSchema.parse(files.standouts) as unknown as StandoutsConfig, baselineScrimmageSchema.parse(files.scrimmage) as unknown as BaselineScrimmage),
     ratings: ratingsSchema.parse(files.ratings) as unknown as RatingsConfig,
     distributions: distributionsSchema.parse(files.distributions) as unknown as Distributions,
     names: namesSchema.parse(files.names) as Names,

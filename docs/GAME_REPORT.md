@@ -6,9 +6,9 @@ Disclosure: every 2024-2025 run below is post hoc. A first holdout run was made 
 
 ## 1. In-sample check, 2016-2023 (run first)
 
-Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb`; code hash `458d4f78a4cc8136437b2bfb2753151e120fa41c3609cad449eb015077573d29`.
+Actual: regular-season games 2016-2023, season-weighted like the fits (2-season half-life anchored at 2023); home-field rows leave out 2020 and neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb`; code hash `9e889afcb6bb1ae739f11a3c03547f1b718903649aeb409e0fbe2db82395a289`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 7.366 ms per game, 76.1 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 7.566 ms per game, 78.4 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 
@@ -518,13 +518,17 @@ Every 2024-2025 game-level run so far, with its gated failures:
 - 2026-11-13, step 5d, counted as step 5b run 11 in docs/DECISIONS.md, after every step 5d change (docs/specs/m1-step5d-clock-fixes.md, milestones A-E and resolution 3) and Joseph's step 5d approvals: 0 gated failures, 3 accepted misses wider (post hoc).
 - 2026-11-13, step 5d, counted as step 5b run 12 in docs/DECISIONS.md, approvals and pins only, metrics must match run 11: Joseph's step 5d holdout known deviations and C7 run 8: 0 gated failures (post hoc; its speed reading was taken on a loaded machine).
 - 2026-11-13, step 5d, counted as step 5b run 13 in docs/DECISIONS.md, after the step 5d code review and spec check fixes, Joseph's rerun acceptances and C7 run 9: 1 gated failure (points.share.38+) and 2 accepted misses wider (post hoc).
-- 2026-11-13, step 5d, counted as step 5b run 14 in docs/DECISIONS.md (the run in section 2), approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 holdout acceptances, the gated-failure line's backticks and C7 run 10: 0 gated failures (post hoc).
+- 2026-11-14, step 5d, counted as step 5b run 14 in docs/DECISIONS.md, approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 holdout acceptances, the gated-failure line's backticks and C7 run 10: 0 gated failures (post hoc).
+- 2026-11-14, M2, counted as step 5b run 15 in docs/DECISIONS.md, M2 A-E pins only, metrics must match run 14: the jersey-number rules, the participants file, the why headlines and the M2 code change pinned hashes, not outcomes (in-sample outcome digests identical, docs/DECISIONS.md "M2"): 0 gated failures (post hoc).
+- 2026-11-14, M2, counted as step 5b run 16 in docs/DECISIONS.md, M2 pins only, metrics must match run 15: the code review fixes (the requests' state and run-off seconds, the tempo-mode data file) changed pinned hashes, not outcomes: 0 gated failures (post hoc).
+- 2026-11-14, M2, counted as step 5b run 17 in docs/DECISIONS.md, M2 F and G pins only, metrics must match run 16: standouts and close calls (both off in the calibrated baseline), the G1 rule set and the merged UI changed pinned hashes, not outcomes: 0 gated failures (post hoc).
+- 2026-11-14, M2, counted as step 5b run 18 in docs/DECISIONS.md (the run in section 2), M2 G review fixes, pins only, metrics must match run 17: the reversal labels, the failed-challenge timeout across quarters and the no-timeout cost (close calls off in the calibrated baseline) changed pinned code, not outcomes: 0 gated failures (post hoc).
 
 ## 2. Validation, 2024-2025 (holdout)
 
-Actual: regular-season games 2024-2025, unweighted; home-field rows leave out neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb`; code hash `458d4f78a4cc8136437b2bfb2753151e120fa41c3609cad449eb015077573d29`.
+Actual: regular-season games 2024-2025, unweighted; home-field rows leave out neutral sites. Predicted: 10,000 simulated games, 10 generated leagues x 1,000 games, run seed 20261112, 2026 rule set. Percent rows (unit pp) are in percent. Tolerances sha256 `b71e299e5aa6a34e281bbaa0f527c9693f39ef93985bed1bf8e7df868bd254bb`; code hash `9e889afcb6bb1ae739f11a3c03547f1b718903649aeb409e0fbe2db82395a289`.
 
-League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 8.318 ms per game, 85.8 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
+League settings (designed, tuned on 2016-2023): home rating edge 0.69, crowd noise 0.031, team strength SD 1.2. Invariant violations: 0. Postseason soak: 1,000 games, 0 ties. Speed: 7.468 ms per game, 77.4 s wall clock (darwin arm64, Apple M4, Node v25.6.0).
 
 Gated failures: .
 

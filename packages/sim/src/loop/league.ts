@@ -83,6 +83,7 @@ export function averageCoachFor(data: GameData): CoachPolicies {
   return averageCoach({
     caller: data.engine.caller, config: data.config, tables: data.tables, perDeadBall: data.engine.rules.timeouts.perTeamPerDeadBall,
     fieldGoals: { minDistance: fg.minDistance, maxDistance: fg.maxDistance, makePer10000: fg.makePer10000, kickDepth: fg.kickDepth, endZoneYards: data.engine.rules.field.endZoneYards },
+    challengePolicy: data.challengePolicy,
   });
 }
 

@@ -27,6 +27,9 @@ export const ENGINE_FILES = {
   kickoff: "data/engine/kickoff.json",
   matchup: "data/engine/matchup.centered.json",
   personnel: "data/engine/personnel.json",
+  participants: "data/engine/participants.json",
+  standouts: "data/engine/standouts.json",
+  closeCalls: "data/game/challenges.json",
   ratings: "data/players/ratings.json",
   distributions: "data/players/distributions.json",
   names: "data/players/names.json",
@@ -40,6 +43,8 @@ export const GAME_FILES = {
   ep: "data/game/ep.json",
   league: "data/game/league.json",
   teamNames: "data/teams/names.json",
+  tempoModes: "data/game/tempo-modes.json",
+  challengePolicy: "data/game/challenge-policy.json",
 } as const;
 
 /** Every data file the game reads, by repo path. */

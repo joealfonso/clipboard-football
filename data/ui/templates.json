@@ -1,0 +1,2974 @@
+{
+  "version": 2,
+  "designed": true,
+  "note": "UI diagram templates and timing for the field animation (designed, not fitted; docs/specs/m2-playable-game-design.md, 'Rule for what may be drawn'). Alignments are [x, depth] in yards: x from the middle of the field, positive to the offense's right; depth off the ball, offense below the line and defense above it. Routes, drops, line steps and read steps are waypoints [in, up] from the alignment: 'up' is up the screen (upfield for the offense, away from the line for the defense) and 'in' is along the template's axis: 'in' (the default) toward the middle of the field, 'strong' toward the strong side, 'play' toward the run's play side (the engine's runLocation; the strong side when it is middle or missing). Version 2 (docs/specs/m2-play-calling-and-motion.md, revision 2026-11-14, real routes and slower pace): a route is a list of waypoints or { pts, finish: sit | continue | block | stalk, axis }; a waypoint is [in, up] or { p, pauseMs, pace }. Pass routes are keyed by receiver role (s1 to s3 on the strong side, w1 to w3 on the weak side, counted from the sideline in; 'role:position' first, then the role, then the position). Every route and number here is designed, not fitted. Diagram movement never carries the ball; only engine facts do.",
+  "timing": {
+    "runoffMaxMs": 600,
+    "setMs": 800,
+    "holdMs": 400,
+    "scoreHoldMs": 800,
+    "crossfadeMs": 200,
+    "routeAlpha": 0.4
+  },
+  "field": {
+    "markYards": 1.4,
+    "markMinPx": 14,
+    "losFromTop": 0.7,
+    "panEdgeYards": 5,
+    "clearOfBallYards": 2.5,
+    "linemanClearYards": 1.5
+  },
+  "offense": {
+    "shotgun": {
+      "QB1": [
+        0,
+        5
+      ],
+      "RB1": [
+        -2,
+        5
+      ],
+      "WR1": [
+        -21,
+        1
+      ],
+      "WR2": [
+        21,
+        1
+      ],
+      "WR3": [
+        14,
+        1.5
+      ],
+      "TE1": [
+        -6,
+        1
+      ],
+      "OL1": [
+        -4,
+        1
+      ],
+      "OL2": [
+        -2,
+        1
+      ],
+      "OL3": [
+        0,
+        1
+      ],
+      "OL4": [
+        2,
+        1
+      ],
+      "OL5": [
+        4,
+        1
+      ]
+    },
+    "underCenter": {
+      "QB1": [
+        0,
+        3.25
+      ],
+      "RB1": [
+        0,
+        7
+      ],
+      "WR1": [
+        -21,
+        1
+      ],
+      "WR2": [
+        21,
+        1
+      ],
+      "TE1": [
+        -6,
+        1
+      ],
+      "TE2": [
+        6,
+        1
+      ],
+      "OL1": [
+        -4,
+        1
+      ],
+      "OL2": [
+        -2,
+        1
+      ],
+      "OL3": [
+        0,
+        1
+      ],
+      "OL4": [
+        2,
+        1
+      ],
+      "OL5": [
+        4,
+        1
+      ]
+    },
+    "pistol": {
+      "QB1": [
+        0,
+        4
+      ],
+      "RB1": [
+        0,
+        7
+      ],
+      "WR1": [
+        -21,
+        1
+      ],
+      "WR2": [
+        21,
+        1
+      ],
+      "WR3": [
+        -14,
+        1.5
+      ],
+      "TE1": [
+        6,
+        1
+      ],
+      "OL1": [
+        -4,
+        1
+      ],
+      "OL2": [
+        -2,
+        1
+      ],
+      "OL3": [
+        0,
+        1
+      ],
+      "OL4": [
+        2,
+        1
+      ],
+      "OL5": [
+        4,
+        1
+      ]
+    },
+    "empty": {
+      "QB1": [
+        0,
+        5
+      ],
+      "WR1": [
+        -21,
+        1
+      ],
+      "WR2": [
+        21,
+        1
+      ],
+      "WR3": [
+        -14,
+        1.5
+      ],
+      "WR4": [
+        14,
+        1.5
+      ],
+      "TE1": [
+        -6,
+        1
+      ],
+      "OL1": [
+        -4,
+        1
+      ],
+      "OL2": [
+        -2,
+        1
+      ],
+      "OL3": [
+        0,
+        1
+      ],
+      "OL4": [
+        2,
+        1
+      ],
+      "OL5": [
+        4,
+        1
+      ]
+    },
+    "heavy": {
+      "QB1": [
+        0,
+        3.25
+      ],
+      "RB1": [
+        0,
+        7
+      ],
+      "TE1": [
+        -7,
+        1
+      ],
+      "TE2": [
+        7,
+        1
+      ],
+      "TE3": [
+        9,
+        2.5
+      ],
+      "OL1": [
+        -5,
+        1
+      ],
+      "OL2": [
+        -3,
+        1
+      ],
+      "OL3": [
+        -1,
+        1
+      ],
+      "OL4": [
+        1,
+        1
+      ],
+      "OL5": [
+        3,
+        1
+      ],
+      "OL6": [
+        5,
+        1
+      ]
+    }
+  },
+  "kick": {
+    "punt": {
+      "P1": [
+        0,
+        14
+      ],
+      "S1": [
+        0,
+        6
+      ],
+      "OL1": [
+        -4,
+        1
+      ],
+      "OL2": [
+        -2,
+        1
+      ],
+      "OL3": [
+        0,
+        1
+      ],
+      "OL4": [
+        2,
+        1
+      ],
+      "OL5": [
+        4,
+        1
+      ],
+      "LB1": [
+        -6,
+        1.5
+      ],
+      "LB2": [
+        6,
+        1.5
+      ],
+      "TE1": [
+        -22,
+        1
+      ],
+      "TE2": [
+        22,
+        1
+      ]
+    },
+    "fieldGoal": {
+      "K1": [
+        -1.5,
+        8.5
+      ],
+      "P1": [
+        0,
+        7
+      ],
+      "OL1": [
+        -5,
+        1
+      ],
+      "OL2": [
+        -3,
+        1
+      ],
+      "OL3": [
+        -1,
+        1
+      ],
+      "OL4": [
+        1,
+        1
+      ],
+      "OL5": [
+        3,
+        1
+      ],
+      "OL6": [
+        5,
+        1
+      ],
+      "TE1": [
+        -7,
+        1
+      ],
+      "TE2": [
+        7,
+        1
+      ],
+      "TE3": [
+        -9,
+        1.5
+      ]
+    },
+    "extraPoint": {
+      "K1": [
+        -1.5,
+        8.5
+      ],
+      "P1": [
+        0,
+        7
+      ],
+      "OL1": [
+        -5,
+        1
+      ],
+      "OL2": [
+        -3,
+        1
+      ],
+      "OL3": [
+        -1,
+        1
+      ],
+      "OL4": [
+        1,
+        1
+      ],
+      "OL5": [
+        3,
+        1
+      ],
+      "OL6": [
+        5,
+        1
+      ],
+      "TE1": [
+        -7,
+        1
+      ],
+      "TE2": [
+        7,
+        1
+      ],
+      "TE3": [
+        -9,
+        1.5
+      ]
+    },
+    "kickoff": {
+      "K1": [
+        0,
+        6
+      ],
+      "LB1": [
+        -20,
+        1
+      ],
+      "LB2": [
+        -15,
+        1
+      ],
+      "LB3": [
+        -10,
+        1
+      ],
+      "LB4": [
+        -5,
+        1
+      ],
+      "S1": [
+        5,
+        1
+      ],
+      "S2": [
+        10,
+        1
+      ],
+      "S3": [
+        15,
+        1
+      ],
+      "CB1": [
+        -24,
+        1
+      ],
+      "CB2": [
+        20,
+        1
+      ],
+      "CB3": [
+        24,
+        1
+      ]
+    }
+  },
+  "defense": {
+    "base": {
+      "DL1": [
+        -5,
+        1
+      ],
+      "DL2": [
+        -1.8,
+        1
+      ],
+      "DL3": [
+        1.8,
+        1
+      ],
+      "DL4": [
+        5,
+        1
+      ],
+      "LB1": [
+        -4,
+        5
+      ],
+      "LB2": [
+        0,
+        5
+      ],
+      "LB3": [
+        4,
+        5
+      ],
+      "CB1": [
+        -21,
+        6
+      ],
+      "CB2": [
+        21,
+        6
+      ],
+      "S1": [
+        -9,
+        12
+      ],
+      "S2": [
+        9,
+        12
+      ]
+    },
+    "nickel": {
+      "DL1": [
+        -5,
+        1
+      ],
+      "DL2": [
+        -1.8,
+        1
+      ],
+      "DL3": [
+        1.8,
+        1
+      ],
+      "DL4": [
+        5,
+        1
+      ],
+      "LB1": [
+        -2.5,
+        5
+      ],
+      "LB2": [
+        2.5,
+        5
+      ],
+      "CB1": [
+        -21,
+        6
+      ],
+      "CB2": [
+        21,
+        6
+      ],
+      "CB3": [
+        14,
+        5
+      ],
+      "S1": [
+        -9,
+        12
+      ],
+      "S2": [
+        9,
+        12
+      ]
+    },
+    "dime": {
+      "DL1": [
+        -5,
+        1
+      ],
+      "DL2": [
+        -1.8,
+        1
+      ],
+      "DL3": [
+        1.8,
+        1
+      ],
+      "DL4": [
+        5,
+        1
+      ],
+      "LB1": [
+        0,
+        5
+      ],
+      "CB1": [
+        -21,
+        6
+      ],
+      "CB2": [
+        21,
+        6
+      ],
+      "CB3": [
+        14,
+        5
+      ],
+      "CB4": [
+        -14,
+        5
+      ],
+      "S1": [
+        -9,
+        12
+      ],
+      "S2": [
+        9,
+        12
+      ]
+    },
+    "goalLine": {
+      "DL1": [
+        -6,
+        1
+      ],
+      "DL2": [
+        -3,
+        1
+      ],
+      "DL3": [
+        0,
+        1
+      ],
+      "DL4": [
+        3,
+        1
+      ],
+      "DL5": [
+        6,
+        1
+      ],
+      "LB1": [
+        -4.5,
+        4.5
+      ],
+      "LB2": [
+        0,
+        4.5
+      ],
+      "LB3": [
+        4.5,
+        4.5
+      ],
+      "CB1": [
+        -18,
+        3
+      ],
+      "CB2": [
+        18,
+        3
+      ],
+      "S1": [
+        0,
+        8
+      ]
+    },
+    "prevent": {
+      "DL1": [
+        -3,
+        1
+      ],
+      "DL2": [
+        0,
+        1
+      ],
+      "DL3": [
+        3,
+        1
+      ],
+      "LB1": [
+        0,
+        8
+      ],
+      "CB1": [
+        -21,
+        10
+      ],
+      "CB2": [
+        21,
+        10
+      ],
+      "CB3": [
+        -10,
+        14
+      ],
+      "CB4": [
+        10,
+        14
+      ],
+      "S1": [
+        -12,
+        20
+      ],
+      "S2": [
+        0,
+        23
+      ],
+      "S3": [
+        12,
+        20
+      ]
+    }
+  },
+  "returnUnits": {
+    "kickoff": {
+      "RB1": [
+        -3,
+        60
+      ],
+      "WR1": [
+        3,
+        60
+      ],
+      "WR2": [
+        0,
+        50
+      ],
+      "TE1": [
+        -8,
+        30
+      ],
+      "TE2": [
+        8,
+        30
+      ],
+      "LB1": [
+        -14,
+        22
+      ],
+      "LB2": [
+        0,
+        22
+      ],
+      "LB3": [
+        14,
+        22
+      ],
+      "CB1": [
+        -20,
+        26
+      ],
+      "CB2": [
+        20,
+        26
+      ],
+      "S1": [
+        0,
+        38
+      ]
+    },
+    "punt": {
+      "WR1": [
+        0,
+        40
+      ],
+      "DL1": [
+        -3,
+        1
+      ],
+      "DL2": [
+        0,
+        1
+      ],
+      "DL3": [
+        3,
+        1
+      ],
+      "LB1": [
+        -7,
+        2
+      ],
+      "LB2": [
+        7,
+        2
+      ],
+      "LB3": [
+        0,
+        6
+      ],
+      "CB1": [
+        -21,
+        1.5
+      ],
+      "CB2": [
+        21,
+        1.5
+      ],
+      "CB3": [
+        -12,
+        8
+      ],
+      "S1": [
+        6,
+        14
+      ]
+    },
+    "fieldGoal": {
+      "DL1": [
+        -5,
+        1
+      ],
+      "DL2": [
+        -1.8,
+        1
+      ],
+      "DL3": [
+        1.8,
+        1
+      ],
+      "DL4": [
+        5,
+        1
+      ],
+      "LB1": [
+        -4,
+        3
+      ],
+      "LB2": [
+        0,
+        3
+      ],
+      "LB3": [
+        4,
+        3
+      ],
+      "CB1": [
+        -9,
+        2
+      ],
+      "CB2": [
+        9,
+        2
+      ],
+      "S1": [
+        -3,
+        10
+      ],
+      "S2": [
+        3,
+        10
+      ]
+    }
+  },
+  "lineContact": {
+    "note": "Linemen on both sides stop where their marks meet (centers one mark apart, 1.4 yd), on runs, pass sets and kicks. Who won a block is not drawn: the engine doesn't decide it. By leaf first (insideRun, outsideRun, qbSneak, screenPass, playAction), then the family (run, pass, kick); OLT and DLE are the outermost OL and DL on each side and fall back to OL and DL. Run steps are on the play axis: a zone step toward the play side, which the DL mirror.",
+    "run": {
+      "OL": [
+        [
+          0,
+          0.3
+        ]
+      ],
+      "DL": [
+        [
+          0,
+          -0.3
+        ]
+      ]
+    },
+    "pass": {
+      "OL": [
+        [
+          0,
+          -1.5
+        ]
+      ],
+      "DL": [
+        [
+          0,
+          -2.1
+        ]
+      ],
+      "OLT": [
+        [
+          -1.2,
+          -1.8
+        ]
+      ],
+      "DLE": [
+        [
+          -1.5,
+          -0.5
+        ],
+        [
+          -1.7,
+          -2.1
+        ]
+      ]
+    },
+    "kick": {
+      "OL": [
+        [
+          0,
+          0.3
+        ]
+      ],
+      "DL": [
+        [
+          0,
+          -0.3
+        ]
+      ]
+    },
+    "insideRun": {
+      "OL": {
+        "pts": [
+          [
+            1.0,
+            0.3
+          ]
+        ],
+        "axis": "play"
+      },
+      "DL": {
+        "pts": [
+          [
+            1.0,
+            -0.3
+          ]
+        ],
+        "axis": "play"
+      }
+    },
+    "outsideRun": {
+      "OL": {
+        "pts": [
+          [
+            1.8,
+            0.2
+          ]
+        ],
+        "axis": "play"
+      },
+      "DL": {
+        "pts": [
+          [
+            1.8,
+            -0.2
+          ]
+        ],
+        "axis": "play"
+      }
+    },
+    "qbSneak": {
+      "OL": {
+        "pts": [
+          [
+            0,
+            0.3
+          ]
+        ],
+        "axis": "play"
+      },
+      "DL": {
+        "pts": [
+          [
+            0,
+            -0.3
+          ]
+        ],
+        "axis": "play"
+      }
+    },
+    "screenPass": {
+      "OL": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -1
+            ],
+            "pauseMs": 400
+          },
+          [
+            4,
+            1.5
+          ]
+        ],
+        "axis": "strong"
+      },
+      "OLT": [
+        [
+          0,
+          -1.5
+        ]
+      ],
+      "DL": [
+        [
+          0,
+          -2.6
+        ],
+        [
+          0,
+          -4
+        ]
+      ]
+    },
+    "playAction": {
+      "OL": {
+        "pts": [
+          [
+            0.8,
+            1
+          ],
+          [
+            0.8,
+            0.6
+          ]
+        ],
+        "axis": "strong"
+      },
+      "OLT": [
+        [
+          -1.2,
+          -1.8
+        ]
+      ],
+      "DL": {
+        "pts": [
+          [
+            0.8,
+            -0.6
+          ]
+        ],
+        "axis": "strong"
+      },
+      "DLE": [
+        [
+          -1.5,
+          -0.5
+        ],
+        [
+          -1.7,
+          -2.1
+        ]
+      ]
+    }
+  },
+  "lineSpacing": {
+    "minPx": 19,
+    "maxDepth": 1.5
+  },
+  "routes": {
+    "insideRun": {
+      "TE": {
+        "pts": [
+          [
+            1.2,
+            0.8
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      },
+      "WR": {
+        "pts": [
+          [
+            0,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "QB": {
+        "pts": [
+          [
+            -3.5,
+            -1.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "play"
+      },
+      "RB": {
+        "pts": [
+          [
+            1,
+            2.5
+          ],
+          [
+            1,
+            7
+          ]
+        ],
+        "finish": "continue",
+        "axis": "play"
+      }
+    },
+    "outsideRun": {
+      "TE": {
+        "pts": [
+          [
+            2,
+            0.5
+          ],
+          [
+            3,
+            1.5
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      },
+      "WR": {
+        "pts": [
+          [
+            0,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "QB": {
+        "pts": [
+          [
+            -3.5,
+            -1.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "play"
+      },
+      "RB": {
+        "pts": [
+          [
+            2.5,
+            2.5
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            9,
+            8
+          ]
+        ],
+        "finish": "continue",
+        "axis": "play"
+      }
+    },
+    "qbSneak": {
+      "TE": {
+        "pts": [
+          [
+            0,
+            0.5
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      },
+      "WR": {
+        "pts": [
+          [
+            0,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "RB": {
+        "pts": [
+          [
+            0,
+            1.5
+          ]
+        ],
+        "finish": "block",
+        "axis": "play"
+      }
+    },
+    "shortPass": {
+      "s1": {
+        "pts": [
+          [
+            0,
+            3
+          ],
+          [
+            5,
+            8
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -7,
+            4
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            5
+          ],
+          [
+            -1,
+            6
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w1": {
+        "pts": [
+          [
+            0,
+            6
+          ],
+          [
+            0.8,
+            5
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            2.5
+          ],
+          [
+            -4,
+            3
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          [
+            -2,
+            1.5
+          ],
+          [
+            -6,
+            2
+          ],
+          [
+            -8,
+            4
+          ]
+        ],
+        "finish": "continue",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            0,
+            -2.25
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
+    },
+    "intermediatePass": {
+      "s1": {
+        "pts": [
+          [
+            -0.5,
+            4
+          ],
+          [
+            0,
+            14
+          ],
+          [
+            7,
+            14.5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          [
+            0,
+            11
+          ],
+          [
+            0.8,
+            9.5
+          ]
+        ],
+        "finish": "sit"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            2
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            14,
+            5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w1": {
+        "pts": [
+          [
+            0,
+            13
+          ],
+          [
+            -3,
+            11.5
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            10
+          ],
+          [
+            6,
+            10.5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          {
+            "p": [
+              1,
+              0.5
+            ],
+            "pauseMs": 600
+          },
+          [
+            -4,
+            2
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            -1.5,
+            -4.7
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
+    },
+    "deepPass": {
+      "s1": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -1.5,
+            30
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s1:TE": {
+        "pts": [
+          [
+            -1.5,
+            4
+          ],
+          [
+            -1.5,
+            29
+          ]
+        ],
+        "finish": "sit"
+      },
+      "s2": {
+        "pts": [
+          [
+            0,
+            12
+          ],
+          [
+            5,
+            22
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            8
+          ],
+          [
+            5,
+            20
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w1": {
+        "pts": [
+          [
+            0,
+            12
+          ],
+          [
+            6,
+            24
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            16
+          ],
+          [
+            6,
+            22
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          [
+            2.5,
+            4
+          ],
+          [
+            2,
+            28.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            -2,
+            -6.8
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      },
+      "s2:TE": {
+        "pts": [
+          [
+            1.5,
+            4
+          ],
+          [
+            1.5,
+            29
+          ]
+        ],
+        "finish": "sit"
+      },
+      "s3:TE": {
+        "pts": [
+          [
+            1.5,
+            4
+          ],
+          [
+            1.5,
+            29
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w1:TE": {
+        "pts": [
+          [
+            -3,
+            6
+          ],
+          [
+            -2,
+            29
+          ]
+        ],
+        "finish": "sit"
+      },
+      "w2:TE": {
+        "pts": [
+          [
+            -1.5,
+            4
+          ],
+          [
+            -1.5,
+            29
+          ]
+        ],
+        "finish": "sit"
+      }
+    },
+    "screenPass": {
+      "s1": {
+        "pts": [
+          [
+            0,
+            4
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "s2": {
+        "pts": [
+          [
+            -1,
+            -1
+          ],
+          [
+            -4,
+            0
+          ]
+        ],
+        "finish": "sit"
+      },
+      "s2:TE": {
+        "pts": [
+          [
+            -2,
+            2
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "s3": {
+        "pts": [
+          [
+            -2,
+            3
+          ]
+        ],
+        "finish": "stalk"
+      },
+      "w1": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -1.5,
+            18
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            8
+          ],
+          [
+            5,
+            9
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          {
+            "p": [
+              1,
+              0.5
+            ],
+            "pauseMs": 500
+          },
+          [
+            5,
+            -0.5
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          [
+            0,
+            -3
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
+    },
+    "playAction": {
+      "s1": {
+        "pts": [
+          [
+            0,
+            6
+          ],
+          [
+            14,
+            16
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s2": {
+        "pts": [
+          {
+            "p": [
+              0,
+              1
+            ],
+            "pauseMs": 250
+          },
+          [
+            6,
+            3
+          ],
+          [
+            14,
+            5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "s3": {
+        "pts": [
+          [
+            0,
+            10
+          ],
+          [
+            6,
+            10.5
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w1": {
+        "pts": [
+          [
+            -1,
+            2
+          ],
+          [
+            -1.5,
+            24
+          ]
+        ],
+        "finish": "continue"
+      },
+      "w2": {
+        "pts": [
+          [
+            0,
+            7
+          ],
+          [
+            -5,
+            12
+          ]
+        ],
+        "finish": "continue"
+      },
+      "RB": {
+        "pts": [
+          [
+            2,
+            1.5
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "finish": "block",
+        "axis": "strong"
+      },
+      "QB": {
+        "pts": [
+          {
+            "p": [
+              1,
+              -0.5
+            ],
+            "pauseMs": 150
+          },
+          [
+            -2,
+            -3
+          ]
+        ],
+        "finish": "sit",
+        "axis": "strong"
+      }
+    },
+    "kick": {
+      "OL": [
+        [
+          0,
+          0.5
+        ]
+      ],
+      "TE": [
+        [
+          0,
+          1
+        ]
+      ],
+      "LB": [
+        [
+          0,
+          1
+        ]
+      ],
+      "S": [
+        [
+          0,
+          1
+        ]
+      ],
+      "K": [
+        [
+          0,
+          1
+        ]
+      ],
+      "P": [
+        [
+          0,
+          0
+        ]
+      ],
+      "RB": [
+        [
+          0,
+          1
+        ]
+      ],
+      "WR": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    "cover": {
+      "K": [
+        [
+          0,
+          12
+        ]
+      ],
+      "P": [
+        [
+          0,
+          6
+        ]
+      ],
+      "LB": [
+        [
+          0,
+          22
+        ]
+      ],
+      "S": [
+        [
+          0,
+          22
+        ]
+      ],
+      "CB": [
+        [
+          0,
+          24
+        ]
+      ],
+      "OL": [
+        [
+          0,
+          3
+        ]
+      ],
+      "TE": [
+        [
+          0,
+          20
+        ]
+      ]
+    }
+  },
+  "drops": {
+    "zone": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            3
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S": [
+        {
+          "p": [
+            0,
+            2
+          ],
+          "pace": 0.55
+        }
+      ]
+    },
+    "man": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            1.5
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S1": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    "blitz": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "LB": [
+        [
+          0.8,
+          -2
+        ],
+        [
+          0.5,
+          -6
+        ]
+      ],
+      "CB": [
+        [
+          0,
+          5
+        ]
+      ],
+      "S": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    "run": {
+      "DL": [
+        [
+          0,
+          -2
+        ]
+      ],
+      "LB": [
+        [
+          0,
+          -2
+        ]
+      ],
+      "CB": [
+        [
+          1,
+          -1
+        ]
+      ],
+      "S": [
+        [
+          0,
+          -3
+        ]
+      ]
+    },
+    "prevent": {
+      "DL": [
+        [
+          0,
+          -2
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            3
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S": [
+        {
+          "p": [
+            0,
+            2
+          ],
+          "pace": 0.55
+        }
+      ]
+    },
+    "kick": {
+      "DL": [
+        [
+          0,
+          -2
+        ]
+      ],
+      "LB": [
+        [
+          0,
+          -1
+        ]
+      ],
+      "CB": [
+        [
+          0,
+          2
+        ]
+      ],
+      "S": [
+        [
+          0,
+          -2
+        ]
+      ]
+    },
+    "return": {
+      "DL": [
+        [
+          0,
+          -6
+        ]
+      ],
+      "LB": [
+        [
+          0,
+          -6
+        ]
+      ],
+      "CB": [
+        [
+          0,
+          -4
+        ]
+      ],
+      "S": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "TE": [
+        [
+          0,
+          -6
+        ]
+      ],
+      "RB": [
+        [
+          0,
+          -4
+        ]
+      ],
+      "WR": [
+        [
+          0,
+          -4
+        ]
+      ]
+    },
+    "cover3": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            3
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S1": [
+        [
+          7,
+          2
+        ]
+      ]
+    },
+    "cover1": {
+      "DL": [
+        [
+          0,
+          -3
+        ]
+      ],
+      "CB": [
+        {
+          "p": [
+            -1,
+            1.5
+          ],
+          "pace": 0.55
+        }
+      ],
+      "S1": [
+        [
+          7,
+          4
+        ]
+      ],
+      "S2": [
+        [
+          1,
+          -6
+        ]
+      ]
+    }
+  },
+  "readStep": {
+    "run": {
+      "LB": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -0.8
+            ],
+            "pace": 0.5
+          },
+          {
+            "p": [
+              1.5,
+              -1.5
+            ],
+            "pace": 0.6
+          }
+        ],
+        "axis": "play"
+      },
+      "S": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -1
+            ],
+            "pace": 0.5
+          }
+        ],
+        "axis": "play"
+      },
+      "CB": {
+        "pts": [
+          {
+            "p": [
+              0,
+              1.5
+            ],
+            "pace": 0.5
+          }
+        ],
+        "axis": "play"
+      }
+    },
+    "pass": {
+      "LB": [
+        {
+          "p": [
+            0,
+            -0.5
+          ],
+          "pace": 0.4
+        }
+      ]
+    },
+    "playAction": {
+      "LB": {
+        "pts": [
+          {
+            "p": [
+              0.5,
+              -1.5
+            ],
+            "pace": 0.6
+          }
+        ],
+        "axis": "strong"
+      },
+      "S": {
+        "pts": [
+          {
+            "p": [
+              0,
+              -1
+            ],
+            "pace": 0.5
+          }
+        ],
+        "axis": "strong"
+      }
+    }
+  },
+  "mesh": {
+    "insideRun": [
+      1.0,
+      4.5
+    ],
+    "outsideRun": [
+      2.5,
+      4.5
+    ]
+  },
+  "presetDrops": {
+    "baseCover3": "cover3",
+    "baseCover2": "zone",
+    "runStuff": "run",
+    "nickelCover3": "cover3",
+    "nickelCover4": "zone",
+    "nickelCover2": "zone",
+    "nickel2Man": "man",
+    "nickelCover1": "cover1",
+    "nickelCover1Blitz": "blitz",
+    "dimeCover4": "zone",
+    "dimeCover0Blitz": "blitz",
+    "goalLine": "run",
+    "prevent": "prevent"
+  },
+  "passDepth": {
+    "shortPass": 6,
+    "intermediatePass": 14,
+    "deepPass": 28,
+    "screenPass": -2,
+    "playAction": 14
+  },
+  "screenFloorYards": -8,
+  "catchFloorYards": {
+    "deepPass": 20
+  },
+  "presetAlignment": {
+    "baseCover2": {
+      "S1": [
+        -11,
+        12
+      ],
+      "S2": [
+        11,
+        12
+      ]
+    },
+    "nickelCover2": {
+      "S1": [
+        -11,
+        12
+      ],
+      "S2": [
+        11,
+        12
+      ]
+    },
+    "nickel2Man": {
+      "S1": [
+        -11,
+        12
+      ],
+      "S2": [
+        11,
+        12
+      ]
+    },
+    "nickelCover4": {
+      "S1": [
+        -9,
+        14
+      ],
+      "S2": [
+        9,
+        14
+      ],
+      "CB1": [
+        -21,
+        8
+      ],
+      "CB2": [
+        21,
+        8
+      ]
+    },
+    "dimeCover4": {
+      "S1": [
+        -9,
+        14
+      ],
+      "S2": [
+        9,
+        14
+      ],
+      "CB1": [
+        -21,
+        8
+      ],
+      "CB2": [
+        21,
+        8
+      ]
+    },
+    "nickelCover1Blitz": {
+      "S1": [
+        0,
+        14
+      ],
+      "S2": [
+        5,
+        5
+      ]
+    },
+    "runStuff": {
+      "S1": [
+        0,
+        12
+      ],
+      "S2": [
+        6,
+        5
+      ]
+    },
+    "dimeCover0Blitz": {
+      "S1": [
+        -6,
+        6
+      ],
+      "S2": [
+        6,
+        6
+      ]
+    },
+    "baseCover3": {
+      "S1": [
+        -7,
+        12
+      ],
+      "S2": [
+        7,
+        12
+      ]
+    },
+    "nickelCover3": {
+      "S1": [
+        -7,
+        12
+      ],
+      "S2": [
+        7,
+        12
+      ]
+    },
+    "nickelCover1": {
+      "S1": [
+        -7,
+        12
+      ],
+      "S2": [
+        7,
+        12
+      ]
+    }
+  },
+  "zones": {
+    "baseCover3": {
+      "CB1": [
+        -26,
+        10,
+        -9,
+        22,
+        "deep"
+      ],
+      "CB2": [
+        9,
+        10,
+        26,
+        22,
+        "deep"
+      ],
+      "S1": [
+        -9,
+        12,
+        9,
+        24,
+        "deep"
+      ],
+      "S2": [
+        4,
+        3,
+        16,
+        9,
+        "under"
+      ],
+      "LB1": [
+        -12,
+        3,
+        -2,
+        9,
+        "under"
+      ],
+      "LB2": [
+        -4,
+        3,
+        4,
+        9,
+        "under"
+      ],
+      "LB3": [
+        2,
+        3,
+        12,
+        9,
+        "under"
+      ]
+    },
+    "nickelCover3": {
+      "CB1": [
+        -26,
+        10,
+        -9,
+        22,
+        "deep"
+      ],
+      "CB2": [
+        9,
+        10,
+        26,
+        22,
+        "deep"
+      ],
+      "S1": [
+        -9,
+        12,
+        9,
+        24,
+        "deep"
+      ],
+      "S2": [
+        4,
+        3,
+        16,
+        9,
+        "under"
+      ],
+      "LB1": [
+        -10,
+        3,
+        0,
+        9,
+        "under"
+      ],
+      "LB2": [
+        0,
+        3,
+        10,
+        9,
+        "under"
+      ],
+      "CB3": [
+        10,
+        3,
+        22,
+        9,
+        "under"
+      ]
+    },
+    "baseCover2": {
+      "S1": [
+        -26,
+        11,
+        0,
+        23,
+        "deep"
+      ],
+      "S2": [
+        0,
+        11,
+        26,
+        23,
+        "deep"
+      ],
+      "CB1": [
+        -26,
+        1,
+        -14,
+        8,
+        "under"
+      ],
+      "CB2": [
+        14,
+        1,
+        26,
+        8,
+        "under"
+      ],
+      "LB1": [
+        -14,
+        3,
+        -4,
+        9,
+        "under"
+      ],
+      "LB2": [
+        -4,
+        3,
+        4,
+        9,
+        "under"
+      ],
+      "LB3": [
+        4,
+        3,
+        14,
+        9,
+        "under"
+      ]
+    },
+    "nickelCover2": {
+      "S1": [
+        -26,
+        11,
+        0,
+        23,
+        "deep"
+      ],
+      "S2": [
+        0,
+        11,
+        26,
+        23,
+        "deep"
+      ],
+      "CB1": [
+        -26,
+        1,
+        -14,
+        8,
+        "under"
+      ],
+      "CB2": [
+        14,
+        1,
+        26,
+        8,
+        "under"
+      ],
+      "LB1": [
+        -12,
+        3,
+        -2,
+        9,
+        "under"
+      ],
+      "LB2": [
+        2,
+        3,
+        12,
+        9,
+        "under"
+      ],
+      "CB3": [
+        12,
+        3,
+        22,
+        9,
+        "under"
+      ]
+    },
+    "nickelCover4": {
+      "CB1": [
+        -26,
+        11,
+        -13,
+        24,
+        "deep"
+      ],
+      "S1": [
+        -13,
+        12,
+        0,
+        24,
+        "deep"
+      ],
+      "S2": [
+        0,
+        12,
+        13,
+        24,
+        "deep"
+      ],
+      "CB2": [
+        13,
+        11,
+        26,
+        24,
+        "deep"
+      ],
+      "LB1": [
+        -12,
+        3,
+        -2,
+        9,
+        "under"
+      ],
+      "LB2": [
+        2,
+        3,
+        12,
+        9,
+        "under"
+      ],
+      "CB3": [
+        10,
+        3,
+        22,
+        9,
+        "under"
+      ]
+    },
+    "dimeCover4": {
+      "CB1": [
+        -26,
+        11,
+        -13,
+        24,
+        "deep"
+      ],
+      "S1": [
+        -13,
+        12,
+        0,
+        24,
+        "deep"
+      ],
+      "S2": [
+        0,
+        12,
+        13,
+        24,
+        "deep"
+      ],
+      "CB2": [
+        13,
+        11,
+        26,
+        24,
+        "deep"
+      ],
+      "LB1": [
+        -6,
+        3,
+        6,
+        9,
+        "under"
+      ],
+      "CB3": [
+        8,
+        3,
+        22,
+        9,
+        "under"
+      ],
+      "CB4": [
+        -22,
+        3,
+        -8,
+        9,
+        "under"
+      ]
+    },
+    "prevent": {
+      "CB1": [
+        -26,
+        14,
+        -13,
+        28,
+        "deep"
+      ],
+      "CB2": [
+        13,
+        14,
+        26,
+        28,
+        "deep"
+      ],
+      "S1": [
+        -14,
+        20,
+        -2,
+        32,
+        "deep"
+      ],
+      "S2": [
+        -6,
+        22,
+        6,
+        34,
+        "deep"
+      ],
+      "S3": [
+        2,
+        20,
+        14,
+        32,
+        "deep"
+      ],
+      "CB3": [
+        -16,
+        8,
+        -4,
+        16,
+        "under"
+      ],
+      "CB4": [
+        4,
+        8,
+        16,
+        16,
+        "under"
+      ],
+      "LB1": [
+        -6,
+        5,
+        6,
+        12,
+        "under"
+      ]
+    },
+    "nickelCover1": {
+      "S1": [
+        -9,
+        12,
+        9,
+        24,
+        "deep"
+      ]
+    }
+  },
+  "manTargets": {
+    "nickel2Man": {
+      "CB1": [
+        -21,
+        1
+      ],
+      "CB2": [
+        21,
+        1
+      ],
+      "CB3": [
+        14,
+        1.5
+      ],
+      "CB4": [
+        -14,
+        1.5
+      ],
+      "LB1": [
+        -6,
+        1
+      ],
+      "LB2": [
+        -2,
+        5
+      ],
+      "LB3": [
+        6,
+        1
+      ],
+      "S2": [
+        6,
+        1
+      ]
+    },
+    "nickelCover1": {
+      "CB1": [
+        -21,
+        1
+      ],
+      "CB2": [
+        21,
+        1
+      ],
+      "CB3": [
+        14,
+        1.5
+      ],
+      "CB4": [
+        -14,
+        1.5
+      ],
+      "LB1": [
+        -6,
+        1
+      ],
+      "LB2": [
+        -2,
+        5
+      ],
+      "LB3": [
+        6,
+        1
+      ],
+      "S2": [
+        6,
+        1
+      ]
+    },
+    "nickelCover1Blitz": {
+      "CB1": [
+        -21,
+        1
+      ],
+      "CB2": [
+        21,
+        1
+      ],
+      "CB3": [
+        14,
+        1.5
+      ],
+      "CB4": [
+        -14,
+        1.5
+      ],
+      "LB1": [
+        -6,
+        1
+      ],
+      "LB2": [
+        -2,
+        5
+      ],
+      "LB3": [
+        6,
+        1
+      ],
+      "S2": [
+        6,
+        1
+      ]
+    },
+    "dimeCover0Blitz": {
+      "CB1": [
+        -21,
+        1
+      ],
+      "CB2": [
+        21,
+        1
+      ],
+      "CB3": [
+        14,
+        1.5
+      ],
+      "CB4": [
+        -14,
+        1.5
+      ],
+      "LB1": [
+        -6,
+        1
+      ],
+      "LB2": [
+        -2,
+        5
+      ],
+      "LB3": [
+        6,
+        1
+      ],
+      "S2": [
+        6,
+        1
+      ]
+    },
+    "runStuff": {
+      "CB1": [
+        -21,
+        1
+      ],
+      "CB2": [
+        21,
+        1
+      ],
+      "CB3": [
+        14,
+        1.5
+      ],
+      "CB4": [
+        -14,
+        1.5
+      ],
+      "LB1": [
+        -6,
+        1
+      ],
+      "LB2": [
+        -2,
+        5
+      ],
+      "LB3": [
+        6,
+        1
+      ],
+      "S2": [
+        6,
+        1
+      ]
+    },
+    "goalLine": {
+      "CB1": [
+        -21,
+        1
+      ],
+      "CB2": [
+        21,
+        1
+      ],
+      "CB3": [
+        14,
+        1.5
+      ],
+      "CB4": [
+        -14,
+        1.5
+      ],
+      "LB1": [
+        -6,
+        1
+      ],
+      "LB2": [
+        -2,
+        5
+      ],
+      "LB3": [
+        6,
+        1
+      ],
+      "S2": [
+        6,
+        1
+      ]
+    }
+  },
+  "depthBands": {
+    "shortPass": [
+      0,
+      9
+    ],
+    "intermediatePass": [
+      10,
+      19
+    ],
+    "deepPass": [
+      20,
+      35
+    ],
+    "screenPass": [
+      -4,
+      0
+    ],
+    "playAction": [
+      10,
+      19
+    ]
+  },
+  "keyRating": {
+    "QB": "accuracy",
+    "RB": "elusiveness",
+    "WR": "speed",
+    "TE": "hands",
+    "OL": "passBlock",
+    "DL": "passRush",
+    "LB": "tackling",
+    "CB": "coverage",
+    "S": "coverage",
+    "K": "kickPower",
+    "P": "kickPower"
+  },
+  "overallWeights": {
+    "QB": {
+      "accuracy": 3,
+      "throwPower": 2,
+      "awareness": 2,
+      "agility": 1
+    },
+    "RB": {
+      "elusiveness": 3,
+      "speed": 2,
+      "agility": 2,
+      "ballSecurity": 1,
+      "strength": 1
+    },
+    "WR": {
+      "hands": 3,
+      "routeRunning": 3,
+      "speed": 2,
+      "agility": 1
+    },
+    "TE": {
+      "hands": 2,
+      "routeRunning": 2,
+      "runBlock": 2,
+      "strength": 1,
+      "speed": 1
+    },
+    "OL": {
+      "passBlock": 3,
+      "runBlock": 3,
+      "strength": 2,
+      "awareness": 1
+    },
+    "DL": {
+      "passRush": 3,
+      "runStop": 3,
+      "strength": 2,
+      "speed": 1
+    },
+    "LB": {
+      "tackling": 3,
+      "coverage": 2,
+      "awareness": 2,
+      "speed": 1,
+      "strength": 1
+    },
+    "CB": {
+      "coverage": 3,
+      "ballSkills": 2,
+      "speed": 2,
+      "agility": 1
+    },
+    "S": {
+      "coverage": 3,
+      "ballSkills": 2,
+      "awareness": 2,
+      "speed": 1
+    },
+    "K": {
+      "kickPower": 1,
+      "kickAccuracy": 1
+    },
+    "P": {
+      "kickPower": 1,
+      "kickAccuracy": 1
+    }
+  }
+}

@@ -2,8 +2,15 @@ export { averageCoach, choosePenalty, expectedPoints, stateValue, decisionKey, k
 export type { PenaltyOutcome, PenaltyView, CoachData, CoachPolicies, DecisionFields, Found, Side } from "./coach";
 export { coachView, kickView } from "./views";
 export { GameLoopError, RECORD_SCHEMA_VERSION, gamePlayers, playGame, prepareGame, recordOf, startGame, stepGame } from "./play";
+export type { Seat } from "./play";
 export type { GameEvent, GameKit, GameLoopErrorCode, GameRecord, GameRun, GameSetup, Snapshot, TeamSetup } from "./play";
 export { averageCoachFor, drawPairing, generateLeague, leagueFromSeed, normal, pickNames, setupGame, shiftPool, teamLabel } from "./league";
 export type { LeagueTeam } from "./league";
-export { acceptedFoul, boxScore, kickStands, penaltyYards, playStands } from "./box";
+export { acceptedFoul, boxScore, kickStands, penaltyYards, physicalYards, playStands } from "./box";
 export type { BoxScore, Drive, DriveResult, TeamBox } from "./box";
+export { playerBoxScore, ratingRanks } from "./player-box";
+export { SESSION_SCHEMA_VERSION, answerSession, checkPath, replaySession, sessionRecord, startSession } from "./session";
+export type { AnswerResult, SeatState, Session, SessionError } from "./session";
+export { offenseAnswer, defenseAnswer, penaltyOptionId } from "./requests";
+export type { RequestDraft } from "./requests";
+export { modeTempo, tempoModeView } from "./coach";

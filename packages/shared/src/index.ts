@@ -15,12 +15,37 @@ export {
   parseEngineData,
   parsePlayer,
   parseTeamPool,
+  parseTeamPoolV1,
+  participantsSchema,
+  standoutsSchema,
+  closeCallRatesSchema,
   personnelSchema,
   playerSchema,
   ratingsSchema,
   teamPoolSchema,
+  teamPoolV1Schema,
+  playerV1Schema,
   whySchema,
 } from "./engine-schema";
 export type { EngineFiles } from "./engine-schema";
-export { gameConfigSchema, leagueSettingsSchema, onsideTableSchema, parseGameData, rateTableSchema, teamNamesSchema, tempoTableSchema, timeoutTableSchema } from "./game-schema";
+export { gameConfigSchema, leagueSettingsSchema, onsideTableSchema, parseGameData, rateTableSchema, teamNamesSchema, challengePolicySchema, standoutTolerancesSchema, tempoModesSchema, tempoTableSchema, timeoutTableSchema } from "./game-schema";
 export type { GameFiles } from "./game-schema";
+export {
+  decisionAnswerSchema,
+  decisionRequestSchema,
+  onFieldSchema,
+  parseDecisionAnswer,
+  parseDecisionRequest,
+  parseOnField,
+  parseParticipants,
+  parsePlayerBoxScore,
+  parseRatingRanks,
+  playerBoxScoreSchema,
+  playerLineSchema,
+  playParticipantsSchema,
+  ratingRanksSchema,
+} from "./m2-schema";
+// M4 Franchise mode: its own type file (not re-exported through ./types, which the calibration pins) and its zod schemas.
+export * from "./franchise";
+export { draftAiSchema, FranchiseDataError, franchiseLeagueSchema, overallWeightsSchema, parseFranchiseData, poolSchema, positionMinimums, rosterSchema } from "./franchise-schema";
+export type { FranchiseFiles } from "./franchise-schema";

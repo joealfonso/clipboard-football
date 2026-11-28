@@ -1,0 +1,152 @@
+{
+ "actuals": {
+  "challenges.perTeamGame": {
+   "hi": 0.189453,
+   "lo": 0.112132,
+   "n": 4190,
+   "value": 0.149881
+  },
+  "challenges.reversalShare": {
+   "hi": 0.513514,
+   "lo": 0.328947,
+   "n": 628,
+   "value": 0.43949
+  },
+  "note": "Coach's challenges of the five modeled kinds only (the game marks no other close call). Intervals are the range of the 2016-2023 season values.",
+  "perSeason": [
+   {
+    "coachChallenges": 93,
+    "perTeamGame": 0.181641,
+    "reversalShare": 0.473118,
+    "reversed": 44,
+    "season": 2016,
+    "teamGames": 512
+   },
+   {
+    "coachChallenges": 97,
+    "perTeamGame": 0.189453,
+    "reversalShare": 0.484536,
+    "reversed": 47,
+    "season": 2017,
+    "teamGames": 512
+   },
+   {
+    "coachChallenges": 76,
+    "perTeamGame": 0.148438,
+    "reversalShare": 0.328947,
+    "reversed": 25,
+    "season": 2018,
+    "teamGames": 512
+   },
+   {
+    "coachChallenges": 68,
+    "perTeamGame": 0.132812,
+    "reversalShare": 0.455882,
+    "reversed": 31,
+    "season": 2019,
+    "teamGames": 512
+   },
+   {
+    "coachChallenges": 70,
+    "perTeamGame": 0.136719,
+    "reversalShare": 0.4,
+    "reversed": 28,
+    "season": 2020,
+    "teamGames": 512
+   },
+   {
+    "coachChallenges": 61,
+    "perTeamGame": 0.112132,
+    "reversalShare": 0.393443,
+    "reversed": 24,
+    "season": 2021,
+    "teamGames": 544
+   },
+   {
+    "coachChallenges": 74,
+    "perTeamGame": 0.136531,
+    "reversalShare": 0.513514,
+    "reversed": 38,
+    "season": 2022,
+    "teamGames": 542
+   },
+   {
+    "coachChallenges": 89,
+    "perTeamGame": 0.163603,
+    "reversalShare": 0.438202,
+    "reversed": 39,
+    "season": 2023,
+    "teamGames": 544
+   }
+  ]
+ },
+ "generated": true,
+ "kinds": {
+  "completionToIncomplete": {
+   "coachChallenges": 365,
+   "officialReviews": 327,
+   "reversalPer10000": 4595,
+   "reversed": 318,
+   "reviewPer1000000": 7517,
+   "reviews": 692,
+   "ruledPlays": 92052
+  },
+  "fumbleToDown": {
+   "coachChallenges": 0,
+   "officialReviews": 242,
+   "reversalPer10000": 5992,
+   "reversed": 145,
+   "reviewPer1000000": 120040,
+   "reviews": 242,
+   "ruledPlays": 2016
+  },
+  "interceptionToIncomplete": {
+   "coachChallenges": 0,
+   "officialReviews": 129,
+   "reversalPer10000": 5891,
+   "reversed": 76,
+   "reviewPer1000000": 38336,
+   "reviews": 129,
+   "ruledPlays": 3365
+  },
+  "spotLineToGain": {
+   "coachChallenges": 260,
+   "officialReviews": 86,
+   "reversalPer10000": 4162,
+   "reversed": 144,
+   "reviewPer1000000": 10725,
+   "reviews": 346,
+   "ruledPlays": 32261
+  },
+  "touchdownToShort": {
+   "coachChallenges": 3,
+   "officialReviews": 311,
+   "reversalPer10000": 5987,
+   "reversed": 188,
+   "reviewPer1000000": 31031,
+   "reviews": 314,
+   "ruledPlays": 10119
+  }
+ },
+ "note": "M2 milestone G2 (fitted): per close-call kind, how often plays ruled that way on the field were reviewed (reviewPer1000000 of ruledPlays) and how often a review reversed them (reversalPer10000), nflverse pbp regular seasons 2016-2023. Built by pipeline/challenges/build.py; the kind reading is in docs/DECISIONS.md (M2 G2).",
+ "phrases": {
+  "first down": "spotLineToGain",
+  "fumble": "fumbleToDown",
+  "interception": "interceptionToIncomplete",
+  "pass completion": "completionToIncomplete",
+  "pass interception": "interceptionToIncomplete",
+  "runner broke the plane": "touchdownToShort",
+  "runner was not down by contact": "fumbleToDown",
+  "short of the line to gain": "spotLineToGain"
+ },
+ "seasons": [
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023
+ ]
+}

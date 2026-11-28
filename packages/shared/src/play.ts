@@ -143,6 +143,74 @@ export interface NoPlay extends PlayBase {
   readonly kind: "noPlay";
 }
 
+// ---------------------------------------------------------------- M2: who made the play
+
+/** The roles a play can credit (M2 milestone B). Ids are Player.id. */
+export const PARTICIPANT_ROLES = [
+  "passer", "target", "receiver", "ballCarrier", "tackler", "sacker", "interceptor", "fumbleForcer", "fumbleRecoverer", "kicker", "punter", "returner",
+] as const;
+export type ParticipantRole = (typeof PARTICIPANT_ROLES)[number];
+
+/**
+ * detail.participants: player ids by role. A role that did not happen is absent, never a guess.
+ * `foulers` has one id per foul, in the order of the play's `fouls`.
+ */
+export type Participants = Readonly<Partial<Record<ParticipantRole, string>>> & { readonly foulers?: readonly string[] };
+
+/** One side's players on the field by position, slot order (first WR first). Positions with no slot are absent. */
+export type OnFieldSide = Readonly<Partial<Record<"QB" | "RB" | "WR" | "TE" | "OL" | "DL" | "LB" | "CB" | "S" | "K" | "P", readonly string[]>>>;
+
+/** detail.onField: both sides for this play, offense = the team that snapped or kicked. */
+export interface OnField {
+  readonly offense: OnFieldSide;
+  readonly defense: OnFieldSide;
+}
+
+/**
+ * M2 milestone F: a standout play as the game counts it (GameEvent `standout`): the engine's
+ * candidate (trace `standoutCandidate`) on a play that stands after penalty enforcement, with the
+ * standout why line and headline. `applied` is the factor the engine applied to the class.
+ */
+export interface Standout {
+  readonly player: string;
+  readonly number: number;
+  readonly name: string;
+  readonly rating: string;
+  readonly ratingLabel: string;
+  readonly value: number;
+  readonly kind: string;
+  readonly applied: number;
+  readonly why: string;
+  readonly headline: string;
+}
+
+// ---------------------------------------------------------------- M2 G: close calls
+
+/** The five close-call kinds (spec resolved 4): the ruling on the field, then what a reversal makes it. */
+export const CLOSE_CALL_KINDS = ["completionToIncomplete", "fumbleToDown", "interceptionToIncomplete", "touchdownToShort", "spotLineToGain"] as const;
+export type CloseCallKind = (typeof CLOSE_CALL_KINDS)[number];
+
+/**
+ * detail.closeCall (M2 G): the engine marked the ruled play as a close call. `alternative` is the
+ * play a reversal makes it (a deterministic edit, no new outcome draw); `verdict` is what a review
+ * finds, drawn at resolve time. No request and no AI policy ever sees the verdict before a review.
+ */
+export interface CloseCall {
+  readonly kind: CloseCallKind;
+  /** Key of the prompt (data/game/challenge-policy.json questions). */
+  readonly question: string;
+  readonly alternative: PlayResult;
+  readonly verdict: "stands" | "reversed";
+}
+
+/** The detail fields M2 adds that the UI reads. Every PlayResult from resolvePlay has them. */
+export interface PlayDetailM2 {
+  readonly participants: Participants;
+  readonly onField: OnField;
+  /** M2 milestone D: the why line's plain-words headline (detail.why stays as the detail line). */
+  readonly headline: string;
+}
+
 export type PlayResult =
   | ScrimmagePlay
   | PuntPlay

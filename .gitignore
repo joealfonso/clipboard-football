@@ -10,3 +10,8 @@ __pycache__/
 # Hand-kept list of real NFL nicknames and cities, used only for the local team-name collision
 # check (M1 step 5, B3). Stays local; see docs/DATA.md.
 pipeline/game/real_names.py
+packages/app/dist/
+
+# Local agent worktrees and preview config
+.claude/worktrees/
+.claude/launch.json

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "Roster size cited, the rest designed (M4 milestone A). Per position: target (what a full roster aims for; targets sum to rosterSize) and max (the most a team may hold). Position minimums are not stored here: they are the engine's slot needs (slotNeeds over data/engine/personnel.json and the return units in data/engine/participants.json), so the two cannot drift. units: the positions each unit average is taken over. A 33-player roster (starters only) is a change to this file, not to code.",
+  "rosterSize": 53,
+  "rosterSizeSource": "NFL.com, 2026-27 National Football League important dates, https://www.nfl.com/news/2026-27-national-football-league-important-dates : clubs must reduce rosters to a maximum of 53 players on the Active/Inactive List. Read 2026-11-23 (docs/specs/m4-franchise-core.md, source 5).",
+  "positions": {
+    "QB": { "target": 3, "max": 4 },
+    "RB": { "target": 4, "max": 6 },
+    "WR": { "target": 6, "max": 8 },
+    "TE": { "target": 4, "max": 5 },
+    "OL": { "target": 9, "max": 11 },
+    "DL": { "target": 8, "max": 10 },
+    "LB": { "target": 7, "max": 9 },
+    "CB": { "target": 6, "max": 8 },
+    "S": { "target": 4, "max": 6 },
+    "K": { "target": 1, "max": 2 },
+    "P": { "target": 1, "max": 2 }
+  },
+  "units": {
+    "offense": ["QB", "RB", "WR", "TE", "OL"],
+    "defense": ["DL", "LB", "CB", "S"],
+    "specialTeams": ["K", "P"]
+  }
+}

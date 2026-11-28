@@ -1,9 +1,10 @@
 // Players: the M1 generator of league-average fictional teams, on-field selection, and the
 // designed mapping from a combine measurement to a 0-99 rating.
 
-import { BASE_RATINGS, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS } from "../../../shared/src/engine";
-import type { CurvePoint, Distributions, DrillTable, Names, Personnel, Player, Position, RatingsConfig, Slots, TeamPool } from "../../../shared/src/engine";
-import type { Rng } from "../rng";
+import { BASE_RATINGS, jerseyNumberAllowed, PLAYER_SCHEMA_VERSION, POSITION_SKILLS, POSITIONS } from "../../../shared/src/engine";
+import type { CurvePoint, Distributions, DrillTable, Names, ParticipantsConfig, Personnel, Player, Position, RatingsConfig, Slots, TeamPool } from "../../../shared/src/engine";
+import type { RuleSet } from "../../../shared/src/rules";
+import { Rng } from "../rng";
 import { fail } from "./errors";
 
 /** Piecewise-linear curve from a percentile within position (0 to 1) to a rating. */
@@ -88,10 +89,13 @@ export function ratingFromMeasurements(
   return Math.round(curveAt(ratings.curve, acc / wsum));
 }
 
-/** The most players of each position any formation, package or kick unit puts on the field. */
-export function slotNeeds(personnel: Personnel): Readonly<Record<Position, number>> {
+/**
+ * The most players of each position any formation, package or kick unit puts on the field, and
+ * any extra units given (M2: the return units in participants.json, which fit inside these).
+ */
+export function slotNeeds(personnel: Personnel, extra: readonly Slots[] = []): Readonly<Record<Position, number>> {
   const need = Object.fromEntries(POSITIONS.map((p) => [p, 0])) as Record<Position, number>;
-  const groups: Slots[] = [...Object.values(personnel.offense), ...Object.values(personnel.kick), ...Object.values(personnel.packages)];
+  const groups: Slots[] = [...Object.values(personnel.offense), ...Object.values(personnel.kick), ...Object.values(personnel.packages), ...extra];
   for (const g of groups) {
     for (const p of POSITIONS) need[p] = Math.max(need[p], g[p] ?? 0);
   }
@@ -103,6 +107,47 @@ export interface GeneratorData {
   readonly ratings: RatingsConfig;
   readonly distributions: Distributions;
   readonly names: Names;
+  /** M2 milestone A: the numbers each position may wear. */
+  readonly rules: Pick<RuleSet, "jerseyNumbers">;
+  /** M2 milestone B: the return units must fill from the same players (B3). */
+  readonly participants?: Pick<ParticipantsConfig, "returnUnits">;
+}
+
+/** A player before M2 (schema version 1): everything but the number. */
+export type UnnumberedPlayer = Omit<Player, "number" | "schemaVersion">;
+
+/**
+ * M2 milestone A (designed): jersey numbers in pool order, each drawn uniformly from the numbers
+ * the rule set allows for the position (Rule 5-1-2) that no teammate has yet. Throws
+ * EngineError("badPlayers") when a position has none left.
+ */
+export function assignNumbers(players: readonly UnnumberedPlayer[], rules: Pick<RuleSet, "jerseyNumbers">, rng: Rng): Player[] {
+  const taken = new Set<number>();
+  return players.map((p) => {
+    const free: number[] = [];
+    for (let n = 0; n <= 99; n++) if (!taken.has(n) && jerseyNumberAllowed(rules, p.position, n)) free.push(n);
+    const n = free[Math.floor(rng.nextFloat() * free.length)];
+    if (n === undefined) fail("badPlayers", `no jersey number left for ${p.id} (${p.position})`);
+    taken.add(n);
+    const { id, name, position, ratings, skills } = p;
+    return { schemaVersion: PLAYER_SCHEMA_VERSION, id, name, position, number: n, ratings, skills };
+  });
+}
+
+/**
+ * The stream jersey numbers are drawn from: a copy of `rng` jumped 2^64 draws ahead. Reads the
+ * generator's state and never advances it, so every other field the generator draws for a seed
+ * is unchanged by numbering (A4).
+ */
+export function numberStream(rng: Rng): Rng {
+  const s = Rng.fromState(rng.getState());
+  s.jump();
+  return s;
+}
+
+/** A4 (A3): a version 1 pool to version 2, numbers by `seed`. Same pool and seed, same numbers. */
+export function migrateTeamPool(pool: { readonly name: string; readonly players: readonly UnnumberedPlayer[] }, rules: Pick<RuleSet, "jerseyNumbers">, seed: number): TeamPool {
+  return { schemaVersion: PLAYER_SCHEMA_VERSION, name: pool.name, players: assignNumbers(pool.players, rules, Rng.fromSeed(seed)) };
 }
 
 function pick<T>(xs: readonly T[], rng: Rng): T {
@@ -118,20 +163,21 @@ function draw(curve: readonly CurvePoint[], rng: Rng): number {
 /**
  * M1's generator of league-average fictional teams: exactly enough players of each position to
  * fill every grouping in personnel.json, every rating drawn from the designed curve (the
- * per-position distribution in distributions.json), names from names.json. Same seed, same team.
+ * per-position distribution in distributions.json), names from names.json, jersey numbers from a
+ * side stream (numberStream; M2 milestone A). Same seed, same team.
  */
 export function generateTeam(rng: Rng, data: GeneratorData, teamName = "Team"): TeamPool {
-  const need = slotNeeds(data.personnel);
-  const players: Player[] = [];
+  const need = slotNeeds(data.personnel, Object.values(data.participants?.returnUnits ?? {}));
+  const players: UnnumberedPlayer[] = [];
   for (const position of POSITIONS) {
     for (let i = 0; i < need[position]; i++) {
       const ratings = Object.fromEntries(BASE_RATINGS.map((r) => [r, draw(data.ratings.curve, rng)])) as Record<(typeof BASE_RATINGS)[number], number>;
       const skills = Object.fromEntries(POSITION_SKILLS[position].map((s) => [s, draw(data.ratings.curve, rng)]));
       const name = `${pick(data.names.first, rng)} ${pick(data.names.last, rng)}`;
-      players.push({ schemaVersion: PLAYER_SCHEMA_VERSION, id: `${teamName}-${position}${i + 1}`, name, position, ratings, skills });
+      players.push({ id: `${teamName}-${position}${i + 1}`, name, position, ratings, skills });
     }
   }
-  return { schemaVersion: PLAYER_SCHEMA_VERSION, name: teamName, players };
+  return { schemaVersion: PLAYER_SCHEMA_VERSION, name: teamName, players: assignNumbers(players, data.rules, numberStream(rng)) };
 }
 
 /** A pool's players by position, in pool order. Cached per pool object. */

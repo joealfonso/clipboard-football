@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "note": "M2 milestone B (designed): who made each play. resolvePlay draws the outcome first, exactly as before, then credits players from a separate per-play stream (engine/participants.ts), so no outcome changes. A role's candidates are the on-field players of the side named; each position gets its share for the role (by leaf, by drawn class, or flat), split across that position's on-field slots by slotWeights (designed depth: the first WR is the first read), and each player's weight is then multiplied by exp(coef x (rating - center)) for every tilt that matches the role and the drawn class (a player without that rating is at the center). Positions with no player on the field drop out and the rest renormalize; when none is left the role's fallback positions are used. returnUnits are the receiving team's units on kickoffs and punts, for the on-field record only: the engine's rating effects still read the defense package they read in M1 (no outcome change). Shares and tilts are designed, not fitted; docs/MODEL.md (Who made the play) and docs/DECISIONS.md (M2).",
+  "center": 65,
+  "returnUnits": {
+    "kickoffReturn": { "RB": 1, "WR": 2, "TE": 2, "LB": 3, "CB": 2, "S": 1 },
+    "puntReturn": { "WR": 1, "DL": 3, "LB": 3, "CB": 3, "S": 1 }
+  },
+  "receivingUnit": { "kickoff": "kickoffReturn", "onsideKick": "kickoffReturn", "punt": "puntReturn" },
+  "slotWeights": {
+    "WR": [4, 3, 2, 1],
+    "TE": [3, 1, 1],
+    "RB": [1],
+    "QB": [1]
+  },
+  "roles": {
+    "ballCarrier": {
+      "side": "offense",
+      "byLeaf": {
+        "insideRun": { "RB": 96, "QB": 4 },
+        "outsideRun": { "RB": 93, "QB": 7 },
+        "qbSneak": { "QB": 100 }
+      },
+      "fallback": ["QB"]
+    },
+    "target": {
+      "side": "offense",
+      "byLeaf": {
+        "shortPass": { "WR": 58, "TE": 22, "RB": 20 },
+        "intermediatePass": { "WR": 68, "TE": 24, "RB": 8 },
+        "deepPass": { "WR": 80, "TE": 15, "RB": 5 },
+        "screenPass": { "RB": 60, "WR": 30, "TE": 10 },
+        "playAction": { "WR": 66, "TE": 26, "RB": 8 }
+      },
+      "fallback": ["TE", "RB"]
+    },
+    "tackler": {
+      "side": "defense",
+      "byClass": {
+        "loss": { "DL": 45, "LB": 45, "CB": 4, "S": 6 },
+        "r1_3": { "DL": 40, "LB": 45, "CB": 6, "S": 9 },
+        "r4_9": { "DL": 20, "LB": 50, "CB": 14, "S": 16 },
+        "r10_19": { "DL": 5, "LB": 35, "CB": 25, "S": 35 },
+        "r20": { "LB": 15, "CB": 35, "S": 50 },
+        "scramble": { "DL": 30, "LB": 40, "CB": 15, "S": 15 },
+        "c0": { "DL": 10, "LB": 50, "CB": 30, "S": 10 },
+        "c1_9": { "DL": 5, "LB": 40, "CB": 40, "S": 15 },
+        "c10_19": { "LB": 20, "CB": 45, "S": 35 },
+        "c20": { "LB": 5, "CB": 45, "S": 50 }
+      },
+      "flat": { "DL": 25, "LB": 40, "CB": 17, "S": 18 }
+    },
+    "returnTackler": {
+      "side": "offense",
+      "flat": { "QB": 15, "RB": 15, "WR": 30, "TE": 15, "OL": 25 }
+    },
+    "coverageTackler": {
+      "side": "offense",
+      "flat": { "LB": 35, "S": 30, "CB": 25, "TE": 5, "OL": 3, "K": 1, "P": 1 }
+    },
+    "sacker": {
+      "side": "defense",
+      "flat": { "DL": 80, "LB": 16, "CB": 1, "S": 3 }
+    },
+    "interceptor": {
+      "side": "defense",
+      "flat": { "CB": 55, "S": 35, "LB": 10 }
+    },
+    "fumbleForcer": {
+      "side": "defense",
+      "flat": { "DL": 30, "LB": 40, "CB": 15, "S": 15 }
+    },
+    "defenseRecoverer": {
+      "side": "defense",
+      "flat": { "DL": 35, "LB": 30, "CB": 15, "S": 15, "WR": 2, "TE": 1, "RB": 2 }
+    },
+    "offenseRecoverer": {
+      "side": "offense",
+      "flat": { "QB": 15, "RB": 15, "WR": 20, "TE": 15, "OL": 30, "LB": 2, "S": 1, "CB": 1, "K": 0.5, "P": 0.5 }
+    },
+    "returner": {
+      "side": "defense",
+      "byUnit": {
+        "kickoffReturn": { "RB": 50, "WR": 50 },
+        "puntReturn": { "WR": 70, "CB": 30 }
+      },
+      "fallback": ["CB", "S", "RB", "WR"]
+    }
+  },
+  "tilts": [
+    { "role": "target", "classes": ["c20"], "rating": "speed", "coef": 0.03 },
+    { "role": "target", "classes": ["inc"], "rating": "hands", "coef": -0.03 },
+    { "role": "ballCarrier", "classes": ["*"], "rating": "speed", "coef": 0.03 },
+    { "role": "sacker", "classes": ["sack"], "rating": "passRush", "coef": 0.03 },
+    { "role": "interceptor", "classes": ["int"], "rating": "ballSkills", "coef": 0.03 }
+  ],
+  "noTarget": ["intentionalGrounding"],
+  "foulers": {
+    "falseStart": { "offense": ["OL", "TE", "WR", "RB"] },
+    "delayOfGame": { "offense": ["QB", "P", "K"] },
+    "encroachment": { "defense": ["DL", "LB"] },
+    "defensiveOffside": { "defense": ["DL", "LB", "CB", "S"] },
+    "offensiveHolding": { "offense": ["OL", "TE", "RB", "WR", "LB", "S"] },
+    "defensiveHolding": { "defense": ["CB", "S", "LB"] },
+    "defensivePassInterference": { "defense": ["CB", "S", "LB"] },
+    "offensivePassInterference": { "offense": ["WR", "TE", "RB"] },
+    "illegalContact": { "defense": ["CB", "S", "LB"] },
+    "intentionalGrounding": { "offense": ["QB"] },
+    "roughingThePasser": { "defense": ["DL", "LB"] },
+    "unnecessaryRoughness": { "offense": ["OL", "TE", "WR", "RB", "QB"], "defense": ["DL", "LB", "CB", "S"] },
+    "unnecessaryRoughnessDeadBall": { "offense": ["OL", "TE", "WR", "RB", "QB"], "defense": ["DL", "LB", "CB", "S"] },
+    "kickoffIllegalFormation": { "offense": ["LB", "S", "CB"] },
+    "returnTeamIllegalBlock": { "defense": ["RB", "WR", "TE", "LB", "CB", "S", "DL"] }
+  }
+}

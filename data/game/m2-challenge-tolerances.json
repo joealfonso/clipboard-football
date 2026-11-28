@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "designed": true,
+  "preRegistered": "2026-11-14",
+  "spec": "docs/specs/m2-engine-and-game-loop.md, milestone G7 (challenges and reviews)",
+  "note": "Pre-registered before any challenge code or G sim run. The challenge tolerances are the 2016-2023 actuals' intervals: the range of the eight regular-season values (data/game/challenges.json, actuals). The other checks are the spec's G7 proposals as written, confirmed by the lead. Never changed after the first G run. Only Joseph adds known_deviations.",
+  "actualsSource": { "file": "data/game/challenges.json", "sha256": "5f176c2f33c328942d1863ad0013876764dcde0a87e5a38a774c334a3aad5af9", "seasons": [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023] },
+  "comparison": "In-sample run (scripts/game/calibrate.ts --target insample, 10 leagues x 1,000 games), AI on both sides, challenges on vs off, same seeds; the challenge metrics against the 2016-2023 actuals.",
+  "challenges": {
+    "perTeamGame": {
+      "definition": "Coach's challenges of the five modeled close-call kinds per team-game.",
+      "actual": 0.149881,
+      "interval": { "lo": 0.112132, "hi": 0.189453 },
+      "rule": "the simulated value lies within the interval"
+    },
+    "reversalShare": {
+      "definition": "Share of those coach's challenges reversed.",
+      "actual": 0.43949,
+      "interval": { "lo": 0.328947, "hi": 0.513514 },
+      "rule": "the simulated value lies within the interval"
+    }
+  },
+  "againstNoChallengeRun": {
+    "scrimmageClassSharePp": 0.2,
+    "pointsPerTeamGameMean": 0.3,
+    "turnoversPerTeamGame": 0.05,
+    "noGatedStatusFlipToFail": true,
+    "note": "Every scrimmage class share (each class of the run and pass families, over all snaps that reach a class draw, by the class as finally ruled) within 0.2 percentage points of the no-challenge run; points per team-game mean within 0.3 points; turnovers per team-game within 0.05; no in-sample gated step 5 metric goes from pass to fail."
+  },
+  "known_deviations": []
+}

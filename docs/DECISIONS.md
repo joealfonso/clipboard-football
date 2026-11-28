@@ -398,6 +398,7 @@ The first eight entries record the lead's resolutions of the spec's open questio
 
 - Date: 2026-11-11
 - Decision: one `rng.nextUint32()` per toss; its low bit names the winner (1 home, 0 away). `newGame` and `startOvertime` are the only functions that take an Rng. The seed is stored in GameState.
+- Since record schema 2 (2026-11-15) the game record logs every toss, the opening one included; see "Coin toss events in the game record". Logging adds no draw.
 
 ### Rule set identity
 
@@ -1130,6 +1131,18 @@ Every 2024-2025 computation made under step 5b, labelled the same way in each re
 | Step 5 game | 13 | 2026-11-13, step 5d | Code review and spec check fixes, Joseph's rerun acceptances, C7 run 9 | 1 new gated failure (`points.share.38+`) and 2 accepted misses wider (see "Holdout runs after the step 5d code review"); stopped, nothing recorded |
 | C7 | 10 | 2026-11-14, step 5d | Approvals and pins only, metrics must match run 9: Joseph's run 13 holdout known deviations (the summary pins the tolerances file) | Both blocks identical to run 9 |
 | Step 5 game | 14 | 2026-11-14, step 5d | Approvals, report fix and pins only, metrics must match run 13: Joseph's run 13 acceptances, the gated-failure line's backticks, C7 run 10 | Every metric, diagnostic and slice digest identical to run 13; 0 gated failures (`points.share.38+` now reads "accepted"); 8.3 ms per game on a quiet machine |
+| Engine | 10 | 2026-11-14, M2 | M2 A-E pins only, metrics must match run 9: the jersey-number rules, the why headlines and the engine code (the summary pins all three) | Every metric identical to run 9; the generated tables byte-identical |
+| Step 5 game | 15 | 2026-11-14, M2 | M2 A-E pins only, metrics must match run 14: the M2 data files and code (lead's call; in-sample outcome digests identical first) | Every metric, diagnostic and invariant count identical to run 14; 0 gated failures; slice digests now equal the in-sample summary's; 7.66 ms per game on a quiet machine |
+| Engine | 11 | 2026-11-14, M2 | M2 pins only, metrics must match run 10: the code review fixes changed shared code the summary's hash covers | Every metric identical to run 10; the generated tables byte-identical |
+| Step 5 game | 16 | 2026-11-14, M2 | M2 pins only, metrics must match run 15: the code review fixes (the requests' state and run-off seconds, data/game/tempo-modes.json) | Every metric, diagnostic and invariant count identical to run 15; 0 gated failures; 7.36 ms per game on a quiet machine |
+| Engine | 12 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 11: standouts and close calls (off in this validation), the why lines and the merged code | Every metric identical to run 11; the generated tables byte-identical |
+| Step 5 game | 17 | 2026-11-14, M2 F and G | M2 pins only, metrics must match run 16: standouts and close calls (off in the calibrated baseline), the G1 rule set, the merged UI | Every metric, diagnostic and invariant count identical to run 16; 0 gated failures; 7.60 ms per game on a quiet machine |
+| Engine | 13 | 2026-11-14, M2 G review fixes | M2 G review fixes, pins only, metrics must match run 12: the reversal labels and challenge costs changed engine code the summary's hash covers (close calls off in this validation) | Every metric identical to run 12; the generated tables byte-identical |
+| Step 5 game | 18 | 2026-11-14, M2 G review fixes | M2 G review fixes, pins only, metrics must match run 17: the reversal labels, the failed-challenge timeout across quarters, the no-timeout cost (close calls off in the calibrated baseline) | Every metric, diagnostic and invariant count identical to run 17; 0 gated failures; 7.47 ms per game on a quiet machine (in-sample just before: identical, 7.57 ms) |
+| Engine | 14 | 2026-11-20, M2 strip-sack yards | Pins only, metrics must match run 13: the lost-fumble spot (`detail.fumbleSpot`, no new draw) changed resolve.ts, which the summary's code hash covers | Every metric identical to run 13; the summary changed only its code hash. Superseded by run 15 |
+| Step 5 game | 19 | 2026-11-20, M2 strip-sack yards | Pins only, metrics must match run 18: resolve.ts and box.ts (the lost-fumble spot and the box score's lost-fumble yards), and the coin toss event of 04874a6 (play.ts, record schema 2), which no pin run had followed | Every metric and diagnostic identical to run 18; 0 gated failures; all 1,000 slice digests changed (the opening toss is in every record); 7.41 ms per game with the 15-minute load under 3 (in-sample just before: identical, 7.36 ms). Superseded by run 20 |
+| Engine | 15 | 2026-11-21, M2 strip-sack yards | Pins only, metrics must match run 14: the report's run history (run 13's sentence put into pipeline/engine/report.py, runs 14 and 15 added), which the summary's code hash covers | Every metric identical to run 14 and to the last commit (118 holdout, 114 in-sample); the generated tables byte-identical |
+| Step 5 game | 20 | 2026-11-21, M2 strip-sack yards | Pins only, metrics must match run 19: the report's run list (runs 19 and 20 added to scripts/game/report.ts), which the summaries' code hash covers | Every metric, diagnostic, invariant count and slice digest identical to run 19; 0 gated failures; 7.37 ms per game on a quiet machine (in-sample just before: identical, 7.44 ms) |
 
 
 ## M1 step 5c: playtest fixes
@@ -1431,6 +1444,499 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 ### Pins-only reruns after the run 13 acceptances (engineer, 2026-11-14)
 - Started only once the 15-minute load average was under 4 (load 2.7 / 1.7 / 1.4 at the start), in pin-safe order: C7 run 10 (both blocks identical to run 9), the in-sample summary (every metric, diagnostic and slice digest identical to the H1 rerun; 7.4 ms per game), and game holdout run 14, "approvals, report fix and pins only, metrics must match run 13": every metric, diagnostic and slice digest identical to run 13, 0 gated failures, 8.3 ms per game (85.8 s), a clean reading under the 25 ms gate.
 
+### End-of-half and end-of-game field goals deferred to after M2 (Joseph, 2026-11-14)
+- Decision: start M2 now. Fix the AI's missed field goals in a short round after M2: PLAYTEST_M1_5D new findings 1-3 (close games ending in range with no kick, first halves ending in range with no kick, early 50+ yard tries by tied teams), plus 4-5 (OT kneels far from the goal, OT spikes almost gone). Joseph chose "Start M2" on 2026-11-14.
+- Why: in M2 the player calls their own team's plays, so these affect only the AI opponent, and each fix round has cost hours.
+
+## M2: engine and game loop
+
+Spec: docs/specs/m2-engine-and-game-loop.md (revision 2, the lead's resolutions of 2026-11-12). UI side: docs/specs/m2-playable-game-design.md.
+
+### Challenge tolerances pre-registered before any G code or sim run (spec G7, resolved 15)
+- Date: 2026-11-14.
+- Decision: data/game/m2-challenge-tolerances.json is frozen. It was committed alone in 563bf09 at 2026-11-14 19:23:38 -0800, with sha256 `abd445ad784d4c301c9e76a1c7a31d66382cd1eb25cdb15794a332146cff9409`. The lead recorded this hash before any challenge code or G sim run.
+- Challenge rate and reversal share must land within the 2016-2023 season ranges. The other checks are the spec's G7 proposals as written.
+
+### Standout tolerances pre-registered before any F code or run (spec F, resolved 15)
+- Date: 2026-11-14.
+- Decision: data/game/m2-standout-tolerances.json is frozen. It was committed alone in 1b43ff3 at 2026-11-14 17:47:23 -0800, with sha256 `495c327463c764798a10484d4e187027d1d3aacad9d3906f78bd5548b91dd724`. The lead recorded this hash before any standout code or sim run. Any later change to the file is a post-registration revision and is logged here.
+- Lead's calls:
+  - The F1 values are the spec's proposals as written.
+  - The F2 minimum relative effect of 0.10 per kind is confirmed. The spec gave no number; 0.10 is five times step 4 D6's 0.02 floor, because a standout is meant to be visible.
+
+### How "byte-identical" is proved for milestones A to E (engineer, 2026-11-14)
+- The spec's outcome digest is the step 5 per-game digest with the fields M2 adds left out (spec, Milestones). `scripts/game/outcome-digests.ts` replays the in-sample run (10 leagues x 1,000 games), drops the M2 detail keys (`participants`, `onField`, `headline`) and the M2 trace factors (one per role, `fouler`, later `standout`), and sets the three provenance hashes the record carries (`rules.hash`, `dataHashes`, `final.rules.hash`) to the baseline's. Those hashes change by design: M2 adds data (the jersey-number rules in A, a participants file in B, the headlines in D). Every other byte of every record must match.
+- Baseline: test/fixtures/m2-baseline-digests.json, written by the same script on the tree at `04f0f5d` (the last M1 commit). Its 1,000 slice digests equal the slice in that commit's data/game/calibration.insample.json, so at the baseline the outcome digest is the raw digest. It also holds, per league, a digest of the generated players with `number` and `schemaVersion` left out (A4).
+- Check: `node --import ./scripts/engine/register.mjs scripts/game/outcome-digests.ts --check test/fixtures/m2-baseline-digests.json` (about 90 s). Run after each milestone; results in each milestone's commit message.
+- The in-sample summary (data/game/calibration.insample.json) is re-run after each milestone so its pins (code hash, file hashes, raw slice digests) are current; every metric, diagnostic and invariant count must stay identical.
+
+### A: jersey numbers (engineer, 2026-11-14)
+- Rule values: `jerseyNumbers` in data/rules/nfl-2026.json, one leaf per position the game uses, each a list of inclusive [from, to] ranges, cited in RULES.md (Rule 5-1-2). Cornerbacks and safeties take the defensive backs' 0-49; placekickers and punters the kickers' 0-49 and 90-99.
+- Player schema version 2: `number` (integer 0-99). Unique within a team is checked by `teamPoolSchema`; the rule set check needs the rule set, so it is `parseTeamPool(json, rules)` (rules optional, so the existing one-argument call still parses a pool). Version 1 stays readable through `playerV1Schema`, `teamPoolV1Schema` and `parseTeamPoolV1`; `migrateTeamPool(pool, rules, seed)` (sim) migrates it.
+- Number assignment (designed): pool order, uniform among the free allowed numbers. The generator draws from `numberStream(rng)`, a copy of its generator jumped 2^64 ahead, so the generator's own stream, and every name, rating and id it draws, is unchanged (A4, checked for all 10 calibration leagues).
+- `GeneratorData` gains `rules` (only `jerseyNumbers` is read). Every caller already passes EngineData.
+- The step 4 A2 player-schema test pinned version 1 as the only known version; its fixture moves to version 2 (every rejection case kept, "unknown schemaVersion" now 3) and a case checks version 1 still parses through the version 1 schema.
+- Pins: the CLI golden (test/game/__snapshots__/cli.test.ts.snap) changes in its two provenance lines only (rule set hash). The engine validation summary (data/engine/validation.json) pins the rule set file and the engine code, and the game holdout summary (data/game/calibration.json) pins both too; both go stale here. Re-pinning them means re-running the engine pipeline and the game holdout, which the M2 spec leaves out (Non-goals: the holdout run). Not done; for the lead.
+
+### B: who made the play (engineer, 2026-11-14)
+- Return units live in a new designed file, data/engine/participants.json, not in personnel.json as the spec words it (resolved 7). Why: personnel.json is an input of the pipeline's centered matchup table (`matchupHash` = sha of matchup.json and personnel.json) and of the engine validation summary, so editing it would change a generated file's bytes and need an engine pipeline rerun. The units, the role shares, the tilts, the fallbacks and the fouling-player table are all in the one new file, loaded as `EngineData.participants` (schema `participantsSchema`). Interface change: `EngineData` gains `participants`; `EngineFiles` gains `participants`; the game's data hashes gain the file.
+- Return units are the on-field record only. The engine's kick rating effects keep reading the receiving team's base package, as in M1; switching them to the return unit would change kick outcomes.
+- Credit stream: per play, `creditStream(rng)` seeds a new Rng from the outcome stream's four state words before the play's first draw (read only). Tests can swap it: `createEngine(data, { creditStream })` (optional second argument; the one-argument call is unchanged). With a fixed swapped stream, 100 games had identical outcome digests and different participants.
+- Shapes for the UI (packages/shared/src/play.ts): `Participants` (role -> id, `foulers` array), `OnField` (`offense` and `defense`, each position -> ids in slot order; offense is the team that snapped or kicked), `PARTICIPANT_ROLES`. TRACE_FIELDS gains one factor per role with `id`, `number`, `name`, plus `fouler` with `penalty`, so the why tests cover them (spec D).
+- B6 (report of real position shares) is not built: it needs a pipeline step joining pbp receivers and rushers to roster positions. Not gated.
+- Byte-identity: all 10,000 in-sample outcome digests identical to the baseline; CLI golden changes only in its data-hash line (the new file).
+
+### C: per-player box score and rating ranks (engineer, 2026-11-14)
+- `playerBoxScore(record, rules)` and `ratingRanks(pools)` in packages/sim/src/loop/player-box.ts; types (`PlayerBoxScore`, `PlayerLine` and its lines, `RatingRanks`) in packages/shared/src/game.ts, schemas in packages/shared/src/m2-schema.ts. Every definition is designed (MODEL.md, Per-player box score): RULES.md cites no statistics convention yet. Kicking and punting are separate lines (`kicking`, `punting`) so each can be absent on its own.
+- For the lead (C1 conflict): a pass the defense intercepted and the offense got back is a completion with yards in the step 5 team box (box.ts reads only `turnover` and final possession, and such a play has neither) but has no receiver in B's crediting (interceptor and offensive recoverer). The player box does not invent a catch, so team completions exceed the sum of catches and player completions by those plays: 2 of 300 games checked (league seed 2026). Every other C1 sum matched in those 300 games: passing, receiving and rushing yards, attempts, interceptions thrown and made, sacks taken and made, field goals, punts. Fixing it in the team box would change step 5 counting, and the pipeline counts real games the same way (pipeline/game/actuals.py), so I left it.
+- Team challenges won and lost are not in the box: challenges are milestone G.
+- C1 amended (lead's call, 2026-11-14): the C1 sums of completions, catches and their yards leave out intercepted passes the offense recovered, which the step 5 team box counts as completions. The spec's C1 row says so. The player box is unchanged.
+- For the post-M2 fix round (lead, 2026-11-14), not changed now: the step 5 team box counts an intercepted pass the offense got back as a completion with yards (box.ts reads only `turnover` and final possession). By NFL convention an intercepted pass is never a completion. The fix touches the team box and the pipeline's real-game counting (pipeline/game/actuals.py) together, and so the calibration metrics.
+
+### D: why headline (engineer, 2026-11-14)
+- `WhyTemplate.headline` is required (schema `whySchema`); why.json version 2 adds one per template. `detail.headline` is rendered in `finish` with the same slot rules (`renderHeadline`); `detail.why` is unchanged for every play (the outcome digest keeps it).
+- Headlines name players only where the role is always present for that template: the fouler on pre-snap and penalty lines, the kicker on kickoffs, onside kicks, field goals and extra points, the punter on punts, the quarterback on kneels and spikes. Runs, passes and returns leave naming to the UI's result line, which reads `participants`.
+- The headline avoids the word "matchup" (a trace factor id) and says "that defense" instead, so a pattern test for raw factor ids has no near-miss. "a fluke" stays, as the spec allows.
+- `render` and `slotsOf` now take only the fields they read (`Pick<WhyTemplate, ...>`), so existing callers with a text-only template still type-check.
+
+### Pins-only reruns after M2 A-E (lead's call; engineer, 2026-11-14)
+- Lead's call: re-pin the engine validation summary and the game holdout summary, counted and labelled post hoc, because the outcome digests show no outcome changed. C7 was not rerun: its summary pins only data/game/tolerances.json, which M2 did not change.
+- Started once the 15-minute load average was under 4 (1.36 / 1.48 / 3.96 at the start), in pin-safe order. Engine run 10 (`uv run --project pipeline python -m pipeline.engine`, with the download cache copied to a scratch directory through CLIPBOARD_FOOTBALL_CACHE): every in-sample and holdout metric identical to run 9, and the five generated files byte-identical. The in-sample summary: metrics, diagnostics, invariants and slice digests identical to milestone E's, 7.47 ms per game. Game holdout run 15, "M2 A-E pins only, metrics must match run 14": every metric, diagnostic and invariant count identical to run 14, 0 gated failures, 7.66 ms per game (79.3 s). Its raw slice digests changed (they carry the data hashes and the M2 fields) and now equal the in-sample summary's, as they did before M2: both summaries play the same 10,000 games.
+
+### E: the step-wise loop (engineer, 2026-11-14)
+- API (packages/sim/src/loop/session.ts): `startSession(setup, kit, human)` runs to the first request (or the end, with `human` null); `answerSession(session, setup, kit, answer)` returns `{ ok: true, session }` or `{ ok: false, error: { code, message } }` and never changes the session it was given (E5); `sessionRecord(session, setup, kit)`; `replaySession(setup, kit, human, inputs)` rebuilds a session from its input log (E2). `stepGame` and `startGame` gain optional trailing parameters (`seat`, `tossChoice`); every existing call is unchanged. Requests and answers are typed in packages/shared/src/game.ts (`DecisionRequest`, `DecisionAnswer`, `RequestScreen`, `RequestOption`, `ReasonCode`, `Tempo`) with zod schemas in m2-schema.ts.
+- Request shape: one request per decision, holding every menu screen it needs (`screens`, first screen first; an option's `opens` names the next). An answer is the path of option ids to a final option (`["pass", "shotgun", "deepPass"]`, `["timeout"]`, `["sameCall"]`, `["clock", "hurryUp"]`, `["accept:0"]`). Each screen has at most six options, plus Esc (Back, or the pause menu on a first screen): seven. Timeout and Same call are options on the first screen of a call, as in the design; tempo is set on the Clock screen and the same request comes back.
+- How it pauses: a session is the run and Rng state at the start of the current dead ball plus the answers given in it. Each answer replays that dead ball from there; the human's seat throws a pause at the first decision it has no answer for. Replays repeat the same draws, so nothing a request showed can change. A session is plain JSON (checked with JSON and structuredClone round trips).
+- With no human seat, `stepGame` runs exactly the step 5 code: every human branch is behind `seat !== null`. Checked: 30 sessions with no human gave records byte-identical to `playGame`, and the in-sample outcome digests are unchanged.
+- Order of the human's decisions (designed; the spec says "step 5's order, with the human answering where the AI policy would"). The side that snaps or kicks answers at its step 5 point: the human offense's (or kicker's, or try offense's) timeout is on its call request, asked where the AI's timeout policy is, and a timeout there takes the fitted run-off before a called timeout first (spec resolved 14). The other side's request comes once the snapping side has lined up, because the design shows "They line up to punt" and "They declare an onside kick" before Space: the human defense's (or receiver's) call and timeout come after the offense's call is drawn and after the run-off, and a timeout there takes no second run-off (the clock already ran). So a human defense cannot save the run-off seconds with a timeout; the AI defense still decides before the run-off. The AI offense's call is drawn before the human defense answers, but no request carries it: the defense call request says only that it is a scrimmage play, and a kick, kneel or spike shows as `theyLineUp` with its call (visible before the snap).
+- The human answers the penalty choice when it is the offended team (with each option's play and what it leaves) and, on offense, the ten-second run-off after the play when it applies (take it, or a timeout; off with a reason when not allowed). The AI's pre-play run-off rule is unchanged for AI offenses.
+- Tosses: the human winner chooses receive or defer (opening) and receive or kick (overtime; the machine's options, pending the overtime rule lookup in G); the winner is read from a copy of the Rng (`peekToss`), so the draw itself is unchanged. An AI winner keeps the designed default (defer, receive) and the human gets a `continue` with the result.
+- Tempo (designed mapping, spec resolved 13): Normal is the average coach's tempo draw, unchanged. Hurry-up reads the fitted cells of a trailing offense in the final 2:00 (quarter 4, 120 s left, score -1: time5 GF, final c120, score3 and lateS3 T); Run the clock those of a leading offense in the final 5:00 (quarter 4, 300 s left, score +1: time5 G5, final "-", L). Down, clock state, own timeouts, previous snap and timeout-called stay real (`tempoModeView`, `modeTempo` in coach.ts). Resets to Normal whenever the human is not on offense in a scrimmage dead ball, so at each new drive.
+- E7 consequence of that mapping: where the real situation is the mode's own (a trailing offense in the final 2:00, a leading one in the final 5:00), Normal draws from the same cell, so its mean equals that mode's there. Averaged over each time5 bucket's states, Hurry-up is below Normal and Run the clock above it (checked on the shares for every bucket at three scores and two timeout counts; only those exact states tie).
+- Same call repeats this side's last scrimmage call, or a two-point try's run or pass; kickoffs and extra points do not count. Off with `noEarlierCall` or `lastCallNotLegal`.
+- Not measured yet: E9 on Joseph's machine. On this machine, under load from a parallel 10,000-game run, 30 random-bot games (5,760 answers) gave p50 0.17 ms and p99 8.7 ms from answer to next request; the slow answers were scattered (garbage collection, not game length).
+
+### Code review fixes to E (engineer, 2026-11-14)
+- Flag 1, a request now carries the state it is decided in. The session's saved run is the start of the dead ball, but by the time a human defense or receiver is asked, the run-off, an AI timeout or the two-minute warning may have moved the clock. The UI would have shown, for example, 2:31 running where the real state is 2:00, stopped at the warning.
+  - Interface change: every `DecisionRequest` gains `state: RequestState | null` and `events: RequestEvent[]` (packages/shared/src/game.ts, schema in m2-schema.ts).
+  - `state` is the snapshot when asked: period, clock, clock running, phase, possession, spot, down, distance, goal to go, score, timeouts, safety kick. It is null only for the opening toss, before the game exists.
+  - `events` lists this dead ball's run-offs, timeouts (team, side, left), two-minute warning and end of period before the request. A run-off's `seconds` is what the game clock really ran, not the drawn run-off: the warning or the end of the period cuts a draw short (from 2:23 the warning stops the clock at 2:00, so 23, not a drawn 27). Test-writer flag, lead's call, 2026-11-14; before, it copied the draw (5 of 2,000+ requests, all at the warning). The game log's own `runoff` event keeps its `seconds` (the draw before the warning or period end cut it) because it is part of every record, and changing it would change every outcome digest. So a request's run-off and the log's can differ in exactly those cases. test/m2/e-session.test.ts "state is the `before` of the first event..." compares them as equal and fails on those cases; that test is the test-writer's to change.
+  - The loop adds both in one place (`ask` in stepGame; `requestState`, `requestEvents` in play.ts). The request builders now return `RequestBody` (a request without seq, state and events).
+  - Checked with 30 scripted-human games (5,760 requests): every request parses under the schema; in all 1,732 requests made after a run-off or timeout with no warning or period end between, the state's clock is the checkpoint's minus the run-offs, and it is stopped after a timeout or the warning (that check skipped the warning cases, which is how the drawn-seconds bug got past it). Outcomes are unchanged (outcome digests below).
+- Flag 5, the tempo-mode cells are data. The time and score Hurry-up and Run the clock read their cells with moved from `TEMPO_MODE_CELLS` in coach.ts to data/game/tempo-modes.json (designed, schema `tempoModesSchema`). Same values.
+  - Interface change: `GameData.tempoModes` and `GameFiles.tempoModes`; `tempoModeView(view, mode, modes)` and `modeTempo(view, mode, modes, tables, config, rng)` take the modes.
+  - The file is in the game's data hashes.
+- The UI's data loader (packages/app/src/engine/data.ts) now loads data/engine/participants.json and data/game/tempo-modes.json. It loaded neither, and its `as unknown as` cast hid that from the typecheck, so the browser build would have failed at load since milestone B. Two lines each; nothing else in the UI changed.
+- Pins: game.ts is in the engine validation's import graph (through types.ts), play.ts and coach.ts are in the game calibration's, and the new file is in its data hashes. So engine run 10 and game holdout run 15 went stale. Re-pinned on the lead's go-ahead by engine run 11 and game holdout run 16, both pins only and post hoc, started at 15-minute load 3.94: engine metrics identical to run 10, with the generated tables byte-identical; in-sample summary identical; holdout metrics, diagnostics and invariants identical to run 15 (7.36 ms per game).
+
+### F: standout plays (engineer, 2026-11-14)
+- Built against the pre-registered data/game/m2-standout-tolerances.json (sha256 recorded above before any run; F2 minimum 0.10, confirmed by the lead). Data: data/engine/standouts.json (kinds, threshold, multipliers, centering; schema `standoutsSchema`). Code: packages/sim/src/engine/standouts.ts, with the factor applied in resolve.ts's class draws. Check and report: `scripts/game/standouts.ts --check`, docs/STANDOUT_REPORT.md, data/game/m2-standout-check.json.
+- Interface changes:
+  - `EngineData.standouts` and `EngineFiles.standouts`.
+  - `EngineOptions.standouts` (default off) and `observeStandouts` (scripts only).
+  - `Players.cards` (optional): the card-rating pools, which `gamePlayers` sets.
+  - `prepareGame(data, { standouts? })`.
+  - The trace factor `standout`: `{ player, number, name, rating, ratingLabel, value, kind, multiplier }`. It matches the UI's assumed `Standout` (packages/app/src/engine/types.ts reads `player, number, rating, value, kind, multiplier` from the trace), with `name` and `ratingLabel` added for the why line.
+  - Why templates `when: "standout"`, one variant per kind; their headlines start "Standout:".
+  - The UI loader loads standouts.json.
+- Order: the byte-identity proof with standouts off came first (all 10,000 in-sample outcome digests identical to 04f0f5d). Then one centering run (every centering at 1, the in-sample seeds), then the check.
+- Results, all inside the pre-registered tolerances:
+  - F1: largest class-share move 0.059 pp; points per team-game mean -0.029, SD +0.101; turnovers +0.005; 50+ make rate -0.135 pp; no gated step 5 metric changes status.
+  - F2: relative effect at the threshold from 0.19 (sack) to 0.91 (breakaway run), all at least 0.10.
+  - F3: 0 bad entries, 0 with standouts off.
+  - F6: 2.44 standouts per game. No holdout run (designed and centered, as the lead ruled).
+- For the lead (F2 reading): the spec's F2 compares an elite player with a league-average one, so the effect includes the step 4 rating effects that rating already has. The standout layer alone (elite, on vs off) is 0.09 for bigCatch and sack and 0.12 to 0.25 for the others. If F2 should mean the standout layer alone, those two multipliers need raising, and F1 must then be rerun.
+- Spec gap: the sack kind names LB, but linebackers have no Pass Rush rating (POSITION_SKILLS), so no LB can be elite for it. The positions stay as pre-registered; the schema checks that at least one listed position has one of the kind's ratings.
+- `enabled` is false in the shipped data, the lead's call to make. Turning standouts on changes game outcomes by design, and with them 21 tests that pin step 5 or scripted-game outcomes:
+  - the committed in-sample summary pinned as step 5d run H (step5b, step5c and step5d spec checks);
+  - the step 5c repro seeds;
+  - the M2 e-session scripted games (overtime, tie, AI two-point);
+  - test/m2/outcome-digests.test.ts;
+  - B7's swapped credit stream: with standouts on, the credited player decides whether a play is a standout and so its why line.
+
+  Those are value re-points for the test-writer, plus an in-sample summary re-run and the CLI snapshot. With `enabled` false the game is exactly step 5's (the proof above), and F1 to F3 and F6 ran with standouts explicitly on.
+- Pins: resolve.ts, participants.ts and shared engine.ts are in the engine validation's import graph, and play.ts in the calibration's. So engine run 11 and game holdout run 16 are stale again, pending the lead (pins only would match: with `enabled` false nothing the engine validation or the game plays changes).
+
+### F: the lead's calls on the four F decisions (lead, 2026-11-14)
+- Standouts on for play, off for the calibration baseline. The calibrated baseline is the average-coach engine without standouts: `enabled` stays false in data/engine/standouts.json, and the step 5 summaries, accepted values and pinned tests stay as they are. Standouts are a centered designed layer, verified against that baseline by F1.
+  - The playable app runs with them (`PLAY_STANDOUTS` in packages/app/src/engine/session.ts passes `standouts: true` to `prepareGame`).
+  - The CLI has `--standouts`: a third header line says so, and the default output and its golden are unchanged.
+  - The app's save records the setting (save schema version 4, field `standouts`). A save made under another setting reads as from an older version, so a replay is exact; data hash and code hash were already in the save. The app test's fixture save gains `standouts: true` for the new required field.
+- F2 is read as the spec states it: an elite player against a league-average player in the same slot. All five kinds pass. Joseph judges the rate in the playtest (F6).
+- The pins-only engine run 12 and game holdout run 17 wait until G is done, then run once at the end of M2.
+- Sack and LB: no linebacker can be elite for sacks until a later milestone gives linebackers a Pass Rush rating. The kind stays as pre-registered.
+
+### F code review fixes (engineer, 2026-11-14)
+- (High) Standouts and flags. The engine no longer tags a standout or switches the why line. It records a candidate (trace factor `standoutCandidate`; the old `standout` factor is gone from the trace). The loop decides the final status after penalty enforcement from `playStands`/`kickStands`, and puts `standout` on the play event (`GameEvent.play.standout`, shared type `Standout`) with the standout why line and headline, rendered by `standoutOf` in loop/play.ts.
+  - A play that stands after a declined foul now gets the standout headline (checked on league 2026 seed 30: the declined illegal-contact play reads "Standout: #80 ...'s hands (99) made a 20-yard-plus completion."). A play a flag wipes is not a standout.
+  - The app reads the loop's value, with the detail hook only as its fixtures' fallback: the end-of-game list (app.ts), the result line's "Standout:" (text.ts), the timeline label and ring (timeline.ts), and the why line (`whyHeadline(play, standout)`). The UI test's label check reads the same final field.
+- (Medium) The applied factor. The candidate carries `applied`, the factor the engine applied (centering x (1 + share x (multiplier - 1))), and a candidate needs it above 1. The standout why line cites it (x{standout.applied}) and never the raw multiplier.
+- (Medium-low) F3 runs both ways. scripts/game/standouts.ts recomputes the three conditions for every play from the record alone (on-field players, class drawn, player credited, the factor via `standoutsFor`). Result: 24,357 plays met them in the in-sample run, and 0 plays disagreed either way, with the candidate or with the loop's final call. Outside leagues: 0 too.
+- (Low) Schema strictness.
+  - `standoutsSchema` rejects a rating that isn't a base rating or a position skill.
+  - `checkStandoutClasses` (run in `parseEngineData`) rejects a class that isn't one of its family's classes.
+  - Both give clear messages.
+  - `observeStandouts` sees only kinds whose class the draw has. The recentering gave the same values to 6 places, so the centering and F1's outcomes are unchanged.
+- Results: standouts off, all 10,000 in-sample outcome digests are still identical to 04f0f5d. F1 passes as registered (largest class-share move 0.059 pp, other values as before), as do F2 and F3. F6 is 2.38 standouts per game, counted as the loop's final standouts.
+- F1 on 3 leagues outside the 10 calibration leagues (run seed 27261112; 3,000 games; report, not gated): every check within its tolerance. Largest class-share move 0.116 pp; points mean -0.038, SD -0.028; turnovers +0.018; 50+ make rate -0.186 pp (docs/STANDOUT_REPORT.md).
+
+### G1 and G2: challenge rules and close-call rates (engineer, 2026-11-14)
+- G1: the cited challenge and replay values are in data/rules/nfl-2026.json as `challenges.*` (11 leaves) and `replay.*` (18 leaves), one leaf per RULES.md row (the existing rule-set test checks it). The review-then-penalty order is `replay.penaltyChoiceAfterReview` (Rule 15-7-3, Item 3): a coach may remake an accept-or-decline choice after the review, so the review comes first and the penalty choice follows it, as the design wants.
+- G2: `uv run --project pipeline python -m pipeline.challenges` (pipeline/challenges/build.py) writes data/game/challenges.json, byte-identical on rerun (checked twice). It loads only the training seasons from data/game/config.json (2016-2023), drops any row from 2024 on or outside the regular season, and fails if a holdout season reaches the fit. pipeline/tests/test_challenges.py shows 2024-2026 rows never land.
+- Fitted, per kind: how often plays ruled that way on the field were reviewed (reviews / ruled plays) and how often a review reversed them; also coach challenges against Replay Official reviews. The ruled plays are the unreviewed plays of that result plus the reviews of that ruling, because a reviewed play's final columns describe the corrected play.
+- The kind is read from the review sentence ("<team> challenged | The Replay Official reviewed the <ruling> ruling, and the play was REVERSED | Upheld"); the phrase-to-kind map is designed:
+  - "pass completion" -> completion ruled, really incomplete;
+  - "fumble" or "runner was not down by contact", when the ruled fumble was recovered by the defense -> fumble lost ruled, really down;
+  - "interception" or "pass interception" -> interception ruled, really incomplete;
+  - "runner broke the plane", or "runner was not down by contact" on a ruled touchdown -> touchdown ruled, really down short;
+  - "first down" or "short of the line to gain" -> spot at the line to gain;
+  - only run and pass plays count. Every other ruling (incomplete ruled, really a catch; short of the goal line; out of bounds; penalties; kicks) is a review of something the game doesn't model.
+- Hand-checked sample: 40 reviewed plays, drawn by seed 20261114 from all 2016-2023 regular-season reviews, read against their full descriptions. Ids only here, because the descriptions name real players. Two readings were wrong in the first pass and are fixed (rows marked Fixed). Three are right rulings whose real reversal differs from the game's single alternative per kind: those are a known imprecision of the five-kind design (spec resolved 4), not a misread.
+
+| Game, play | Ruling phrase | Kind | Result | Check |
+|---|---|---|---|---|
+| 2016_05_SD_OAK 3103 | incomplete pass | None | upheld | Right. |
+| 2016_09_ATL_TB 2557 | pass completion | completionToIncomplete | upheld | Right. |
+| 2016_11_NO_CAR 2123 | incomplete pass | None | reversed | Right to leave out: incomplete ruled, really a catch (excluded kind, spec resolved 4). |
+| 2016_15_LA_SEA 2651 | incomplete pass | None | upheld | Right. |
+| 2016_16_MIA_BUF 4750 | pass completion | completionToIncomplete | upheld | Right. |
+| 2017_01_LAC_DEN 785 | incomplete pass | None | upheld | Right. |
+| 2017_02_CLE_BAL 2134 | pass completion | completionToIncomplete | upheld | Right. |
+| 2017_05_SF_IND 3296 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2017_07_TEN_CLE 976 | pass completion | completionToIncomplete | reversed | Right ruling; the real reversal was to a catch and fumble, not an incompletion (the game's alternative is the incompletion). |
+| 2017_13_HOU_TEN 1137 | pass completion | completionToIncomplete | upheld | Right. |
+| 2018_11_HOU_WAS 2417 | fumble | fumbleToDown | upheld | Right. |
+| 2018_15_NO_CAR 2232 | incomplete pass | None | upheld | Right. |
+| 2018_16_ATL_CAR 4290 | incomplete pass | None | reversed | Right. |
+| 2019_01_DET_ARI 5309 | pass completion | completionToIncomplete | upheld | Right. |
+| 2019_06_WAS_MIA 1276 | pass completion | completionToIncomplete | upheld | Right. |
+| 2019_07_BAL_SEA 1369 | None | None | upheld | Right. |
+| 2019_09_TB_SEA 3557 | runner was down by contact | None | reversed | Right to leave out: ruled down, reversed to a fumble (not a modeled kind). |
+| 2019_09_TB_SEA 4195 | None | None | upheld | Right. |
+| 2019_13_MIN_SEA 1047 | first down | spotLineToGain | reversed | Right. |
+| 2019_13_TB_JAX 1248 | interception | interceptionToIncomplete | reversed | Right. |
+| 2019_16_BUF_NE 1984 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2020_05_ARI_NYJ 3435 | short of the line to gain | spotLineToGain | upheld | Right. |
+| 2020_08_ATL_CAR 2074 | pass completion | completionToIncomplete | reversed | Right (a completion with a lost fumble, reversed to incomplete). |
+| 2020_14_DEN_CAR 2498 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2020_15_SF_DAL 1125 | fumble | None | reversed | Fixed: a kickoff-return fumble. The first reading counted it; only run and pass plays count now. |
+| 2021_08_PHI_DET 623 | runner broke the plane | touchdownToShort | reversed | Right. |
+| 2021_09_ARI_SF 1019 | short of the goal line | None | upheld | Right. |
+| 2021_10_BUF_NYJ 1728 | fumble | fumbleToDown | reversed | Right ruling (a sack-fumble the defense recovered); the real reversal was to an incomplete pass, while the game's alternative is down at the spot. |
+| 2021_17_DET_SEA 1031 | fumble | fumbleToDown | reversed | Same as the row above: a sack-fumble reversed to an incomplete pass. |
+| 2022_04_CHI_NYG 1422 | pass completion | completionToIncomplete | reversed | Right. |
+| 2022_05_HOU_JAX 1788 | pass completion | completionToIncomplete | reversed | Right (a completion with a lost fumble, reversed to incomplete). |
+| 2022_05_SEA_NO 2227 | fumble | fumbleToDown | upheld | Right. |
+| 2022_13_BUF_NE 2590 | interception | interceptionToIncomplete | reversed | Right. |
+| 2022_14_KC_DEN 1135 | incomplete pass | None | upheld | Right. |
+| 2022_15_NYG_WAS 3778 | runner was out of bounds | None | reversed | Right. |
+| 2022_18_LAC_DEN 3821 | incomplete pass | None | upheld | Right. |
+| 2023_02_GB_ATL 3942 | short of the line to gain | spotLineToGain | upheld | Right. |
+| 2023_10_DEN_BUF 1482 | incomplete pass | None | reversed | Right. |
+| 2023_15_PIT_IND 1722 | runner was not down by contact | touchdownToShort | reversed | Fixed: a ruled touchdown ("not down by contact") reversed to down at the 1. The first reading missed it; it is the touchdown kind now. |
+| 2023_15_WAS_LA 3873 | runner broke the plane | touchdownToShort | reversed | Right. |
+
+- Result (2016-2023): Replay Official reviews are 100% of the turnover reviews (fumbles, interceptions), as Rule 15-1-2 (e) requires; coaches challenge completions and spots. For G7, coach challenges of the five kinds come to 0.1499 per team-game (season range 0.1121 to 0.1895, 4,190 team-games), with 43.9% reversed (season range 32.9% to 51.4%, 628 challenges).
+
+### G3 to G8: close calls, challenges and reviews (engineer, 2026-11-14; G7 failed, stopped)
+- Built:
+  - Engine (packages/sim/src/engine/closecalls.ts, resolve.ts). On a foul-free scrimmage play that is one of the five kinds as ruled, resolvePlay marks a close call at the fitted rate for plays ruled that way (data/game/challenges.json `reviewPer1000000`). It also draws the verdict at the fitted reversal rate. Both draws come from a per-play review stream, never the outcome stream.
+  - The alternative (`detail.closeCall.alternative`) is a deterministic edit: an incomplete pass at the line, down at the fumble spot, down at the 1, or the spot moved across the line to gain. It carries its own class, yards, participants and a "reversed" why line.
+  - Off by default: `EngineOptions.closeCalls`; `prepareGame(data, { closeCalls })`, default `challengePolicy.enabled` (false).
+  - Loop (loop/play.ts `review`): booth or coach review from rule-set data only.
+    - The Replay Official reviews in overtime, after the two-minute warning, every turnover kind, every ruled scoring play, and a fourth down ruled short.
+    - Otherwise the team the ruling went against (its lead plus expected points, reversed vs ruled) may challenge, if it has a challenge left (perGame, plus extraIfOneSucceeds after a win, max) and a timeout (needsTimeout).
+    - A failed challenge charges a timeout (failedCostsTimeout; `chargeTimeout`). A reversal applies the alternative to the pre-play state. After the warning, a reversal that leaves the clock running brings the run-off (`reviewRunoff`).
+    - The review comes before the penalty choice (replay.penaltyChoiceAfterReview).
+    - A `review` event goes before the play event, and the play event is the play as it stands. `GameRun.challenges` counts, present only with close calls on.
+  - AI policy (designed, data/game/challenge-policy.json): challenge when reversalRate x valueSwing - (1 - reversalRate) x timeoutCost (0.35) > threshold (0). It sees the kind, the question, the fitted rate and the value swing, never the verdict.
+  - Human: a `challenge` request (Throw the flag, Let it stand; the ruled play shown without the verdict), then `continue` requests `underReview` and `reviewResult` for every review. The player box has team challenges won and lost.
+- Interface changes:
+  - `EngineData.closeCalls`, `EngineFiles.closeCalls`, `GameData.challengePolicy`, `GameFiles.challengePolicy`.
+  - `CloseCall`, `CLOSE_CALL_KINDS`; GameEvent `review`; `GameRun.challenges`; `GameKit.closeCalls`.
+  - `CoachPolicies.challenge?` and `ChallengeView`.
+  - DecisionRequest `challenge`; ContinueAbout `underReview` and `reviewResult`.
+  - `PlayerBoxScore.challenges`; machine `chargeTimeout` and `reviewRunoff`.
+  - Schemas updated; the UI loader loads challenges.json and challenge-policy.json; the UI's continue text and event lines cover the new cases.
+  - The UI had only a `detail.closeCall {kind, question}` hook, so the request shapes are new here.
+- Designed simplifications:
+  - Close calls only on foul-free scrimmage plays, so a review never meets a penalty choice. The spec's edge case of a close call with a defensive foul and an untimed down is unreachable.
+  - The post-review run-off is always taken (the rule lets either team avoid it with a timeout).
+  - Rule 15-6-2 (a timeout returned after a reversal) is not modeled.
+  - A failed challenge on a play that ends the half or the game charges no timeout (timeouts reset at the half). Across a quarter within the half (Q1 to Q2, Q3 to Q4) it is charged; see the G code review fixes below.
+- Checks:
+  - Close calls and standouts off: all 10,000 in-sample outcome digests are identical to 04f0f5d, and the in-sample summary metrics are identical.
+  - G3: 1,628,110 engine calls of the on run, each shadowed with close calls off from a copy of the stream; 0 mismatches, 7,650 close calls.
+  - G8 (scripts/game/g8-reach.ts, games in test/fixtures/m2-g8-games.json, each replayed from its seed and input log alone): 5 games in league 2026 (seeds 1, 12, 30, 110, 115) reach a human challenge that stands and one reversed, an AI challenge both ways, and a Replay Official review.
+  - The fixture was regenerated after the formation-first merge (its input logs used the old run-or-pass-first paths and no longer replayed): now seeds 2, 4, 23, 49 and 164, covering the same five cases.
+- G7 (scripts/game/challenges.ts, docs/CHALLENGE_REPORT.md, against data/game/m2-challenge-tolerances.json): FAIL, stopped under the stop rule.
+  - Inside: challenges per team-game 0.135 (band 0.112 to 0.189); reversal share 0.457 (band 0.329 to 0.514); every run class share; points per team-game -0.20 (0.3); turnovers -0.047 (0.05); no status flip.
+  - Outside: the pass family's incompletion share, +0.216 pp against 0.2 (30.92% off, 31.14% on).
+  - Cause: the risk spec resolved 3 named. The fitted pools hold real final rulings, so every sim reversal of a completion (1,258) or an interception (354) adds an incompletion on top. Turnovers fall the same way, inside their tolerance.
+  - The first G7 attempt crashed on a reversal that ended the game (`reviewRunoff` on a final state), before any metric was computed. Fixed, then this single run.
+- For the lead: close calls are off in the app too (`PLAY_CLOSE_CALLS = false`) until a decision. No tolerance, rate or policy value was changed after the run.
+
+### G7: Joseph accepts the incompletion miss; close calls on for play (Joseph, 2026-11-14)
+- Decision (Joseph, question dialog, 2026-11-14, "Accept, turn them on"): the G7 pass-incompletion share, 31.14% on vs 30.92% off (+0.216 pp against the pre-registered 0.2), is a known deviation, scope in-sample. It is recorded in data/game/m2-challenge-approvals.json, which scripts/game/challenges.ts reads; the frozen tolerance file is unchanged. Reason: sim reversals double-count, because the fitted pools already hold real final rulings, so every reversed completion or interception adds an incompletion on top (spec resolved 3).
+- Close calls are on for play (`PLAY_CLOSE_CALLS = true` in the app; the save records it). The calibrated baseline stays without them (challenge-policy.json `enabled` false), as with standouts.
+- Known issue for the post-M2 round: the double-counted reversals. Centering the reversals is the likely fix: the classes a reversal produces (incompletions) and removes (completions, interceptions) are corrected so league class rates match the no-challenge run. Turnovers fell 0.047 per team-game for the same reason, just inside their tolerance.
+
+### Play calling: formation-first request screens and own lineups (engineer, UI, 2026-11-14)
+Spec: docs/specs/m2-play-calling-and-motion.md, Resolved 2 and 3 (Joseph). Edits confined to the request-building code (packages/sim/src/loop/requests.ts, session.ts) and the shared request type and schema; resolve.ts and play.ts are untouched.
+- **Interface change 1, screens.** The offense call's first screen (`offense.playType`) is now formation, kick, clock, sameCall, timeout. `formation` opens `offense.formation` (the five formations), each formation opens `offense.playClass` (run, pass), which opens `offense.run` or `offense.pass`. The try's two-point screen (`offense.playType.try`) is formation, kick (off), clock (off), sameCall. Answer paths are `["formation", f, "run"|"pass", play]` and `["goForTwo", "formation", f, "run"|"pass", play]`; `offenseAnswer` builds the same OffenseCallChoice from them as it did from `["run"|"pass", f, play]`. The screens `offense.formation.run` and `.pass` are gone.
+- **Why a Run or Pass step.** A formation's 3 runs and 5 passes plus Back is 9 choices, over the 7-choice cap, and the first screen can't hold the five formations next to Kick, Clock, Same call and Timeout (9 options). So a run or pass is now 4 keys (formation, formation id, run or pass, play), one more than before. That is the cost the designer named for formation first; Joseph's call, flagged back to him in the UI report.
+- **Interface change 2, lineups.** `offenseCall`, `try` and `defenseCall` requests gain `lineups` (shared type `Lineups`: formation or package id -> the human team's player ids by position), set in `advance` (session.ts) by `withLineups` from the human's own pool and personnel.json through the same `onField` fill resolvePlay uses. Optional in the type so the request builders in play.ts didn't change; the session always sets it. Nothing about the opponent goes in. The E6 type-level key test in test/m2/e-session.test.ts now lists `lineups` (approved addition).
+- **Byte-identity, both ways.** (1) AI against AI: `outcome-digests.ts --check test/fixtures/m2-baseline-digests.json` gives identical digests for 10 leagues (players and every game) and the 1,000 slice games (103.5 s). (2) Human seat: 60 scripted human games (seeds 1 to 60, 9,772 plays, test/m2 bot) digest to 174557ad...aeae05 on both the base commit's request code (14eb169) and the new one. The bot keeps its old path order (run before pass, then formation, then play; `classFirstOrder` in test/m2/support.ts), so it makes the same calls and every record matches byte for byte.
+- Saves: the answer paths changed shape, so the app's save version moves to 5 (4 was taken by the standouts setting merged from m2/playable) and an older save reads as older (the code hash would catch it anyway).
+
+### Merge of m2/ui (b79a053) into m2/playable (engineer, 2026-11-14)
+- Both changes hold: the UI's formation-first offense screens and `lineups` (call requests only), and G's challenge and review requests.
+  - The challenge request is not a call request, so formation-first and lineups don't apply to it; it carries the ruled play, the close call's kind and question, and the rule-set risk.
+  - The UI renders it like the penalty and run-off requests: the ruled play animates first, then the prompt "Close call: <question>" with challenges and timeouts left, and the options Throw the flag and Let it stand. "Under review" and "Review result" are continue screens.
+- Save version: both branches had taken 5 (formation-first answer paths; `closeCalls`), so the merged save is version 6. An older save reads as older.
+- The timeline keeps the UI's new motion code and reads the loop's final standout (`event.standout`).
+
+### Pins-only engine run 12 and game holdout run 17 (lead's call; engineer, 2026-11-14)
+- Run at the end of M2, once G was in, on a quiet machine (15-minute load 3.97 at the start), in pin-safe order. First the outcome digests (identical to 04f0f5d) and the G7 report, now "pass" with Joseph's accepted deviation. Then engine run 12 (every metric identical to run 11, the five generated tables byte-identical), the in-sample summary (metrics, diagnostics and invariants identical), and game holdout run 16's successor, run 17 (every metric, diagnostic and invariant count identical to run 16, 0 gated failures, 7.60 ms per game). C7 not rerun (it pins only the unchanged tolerances file).
+
+### G code review fixes (engineer, 2026-11-14)
+Review of 7c2339f..dc47526, four fixes. Close calls and standouts off: outcomes byte-identical (they only touch the close-call path).
+- A reversed play keeps none of the ruled play's labels. The alternative's trace drops the ruled play's `standoutCandidate` and the role entries of players the alternative doesn't name (`altParticipants`); a role the alternative gives a ruled player under another role (fumbleToDown: the forcer is the tackler) is relabelled. A standout can only come from the play that finally stands. The ruled play's own detail is unchanged.
+- A failed challenge's timeout is charged across a quarter change within the half and waived only at the end of a half or the game (new `sameHalf(a, b, rules)` in loop/play.ts). The `review` event's `timeoutCharged` now says whether a timeout was in fact charged; the `reviewResult` request's flag is false when the team has no timeout left, and can't know of a half-end waive yet (it is asked before the play is applied).
+- Challenging with no timeouts (a rule set with `challenges.needsTimeout` false) no longer throws. A failed challenge by a team at 0 timeouts costs `challenges.withoutTimeoutsPenaltyYards` instead, through the new machine function `challengeCost(s, rules, team)` (a timeout when the team has one, `chargeTimeout`). Designed enforcement, between downs from the next snap's spot: half the distance to the goal at most, no change of down, a defense penalized to or past the line to gain gives a first down. Before a kickoff or a try the yards are waived. The shipped rules need a timeout, so this never applies to them.
+- Interface change: ContinueAbout `underReview` gains `play` (the ruled play, its closeCall without the verdict, as in the `challenge` request), `offenseCall` and `defenseCall`; the schema refuses a verdict there. The app shows the ruled play before "Under review" for booth reviews and the other coach's challenges, and compares the play event with what it already showed without the verdict (packages/app/src/ui/pending.ts), so a challenge that stood or was declined doesn't animate twice.
+- Reruns: outcome digests identical (10 leagues, 1,000 slice games). G7 still passes with Joseph's accepted deviation, but its on-run numbers moved slightly, because failed challenges at the end of Q1 and Q3 now cost a timeout and that changes later play (pass incompletion share 31.1365 against 31.1375 before; 7,649 close calls against 7,650). The off run is unchanged. The accepted value in m2-challenge-approvals.json was not touched.
+- Pins moved and not re-pinned: resolve.ts, machine.ts and play.ts are in the code-hash import graphs of data/engine/validation.json and the game calibration summaries, so their codeHash checks fail until a counted pins-only rerun (lead's call).
+- Set preview (UI, test-writer flag): a run block's set path can be shorter than the edge-of-mark trim and drew nothing; a block that short now draws a minimum tick (`blockTick` in marks.ts, designed 0.4 yards past the trim), so all 11 have a preview path.
+- Start cap (UI, test-writer flag): `startMs` in timeline.ts and the fact-leg builder both capped at maxStartMs, so removing either cap alone changed nothing and no test could see it. The cap now lives once per path (the fact-leg builder, and the other marks' start), and motion.test checks starts under a tighter cap (40 ms) in the motion data, which fails if either cap is removed.
+
+### Player overall on the field (Joseph, 2026-11-14)
+
+- Date: 2026-11-14.
+- Decision: the number beside each mark's jersey number, and the first row of the player card, is the player's overall. It replaces the single key rating per position (templates keyRating, now unused by the UI). Joseph asked for "their overall" and then for it to be relevant to the position.
+- How: a weighted mean of the player's card ratings, rounded, with per-position weights in data/ui/templates.json `overallWeights`. Designed, not fitted. Ratings a position doesn't use count zero (a kicker's speed doesn't move his overall). parseTemplates rejects a missing position, a rating the position doesn't have, or a weight that isn't positive.
+- Display only: the engine never reads the overall.
+
+### Neutral catch depth when the engine gives no air yards (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only.
+- Decision: on a completion whose PlayResult carries no `airYards` (none do today), the field draws the catch at the class's `passDepth` from data/ui/templates.json, measured past the line of scrimmage: the same neutral depth an incompletion already uses. It is capped at the gain and kept between the line and the dead spot; a screen's depth behind the line (-2) stands. The receiver then runs after the catch to the dead spot. With `airYards` present, the catch stays at the air yards.
+- Why: the catch used to sit at the dead spot, so on longer gains the target had to cover the whole gain before the catch inside the throw hold, and on 32% of 30,136 completions (1,000 games) he ran faster than 1.15 x his top speed (revision 2026-11-14, R-C7).
+- What it never changes: the engine's facts. The dead spot, the tackler, the throw and the catch stay anchored (decision 10); only where between the line and the dead spot the ball is caught is the timeline's choice, from the call's class alone.
+- Amended 2026-11-15 (lead): when the target's route never comes within 0.5 yd of this depth in the window a throw can reach (drop end + hitch + the shortest flight, to drop end + throwHold + the longest flight), the catch depth follows his route instead: the reachable track point nearest this depth, kept inside the band between the line and the dead spot, so a screen's -2 still applies when his route sits behind it. With `airYards` present the catch stays at the air yards. Why: a swing that stays shallow, a screen back sitting deep or a stalking receiver otherwise had to sprint to a depth his route never reaches (R-C7).
+- Amended 2026-11-15 (lead), screens: real screens are caught 3 to 7 yd behind the line, so on a screen the catch depth may follow a route that sits behind the screen depth (-2): the floor is the route's own depth, but no deeper than `screenFloorYards` (data/ui/templates.json, designed, -8). The catch still sits between that floor and the dead spot. The throw hold is not lengthened.
+- Amended 2026-11-15 (lead), backfield routes: real swings and check-downs are often caught behind the line. On any class, when the target's route never reaches the class depth in the window a throw can reach and his reachable track point nearest it is still behind the line, the catch depth may follow his route behind the line, down to `screenFloorYards` (-8). It stays between that floor and the dead spot. The throw hold is not lengthened.
+- Amended 2026-11-15 (Joseph): deepPass completions now have a catch floor. See "Deep completions are caught deep" below.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the complete-pass branch).
+
+### Neutral catch x on the target's route (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Accepted by the lead on 2026-11-15.
+- Decision: on a completion, the catch's x is the x of the target's template track where it first comes within 0.5 yd of the catch depth, in the window a throw can reach (from drop end + hitch + the shortest flight; a point counts only if his arrival there minus that throw's flight is within the throw hold, so R8 can time it without lengthening the hold). When his route never reaches that depth, it is the x of his reachable track point nearest it, and the depth follows that point (see "Neutral catch depth", amended). The x stays inside the engine's `passLocation` third when there is one (the third's nearest edge when his route is outside it), else inside the field: `sidelineMarginYards` (1.5 yd) from each sideline. R8 then times the throw for that point, and the receiver runs after the catch to the dead spot.
+- The engine sends no `passLocation`, `runLocation` or `airYards` on any play today (the other session's debugger, 12,671 plays, league 2026), so the field clamp is the rule that applies. On runs the play side then falls back to the strong side (R3).
+- Why: with the catch at a fixed x, and the target allowed to leave his route only at or after the throw (decision 9, P3), targets overran their top speed on most completions, and Joseph saw receivers who never got to the ball.
+- What it never changes: the engine's facts. The third, when sent, is the engine's and the catch stays inside it; the dead spot, the tackler, the throw and the catch stay anchored. It is computed from the calls only (his template, which every receiver runs alike), so nothing drawn before the throw changes.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the complete-pass branch).
+
+### Out-of-bounds carry runs upfield first (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Accepted by the lead on 2026-11-15.
+- Decision: on a play the engine ends out of bounds, the carrier's drawn path from his last point to the dead spot on the sideline runs straight upfield (toward the dead spot's y, so a return goes the returner's way) at his x until the depth left equals the lateral distance left, then cuts at 45 degrees to the dead spot. When the depth left is less than the lateral distance left, it stays the straight line. The same rule applies to the carrier's run to a fumble spot and to a fumble recoverer's return. No tuning value: the cut is always 45 degrees.
+- Why: Joseph saw a receiver past the defense run one long diagonal from the catch to the sideline, which read as wrong. A runner in the open goes for the end zone and is pushed out near the end.
+- What it never changes: the engine's facts. The dead spot, the out-of-bounds flag, the catch, the tackler and the fumble spot stay where they are; only the path between them changes. The carry to the dead spot and the recoverer's return are timed from their own path's length at the runner's speed. The run to a fumble spot is not: it ends 350 ms before the time the full path to the dead spot would take (the timing from before this change), so the new path changes its shape but not its length in time. No randomness: the same event gives the same path.
+- Not covered: the interception return, which draws its own path.
+- Where: `carry` in `timeline()`, packages/app/src/ui/timeline.ts.
+
+### Dead spot x follows the carrier (Joseph, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only.
+- Decision: the engine gives only the dead spot's y (and never a run or pass location today). When neither `runLocation` nor `passLocation` is sent and the play is in bounds, the dead spot's drawn x is the carrier's x where his carry starts (the turn upfield on a run, the catch on a pass, the landing on a return), kept `sidelineMarginYards` inside each sideline. So he finishes straight upfield. With a location sent, the old third x stands. A catch settles in place only when it is exactly at the dead spot; a catch just short of it carries onto it, so the ball always ends on the engine's spot.
+- Why: Joseph saw a runner turn back into the middle of the line instead of running downfield. The dead spot used to default to the middle of the field, so every outside run stretched 9 yd wide and then cut back to the middle, and every catch near a sideline ran on a diagonal back to the middle. Over 12 simulated games (620 named runs) the carrier's drawn path now never moves back toward the middle by more than 3 yd after his widest point.
+- What it never changes: the engine's facts. The dead spot's y, the carrier, the tackler and the out-of-bounds rule stay as they are.
+- Where: `endPt` in `timeline()`, packages/app/src/ui/timeline.ts.
+
+### Sack time from the sacker's arrival (lead, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only.
+- Decision: the sack happens at max(the drop end + 600 ms, the sacker's arrival). His arrival is estimated from where his unnamed track is at the drop end (a lineman at the end of his line step, others at their set spot), at his top speed with half his acceleration and half the deceleration, around his blocker's outside shoulder (2 x `sackArc.outYards` added to the distance). The QB settles in the pocket until then. The live time grows to fit, within the 7.0 s cap.
+- Amends docs/specs/m2-play-calling-and-motion.md, Motion, Sacks: "reaches the QB at the drop end plus 600 ms".
+- Why: with the sacker converging only from the drop end (R9), a lineman at 5 yd/s could not cover the 5 to 8 yd to the QB in 600 ms and was drawn at 18 to 32 yd/s.
+- What it never changes: the engine's facts. The sacker on the QB, the sack spot and the dead spot stay; only when the sack is drawn moves.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the sack block).
+
+### Coin toss events in the game record (engineer, 2026-11-15)
+
+- Date: 2026-11-15. Record schema 2 (`RECORD_SCHEMA_VERSION` in packages/sim/src/loop/play.ts).
+- Decision: `startGame` logs the opening coin toss as `record.events[0]`, a `t: "toss"` event with the winner, the choice (defer by default, or the human's) and the team that receives the opening kickoff. Before schema 2 only overtime tosses were logged. Every toss event now carries `period`, the period it opens: 1 for the opening toss, the first overtime period (or the next cycle's) for an overtime toss. Readers use `period`, not `before.period + 1`.
+- The opening toss has no earlier state, so its `before` is the state `newGame` returns (period 1, the opening kickoff set up).
+- No new Rng draw: the event is read from the state `newGame` made. Every play and score is the same for the same seed.
+- Text: the CLI and the app say "Coin toss: ..." for the opening toss and keep the overtime wording for an overtime toss. The app shows the line on the field until the opening kickoff, the same way it already showed the overtime toss after its toss screen.
+- Requests leave tosses out (`requestEvents`), as before.
+- Byte-identity proof: `outcomeRecord` in scripts/game/outcome-digests.ts drops the opening toss and the toss `period`, and reads the schema version as 1, so the pre-M2 baseline digests (test/fixtures/m2-baseline-digests.json) still check every other byte.
+
+### Incompletions drawn as misses (Joseph, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Spec: docs/specs/m2-play-calling-and-motion.md, "Amended (Joseph, 2026-11-15): misses that read as misses", A1 to A5, R-C16 to R-C20 and R-C24.
+- Problem: every incompletion was drawn as a catch. The ball went to a fixed point and the target was steered onto it. Over 1,542 deep incompletions the gap at arrival was 0.0 yd at p10, p50 and p90.
+- Decision: the target keeps his template, with at most a 0.5 yd reach. The ball is aimed where a completion to him would be caught, and the throw is timed for that point, so nothing before the throw depends on the miss. Where the ball lands is chosen by geometry, in this order. A break-up by the coverage defender who can reach the ball at his top speed or slower. Otherwise an overthrow (he is running upfield), a throw behind him (he is crossing) or a short throw (he is sitting or coming back). Values are in data/ui/motion.json `miss`.
+- What it never changes: the engine's facts. No mark holds the ball after the throw, so no catch or interception is implied. No text, box score or card credits the breaker. The engine names no defender on an incompletion, and the drawing doesn't add one to the record.
+- Rejected: a seeded mix hashed from the record, which can draw a cause the picture contradicts and adds variety without a cause (contract 4, R1). Rejected: drops, which look like the catch this fixes.
+- Where: `timeline()` in packages/app/src/ui/timeline.ts (the incomplete-pass branch and `resolveMiss()`).
+- Built 2026-11-15 (engineer), three readings of the spec:
+  - The deflection on a break-up goes across the line between the target and the breaker, on the side the ball was flying. P sits on that line (the gap is taken toward the breaker), so "away from their midpoint" taken literally sends the ball into the breaker, which would read as a catch.
+  - The breaker's hand is always `handYards` from P on his side of it, never on top of the ball.
+  - The clear check redraws the break-up only when the nearby defender meets the break-up rule's pace limit too. Otherwise P moves to where the ball reads as a miss.
+- Revised 2026-11-15 (engineer), the clear check reads where defenders are drawn. The first drawing predicts each defender at the arrival with a 0.5 yd allowance (`miss.clearMarginYards`). The prediction missed the governor and the ring by more than that on a few plays: LBs drawn 1.68 to 1.98 yd from P on misses that weren't break-ups. Now, when a drawn defender ends within `clearYards` of P, the play is drawn again with that defender and P recorded, and the rule above is applied to him (at most 4 redraws, then a warning). Frames up to the throw never depend on P, so R-C20 holds.
+- Also revised the same day: a defender an earlier drawing showed near the ball counts where he was drawn for every candidate P on the redraw (a pursuer is about there wherever nearby the ball lands). And a miss point must be at least the smallest miss distance (3 yd) off the target, so an overthrow clamped at an end line by `outYards` is not drawn 2.49 yd off him (R-C16); another kind is drawn instead.
+- Whistle timing (designed): the roll or deflection takes `miss.rollMs` 300 ms, then the ball rests `miss.restMs` 400 ms before the whistle and the respot. Every incompletion is 0.4 s longer on screen, so the "Incomplete" label sits beside the resting ball before it jumps to the spot.
+- R-C20: the ball's flight aims at A for its first two keys after the throw, whatever the kind of miss. One key was not enough: natural motion reads the ball half a key past the first key after the throw, and a frame just before the throw is drawn between keys. That leaked the miss kind into the OL by about 0.0001 yd.
+- Test hook: `TimelineCtx.forceMiss` draws an incompletion with one kind of miss (R-C20). `Timeline.miss` reports the kind, the breaker and P for tests and PERF.md only.
+
+### Deep completions are caught deep (Joseph, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Spec: the same amendment, B1, R-C21 to R-C23.
+- Problem: about 21% of deepPass completions were drawn short. RB deep catches landed about 5.7 yd behind the line and TEs at about 8.3 yd, because the neutral catch point follows a route that never gets deep (RB pass pro, the empty s3 hook outlet).
+- Decision: on a completion with no `airYards`, the catch y is at least the line plus min(`catchFloorYards[leaf]`, gain). templates.json `catchFloorYards` holds deepPass 20. So the catch is at least 20 yd past the line, or at the dead spot on a shorter gain. The receiver bends to it after the throw (R7). The deepPass RB route becomes a check-release seam, s3 becomes a bender to 20 yd, and w2's dig moves to 17 yd, so the bend stays within R-C7's speed bound.
+- What it never changes: the engine's facts. The receiver, the gain and the dead spot are the engine's. Only the depth of the catch between the line and the dead spot is the drawing's.
+- Rejected: the floor alone, which makes a pass-pro back run about 27 yd/s. Rejected: the routes alone, which can't guarantee the floor. Rejected: floors for intermediatePass and playAction, whose short outlets are designed check-downs.
+- Where: `timeline()` (the complete-pass branch) and data/ui/templates.json `routes.deepPass`.
+- Built 2026-11-15 (engineer), route values tuned from the spec's starting values, all designed:
+  - RB: `[2.5,4] [2,30]`, continue, axis strong (a release outside the QB's drop, then a seam), in place of the check-release with a 400 ms pause. The pause and the short check leg kept every back about 4 to 6 yd past the line at the capped throw, so the bend to 20 yd ran 16 to 20 yd/s.
+  - w2: `[0,16] [6,22]` in place of `[0,17] [7,17.5]`, which never gets 20 yd past the line (R-C23).
+  - New `s1:TE`: `[-1.5,4] [-1.5,30]`, continue. Heavy's TE3 at 9.5 yd/s couldn't reach 20 yd on the go route in the throw window.
+  - s3: the spec's bender `[0,8] [5,20]`, unchanged.
+  - Still short at first: a back lined up 7 yd deep (underCenter, pistol, heavy) couldn't be 20 yd past the line inside the R8 window at 9 yd/s (R-C23's deepest timeable point 16.5 to 19.4 yd), and R-C22 held on 38.5% of deepPass completions to backs.
+- Revised 2026-11-15 (Joseph approved Open item 2): a deepPass-only throw hold. data/ui/motion.json `throwHold.leafMaxMs` `{ "deepPass": 1700 }` caps R8's wait after the drop end at 1700 ms on deepPass. Every other class keeps `throwHold.maxMs` 1200. Designed, display only. Why: the backs aligned 7 yd deep could not reach 20 yd in the 1200 ms window. With it every WR, TE and RB deepPass track in every formation reaches 20 yd at a timeable point (R-C23), with no further route change. The R8 window in the tests (R-C23, routes-pace R8 and neutral catch checks) reads the same hold.
+- Revised 2026-11-16 (engineer, route data only, for R-C22): the deepPass back and tight end routes settle deep instead of running on. Designed, display only. No change to the floor, the bound, the hold or any code.
+  - RB: `[2.5,4] [2,28.5]`, finish sit, axis strong (the same release outside the QB's drop, then a seam that settles about 21.5 yd past the line from 7 yd deep, 23.5 from shotgun), in place of `[2.5,4] [2,30]` continue.
+  - New TE keys, all finish sit: `s1:TE` `[-1.5,4] [-1.5,29]` (was continue to 30), `s2:TE` and `s3:TE` `[1.5,4] [1.5,29]` (an inside release, then the seam), `w2:TE` `[-1.5,4] [-1.5,29]`, `w1:TE` `[-3,6] [-2,29]` (heavy's lone left TE, a wider outside release so R-C3 tells it from TE3's). A TE settles about 28 yd past the line, the deepPass `passDepth`. The WR keys s1, s2, s3, w1 and w2 are unchanged.
+  - Why: the failures were long gains (about 50 to 76 yd), where the play is clamped to `live.maxMs` and every speed is scaled up by 1 / k. R7's bend after the throw runs at his top on the scaled clock whenever he trails the catch point at all, so with k under 0.87 it reads over 1.15 x top. A receiver who has settled at the catch point by the catch doesn't trail it, so there is no bend. For the TEs the settle has to sit at the 28 yd catch depth: settling at 23 to 27 yd helped less, and running past 28 (29 yd from a 1 yd alignment or more) brought the bend back.
+  - Before and after, R-C22 deepPass shares over the 1,000 heavy-sweep games, natural motion on. Scratch probe (deepPass events cached from the same games, timeline as of 09:30 on 2026-11-16): TEs 95.0% to 97.9% of 381, RBs 94.3% to 96.7% of 122, WRs 96.7% unchanged. The heavy gate after the change (10:12 run, which also had another session's timeline.ts and QB drop edits from 10:00 to 10:02): TEs 98.2%, RBs 95.1% (116 of 122, no margin), WRs 96.4%, all completions 98.5%. PERF.md's earlier entry read TEs 94.5% and RBs 88.5%, on an older tree. The plays still over are clamped long gains where the route itself already runs over the bound before the throw (k about 0.72 to 0.8), which route data can't fix, plus three short-gain TE catches that come back to the dead spot.
+
+### Splash: X's and O's run the play, no field (Joseph, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed. Display only.
+- Decision: the main menu art drops the field and shows only the marks. Each loop generates a call for both sides and plays it out live in a designed toy simulation (`splashSim.ts`): own speeds and reaction times, blocks, a throw or handoff, pursuit, and a tackle, incompletion, sack or breakaway. Dotted trails follow every mark and the ball. Reduced motion gets one still frame of shotgun play action against nickel Cover 3, finished.
+- Not the engine: the splash makes no claim about real outcomes. Its odds (catch chance by coverage, shed times, broken tackles) are designed for the look, live only in splashSim.ts, and nothing in the game reads them. Why not the engine: the menu runs before a league or game exists, and the engine's results animate through the play timeline, which needs a game state.
+- Revised the same day: first a fixed list of four plays on one shared ease (Joseph: "doesn't seem live or engaging"), then this.
+- Why: Joseph asked for it. The moving X's and O's say what the game is faster than a still diagram on turf.
+- Reverses: the spec's rejected "animated looping play" and MM17 (no frame loop on the menu). The cost it named, a frame loop beside the rows, is accepted; the loop stops when the menu is gone.
+- Where: `packages/app/src/ui/splash.ts`, docs/specs/m2-main-menu.md (Splash composition, amended), DESIGN.md `menu.splashArt`.
+
+### Natural motion: open items settled (Joseph, 2026-11-15)
+
+- Date: 2026-11-15. Settles NM-Open 1 to 4 of docs/specs/m2-play-calling-and-motion.md, "Revision 2026-11-15: natural motion".
+- Schema change approved: `data/ui/motion.json` goes to version 3 with the required `natural` block, and `parseMotion` in `packages/app/src/ui/templates.ts` validates it.
+- Ring during ball flight approved: while the pass is in the air the ring is `flightRingYards`, 1.0 yd. This amends contract 3 for ball flight only. Held and loose balls keep 2.5 yd and the carrier's corridor.
+- The ±3% speed spread stays. Playtest G5 checks whether any mark looks faster than his rating justifies.
+- Each pop source is confirmed with the probe (`packages/app/test/zz-motion-probe.test.ts`) before it is fixed. The findings are in the spec, NM-Open "Settled".
+
+### Kickoff return pass: open items settled (Joseph, 2026-11-15)
+
+- Date: 2026-11-15. Settles KR-Open 1 to 3 of docs/specs/m2-play-calling-and-motion.md, "Amended (Joseph, 2026-11-15): kickoff return pass (KR1 to KR9)". Designed, display only. The engine still decides the dead spot yard line, the returner, the tackler and the outcome.
+- Schema change approved: `data/ui/motion.json` goes to version 4 with a required `kickReturn` block, and `parseMotion` in `packages/app/src/ui/templates.ts` validates it.
+- Coverage corridor: on kickoff returns, the kicking team's unnamed coverage keeps out of the same 2 yd carrier corridor that side X keeps on scrimmage plays (contract 3). Only the engine's tackler comes to the ball. Why: so coverage doesn't swarm the returner before the tackler gets there. Tested by KR9.
+- Cut direction: the returner cuts toward the side where more of his blockers are engaged at the cut, and a hash of ids breaks a tie. No result leaks before the catch (KR7). Each direction stays at least 30% of simulated returns.
+- Overrides R-Open 4 and the "Kick lanes stay straight" row, for kickoffs only. Punts are unchanged.
+
+### Prime Time chunk 4: where the matchup intro fires and sits (engineer, 2026-11-15)
+
+- Date: 2026-11-15. Amends DESIGN.md "Moments", `moment.matchupIntro`, as built in chunk 4.
+- When: the intro fires once, on a new game's first step. DESIGN says "Start on the pregame screen", but Quick play skips the pregame screen and goes straight into the game. Never on a resumed game, never under reduced motion.
+- Where: the intro's backdrop sits below the 64 px top bar, so the bug can wait there unseen and fade in as the halves shrink into its name plates (no fade-out of a backdrop over it). The face-off band is therefore centered in the window below the bar, 32 px lower than DESIGN's full-window centering.
+- Where in code: `packages/app/src/ui/intro.ts`, `packages/app/src/ui/app.ts` (`startIntro`), `packages/app/src/styles.css` (`.intro`).
+
+### Calling screen pass: open items settled, and two reversals recorded (Joseph, 2026-11-15)
+
+- Date: 2026-11-15. Settles the Open items of docs/specs/m2-calling-screen-pass.md (U1, U2, U3, U5, Q1 to Q4), as built by engineer the same day.
+- O9, reversals approved by Joseph on 2026-11-15 (U2): the Last play card shows the calls line and the why headline again. This supersedes his 2026-11-15 ask to drop both lines from the card (the note in `app.ts` `gamePanel`). The result line names players with their jersey numbers ("#81 D. Okafor"), from the engine's `participants` only. This supersedes the 2026-11-14 note "names don't matter" in `text.ts` `playText`. A role the engine doesn't name is still left out, never guessed (M2 design H2).
+- O8: `data/ui/motion.json` gains `"kickTrail": { "fadeMs": 1000 }` (designed). Its check is in `parseMotion` (`packages/app/src/ui/templates.ts`), the hand-written schema the app uses for motion.json; there is no zod schema for this file.
+- O4: Earlier call is offense only. The defense screens are unchanged (the package screen is at 7 with Timeout).
+- O10: auto-advance never skips the coin toss result or the review screens (Under review, Review result).
+- O5: the game log groups plays by drive with a UI function, `driveSpans` and `driveStarts` in `packages/app/src/ui/gamelog.ts`, pinned to `boxScore`'s drives by a test over 100 games (game-log.spec GL2). No engine change.
+- O1, O2, O3: not in this pass. No engine or shared schema change: kickoff sentences name the spot only (no return yards), incompletions name no defender, and the details sheet shows a situation table's family and level, not its bins in words.
+- O7: the measured calling screen heights are in docs/PERF.md (Measurements log, 2026-11-15).
+- Code review S4 and N1 (engineer, 2026-11-15): on the calling screen the player card is at least 240 px tall, kept inside the window, so at 200% text in one column it may run past the legend's top. Why: there the call card can start just above the legend or below the window, and "down to the legend" gave a card 0 px tall. It still never covers the plate, the Last play card or the board, and the call card it covers is inert. Recorded in the spec's Q3 section.
+- Where in code: `packages/app/src/ui/text.ts` (result line), `details.ts` (details sheet), `recent.ts` and `menu.ts` (Earlier call), `autoadvance.ts`, `gamelog.ts`, `board.ts` and `layout.ts` (the board and the card box), `marks.ts` and `timeline.ts` (kick trails), `app.ts`, `styles.css`.
+
+### QB throw pace (engineer, 2026-11-15; designed)
+
+- Date: 2026-11-15. Designed, not fitted. Display only. Joseph approved fixing all three causes the debugger found (QB held the ball and crept, receivers braked at the catch, the play-action boot spiked).
+- What it never changes: the engine's facts. Yards, the catch spot rule, completion, the ball spot and the why line are the engine's. Ball flight keeps its motion.json timing (about 28 to 34 yd/s).
+- The QB sets and steps up: after his drop he steps up `sit.maxYards` (1 yd) at `motion.pocket.pace` x his own top (about 4.25 yd/s, about 0.5 s), then stands. The step's ease in and out is cut to `sit.maxYards` / that speed when shorter than `natural.idle.rampMs`, so `pocket.pace` sets its pace (without that the creep's own ramp capped it at about 4 yd/s). It replaces the 0.8 yd/s creep that slid him forward across the whole hold. The step depends only on the time since the drop ended, never on the throw, so nothing drawn before the throw changes with it. His follow-through after the throw starts at the speed he has (no stop to zero mid-step); it is 1 yd on a completion or an incompletion (was 0.5 on an incompletion) and 2 yd on an interception, lengthened when he throws mid step to his step speed x RAMP x `decelMs`, so he eases out of the step inside his own stop (`through()` in timeline.ts, code review 2026-11-16). `drive()` in packages/app/src/ui/motion.ts keeps the start speed of every leg. Only on a leg that starts moving and ends at rest and is too short for both its speed change and its stop does it share the time differently: the stop gets the larger share (the speed change counts half), On any leg with a start speed, the speed change is capped so the cruise never goes backward. Other legs are drawn as before. Where: `settleLeg` and `thrown` in packages/app/src/ui/timeline.ts.
+- Fuller, faster drops: data/ui/templates.json QB drops are deeper inside the same `dropMs`: shortPass 2.25 yd (was 1.5; 2.25 so the drop still peaks at 5 yd/s or more when a short play is stretched to the 1.8 s live minimum), intermediatePass 3.5 yd (was 2), deepPass `[-2, -4.2]`, 4.7 yd back and slightly to the weak side (was 3 yd straight back and a 0.5 yd step up, which the pocket step now does). The deep drop leans weak because straight back 4 to 5 yd puts the held ball in the strong-side back's release, and the 1.5 yd ring pushed him off his seam: R-C22's deepPass-to-RB share fell to 36% at 5 yd straight back. With the lean it is 94.3% of 122 over 1,000 games, against 88.5% with the old 3 yd drop on the same code; the 7 backs still over are 50 to 76 yd catch-and-runs out of heavy and pistol, the same plays as with the old drop. Drop peak speed goes from 3.4 to 4.4 yd/s to about 5.3 to 6.0 yd/s.
+- Play-action boot at his own speed: the boot leg gets the time it takes at `routePace` (0.9) x his own top speed from rest to rest (its length over that speed, plus half his speed-up and his stop). The fake's pause gives way first, never past the fake's end (`fakeMs`). The boot target moves to `[-2, -3]` (was `[-5, -3]`, 6.5 yd in about 0.9 s, 14.6 yd/s against a top of 8.5) so it fits the fixed `dropMs.playAction` with most of the 150 ms pause kept. Boot peak is now 7.7 to 8.0 yd/s at 1x, about 0.93 x his top, so a mildly compressed long play (k down to about 0.92) still draws him under 1.05 x. Plays the live cap compresses harder (k below about 0.92, the 7 s `live.maxMs`) still draw every mark, the QB included, faster than his top; that is the time scale, not the boot.
+- Shorter holds where the gates allow: `throwHold.leafMaxMs` gains shortPass, screenPass and playAction at 600 ms. R8 and the neutral catch window read the same hold, so the catch point still comes from a track point a throw can time (the receiver gets there at his pace). intermediatePass keeps `maxMs` 1200 and deepPass keeps 1700: the spec check that an intermediatePass route reaches its 14 yd class depth in the window (routes-pace, "an incompletion is aimed at the class's neutral point") needs 1200, and R-C23 needs deepPass's 1700.
+- Receivers keep their speed into the catch: in R7's bend (`toCatch`), when the bend from the chosen leave point would have him brake below `continuePace` x the speed he has there, he stays on his template a little longer and eases into the ball. Never a reversal (code review, 2026-11-15: the first build ran him past the catch and back, through a trailing man defender and over his turn limit): a later leave point counts only while his turn to the catch is at most `fillet.sharpDeg`, the bend's pace is at most `routePace` x his top and within his acceleration, so he arrives at catch time with the ball, and the turn as drawn stays within `natural.lateralAccel`, measured on the built keys of the candidate bend (the fillet's real radius and speed). For these eased candidates only, the lead along his heading is shortened to stay inside the sideline margins and the end line, never bent; the ordinary bend (no easing needed) is unchanged. The lateral limit is compared on the screen clock, `natural.lateralAccel` / k, as the other screen-clock limits are. The catch point and the throw time are unchanged. What it does not fix: a screen target who would reach the catch point early still slows there (26 of 131 screens with the target under 1.5 yd/s for more than 200 ms of the flight, playGame seeds 1 to 20, against 27 before). The first build's run-on-and-back got that to 8 of 131 and was dropped for the reasons above; a slow curl back that checks his defender, or a screen catch rule that moves the catch toward the ball, is left for the designer.
+- Not done, needs Joseph: the deepPass and intermediatePass holds. Their `dropMs` (1250, 950) are pinned by R-C13 (the spec's Pace table), and the windows above need the long holds, so the QB still waits up to 1.2 s (intermediate) and 1.7 s (deep) after his drop when the route needs it. The fix is a longer, deeper drop (for example deepPass about 1700 ms to about 7 yd with the hold cut to about 1000 ms, the same window end), which changes the spec's table.
+- No new motion.json keys and no schema change: three new entries (shortPass, screenPass, playAction) in the existing `throwHold.leafMaxMs` map, and reuse of `pocket.pace`, `sit.maxYards`, `continuePace`, `routePace`, `bend`, `fillet` and `natural.lateralAccel`.
+
+### Deeper drops, shorter holds (Joseph, 2026-11-16; designed)
+
+- Date: 2026-11-16. Designed, not fitted. Display only. Joseph approved the direction: a longer, deeper drop with a shorter hold after it, and the same throw window end. This settles the "Not done, needs Joseph" item in "QB throw pace" above.
+- Spec: docs/specs/m2-play-calling-and-motion.md, "Revision 2026-11-16: deeper drops, shorter holds" (QD1 to QD4, R-C25 to R-C32). Values: intermediatePass drop 1250 ms to `[-1.5, -4.7]` with a 900 ms hold; deepPass drop 1700 ms to `[-2, -6.8]` with a 1250 ms hold. The window ends stay 2150 and 2950 ms. A plant throw (the earliest throw is the start of the QB's braking when the ball goes to a point behind the target) and a sack time that waits for the QB's own step up are added. No new keys.
+- Open for Joseph: deep depth (1700 or 1800 ms), and R-C22 for deepPass TEs if route tuning can't close it (spec, QD-Open).
+- Built 2026-11-16 (engineer), values as above, 1700 ms on deep (the spec's recommendation). Where: data/ui/motion.json `dropMs` and `throwHold.leafMaxMs`, data/ui/templates.json `routes.intermediatePass.QB` and `routes.deepPass.QB`, packages/app/src/ui/timeline.ts.
+  - QD2 plant throw: in `throwFor`, intermediatePass and deepPass only, so short, screen and play action keep their earliest throw (R-C31; on a short pass the plant would come about 290 ms after the snap, before the drop has peaked). A throw before the drop end plus the hitch leaves from the QB's place on his drop leg, its flight is measured from there, the ball's hold ends at the throw, and he finishes his stop at his drop point before the follow-through (`release()`).
+  - QD3: the sack time's third term is the drop end plus the hitch plus his walk from the drop point to the sack spot at his own top, from rest to rest.
+  - QD4: the sack draws the pass's own drop legs (`dropLegs()`, shared). The cause of R-C9's 0.0003 yd was not that leg, though: with the sack's legs put back as they were, R-C9 still differed. It was the line's release. A sack released the DLs at its read (the drop end), and the natural-motion governor's smoothing reaches about 20 ms back from a release into the frames before the read. The fix: a sack releases the line `release.afterThrowMs` (400 ms) after its read, as a throw does. R-C9 passes exactly, no tolerance.
+  - Code review, 2026-11-16: on a pass or a sack the QB has no cruise wobble (`natural.wobble`) while he holds the ball, and after a plant throw no idle sway from the throw through his follow-through. Why: the wobble's offset blends to zero at the hold's end, so with a plant throw the frames just before it differed from the same calls thrown at E (R-C28 c); the sway stepped him out from his drop point and back before the follow-through (R-C28 d); and the wobble's up to 4% put his walk to a sack over his own top (R-C30). The plant release point is his drawn place at the throw (screen clock), and a plant throw's R8 time uses the flight from his place on the drop leg. Side effect: his hold starts at the snap, so he has no wobble for his whole drop on every pass and sack, short, screen and play action included; the ball rides his drawn keys, so marks whose ring is near the ball (RB, OL) can shift very slightly before the throw.
+
+### Plausible tackler: engine and timeline (Joseph, 2026-11-16; designed)
+
+- Date: 2026-11-16. Designed, not fitted. Joseph approved the direction ("Engine + timeline") and the schema change to data/engine/participants.json and to the engine's credit input (`CreditInput`). Spec: docs/specs/m2-plausible-tackler.md.
+- Why: a defender ran across the field in one straight line, at up to about 26 × his top speed. The engine named the tackler without knowing where anyone lined up, and the timeline gave him only the time from the catch to the carrier's whistle. A display-only fix was rejected. Starting the run at the throw fixed 56 of 484 bad pass plays. Drawing a different defender would contradict the box score credit.
+- Decision, engine: `tackler`, `returnTackler` and `coverageTackler` are drawn with a designed weight that falls with the lateral distance from the player's alignment to the ball point. The weights are in participants.json. Draws stay on the per-play credit stream, so no outcome changes for any seed. The credit draw pattern, and so the participants for a given seed, may change. The engine's alignment numbers must equal data/ui/templates.json's, which a test enforces.
+- Decision, timeline: the named tackler departs at the R-C9 read (the throw or the handoff), and the whistle is extended so his run fits within his own top speed. The dead spot, the holder and "tackler at the ball" never move (decision 10). Tests gain N1-T, N1-cap (1.5 × top on anchor-demanded legs) and a 1,000-game heavy gate (tackler ≤ 1.15 × top on at least 95% of plays, by kind).
+- Amends docs/specs/m2-play-calling-and-motion.md R-C14 ("no engine diff") for this change only, and NM2's tackler departure.
+- Open for Joseph (spec, Open questions): the whistle-extension bounds; whether interceptions get drawn on the target's route so the interceptor can be weighted the same way; whether the interception return tackler departs at the throw or at the pick; and a single alignment file (a schema change to templates.json).
+- Built 2026-11-25, engine half (Milestone 1). Values, designed: weight = class share × position weight × exp(-lateral yards / scale). Scales: runs and completions 3 yd, scrambles 4, returns after a turnover 6 (fumbled catches included), kick coverage 8. Position weights by kind and class hold the earlier designed shares: at most 2.8 points by category, 3.9 by class with 300 or more plays; fumbled-catch returns (188 plays) move WR +8.0 and RB -5.9, fumbled runs (104) move S -8.7. Far-side completion tacklers fell from 33.1% to 0.94% over 1,000 games. Outcomes are identical over 10,000 games, and all 49 in-sample calibration metrics are unchanged.
+- Lead ruling, 2026-11-25: the receiver who lost the ball on a fumbled catch is left out of the draw for the tackler of its return (same draw count). The timeline never brought him to the ball, so naming him broke "tackler at the ball".
+- Joseph, 2026-11-24 (relayed by the player-reactions session): the timeline half follows docs/specs/m2-tackler-merged.md, which merges this decision with PR6. Kicks are a separate step that is not settled.
+
+### Live cap raised to 14 s (Joseph, 2026-11-16; designed)
+
+- Date: 2026-11-16. Designed. Joseph's call: "14 s, fix sacks". Spec: docs/specs/m2-play-calling-and-motion.md, "Revision 2026-11-16: live cap raised to 14 s".
+- Why: plays whose raw whistle ran over the 7.0 s `live.maxMs` were compressed uniformly (k < 1), so every mark, the QB included, was drawn faster than his top speed. Measured over seeds 1 to 300: 240 of 53,498 plays (0.45%) ran over 7 s raw; longest pass 14.0 s, run 12.1 s, kickoff 12.0 s, punt 9.7 s, sack 20.8 s.
+- Decision: `live.maxMs` 7000 -> 14000 in data/ui/motion.json. A value change, no schema change. R-C12 now reads 1.8 to 14.0 s.
+- Corrected 2026-11-20: this entry said "no code change". The revision does change code, in packages/app/src/ui/timeline.ts: LC3 (a strip-sack's loose ball stays near the sack spot and the recoverer returns it at his own speed) and LC5 (a fumbled carry is timed to the fumble spot, and its return is timed as LC3's; criterion LC-C5).
+- The long sacks. This entry said the long sacks (sack spots 40 to 90 yd back, raw whistle up to 20.8 s) are an engine bug that a separate session fixes in the sim, and that until then R-C30 (QB on sacks) may fail on those few sacks, reported with raw whistle and k. Corrected 2026-11-20: that was half right. The engine fix ("Strip-sack yards stop at the fumble spot" below) corrected the sack yards and where the QB goes down. It did not remove the long plays. Measured 2026-11-20: 6 of 3,457 sacks in 1,000 app games still have a raw whistle of 17.8 to 22.1 s (seed/play 40/6, 747/129, 18/63, 248/118, 269/133, 502/34). All six are strip-sacks returned 58 to 89 yd for a touchdown by a defensive lineman at his 5 yd/s top. R-C30 still fails on seed 747 play 129 (QB 1.39 x top at k 0.638).
+- Open for Joseph: what to do about those six plays. No decision is recorded here. Update 2026-11-21: Joseph asked for a spec ("Yes, spec it"), and a rule is specced in docs/specs/m2-play-calling-and-motion.md, "Revision 2026-11-21: long fumble returns fit the cap": the recoverer's return is drawn fast enough to put the whistle on the cap, never faster than a designed bound (a new key, `fumble.returnMaxSpeed`, proposed 10.5 yd/s). It is not decided and not built. It waits on his confirmation of the rule, the key and the scope. Measured that day over app games seeds 1 to 400 with the app's ratings: 8 plays pass the cap, 5 strip-sacks and 3 completed passes fumbled and returned.
+- Rejected: a cap of about 21 s sized for those sacks; not compressing the snap-to-throw phase only (fixes passes, not sacks, and rewrites a clock every track in timeline.ts assumes is uniform); capping each mark's drawn speed (moves fact anchors, breaks decision 10). Added 2026-11-20: the cap of about 21 s was rejected on the premise that the engine fix would remove those plays, and it did not.
+- Cost: about 0.45% of plays now run 7 to 14 s at 1x. 2x and skip are one key away.
+
+### Strip-sack yards stop at the fumble spot (lead, on Joseph's instruction to fix sacks, 2026-11-16; clamp: lead, 2026-11-20; designed)
+
+- Date: built 2026-11-16, checked 2026-11-20 (playtest). Designed counting rule, not fitted. Spec: docs/specs/m2-strip-sack-yards.md.
+- Who decided what (corrected 2026-11-21: the header credited Joseph with the rule). Joseph's words, quoted in "Live cap raised to 14 s" above, are "14 s, fix sacks". They cover sacks. The counting rule below is the lead's design on that instruction, and it reaches further than sacks: it also moves rushing and passing yards on fumbled runs and completions (+0.509 rushing and +0.639 passing yd per team-game, measured before the 99 clamp; see Results). That rushing and passing effect is for Joseph to confirm. Not confirmed yet.
+- Why: the long "sacks" were strip-sacks the defense recovered and returned for a touchdown. The engine's outcome was right, but the box score booked the defense's return as the sack loss. A run or a caught pass that was fumbled and returned had its return booked as rushing or passing yards the same way.
+- Decision: a lost fumble's yards stop at the fumble spot. The engine sets `detail.fumbleSpot = clamp(los + ty, 0, 99)` on every lost fumble that stands as drawn, and `physicalYards` in the box score counts `fumbleSpot - los`. Interceptions are unchanged.
+- The clamp is 0 to 99, the lead's decision on 2026-11-20 from the playtest (it was 0 to 100 as built). A lost fumble that stands was not a touchdown, so the ball came loose short of the goal line, and 99 is the bound the engine already puts on the defense's dead spot. The playtest found 197 of 8,666 standing lost fumbles in 10,000 games with a fumble spot of 100 on a play that was not a touchdown. 0 stays, because a ball lost in the offense's own end zone is real.
+- The record: `detail.fumbleSpot` is added to the game record with no RNG draw, so no outcome changes for any seed. `M2_DETAIL_KEYS` in scripts/game/outcome-digests.ts gains `fumbleSpot`, so the outcome digests strip it like the other M2 detail keys.
+- Results (playtest, 2026-11-20; 10,000 headless games, league seed 2026, seeds 1 to 10,000; measured before the clamp's upper bound moved from 100 to 99, which moves at most 1 yd on 2.3% of lost fumbles and no sack number): 52,301 sacks in both builds. Mean yards per sack -7.128 before and -6.754 after, against nflverse 2016-2023 regular season -6.667 over 9,957 sacks. Worst sack -99 before, -25 after (nflverse -30). Sacks booked over 30 lost: 289 before, 0 after. Sacks booked as a gain: 16 before, 0 after. The four reported plays now book 6, 6, 9 and 0 sack yards (were 44, 39, 74 and 89). Records are identical to commit 59e1f6f once `fumbleSpot` is stripped: 10,000 of 10,000 headless (standouts and close calls off), 1,000 of 1,000 (both on) and 400 of 400 app Session games. All 83 calibration metric ids are identical before and after, on the 1,000-game slice and the full 10,000. The full list is in the spec, "Results (2026-11-20)".
+- Amends docs/specs/m2-play-calling-and-motion.md R-C14 ("no engine diff") for this change only, following the precedent of "Plausible tackler: engine and timeline" above.
+- Pins re-run 2026-11-20 (lead's call; engineer), pins only, after the clamp change: engine run 14 and step 5 game run 19. Corrected 2026-11-21: this line gave only part of why the pins were stale.
+  - The engine validation's pin was stale only because of resolve.ts, which is in its code hash. It was current at the last commit, 59e1f6f.
+  - The two game calibration pins were already stale at 59e1f6f. Commit 04874a6 changed packages/sim/src/loop/play.ts (record schema 2: the opening coin toss is the first event of every record). play.ts is in the game summaries' code hash, and no pin run followed that commit. The last pin run was at 4c6acda (engine run 13, game run 18). Checked 2026-11-21 with `git log` and `git show --stat`, and by recomputing the code hashes on the committed trees: at 4c6acda the game hash equals the pinned one, at 59e1f6f it does not, and play.ts is the only file in that hash's import graph that changed between the two. So the game rerun re-pins 04874a6 as well as this fix (resolve.ts, box.ts, and `fumbleSpot` in the records the slice digests hash). That is why all 1,000 slice digests changed, and not only the roughly half of games with a `fumbleSpot`.
+  - Results of runs 14 and 19. The engine validation changed only its `codeHash`. The in-sample and holdout game summaries changed only `codeHash`, the 1,000 slice digests and the speed reading (7.36 and 7.41 ms per game, 15-minute load under 3): all 49 metrics and 34 diagnostics are identical in value and status to the committed summaries, 0 gated failures. These recompute 2024-2025, so they are post hoc.
+- Counted 2026-11-21 (engineer). Runs 14 and 19 are now rows in the run table under "Holdout runs for step 5b" and lines in the two reports' run histories. Run 13's sentence had been added to docs/ENGINE_REPORT.md by hand at 4c6acda and was missing from pipeline/engine/report.py, so regenerating the report dropped it; it is in the generator now. Those edits changed pipeline/engine/report.py and scripts/game/report.ts, which the code hashes cover, so one more pins-only run of each was needed: engine run 15 and step 5 game run 20, which supersede 14 and 19. `EXPECTED` in test/game/step5b.spec-check.test.ts follows the table (Engine 15, Step 5 game 20).
+  - How they were run: alone, in pin-safe order (engine, in-sample, holdout), each once, on a quiet machine (load averages 1.56 / 2.50 / 2.59 at the start of the engine run, 1.28 / 1.91 / 2.30 at the in-sample run, 1.42 / 1.81 / 2.22 at the holdout run). The engine read a writable copy of the nflverse cache made on 2026-11-20 (every file under a day old, so nothing was refetched).
+  - Engine run 15 rewrote data/engine/validation.json and docs/ENGINE_REPORT.md. Against the last commit the summary differs only in `codeHash` (118 holdout and 114 in-sample metrics identical in every field), and the report only in its code hash and its run history. The five generated tables and data/players/distributions.json are byte-identical.
+  - The in-sample run and game run 20 rewrote data/game/calibration.insample.json, data/game/calibration.json and docs/GAME_REPORT.md. Against the last commit each summary differs only in `codeHash`, the 1,000 slice digests and the speed reading; against runs 14 and 19 only in `codeHash` and the speed reading, so the slice digests are the ones run 19 pinned. All 49 metrics and 34 diagnostics are identical in predicted value, actual, tolerance and status. 0 gated failures, 0 invariant violations. Speed: in-sample 7.44 ms per game (76.9 s), holdout 7.37 ms (76.3 s), under the 25 ms gate (docs/PERF.md).
+
+## Request of 2026-11-23: franchise, playbook, drawn routes, visuals
+
+### Defaults approved for decisions 1 to 11 (Joseph, 2026-11-24)
+
+- Asked: "Approve the recommended defaults for decisions 1 to 11 in the reconciliation list?" Joseph's answer: "Approve defaults". The list, with what each costs and blocks, is "Decisions for Joseph" in docs/specs/m3-m4-reconciliation.md.
+- Settled by it: 1 schema changes as written there. 2 rosters of 53 in a franchise. 3 the four DESIGN.md "Needs Joseph" items, yes. 4 stop at the line on every call, behind one flag (reverses M2 design decision 7). 5 play type first in the playbook (reverses formation first, 2026-11-14). 6 AI coach styles in, off in the calibrated baseline, and injuries stay in M5. 7 matchups stay group against group. 8 names as proposed. 9 sound, eight recorded one-shots. 10 whistle hold of 400 to 600 ms, kept only after the playtester measures a full game before and after. 11 play designs in the baseline at playbook G, with one counted holdout run.
+- Not settled: 12, the drawing exploit threshold. Joseph sets it after the first soak report (playbook E9).
+
+### Standout kickers can go earlier in the franchise draft (Joseph, 2026-11-25)
+
+- Joseph's words, after the lead reported that no kicker or punter now goes before round 12: "special kickers can go earlier".
+- Decision: a kicker or punter's draft value rises steeply with overall. Defaults (designed, the lead's, not Joseph's numbers): none in rounds 1 and 2; under 90 overall, not before round 12 in 99% of leagues; the pool's best kicker at 90 or more is taken by round 8 in at least half of leagues. Spec: docs/specs/m4-franchise-core.md, B17.
+
 ## Publishing
 
 ### Public repo (Joseph, 2026-11-12)
@@ -1441,3 +1947,48 @@ Spec: docs/specs/m1-step5d-clock-fixes.md. Sources: docs/PLAYTEST_M1_5C.md (run 
 - data/players/distributions.json (combine drill percentile cut points) is published. This resolves "Pro Football Reference terms (open, for Joseph before any public build)" in M1 step 4: Joseph read sports-reference.com terms 5.10 (no competing database) and 5.11 (no use to train, prompt or instruct AI) and judged publishing fine for now, since this is a hobby project. What would change it: the project going beyond a hobby. Revisit 5.10 and 5.11 before that happens.
 - Never public: real nflverse rosters and pipeline/game/real_names.py. Rosters stay in the download cache outside the repo; real_names.py is gitignored.
 - Lead call, 2026-11-12: three real team names ("Packers", "Green Bay", "Steeler") remain in old versions of pipeline/tests/test_game.py in history (78a9f72, 5f2f4c2, 24bfb10); 0462bfa removed them from the tree. They are public team names in a test, not rosters or player data, so history was not rewritten a second time, which would have broken the SHAs cited in these docs again.
+
+## Player reactions (2026-11-23 to 2026-11-24)
+
+Joseph's approvals, as relayed by the lead from question dialogs, or from chat where said. All of it is designed, display only, and nothing is fitted. Specs: docs/specs/m2-player-reactions.md (MPR), docs/specs/m2-tackler-merged.md, docs/specs/m2-sideline-run.md. Measurements: docs/PERF.md.
+
+### Reactions follow ratings: schema, get-off, break on the ball, line, kicks (Joseph, 2026-11-23; designed)
+
+- Schema: "Approve". `data/ui/motion.json` version 5 with the `ratings.scrimmage` block.
+- Get-off: yes, "Slow first step at the snap" (slice 4). First movement stays inside 150 ms.
+- Break on the ball: yes, "Break on the ball in the air", on completions too (slice 3). It replaces the 2026-11-15 ruling that pursuit waits for the catch on a completion.
+- The line: "Follow-up spec". Nobody is drawn winning a block in this pass. A small strength effect is a later spec.
+- Kicks: "Include kicks", against the recommendation. Kickoffs and punts are slice 5, built last.
+- Not settled: the slower average (the median rated defender starts about 135 ms later). It is the lead's default, for Joseph to confirm at G-PR.
+
+### Reactions, slices 1 and 2: approvals (Joseph, 2026-11-24; designed)
+
+- N4 allowance: yes, in chat. N4's bar is 88 plays of the 571 in the sample (77 before the build). Every other bar is its pre-build count.
+- Reversal test: yes, in chat. The count of tacklers who reverse is replaced by a check for the defect, a tackler drawn off the ball faster than his own top.
+- Kicks keys: yes, in chat. `ratings.kick.by.cut` { "default": "agility", "RB": "elusiveness" } and `ratings.kick.wallReadShare` 0.6, built at slice 5. They were approved as version 6 and are now version 7, because `clearYards` took 6.
+- Tackler: "No visible shove". A rated tackler may differ from his unnamed self in the last 50 ms before he departs, and is exact before that.
+- Coverage and route running: "Stronger". `man.lagMs` [300, -110] (was [150, -90]) and `man.receiverLagMs` [-80, 180] (was [-40, 100]), under `ratings.scrimmage`.
+- Coverage test: "Measure corners". Corners in coverage presets, distance behind the receiver along his own path. The floors stay 0.6 and 0.3 yd.
+- Stalk: "Change to -40". `stalk.lagMs` [150, -40] (was [150, -80]).
+- Lane push: approved. A rated defender caught in the carrier's lane on a scrimmage play leaves it at no more than his own top. This is an exception to the lane rule in contract 3 of docs/specs/m2-play-calling-and-motion.md. Cost: 223 defenders briefly in the lane against 55, longest 225 ms. Gain: unnamed defense over 3 x top 630 to 455. Nobody is nearer the ball than 2.5 yd.
+- Version 6: approved. `ratings.scrimmage.stalk.clearYards` 1.2.
+- Slice 2 accepted with 7 known red tests listed in MPR, "Slice 2 accepted". None is loosened.
+
+### Merged tackler rule: answers and K1 (Joseph, 2026-11-24; designed)
+
+- Departure: "Theirs, plus awareness". The named tackler leaves at the throw or the handoff plus his awareness delay, bounded by his own top speed, and the play is lengthened to fit.
+- Seven answers, yes as recommended (Opens 1 to 5, 7 and 8):
+  - 1: the timeline half may ship before slice 3, with the interim tell.
+  - 2: from slice 3, a rated, non-rushing LB, CB or S who makes the tackle on a pass leaves at the throw plus his `airMs`.
+  - 3: the ring rule stays.
+  - 4: on an interception the offensive return tackler leaves at the throw plus his delay, looked at again at G6.
+  - 5: a fumble return keeps the play's own moment plus the delay.
+  - 7: the limits on how much longer plays get are set after the engine half is measured.
+  - 8: the tackler keeps 2.5 yd from the catch point until the ball arrives.
+- Open 6: "Cover in the air", against the recommendation. Coverage men run toward the landing while the kick is in the air.
+- K1: "Yes, lengthen a little", in chat. A return that ends in a tackle is lengthened by only the time the tackler is still short. The size caveat: punts about 2 s longer at the median, by estimate, not measured on a build. Considered, not chosen: a longer hang.
+- Not decided here: K2 to K4 are open in the merged spec.
+
+### Order of builds (Joseph, 2026-11-24)
+
+- MPR slice 2, then the tackler build and the sideline build, then MPR slices 3 to 5, with one recapture.

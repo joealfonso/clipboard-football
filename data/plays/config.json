@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "designed": true,
+  "note": "Closed lists, tag definitions, legality rules and the path classifier's thresholds for the playbook (designed, not fitted; docs/specs/m3-playbook-and-custom-routes.md, milestones A and B). Nothing here has an engine effect yet. Depth bucket edges are not in this file: they are read from data/caller/config.json offenseMapping.depth, the same place the pass leaves use. The end zone depth is read from the rule set (field.endZoneYards).",
+  "maxGroupSize": 6,
+  "kinds": ["route", "block", "runPath", "qb", "rush", "blitz", "zone", "man", "spy", "stunt"],
+  "families": ["flat", "swing", "screen", "drag", "slant", "hitch", "out", "in", "corner", "post", "go", "wheel"],
+  "buckets": ["behind", "short", "intermediate", "deep"],
+  "directions": ["in", "out", "vertical", "back"],
+  "gaps": ["A", "B", "C", "edge"],
+  "reasons": ["noSuchSlot", "ineligible", "notOnThisCall", "notCanonical", "tooShort", "tooLong", "tooManyBreaks", "outOfBounds", "wrongGap", "breaksConcept"],
+  "tags": {
+    "depth": ["behind", "short", "intermediate", "deep"],
+    "timing": ["quick", "standard", "slow"],
+    "pressure": ["none", "exchange", "blitz"],
+    "situations": ["shortYardage", "redZone", "goalLine", "twoMinute", "longYardage", "backedUp", "runClock"]
+  },
+  "situations": {
+    "shortYardage": {
+      "definition": "Three yards or fewer to go on a scrimmage down.",
+      "edges": "data/caller/config.json dist3, bucket 1-3",
+      "rule": { "all": [{ "field": "phase", "op": "eq", "value": "scrimmage" }, { "field": "yardsToGo", "op": "lte", "value": 3 }] },
+      "designs": {
+        "offense": [{ "family": "run", "gaps": ["A", "B", "C"], "timing": ["quick", "standard"] }, { "family": "pass", "depth": ["behind", "short"] }, { "concepts": ["playAction"] }],
+        "defense": [{ "traits": ["loadedBox", "press", "pinch"] }, { "pressure": ["blitz"], "traits": ["noDeep"] }]
+      }
+    },
+    "redZone": {
+      "definition": "Snapping at or inside the opponent's 20.",
+      "edges": "data/caller/config.json zone3, bucket RZ (1 to 20)",
+      "rule": { "field": "yardLine100", "op": "lte", "value": 20 },
+      "designs": {
+        "offense": [{ "family": "run", "gaps": ["A", "B", "C"], "timing": ["quick", "standard"] }, { "family": "pass", "depth": ["short"] }, { "family": "pass", "primary": ["corner", "drag"] }, { "concepts": ["deepPass"], "primary": ["go"] }, { "traits": ["boot"] }],
+        "defense": [{ "traits": ["man"] }]
+      }
+    },
+    "goalLine": {
+      "definition": "Snapping at or inside the opponent's 5, two-point tries included.",
+      "edges": "data/caller/config.json zone6, bucket GL (1 to 5)",
+      "rule": { "field": "yardLine100", "op": "lte", "value": 5 },
+      "designs": {
+        "offense": [{ "family": "run", "gaps": ["A", "B"], "timing": ["quick", "standard"] }, { "family": "pass", "depth": ["short"] }, { "family": "pass", "primary": ["corner"] }, { "traits": ["boot"] }],
+        "defense": [{ "traits": ["loadedBox", "pinch", "noDeep"] }]
+      }
+    },
+    "twoMinute": {
+      "definition": "Two minutes or less left in the half on a scrimmage down.",
+      "edges": "data/caller/config.json time5, buckets H1F and GF (120 seconds or less)",
+      "rule": { "all": [{ "field": "phase", "op": "eq", "value": "scrimmage" }, { "field": "secondsLeftInHalf", "op": "lte", "value": 120 }] },
+      "designs": {
+        "offense": [{ "family": "pass", "depth": ["short"], "timing": ["quick"] }, { "traits": ["verticals"] }, { "family": "run", "traits": ["misdirection"] }],
+        "defense": [{ "traits": ["fourDeep", "twoHigh"] }]
+      }
+    },
+    "longYardage": {
+      "definition": "Eleven yards or more to go on a scrimmage down.",
+      "edges": "data/caller/config.json dist5, bucket 11+",
+      "rule": { "all": [{ "field": "phase", "op": "eq", "value": "scrimmage" }, { "field": "yardsToGo", "op": "gte", "value": 11 }] },
+      "designs": {
+        "offense": [{ "family": "pass", "depth": ["intermediate", "deep"] }, { "concepts": ["screenPass"] }, { "family": "run", "traits": ["misdirection"] }],
+        "defense": [{ "traits": ["fourDeep", "twoHigh", "stunt"] }, { "pressure": ["blitz"], "coverage": ["nickelCover1Blitz", "dimeCover0Blitz"] }]
+      }
+    },
+    "backedUp": {
+      "definition": "Snapping at or inside the offense's own 10.",
+      "edges": "data/caller/config.json zone6, bucket BACK (90 to 99)",
+      "rule": { "field": "yardLine100", "op": "gte", "value": 90 },
+      "designs": {
+        "offense": [{ "family": "run", "gaps": ["A", "B"], "timing": ["quick", "standard"] }, { "family": "pass", "timing": ["quick"], "depth": ["short"] }, { "family": "pass", "minProtectors": 7 }],
+        "defense": [{ "pressure": ["blitz"] }, { "traits": ["loadedBox"] }]
+      }
+    },
+    "runClock": {
+      "definition": "Ahead in the fourth quarter with five minutes or less to play.",
+      "edges": "data/caller/config.json lateTime, buckets G5 and GF (300 seconds or less), and score3 bucket L (ahead by 1 or more)",
+      "rule": { "all": [{ "field": "phase", "op": "eq", "value": "scrimmage" }, { "field": "quarter", "op": "eq", "value": 4 }, { "field": "secondsLeftInGame", "op": "lte", "value": 300 }, { "field": "scoreDiff", "op": "gte", "value": 1 }] },
+      "designs": {
+        "offense": [{ "family": "run", "timing": ["quick", "standard"] }],
+        "defense": [{ "traits": ["loadedBox"] }]
+      }
+    }
+  },
+  "timing": {
+    "note": "The timing tags a design may carry, from its assignments (designed). First match wins, the last row catches everything. Offense: a quick drop is quick; a deep drop, a fake, a screen to a back or tight end, or a first read that breaks at 15 yards or deeper or is caught deep is slow; any other pass is standard; a run that starts away from its side is slow, and only an A gap run can be quick. Where a row allows two, the author picks. Defense: a stunt or an exchange is slow, a blitz or a pinch is quick, anything else is standard.",
+    "offense": [
+      { "when": { "drop": ["quick"] }, "allow": ["quick"] },
+      { "when": { "drop": ["deep"] }, "allow": ["slow"] },
+      { "when": { "fake": true }, "allow": ["slow"] },
+      { "when": { "traits": ["screenBack"] }, "allow": ["slow"] },
+      { "when": { "primaryLateFrom": 15 }, "allow": ["slow"] },
+      { "when": { "family": "pass" }, "allow": ["standard"] },
+      { "when": { "traits": ["misdirection"] }, "allow": ["slow"] },
+      { "when": { "gaps": ["A"] }, "allow": ["quick", "standard"] },
+      { "when": {}, "allow": ["standard", "slow"] }
+    ],
+    "defense": [
+      { "when": { "traits": ["stunt", "exchange"] }, "allow": ["slow"] },
+      { "when": { "pressure": ["blitz"] }, "allow": ["quick"] },
+      { "when": { "traits": ["pinch"] }, "allow": ["quick"] },
+      { "when": {}, "allow": ["standard"] }
+    ]
+  },
+  "positions": {
+    "note": "Which positions play which part. receivers: counted from the sideline in for the receiver spots and the strong side. strongTieBreak: the positions that break a tie for the strong side. backs: the receiver spot B, the fake's partner on play action, and the players whose short path behind the line is a swing unless the design is a screen. corners and safeties: what the defense traits count.",
+    "receivers": ["WR", "TE"],
+    "strongTieBreak": ["TE"],
+    "backs": ["RB"],
+    "corners": ["CB"],
+    "safeties": ["S"]
+  },
+  "traits": {
+    "note": "What each trait means, in words, with its numbers in thresholds. A design's authored traits must equal the ones its assignments give (packages/shared/src/playbook-rules.ts checks every design at load). A route's depth is its catch depth.",
+    "thresholds": {
+      "crossersMin": 2,
+      "highMinYards": 8,
+      "lowMaxYards": 5,
+      "highLowGapYards": 6,
+      "floodMin": 3,
+      "floodGapYards": 4,
+      "verticalsMin": 3,
+      "levelsGapYards": 4,
+      "screenBackPositions": ["RB", "TE"],
+      "lineMin": 3,
+      "pressureMin": 5,
+      "exchangeMax": 4,
+      "overloadMin": 2,
+      "fourDeepMin": 4,
+      "pressMin": 2,
+      "pinchMin": 2,
+      "pinchMoveYards": 2
+    },
+    "pass": {
+      "quick": "The quarterback takes a quick drop.",
+      "crossers": "Two or more routes by wide receivers or tight ends reach or cross the middle of the field.",
+      "highLow": "On one side of the field (the left or right third), one route is caught at 8 yards or deeper over another caught at 5 yards or shallower, at least 6 yards apart.",
+      "flood": "Three or more routes end in the same outside third of the field, each at least 4 yards deeper than the next.",
+      "verticals": "Three or more routes end vertical in the deep bucket.",
+      "levels": "Two in-breaking routes (drag or in) are at least 4 yards apart in depth.",
+      "isolation": "The primary route is not a screen, and its wide receiver or tight end is the only one on his side of the formation running a route.",
+      "screenBack": "The primary route is a screen by a running back or tight end.",
+      "screenWide": "The primary route is a screen by a wide receiver.",
+      "boot": "The quarterback fakes a handoff and rolls out."
+    },
+    "run": {
+      "zone": "Three or more linemen block with zone steps toward the play side.",
+      "gap": "Three or more linemen block down or base, man on man, with or without a puller.",
+      "misdirection": "The ball carrier's first step goes away from the play side, or three or more linemen show a pass set first.",
+      "perimeter": "The run path crosses the line outside the tight end (the edge gap).",
+      "lead": "A back or tight end leads the ball carrier through the hole.",
+      "wedge": "Three or more linemen close into a wedge in front of the ball."
+    },
+    "defense": {
+      "singleHigh": "Exactly one safety has a deep zone.",
+      "twoHigh": "Exactly two safeties have a deep zone.",
+      "fourDeep": "Four or more defenders have a deep zone.",
+      "noDeep": "No defender has a deep zone.",
+      "man": "At least one defender plays man coverage.",
+      "zone": "No defender plays man coverage and at least one drops to a zone.",
+      "pressure": "Five or more defenders rush.",
+      "overload": "One side of the line gets at least two more rushers than the other.",
+      "exchange": "A lineman drops out while another defender rushes in his place, with four or fewer rushers.",
+      "stunt": "Two linemen exchange rush lanes.",
+      "spy": "A defender spies the quarterback.",
+      "press": "Two or more cornerbacks line up within 2 yards of the line.",
+      "robber": "In a man design, a safety lined up 10 yards or deeper drops to an underneath zone.",
+      "bracket": "Two defenders play man coverage on the same receiver, against every formation.",
+      "loadedBox": "Eight or more defenders line up in the box.",
+      "lightBox": "Six or fewer defenders line up in the box.",
+      "pinch": "The outermost lineman on each side rushes 2 yards or more inside."
+    }
+  },
+  "concepts": {
+    "insideRun": { "family": "run", "gaps": ["A", "B"], "line": { "OL": "block.zone" } },
+    "outsideRun": { "family": "run", "gaps": ["C", "edge"], "line": { "OL": "block.reach" } },
+    "qbSneak": { "family": "run", "gaps": ["A"], "line": { "OL": "block.surge" } },
+    "shortPass": { "family": "pass", "line": { "OL": "block.pass", "OLT": "block.passEdge" } },
+    "intermediatePass": { "family": "pass", "line": { "OL": "block.pass", "OLT": "block.passEdge" } },
+    "deepPass": { "family": "pass", "line": { "OL": "block.pass", "OLT": "block.passEdge" } },
+    "screenPass": { "family": "pass", "line": { "OL": "block.screenRelease", "OLT": "block.pass" } },
+    "playAction": { "family": "pass", "line": { "OL": "block.sellRun", "OLT": "block.passEdge" } }
+  },
+  "lineNote": "Offense line slots a design does not list take the concept's line block: OL for every lineman, OLT (when present) for the outermost lineman on each side. A design's own `line` replaces both. A side-axis line block steps toward the design's play side.",
+  "defenseDefaults": { "DL": "rush.inside", "DLE": "rush.edge" },
+  "defenseDefaultsNote": "A defensive lineman a design does not list rushes: DLE for the outermost lineman on each side, DL for the others.",
+  "notOnThisCall": ["punt", "fieldGoal", "extraPoint", "kickoff", "onsideKick", "spike", "kneel", "qbSneak"],
+  "shells": {
+    "note": "Deep defenders each coverage shell allows, as [fewest, most] (null: no limit). Designed. Cover 4 allows three because the caller maps quarter-quarter-half (Cover 6) to it.",
+    "cover0": [0, 0],
+    "cover1": [1, 1],
+    "cover2": [2, 2],
+    "twoMan": [2, 2],
+    "cover3": [3, 3],
+    "cover4": [3, 4],
+    "prevent": [5, null],
+    "any": [0, null]
+  },
+  "rush": {
+    "note": "Rushers each rush bucket allows, as [fewest, most] (null: no limit). The buckets are the ones in data/caller/config.json defenseMapping.presets.",
+    "le4": [0, 4],
+    "ge5": [5, null],
+    "ge6": [6, null],
+    "any": [0, null]
+  },
+  "box": {
+    "note": "A defender is in the box when he lines up within halfWidthYards of the ball and no deeper than maxDepthYards. Designed. A heavy box has at least defenseMapping.boxHeavyMin defenders (data/caller/config.json), a light box fewer.",
+    "halfWidthYards": 8,
+    "maxDepthYards": 6,
+    "lightBoxMax": 6,
+    "pressMaxDepthYards": 2,
+    "robberMinDepthYards": 10
+  },
+  "manRoles": {
+    "note": "Receiver spots a man defender can be given: L1 to L3 and R1 to R3 are the wide receivers and tight ends on the offense's left and right, counted from the sideline in. B is the running back. A man assignment lists spots in order and covers the first one the formation has.",
+    "roles": ["L1", "L2", "L3", "R1", "R2", "R3", "B"]
+  },
+  "eligibility": {
+    "status": "confirmed",
+    "note": "Which positions may be given a drawn route. RB, WR, TE and OL follow the rule (docs/RULES.md, Eligible pass receivers). Barring the quarterback is a designed restriction, stricter than the rule: a quarterback a yard or more behind the center is eligible.",
+    "routePositions": ["WR", "TE", "RB"],
+    "neverDrawn": ["OL", "QB"],
+    "blockWhenShort": ["RB", "TE"]
+  },
+  "field": {
+    "status": "confirmed",
+    "note": "Sideline to sideline, in feet, as the rulebook states it (docs/RULES.md, Field dimensions). Yards are derived when the file is parsed: 160 / 3.",
+    "widthFeet": 160
+  },
+  "defaultDeviations": {
+    "shotgun.outsideRun": "An outside run goes to one side. Today's card forks to both.",
+    "underCenter.outsideRun": "An outside run goes to one side. Today's card forks to both.",
+    "pistol.outsideRun": "An outside run goes to one side. Today's card forks to both.",
+    "empty.outsideRun": "QB Sweep: both guards pull for a run to one side, and the slot cracks inside because his stalk block ends on the runner's path.",
+    "heavy.outsideRun": "Toss: the quarterback pitches and the back takes it wide to one side, behind a lead tight end, whose block today ends on the runner's track.",
+    "empty.insideRun": "QB Draw: the line and the tight end show pass first. The run path and the receivers are today's.",
+    "shotgun.deepPass": "Four Verticals: four receivers run vertical, so the two posts change and the back stays in.",
+    "underCenter.deepPass": "Fades: the left receiver fades, where today he runs a post. The right one already runs up his sideline.",
+    "empty.deepPass": "Four Verticals: the outside receiver and the slot on the right run vertical, where today they run posts. The left side is today's.",
+    "pistol.intermediatePass": "Drive: a shallow cross under the dig, so the tight end's curl becomes the shallow cross.",
+    "heavy.intermediatePass": "Deep Cross: the left tight end crosses the field.",
+    "empty.playAction": "PA Seam: the left slot receiver runs the seam, where today he drags.",
+    "runStuff": "The preset keeps one safety deep and covers every receiver once. Today's art brings the deep safety to 9 yards and puts two men on one spot.",
+    "nickel2Man": "2-Man keeps two safeties deep. Today's art draws only one of them.",
+    "nickelCover1Blitz": "Double A Gap: the linebackers cross beside the center, where today they end on the guards' spots, the tackles slant clear, and the left end and the safety cover the two men they left. The safety's path is today's.",
+    "dimeCover0Blitz": "All Out: six rush, so both safeties come and the linebacker and the slot corner cover the back and the left slot.",
+    "goalLine": "Man coverage needs a man on the second receiver on the right. Today's art sends the linebacker to a spot no shotgun receiver is in."
+  },
+  "classifier": {
+    "status": "designed",
+    "note": "Thresholds for quantizePath and classifyPath. Starting values accepted by the lead on 2026-11-23 (spec Open question 7). A break is a turn of breakDegrees or more. A segment's heading is its angle above sideways: vertical from verticalFromDegrees, diagonal from diagonalFromDegrees, back at or below backBelowDegrees, sideways in between. A player lined up within coreHalfWidthYards of the middle has no inside, so every sideways move of his is out. gapEdgesYards are the outer edges of the A, B and C gaps, in yards from the ball where a run path crosses the line.",
+    "quantumYards": 0.5,
+    "maxPoints": 12,
+    "maxLengthYards": 60,
+    "minRouteYards": 2,
+    "breakDegrees": 30,
+    "maxBreaks": 3,
+    "simplifyToleranceYards": 0.25,
+    "verticalFromDegrees": 70,
+    "diagonalFromDegrees": 25,
+    "backBelowDegrees": -20,
+    "coreHalfWidthYards": 3,
+    "gapEdgesYards": [2, 4, 6.5],
+    "sideMiddleYards": 1,
+    "spyRadiusYards": 2,
+    "coreBox": { "halfWidthYards": 8, "maxDepthYards": 8 },
+    "blitzEdgeFromYards": 5,
+    "catchAtEnd": ["go", "post", "corner", "wheel"],
+    "familyNote": "First match wins. depth is the whole-yard break depth past the line (the last break, or the end of a route with no break). endDepth is the whole-yard depth where the path ends, past the line: depth, endDepth and the bucket are rounded once, the same way. endsShort: endDepth is under the caller's short edge (data/caller/config.json offenseMapping.depth.shortBelow, 10 yards). breaksShort: its break depth is in the short bucket (0 to 9, the same edge). heading and lateral describe the last segment, stemHeading and stemLateral the first. back: the player is one of positions.backs. screen: the design is a screen. The last row catches everything. A route of a catchAtEnd family is caught where it ends, any other at its break depth.",
+    "families": [
+      { "family": "swing", "maxEndDepth": 0, "heading": ["sideways", "back"], "back": true, "screen": false },
+      { "family": "screen", "maxEndDepth": 0, "heading": ["sideways", "back"] },
+      { "family": "swing", "maxEndDepth": 0 },
+      { "family": "wheel", "heading": ["vertical"], "minBreaks": 1, "stemHeading": ["sideways", "back"], "stemLateral": "out" },
+      { "family": "go", "heading": ["vertical"] },
+      { "family": "hitch", "heading": ["back"] },
+      { "family": "slant", "heading": ["diagonal"], "lateral": "in", "maxBreaks": 0, "endsShort": true },
+      { "family": "slant", "heading": ["diagonal"], "lateral": "in", "breaksShort": true, "endsShort": true },
+      { "family": "post", "heading": ["diagonal"], "lateral": "in" },
+      { "family": "flat", "heading": ["diagonal"], "lateral": "out", "maxBreaks": 0, "endsShort": true },
+      { "family": "corner", "heading": ["diagonal"], "lateral": "out", "maxBreaks": 0 },
+      { "family": "corner", "heading": ["diagonal"], "lateral": "out", "minDepth": 6 },
+      { "family": "out", "heading": ["diagonal"], "lateral": "out", "minDepth": 4 },
+      { "family": "flat", "heading": ["diagonal"], "lateral": "out" },
+      { "family": "drag", "heading": ["sideways"], "lateral": "in", "maxBreaks": 0 },
+      { "family": "drag", "heading": ["sideways"], "lateral": "in", "maxDepth": 6, "endsShort": true },
+      { "family": "in", "heading": ["sideways"], "lateral": "in" },
+      { "family": "flat", "heading": ["sideways"], "lateral": "out", "maxBreaks": 0 },
+      { "family": "out", "heading": ["sideways"], "lateral": "out", "minDepth": 4 },
+      { "family": "flat", "heading": ["sideways"], "lateral": "out" },
+      { "family": "go" }
+    ]
+  }
+}

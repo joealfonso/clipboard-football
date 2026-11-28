@@ -1,0 +1,412 @@
+{
+ "generated": true,
+ "tolerancesSha256": "495c327463c764798a10484d4e187027d1d3aacad9d3906f78bd5548b91dd724",
+ "standoutsSha256": "12f2b2c27c467dafe68f7fb06524e8538fcda8f065f81dfa69362fbdc1372d79",
+ "games": 10000,
+ "f1": {
+  "pass": true,
+  "checks": [
+   {
+    "id": "classShare.run.r1_3",
+    "off": 36.80880276165072,
+    "on": 36.763967061520226,
+    "diff": -0.044835700130491096,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.r4_9",
+    "off": 33.997136356504,
+    "on": 33.9434723563259,
+    "diff": -0.05366400017809969,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.loss",
+    "off": 17.86168209634395,
+    "on": 17.92089583873019,
+    "diff": 0.05921374238623822,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.r10_19",
+    "off": 8.327710654322924,
+    "on": 8.333333333333332,
+    "diff": 0.005622679010408582,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.fumble",
+    "off": 0.6358857680841048,
+    "on": 0.6574351003618837,
+    "diff": 0.021549332277778863,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.r20",
+    "off": 2.368782363094304,
+    "on": 2.3808963097284694,
+    "diff": 0.012113946634165554,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c1_9",
+    "off": 29.516751670934514,
+    "on": 29.53879294243628,
+    "diff": 0.022041271501765936,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c10_19",
+    "off": 16.43173785903774,
+    "on": 16.389037616266762,
+    "diff": -0.04270024277097384,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c20",
+    "off": 7.742753889303156,
+    "on": 7.790464568988059,
+    "diff": 0.04771067968490361,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.inc",
+    "off": 29.541151236223897,
+    "on": 29.519866518907744,
+    "diff": -0.021284717316150115,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.sack",
+    "off": 6.62610031458011,
+    "on": 6.641929499072356,
+    "diff": 0.015829184492247017,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.scramble",
+    "off": 4.523007171729368,
+    "on": 4.523788771152145,
+    "diff": 0.000781599422777085,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.int",
+    "off": 2.092013748408115,
+    "on": 2.087883353463411,
+    "diff": -0.00413039494470413,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c0",
+    "off": 2.845661545662666,
+    "on": 2.8418273959980573,
+    "diff": -0.003834149664608613,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.fumbleCatch",
+    "off": 0.6808225641204393,
+    "on": 0.6664093337151822,
+    "diff": -0.014413230405257039,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "points.perTeamGame.mean",
+    "off": 22.05545,
+    "on": 22.0263,
+    "diff": -0.02915000000000134,
+    "tolerance": 0.3,
+    "pass": true
+   },
+   {
+    "id": "points.perTeamGame.sd",
+    "off": 9.233524532782754,
+    "on": 9.334484897946854,
+    "diff": 0.10096036516410045,
+    "tolerance": 0.3,
+    "pass": true
+   },
+   {
+    "id": "turnovers.perTeamGame",
+    "off": 1.20685,
+    "on": 1.2119,
+    "diff": 0.005049999999999999,
+    "tolerance": 0.05,
+    "pass": true
+   },
+   {
+    "id": "fieldGoal.makeRate.50plus",
+    "off": 64.46032342986085,
+    "on": 64.32555780933062,
+    "diff": -0.13476562053023056,
+    "tolerance": 1,
+    "pass": true
+   }
+  ],
+  "flips": [],
+  "statusChanges": []
+ },
+ "f2": {
+  "pass": true,
+  "rows": [
+   {
+    "kind": "breakawayRun",
+    "average": 0.03115,
+    "elite": 0.059625,
+    "relative": 0.9141252006420544,
+    "standoutOnly": 0.25262605042016784,
+    "min": 0.1,
+    "pass": true
+   },
+   {
+    "kind": "bigCatch",
+    "average": 0.3094,
+    "elite": 0.381725,
+    "relative": 0.2337588881706527,
+    "standoutOnly": 0.08963105687575812,
+    "min": 0.1,
+    "pass": true
+   },
+   {
+    "kind": "sack",
+    "average": 0.050725,
+    "elite": 0.06035,
+    "relative": 0.18974864465253827,
+    "standoutOnly": 0.09428830462375348,
+    "min": 0.1,
+    "pass": true
+   },
+   {
+    "kind": "pick",
+    "average": 0.0429,
+    "elite": 0.052925,
+    "relative": 0.23368298368298368,
+    "standoutOnly": 0.12786361214704312,
+    "min": 0.1,
+    "pass": true
+   },
+   {
+    "kind": "longKick",
+    "average": 0.61255,
+    "elite": 0.776525,
+    "relative": 0.2676924332707533,
+    "standoutOnly": 0.11883149628989287,
+    "min": 0.1,
+    "pass": true
+   }
+  ]
+ },
+ "f3": {
+  "bad": 0,
+  "examples": [],
+  "expected": 24357,
+  "standoutsOffEntries": 0
+ },
+ "outside": {
+  "runSeed": 27261112,
+  "leagueSeeds": [
+   983090831,
+   2473283415,
+   304467696
+  ],
+  "games": 3000,
+  "checks": [
+   {
+    "id": "classShare.run.r4_9",
+    "off": 33.86542881019534,
+    "on": 33.748952221290864,
+    "diff": -0.11647658890447943,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.loss",
+    "off": 17.67275148856158,
+    "on": 17.658345557418272,
+    "diff": -0.014405931143307571,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.r10_19",
+    "off": 8.506998850934922,
+    "on": 8.503379086336965,
+    "diff": -0.003619764597956321,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.r1_3",
+    "off": 36.88303039799436,
+    "on": 36.92241198658843,
+    "diff": 0.039381588594072925,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.fumble",
+    "off": 0.6476548626344929,
+    "on": 0.6692686504610227,
+    "diff": 0.02161378782652981,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.run.r20",
+    "off": 2.4241355896793064,
+    "on": 2.4976424979044425,
+    "diff": 0.07350690822513634,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c10_19",
+    "off": 16.60963104955238,
+    "on": 16.65546929431671,
+    "diff": 0.04583824476433185,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c20",
+    "off": 7.759893219345261,
+    "on": 7.7104276566802685,
+    "diff": -0.0494655626649923,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.inc",
+    "off": 29.435783993712917,
+    "on": 29.400152616037957,
+    "diff": -0.03563137767496061,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.sack",
+    "off": 6.385632845862458,
+    "on": 6.434341926279819,
+    "diff": 0.04870908041736122,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.int",
+    "off": 1.9959000885680664,
+    "on": 2.0196741979363657,
+    "diff": 0.023774109368299157,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.scramble",
+    "off": 4.677059207544502,
+    "on": 4.636541587870343,
+    "diff": -0.04051761967415954,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c1_9",
+    "off": 29.57882350006029,
+    "on": 29.58014000862612,
+    "diff": 0.001316508565829544,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.c0",
+    "off": 2.882412377907049,
+    "on": 2.883945456355131,
+    "diff": 0.001533078448081801,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "classShare.pass.fumbleCatch",
+    "off": 0.6748637174470775,
+    "on": 0.6793072558972828,
+    "diff": 0.004443538450205325,
+    "tolerance": 0.2,
+    "pass": true
+   },
+   {
+    "id": "points.perTeamGame.mean",
+    "off": 22.251166666666666,
+    "on": 22.213666666666665,
+    "diff": -0.03750000000000142,
+    "tolerance": 0.3,
+    "pass": true
+   },
+   {
+    "id": "points.perTeamGame.sd",
+    "off": 9.271358151437228,
+    "on": 9.243719303156944,
+    "diff": -0.027638848280284734,
+    "tolerance": 0.3,
+    "pass": true
+   },
+   {
+    "id": "turnovers.perTeamGame",
+    "off": 1.161,
+    "on": 1.1786666666666668,
+    "diff": 0.01766666666666672,
+    "tolerance": 0.05,
+    "pass": true
+   },
+   {
+    "id": "fieldGoal.makeRate.50plus",
+    "off": 65.60802340158797,
+    "on": 65.42173730591692,
+    "diff": -0.18628609567105103,
+    "tolerance": 1,
+    "pass": true
+   }
+  ],
+  "f3Bad": 0
+ },
+ "f6": {
+  "perGame": {
+   "mean": 2.376,
+   "sd": 2.187104021303002
+  },
+  "distribution": {
+   "0": 2290,
+   "1": 1950,
+   "2": 1754,
+   "3": 1361,
+   "4": 1004,
+   "5": 695,
+   "6": 946
+  },
+  "byKindPerGame": {
+   "breakawayRun": 0.1625,
+   "bigCatch": 1.2347,
+   "sack": 0.6795,
+   "pick": 0.2766,
+   "longKick": 0.0227
+  },
+  "wipedByFlags": 597
+ },
+ "perf": {
+  "msPerGameOff": 8.749580357500037,
+  "msPerGameOn": 16.853072467399745
+ }
+}

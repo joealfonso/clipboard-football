@@ -34,16 +34,17 @@ export function flatTeam(data: EngineData, name: string, value: number): TeamPoo
   for (const position of POSITIONS) {
     for (let i = 0; i < need[position]; i++) {
       players.push({
-        schemaVersion: 1,
+        schemaVersion: 2,
         id: `${name}-${position}${i + 1}`,
         name: `${name} ${position}${i + 1}`,
         position,
+        number: players.length,
         ratings: Object.fromEntries(BASE_RATINGS.map((r) => [r, value])) as Player["ratings"],
         skills: Object.fromEntries(POSITION_SKILLS[position].map((s) => [s, value])),
       });
     }
   }
-  return { schemaVersion: 1, name, players };
+  return { schemaVersion: 2, name, players };
 }
 
 /** The same team with the first player at `position` given `rating` = value. */

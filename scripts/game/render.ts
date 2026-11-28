@@ -154,11 +154,17 @@ export function eventLine(ev: GameEvent, record: GameRecord, data: GameData): st
   const names = labels(data);
   switch (ev.t) {
     case "toss":
-      return `${periodLabel(ev.before.period + 1, reg)} coin toss: ${codes[ev.winner]} wins and chooses to ${ev.choice}; ${codes[ev.receiver]} receives.`;
+      // The opening toss (period 1) reads "Coin toss"; an overtime toss names its period.
+      return `${ev.period > reg ? `${periodLabel(ev.period, reg)} coin toss` : "Coin toss"}: ${codes[ev.winner]} wins and chooses to ${ev.choice}; ${codes[ev.receiver]} receives.`;
     case "timeout":
       return `${periodLabel(ev.before.period, reg)} ${clock(ev.before.clock)}  Timeout ${codes[ev.team]} (${ev.side}), ${ev.left} left.`;
     case "runoff":
       return `${periodLabel(ev.before.period, reg)} ${clock(ev.before.clock)}  ${codes[ev.before.possession]} lets ${ev.seconds} s run before the snap${ev.drawn > ev.seconds ? " (play clock)" : ""}.`;
+    case "review": {
+      // M2 G: the review line comes before the play it ruled on.
+      const who = ev.by === "booth" ? "The replay official reviews" : `${codes[ev.by]} challenges`;
+      return `${periodLabel(ev.before.period, reg)} ${clock(ev.before.clock)}  ${who} the ruling (${data.challengePolicy.questions[ev.kind] ?? ev.kind}): ruling ${ev.verdict === "reversed" ? "reversed" : "stands"}${ev.timeoutCharged ? `, ${codes[ev.by as "home" | "away"]} charged a timeout` : ""}.`;
+    }
     case "twoMinuteWarning":
       return `${periodLabel(ev.period, reg)} 2:00  Two-minute warning.`;
     case "endPeriod":

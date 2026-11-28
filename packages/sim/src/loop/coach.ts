@@ -3,7 +3,7 @@
 // same shares with the same arithmetic; data/game/golden.json pins the two together). Share
 // functions take no Rng; each decision then uses one draw. Play calls stay the step 2 callers'.
 
-import type { CallerData, CoachTables, CoachView, DecisionDim, DecisionLevel, GameConfig, KickView, Situation, SpecialTimeoutRole } from "../../../shared/src/types";
+import type { CallerData, ChallengePolicy, CoachTables, CoachView, DecisionDim, DecisionLevel, GameConfig, KickView, Situation, SpecialTimeoutRole, TempoModes } from "../../../shared/src/types";
 import { chooseDefenseCall } from "../caller/defense";
 import { binSituation } from "../caller/bins";
 import { chooseOffenseCall, type CallerMasks, type OffenseCall } from "../caller/offense";
@@ -197,6 +197,31 @@ export function choosePenalty(outcomes: readonly PenaltyOutcome[], offended: Tea
   return best.option;
 }
 
+// ---------------------------------------------------------------- M2 E: the human offense's tempo modes
+
+/**
+ * The view a Hurry-up or Run the clock draw reads: the real view (down, clock state, own
+ * timeouts, previous snap, timeout being called) with the time and score of the fitted cells the
+ * mode stands for, whatever the real situation.
+ */
+export function tempoModeView(view: CoachView, mode: "hurryUp" | "runClock", modes: TempoModes): CoachView {
+  return { ...view, ...modes.modes[mode] };
+}
+
+/**
+ * Seconds a Hurry-up or Run the clock offense lets run: one draw from the mode's fitted cell. A
+ * run-off before a timeout stops a second short of the end of the half or game, as for the
+ * average coach (clockRules.timeoutBeforeExpiry). Normal is the average coach's own tempo.
+ */
+export function modeTempo(view: CoachView, mode: "hurryUp" | "runClock", modes: TempoModes, tables: CoachTables, config: GameConfig, rng: Rng): number {
+  const drawn = sampleIndex(tempoShares(tempoModeView(view, mode, modes), tables, config.dimensions).value, rng);
+  if (view.beforeTimeout && config.clockRules?.timeoutBeforeExpiry === true) {
+    const left = view.quarter === 2 ? view.secondsLeftInHalf : view.quarter >= 4 ? view.secondsLeftInGame : Number.POSITIVE_INFINITY;
+    return Math.min(drawn, Math.max(0, left - 1));
+  }
+  return drawn;
+}
+
 // ---------------------------------------------------------------- the coach
 
 /**
@@ -226,6 +251,27 @@ export interface CoachPolicies {
   runoffTimeout(view: CoachView): boolean;
   /** Call a timeout rather than let a drawn run-off end the period (step 5c E); asked only then. */
   clockOut?(view: CoachView): boolean;
+  /** M2 G: challenge a close call that went against this team; asked only when the rules allow it. */
+  challenge?(view: ChallengeView): boolean;
+}
+
+/**
+ * M2 G: what a coach sees of a close call before deciding to challenge: its kind and question, the
+ * fitted reversal rate for the kind, and what a reversal is worth to him. Never the verdict.
+ */
+export interface ChallengeView {
+  readonly kind: string;
+  readonly question: string;
+  readonly reversalRate: number;
+  /** His lead plus expected points of the next snap if reversed, minus the same as ruled. */
+  readonly valueSwing: number;
+  readonly timeoutsLeft: number;
+  readonly challengesLeft: number;
+}
+
+/** The average coach's challenge rule (designed, data/game/challenge-policy.json ai). */
+export function wouldChallenge(view: ChallengeView, ai: ChallengePolicy["ai"]): boolean {
+  return view.reversalRate * view.valueSwing - (1 - view.reversalRate) * ai.timeoutCost > ai.threshold;
 }
 
 export interface CoachData {
@@ -235,6 +281,8 @@ export interface CoachData {
   readonly perDeadBall: number;
   /** The engine's field-goal data; when present, tries are masked where it makes them 0 (step 5c B). */
   readonly fieldGoals?: FieldGoalRange;
+  /** M2 G: the challenge rule. */
+  readonly challengePolicy?: ChallengePolicy;
 }
 
 /** The average coach: step 2 calls, fitted tempo, timeouts and onside, designed run-off rule. */
@@ -304,6 +352,7 @@ export function averageCoach(d: CoachData): CoachPolicies {
       const inFinal = view.quarter <= 2 ? view.secondsLeftInHalf <= final : view.secondsLeftInGame <= final;
       return inFinal && view.scoreDiff <= 0 && view.offenseTimeouts > 0 && view.offenseTimeoutsThisDeadBall < d.perDeadBall;
     },
+    ...(d.challengePolicy === undefined ? {} : { challenge: (view: ChallengeView) => wouldChallenge(view, (d.challengePolicy as ChallengePolicy).ai) }),
     clockOut(view) {
       const r = rules?.clockOut;
       if (r === undefined || view.quarter < 4) return false;
